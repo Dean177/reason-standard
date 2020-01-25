@@ -1,0 +1,34 @@
+{
+  "name": "reason-standard",
+  "version": "0.0.1",
+  "sources": [
+    {
+      "dir": "src",
+      "subdirs": false
+    },
+    {
+      "dir": "test",
+      "type": "dev",
+      "subdirs": false
+    }
+  ],
+  "package-specs": {
+    "module": "commonjs",
+    "in-source": true
+  },
+  "suffix": ".bs.js",
+  "bs-dependencies": [],
+  "bs-dev-dependencies": ["@glennsl/bs-jest"],
+  "bsc-flags": [
+    "-bs-g",
+    "-bs-super-errors",
+    "-warn-error",
+    "@A",
+    "-w",
+    "-4-9-30-40-41-42-44-102"
+  ],
+  "warnings": {
+    "error": "+101"
+  },
+  "refmt": 3
+}

@@ -1,0 +1,9 @@
+(executable
+  (name test)
+  (flags (-warn-error +A))
+  (libraries reason-standard alcotest junit junit_alcotest)
+)
+
+(alias
+ (name runtest)
+ (action (run ./Test.exe)))

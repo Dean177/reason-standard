@@ -1,0 +1,29 @@
+{
+  "name": "reason-standard",
+  "version": "0.0.2",
+  "repository": "https://github.com/Dean177/reason-standard",
+  "private": false,
+  "author": "Dean Merchant <deanmerchant@gmail.com>",
+  "keywords": [
+    "BuckleScript",
+    "ReasonML"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@glennsl/bs-jest": "0.4.9",
+    "@ristostevcev/bs-odoc": "1.3.0",
+    "bs-platform": "7.0.1"
+  },
+  "dependencies": {},
+  "jest": {
+    "testMatch": [
+      "**/test/*_test.bs.js"
+    ]
+  },
+  "scripts": {
+    "clean": "bsb -clean-world",
+    "build": "bsb -make-world",
+    "watch": "bsb -make-world -w",
+    "test": "jest"
+  }
+}

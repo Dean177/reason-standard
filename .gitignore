@@ -1,0 +1,8 @@
+.merlin
+/reason-standard.install
+_build
+node_modules
+/bs/.bsb.lock
+/bs/lib
+*.bs.js
+/integration-test/bs/lib/

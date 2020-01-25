@@ -1,0 +1,4 @@
+(library
+ (name standard)
+ (public_name reason-standard)
+ (libraries base zarith))
