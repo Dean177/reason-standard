@@ -1,0 +1,31 @@
+{
+  "name": "reason-standard",
+  "version": "0.0.1",
+  "description": "",
+  "license": "MIT",
+  "esy": {
+    "build": "refmterr dune build -p #{self.name}",
+    "buildEnv": {
+      "ODOC_SYNTAX": "re"
+    }
+  },
+  "scripts": {
+    "test": "esy dune runtest",
+    "doc": "esy dune build @doc",
+    "read-docs": "open _esy/default/build/default/_doc/_html/index.html"
+  },
+  "dependencies": {
+    "@esy-ocaml/reason": ">= 3.4.0 < 3.6.0",
+    "@opam/base": "v0.13.0",
+    "@opam/dune": "*",
+    "@opam/zarith": "1.9.1",
+    "@reason-native/rely": "*",
+    "ocaml": "~4.8.1000",
+    "refmterr": "*"
+  },
+  "devDependencies": {
+    "@opam/merlin": "*",
+    "ocaml": "~4.8.1000",
+    "@opam/odoc": "*"
+  }
+}

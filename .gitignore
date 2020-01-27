@@ -1,8 +1,8 @@
 .merlin
-/reason-standard.install
 _build
 node_modules
-/bs/.bsb.lock
-/bs/lib
+reason-standard.install
+/bucklescript/.bsb.lock
+/bucklescript/lib
+/bucklescript/*-error.log
 *.bs.js
-/integration-test/bs/lib/

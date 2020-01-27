@@ -164,7 +164,19 @@ module Fun: {
 };
 
 module Container: {
+  /** 
+    This module contains module signatures which are used in functions which accept first class modules.
+
+    TODO this could do with some links explaining those concepts
+
+    TODO Maybe just remove the 'Contianer' wrapper
+  */
+  
   module type Sum = {
+    /** 
+      Modules which conform (TODO correct terminology?) to this signature can be used with functions like 
+      {!Array.sum}, {!List.sum} or {!Set.sum}
+    */
     type t;
     let zero: t;
     let add: (t, t) => t;
@@ -172,17 +184,20 @@ module Container: {
 };
 
 module type Comparable = {
+  /** TODO */
   // file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Comparable/index.html
   type t;
   let compare: (t, t) => int;
 };
 
 module type Comparator = {
+  /** TODO */
   type t;
   type identity;
   let compare: (t, t) => int;
 };
 
+/** TODO */
 type comparator('k, 'id) = (module Comparator with
                                type identity = 'id and type t = 'k);
 
@@ -300,22 +315,21 @@ module Bool: {
   */
   let (!): t => t;
 
-  /**
-    Negate a function.
+  /** Negate a function.
 
-    This can be useful in combination with {!List.filter} / {!Array.filter} or {!List.find} / {!Array.find}
+      This can be useful in combination with {!List.filter} / {!Array.filter} or {!List.find} / {!Array.find}
 
-    {e Examples}
+      {e Examples}
 
-    {[
-      let isOdd = Bool.negate Int.isEven in
-      isOdd 7 = true
-    ]}
+      {[
+        let isOdd = Bool.negate Int.isEven in
+        isOdd 7 = true
+      ]}
 
-    {[
-      let isLessThanTwelve = Bool.negate (fun n -> n >= 12) in
-      isLessThanTwelve 12 = false
-    ]}
+      {[
+        let isLessThanTwelve = Bool.negate (fun n -> n >= 12) in
+        isLessThanTwelve 12 = false
+      ]}
   */
   let negate: ('a => bool, 'a) => bool;
 
@@ -331,6 +345,18 @@ module Bool: {
   */
   let equal: (t, t) => t;
 
+  /** Compare two boolean values 
+   
+      {e Examples}
+
+      {[Bool.compare true false = 1]} 
+
+      {[Bool.compare false true = -1]} 
+
+      {[Bool.compare true true = 0]} 
+
+      {[Bool.compare false false = 0]} 
+  */
   let compare: (t, t) => int;
 
   /** {1 Conversion} */
@@ -360,86 +386,185 @@ module Bool: {
 module Result: {
   /**
     TODO
-    This module implements the [Result] type, which has a variant for
-    successful results (['ok]), and one for unsuccessful results (['error]).
+    A [Result] is a variant (TODO link to variants) type, which has a constructor for
+    successful results ([Ok('ok)]), and one for unsuccessful results ([Error('error)]).
+
+    {[
+        type t('error, 'ok) = 
+          | Ok('ok)
+          | Error('error);
+      ]}
 
     Here is how you would annotate a [Result] variable whose [Ok]
     variant is an integer and whose [Error] variant is a string:
 
     {[
-      let x: (string, int) Result.t = Ok 3
-      let y: (string, int) Result.t = Error "bad"
+      let x: Result.t(string, int) = Ok(3);
+      let y: Result.t(string, int) = Error("bad")
     ]}
+
+    A {!Result} is used to represent a computation which may fail.
+
+    // TODO Examples
+    // TODO When should you use an option
+    // TODO When should you use an exception
+
   */
 
-  /** A variant containing the [Ok('ok)] and [Error('error)] constructors 
-    
-      {[
-        type t('error, 'ok) = 
-          | Ok('ok)
-          | Error('error);
-      ]}
-  */
   type t('error, 'ok) = Result.t('ok, 'error);
 
   /** {1 Creation} */
 
-  /** TODO
+  /** A function alternative to the [Ok] constructor which can be used in places where 
+      the constructor isn't permitted such as at the of a {!(|>)} or functions like {!List.map}.
 
-    Not only can you use [Result.ok] whenever you would use the type constructor,
-    but you can also use it when you would have wanted to pass the constructor
-    itself as a function.
+      {e Examples}
 
-    {[Result.ok 3 = Ok 3]}
+      {[String.reverse "desserts" |> Result.ok = Ok "stressed"]}
 
-    {[Standard.List.map [1; 2; 3] ~f:Result.ok = [Ok 1; Ok 2; Ok 3]]}
+      {[List.map [1; 2; 3] ~f:Result.ok = [Ok 1; Ok 2; Ok 3]]}
   */
   let ok: 'ok => t('error, 'ok);
 
-  /** TODO
+  /** A function alternative to the [Error] constructor which can be used in places where 
+      the constructor isn't permitted such as at the of a {!Fun.pipe} or functions like {!List.map}.
+    
+      {b Note}
 
-    Not only can you use [Result.error] whenever you would use the type constructor,
-    but you can also use it when you would have wanted to pass the constructor
-    itself as a function.
+      When using the reson syntax you {b can} use constructors with the fast pipe.
 
-    {[
-    Result.error 3 = Error 3
-    Standard.List.map [1; 2; 3] ~f:Result.error =
-      [Error 1; Error 2; Error 3]
-    ]}
+      TODO link
+
+      And you can use the placeholder syntax for use with functions like {!List.map}
+      TODO can you?
+
+      {[
+        List.map([1,2,3], ~f:Ok(_)) == [Ok(1),Ok(2),Ok(3)]
+      ]}
+
+      {e Examples}
+
+      {[Int.negate 3 |> Result.error 3 = Error (-3)]}
+
+      {[List.map [1; 2; 3] ~f:Result.error = [Error 1; Error 2; Error 3]]}
   */
   let error: 'error => t('error, 'ok);
 
-  /** Run the provided function and wrap the returned value in a {!Result}, catching any exceptions raised. */
+  /** Run the provided function and wrap the returned value in a {!Result}, catching any exceptions raised. 
+      
+      {e Examples}
+      
+      // TODO what exception *does* this throw?
+      {[Result.attempt(() => 5 / 0) = Error(Division_by_zero)]}
+
+      // TODO what exception *does* this throw?
+      {[
+        let numbers = [|1,2,3|];
+        Result.attempt(() => numbers[3]) = Error(Invalid_argument("Out of bounds"))
+      ]}
+  */
   let attempt: (unit => 'ok) => t(exn, 'ok);
 
-  let ofOption: (option('ok), ~error: 'error) => t('error, 'ok);
-  /** Map a [Option] to a [Result] value where [None] becomes [Error] and [Some] becomes [Ok]. */;
+  /** Convert an {!Option} to a {!Result} where a [Some(value)] becomes [Ok(value)] and a [None] becomes [Error(error)]. 
+    
+      {e Examples}
 
+      {[Result.ofOption(Some(84), ~error="Greater than 100") == Ok(8)]}
+
+      {[Result.ofOption(None, ~error="Greater than 100") == Error("Greater than 100")]}
+  */
+  let ofOption: (option('ok), ~error: 'error) => t('error, 'ok);
+
+  /** Check if a {!Result} is an [Ok]. 
+      
+      Useful when you want to perform some side affect based on the presence of an [Ok].
+      TODO define side affect 
+      
+      {b Note} if you need access to the contained value its often better just to use pattern matching directly.
+
+      {e Examples}
+
+      {[Result.isOk(Ok(3)) == true]}
+
+      {[Result.isOk(Error(3)) == false]}
+  */
   let isOk: t(_, _) => bool;
 
+  /** Check if a {!Result} is an [Error]. 
+      
+      Useful when you want to perform some side affect based on the presence of an [Error].
+      TODO define side affect 
+      
+      {b Note} if you need access to the contained value its often better just to use pattern matching directly.
+
+      {e Examples}
+
+      {[Result.isOk(Ok(3)) == true]}
+
+      {[Result.isOk(Error(3)) == false]}
+  */
   let isError: t(_, _) => bool;
 
+  /** Returns [Error(error)] if the first argument is [Error(error)], otherwise return the second argument.
+
+      Unlike the built in [&&] operator, the [and_] function does not short-circuit. 
+      When you call [and_], both arguments are evaluated before being passed to the function.
+
+      {e Examples}
+
+      {[Result.and_ (Ok 11) (Ok 22) = Ok 22]}
+
+      {[Result.and_ (Error "TODO think of some good text") (Ok 22) = (Error "TODO think of some good text")]}
+
+      {[Result.and_ (Ok 11) (Error "TODO think of some good text") = (Error "TODO think of some good text")]}
+
+      {[Result.and_ (Error "TODO 1") (Error "TODO 2") = (Error "TODO 1")]}
+  */
   let and_: (t('error, 'ok), t('error, 'ok)) => t('error, 'ok);
 
+  /** Return the first argument if it {!isOk}, otherwise return the second.
+
+    Unlike the built in [||] operator, the [or_] function does not short-circuit. 
+    When you call [or_], both arguments are evaluated before being passed to the function.
+
+    {e Examples}
+
+    {[Result.or_ (Ok 11) (Ok 22) = Ok 11]}
+
+    {[Result.or_ Error("TODO think of some good text") (Ok 22) = Ok 22]}
+
+    {[Result.or_ (Ok 11) Error("TODO think of some good text") = Ok 11]}
+
+    {[Result.or_ Error("TODO 1") Error("TODO 2") = Error("TODO 2")]}
+  */
   let or_: (t('error, 'ok), t('error, 'ok)) => t('error, 'ok);
 
   let orElse: (t('error, 'ok), ~f:('error) => t('error, 'ok)) => t('error, 'ok);
 
+  
   let both: (t('error, 'a), t('error, 'b)) => t('error, ('a, 'b));
 
+  /** Remove a layer of nesting from a result  
+   
+      {e Examples}
+
+      {[Result.join (Ok (Ok 2)) = Ok 2]}
+
+      {[Result.join (Ok (Error "TODO 2")) = Error "TODO 2"]}
+
+      {[Result.join (Error "TODO 1") = Error "TODO 1"]}
+  */
   let join: t('error, t('error, 'a)) => t('error, 'a);
 
-  let get: (t('error, 'ok), ~default: 'ok) => 'ok;
-  /**
-    [Result.get ~default:defaultValue, result], when given an [Ok value], returns
-    [value]; if given an [Error errValue ], returns [defaultValue].
+  /** Unwrap a Result using the [~default] value in case of an [Error]
+      
+      {e Exmples}
+    
+      {[Result.get ~default:0 (Ok 12) = 12]}
 
-    {[
-      Result.get ~default:0 (Ok 12) = 12
-      Result.get ~default:0 (Error "bad") = 0
-    ]}
+      {[Result.get ~default:0 (Error "bad") = 0]}
   */
+  let get: (t('error, 'ok), ~default: 'ok) => 'ok;
 
   let getOrFailWith: (t(_, 'a), ~exn: exn) => 'a;
 
