@@ -8,63 +8,42 @@ jobs:
       CI: true
       NODE_ENV: test
 
-    working_directory: ~/repo
+    working_directory: ~/repo/bucklescript
     steps:
       - checkout:
           path: ~/repo
       - restore_cache:
           keys:
-            - v1-dependencies-{{ .Branch }}-{{ checksum "bs/package-lock.json" }}
-            - v1-dependencies-{{ .Branch }}-
-            - v1-dependencies-
-      - run: make deps-bs
-      - run: make build-bs
-      - run: make test-bs
-      - run: make doc-bs
+            - v1-bucklescript-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
+            - v1-bucklescript-dependencies-{{ .Branch }}-
+            - v1-bucklescript-dependencies-
+
+      - run: npm install
+      - run: npm run build
+      - run: npm test
+
       - save_cache:
-          key: v1-dependencies-{{ .Branch }}-{{ checksum "bs/package-lock.json" }}
+          key: v1-bucklescript-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
           paths:
-            - ~/repo/bs/node_modules
+            - ~/repo/bucklescript/node_modules
 
   native-build-and-test:
     docker:
-      - image: ocaml/opam2
+      - image: circleci/node:12
     environment:
       CI: true
-    working_directory: ~/repo
+    working_directory: ~/repo/native
     steps:
       - checkout:
           path: ~/repo
-      - restore_cache:
-          keys:
-            - v2-native-dependencies-{{ .Branch }}-{{ checksum "reason-standard.opam" }}
-            - v2-native-dependencies-{{ .Branch }}-
-            - v2-native-dependencies-
       # m4 is a system dependency required by conf-m4 -> ocamlfind -> fmt -> alcotest
       - run: sudo apt-get install -y m4
-      - run: make deps-native
-      - run: make build-native
-      - run: make test-native
-      - run: make doc-native
-      - save_cache:
-          key: v2-native-dependencies-{{ .Branch }}-{{ checksum "reason-standard.opam" }}
-          paths:
-            - ~/.opam
+      - run: npm install -g esy
 
-  source-code-formatting:
-    docker:
-      - image: ocaml/opam2
-    environment:
-      CI: true
-    working_directory: ~/repo
-    steps:
-      - checkout:
-          path: ~/repo
-      # m4 is a system dependency required by conf-m4 -> ocamlfind -> fmt -> alcotest
-      # fd (aka fdfind) is needed to support formatting. It will respect the 's .gitignore
-      - run: sudo apt-get install -y m4 fd-find
-      - run: opam update && opam install 'ocamlformat=0.10' -y
-      - run: fdfind --extension ml --extension mli | xargs opam config exec -- ocamlformat --check --enable-outside-detected-project
+      - run: esy install
+      - run: esy build
+      - run: esy test
+      - run: esy doc
 
 workflows:
   version: 2
