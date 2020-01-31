@@ -1,25 +1,25 @@
 {
   "name": "reason-standard",
+  "description": "A standard library for use with OCaml and ReasonML",
   "version": "0.0.1",
-  "description": "",
+  "repository": "https://github.com/Dean177/reason-standard",
+  "author": "Dean Merchant <deanmerchant@gmail.com>",
   "license": "MIT",
-  "esy": {
-    "build": "refmterr dune build -p #{self.name}",
-    "buildEnv": {
-      "ODOC_SYNTAX": "re"
-    }
-  },
+  "private": false,
+  "keywords": [ "BuckleScript", "ReasonML" ],
   "scripts": {
-    "test": "esy dune runtest",
     "doc": "esy dune build @doc",
-    "read-docs": "open _esy/default/build/default/_doc/_html/index.html"
+    "doc-path": "esy echo #{self.target_dir}/default/_doc/_html/index.html",
+    "format": "esy dune build @fmt",
+    "start": "esy dune build -p #{self.name} --watch",
+    "test": "esy dune runtest"
   },
   "dependencies": {
     "@esy-ocaml/reason": ">= 3.4.0 < 3.6.0",
+    "@opam/alcotest": "0.8.5",
     "@opam/base": "v0.13.0",
     "@opam/dune": "*",
     "@opam/zarith": "1.9.1",
-    "@reason-native/rely": "*",
     "ocaml": "~4.8.1000",
     "refmterr": "*"
   },
@@ -27,5 +27,9 @@
     "@opam/merlin": "*",
     "ocaml": "~4.8.1000",
     "@opam/odoc": "*"
+  },
+  "esy": {
+    "build": "refmterr dune build -p #{self.name}",
+    "buildEnv": { "ODOC_SYNTAX": "re" }
   }
 }
