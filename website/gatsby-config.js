@@ -1,19 +1,13 @@
+const path = require('path')
+
 module.exports = {
   pathPrefix: "/",
   siteMetadata: {
     title: "Standard",
-    description: "A standard library for Buckelscript and native",
-    ogImage: null,
+    description: "A standard library for Bucklescript and Native",
     docsLocation:
-      "https://github.com/Dean177/reason-standard/tree/master/content",
-    favicon: "https://graphql-engine-cdn.hasura.io/img/hasura_icon_black.svg",
-    headerTitle: "Standard",
+      "https://github.com/Dean177/reason-standard/tree/master/docs",
     githubUrl: "https://github.com/Dean177/reason-standard",
-    headerLinks: [
-      { text: "Documentation", link: "/" },
-      { text: "API", link: "/" },
-      { text: "Github", link: "/" },
-    ],
     siteUrl: "https://reason-standard.github.io",
   },
   plugins: [
@@ -25,7 +19,7 @@ module.exports = {
       resolve: "gatsby-source-filesystem",
       options: {
         name: "docs",
-        path: `${__dirname}/content/`,
+        path: `${__dirname}/../docs`,
       },
     },
     {

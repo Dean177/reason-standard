@@ -29,15 +29,23 @@ export let fonts = {
 }
 
 export let themes = {
-  light: {
-    body: colors.grey.light,
-    text: colors.black,
-  },
-  dark: {
-    body: colors.grey.dark,
-    text: colors.white,
-  },
-};
+         light: {
+           body: colors.grey.light,
+           text: colors.black,
+           toggle: {
+             background: colors.grey.lightest,
+             border: colors.white,
+           },
+         },
+         dark: {
+           body: colors.grey.dark,
+           text: colors.white,
+           toggle: {
+             background: colors.grey.darkest,
+             border: colors.black,
+           },
+         },
+       };
 
 export let useTheme = () => {
   let [themeName, setTheme] = useState(() => {
@@ -60,8 +68,8 @@ export let useTheme = () => {
 };
 
 const ToggleContainer = styled.button`
-  background: ${({ theme }) => theme.gradient};
-  border: 2px solid ${({ theme }) => theme.toggleBorder};
+  background: ${({ theme }) => theme.toggle.background};
+  border: 2px solid ${({ theme }) => theme.toggle.border};
   border-radius: 30px;
   cursor: pointer;
   display: flex;
@@ -77,6 +85,7 @@ const ToggleContainer = styled.button`
   span {
     font-size: 1rem;
     width: 2.5rem;
+    /* TOOD linear is weird */
     transition: all 0.3s linear;
 
     // sun icon

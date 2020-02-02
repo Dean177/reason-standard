@@ -1,6 +1,7 @@
-import React from "react";
 import { StaticQuery, graphql } from "gatsby";
+import React from "react";
 import styled from 'styled-components'
+import { formatTitleToId } from '../id';
 
 const RightSidebarContainer = styled('aside')`
   width: 100%;
@@ -92,7 +93,11 @@ export const RightSidebar = ({ location }) => (
                 return (
                   <ListItem
                     key={index}
-                    to={`#${innerItem.title ? innerItem.title.replace(/\s+/g, '').toLowerCase() : ''}`}
+                    to={`#${
+                      innerItem.title
+                        ? formatTitleToId(innerItem.title)
+                        : ''
+                    }`}
                     level={1}
                   >
                     {innerItem.title}

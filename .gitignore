@@ -4,6 +4,7 @@
 _build
 node_modules
 reason-standard.install
+/bucklescript/coverage
 /bucklescript/.bsb.lock
 /bucklescript/lib
 /bucklescript/*-error.log

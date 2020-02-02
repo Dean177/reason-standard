@@ -16,7 +16,6 @@ export const pageQuery = graphql`
       siteMetadata {
         title
         docsLocation
-        favicon
       }
     }
     mdx(fields: { id: { eq: $id } }) {
@@ -92,7 +91,7 @@ const DocTemplate = (props) => {
 
     const title = mdx.frontmatter.metaTitle;
     const description = mdx.frontmatter.metaDescription;
-    // TODO static query
+    // TODO static query for site url      
     // let canonicalUrl = `${config.gatsby.pathPrefix}${config.gatsby.siteUrl}${mdx.fields.slug}`;
 
     return (
@@ -124,7 +123,7 @@ const DocTemplate = (props) => {
         </Helmet>
 
         <Wrapper>
-          <LeftSideBarWidth className={'hiddenMobile'}>
+          <LeftSideBarWidth>
             <LeftSidebar location={location} />
           </LeftSideBarWidth>
           <Content>
@@ -140,9 +139,9 @@ const DocTemplate = (props) => {
             <div className={'addPaddTopBottom'}>
               <NextPrevious mdx={mdx} nav={nav} />
             </div>
-            <RightSideBarWidth>
-              <RightSidebar location={location} />
-            </RightSideBarWidth>
+            {/* <RightSideBarWidth> */}
+              {/* <RightSidebar location={location} /> */}
+            {/* </RightSideBarWidth> */}
           </Content>
         </Wrapper>
       </MDXProvider>

@@ -10,24 +10,62 @@ import {colors, useTheme, GlobalStyles, themes, ThemeToggle} from '../theme'
 
 let SearchInput = styled.input`
   background-color: #FFF;
-  border-width: 1px;
+  border-color: ${colors.grey.base};
   border-radius: 10px;
   border-style: solid;
-  padding: 5px;
+  border-width: 1px;
+  font-size: 16px;
+  padding: 8px;
 `
 let SearchContainer = styled.div`
-  background-color: '#111';
-`
+  background-color: ${colors.grey.light};  
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+`;
 const Sidebar = () => {
   let [search, setSearch] = React.useState("")
   return (
-    <SearchContainer>
-      <SearchInput
-        value={search}
-        placeholder="Search"
-        onChange={e => setSearch(e.target.value)}
-      />
-    </SearchContainer>
+    <div
+      css={css`
+        background-color: ${colors.white};
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+        width: 100%;
+      `}
+    >
+      <SearchContainer>
+        <SearchInput
+          value={search}
+          placeholder="Search"
+          onChange={e => setSearch(e.target.value)}
+        />
+      </SearchContainer>
+      <div
+        css={css`
+          background-color: lightgoldenrodyellow;
+          display: flex;
+          flex-direction: column;
+          overflow: auto;
+        `}
+      >
+        {Array(100)
+          .fill('ModuleName')
+          .map((s, index) => (
+            <div
+              key={index}
+              css={css`
+                padding: 50px;
+              `}
+            >
+              {s}
+            </div>
+          ))}
+      </div>
+    </div>
   );
 }
 
@@ -35,9 +73,7 @@ export const pageQuery = graphql`
   query {
     site {
       siteMetadata {
-        headerTitle
         githubUrl
-        title
         docsLocation
       }
     }
@@ -51,11 +87,12 @@ const NavBar = ({ githubUrl, themeName, toggleTheme }) => {
         align-items: center;
         background-color: ${colors.red.dark};
         display: flex;
+        flex-shrink: 0;
         flex-direction: row;
         justify-content: space-between;
         padding-top: 12px;
         padding-bottom: 12px;
-        padding-left:15px;
+        padding-left: 15px;
         position: relative;
         z-index: 1;
 
@@ -149,83 +186,96 @@ export default ({ data }) => {
       <GlobalStyles />
       <div
         css={css`
-          background-color: orange;
           display: flex;
-          flex: 1;
-          flex-direction: column;
-          /* max-height: 100%; */
-          width: 100%;
+          height: 100%;
+          overflow: hidden;
           position: relative;
+          width: 100%;
         `}
       >
-        <NavBar {...{ themeName, toggleTheme, githubUrl }} />
-        <main
-          css={css`
-            background-color: lightseagreen;
-            display: flex;
-            flex: 1;
-            flex-direction: column;
-            overflow: auto;
-            padding: 0px 22px;
-            padding-top: 3rem;
-          `}
-        >
-          <div
-            css={css`
-              display: flex;
-              align-items: center;
-              border-bottom: 1px solid ${colors.grey.light};
-              padding-bottom: 40px;
-              margin-bottom: 32px;
-
-              h1 {
-                border-left: 2px solid ${colors.red.dark};
-                flex: 1;
-                font-size: 32px;
-                font-weight: 500;
-                line-height: 1.5;
-                margin-top: 0;
-                padding: 0 16px;
-                padding-top: 0;
-              }
-            `}
-          >
-            <h1>API</h1>
-          </div>
-          <div
-            css={css`
-              max-width: 750px;
-            `}
-          />
-          <div
-            css={css`
-              height: 300px;
-              background-color: red;
-            `}
-          />
-          <div
-            css={css`
-              height: 400px;
-              background-color: purple;
-            `}
-          />
-          <div
-            css={css`
-              height: 500px;
-              background-color: blue;
-            `}
-          />
-          <MDXProvider components={mdxComponents}>
-            {/* <MDXRenderer></MDXRenderer> */}
-          </MDXProvider>
-        </main>
         <div
           css={css`
+            background-color: lightgoldenrodyellow;
+            display: flex;
+            flex-direction: column;
+            overflow: auto;
+            height: 100%;
+            width: 100%;
+          `}
+        >
+          <NavBar {...{ themeName, toggleTheme, githubUrl }} />
+          <main
+            css={css`
+              padding: 0px 22px;
+              padding-top: 3rem;
+            `}
+          >
+            <div
+              css={css`
+                display: flex;
+                align-items: center;
+                border-bottom: 1px solid ${colors.grey.light};
+                padding-bottom: 40px;
+                margin-bottom: 32px;
+
+                h1 {
+                  border-left: 2px solid ${colors.red.dark};
+                  flex: 1;
+                  font-size: 32px;
+                  font-weight: 500;
+                  line-height: 1.5;
+                  margin-top: 0;
+                  padding: 0 16px;
+                  padding-top: 0;
+                }
+              `}
+            >
+              <h1>API</h1>
+            </div>
+            <div
+              css={css`
+                max-width: 750px;
+              `}
+            />
+            <div
+              css={css`
+                min-height: 300px;
+                background-color: red;
+              `}
+            />
+            <div
+              css={css`
+                min-height: 400px;
+                background-color: purple;
+              `}
+            />
+            <div
+              css={css`
+                min-height: 500px;
+                background-color: blue;
+              `}
+            />
+            <MDXProvider components={mdxComponents}>
+              {/* <MDXRenderer></MDXRenderer> */}
+            </MDXProvider>
+          </main>
+        </div>
+        <div
+          css={css`
+            background-color: lightblue;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            top: 0;
             display: flex;
             flex: 1;
             flex-direction: column;
             position: absolute;
-            background-color: lightblue;
+            z-index: ${isOpen ? 2 : -1};
+            opacity: ${isOpen ? 1 : 0};
+            transform: ${isOpen ? 'translateY(0)' : 'translateY(60px)'};
+            /* TODO linear is weird */
+            transition: all 0.2s linear;
           `}
         >
           <Sidebar />
@@ -237,6 +287,7 @@ export default ({ data }) => {
             position: absolute;
             bottom: 20px;
             right: 20px;
+            z-index: 3;
           `}
         >
           <span
@@ -250,11 +301,6 @@ export default ({ data }) => {
               width: 36px;
               height: 33px;
               padding: 8px 5px;
-
-              &:focus,
-              &:hover {
-                background-color: #542683;
-              }
 
               .bar {
                 display: block;
@@ -273,16 +319,22 @@ export default ({ data }) => {
               .cross {
                 color: ${colors.red.dark};
               }
+
+              &:focus,
+              &:hover {
+                .bar {
+                  background-color: ${colors.red.base};
+                }
+                .cross {
+                  color: ${colors.red.base};
+                }
+              }
             `}
           >
             {isOpen ? (
-              <>
-                <span className="bar" />
-                <span className="bar" />
-                <span className="bar" />
-              </>
-            ) : (
               <span className="cross">╳</span>
+            ) : (
+              <span className="cross">🔍</span>
             )}
           </span>
         </div>
