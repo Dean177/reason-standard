@@ -20,7 +20,6 @@
   "bs-dependencies": [],
   "bs-dev-dependencies": ["@glennsl/bs-jest"],
   "bsc-flags": [
-    "-bs-g",
     "-bs-super-errors",
     "-warn-error",
     "@A",

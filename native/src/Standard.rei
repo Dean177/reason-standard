@@ -1,30 +1,3 @@
-/** The standard library modules shadowed by [Standard] */
-module Caml: {
-  /** The standard library modules shadowed by [Standard] 
-   
-      This allows you to access the default standard library in modules which you have done 
-
-      {[open Standard]}
-
-      {{
-        open Standard;
-
-        TODO who knows why
-      }}
-  */
-
-  module Array: Array;
-  module Bool: Bool;
-  module Char: Char;
-  module Float: Float;
-  module Int: Int;
-  module Int64: Int64;
-  module List: List;
-  module Map: Map;
-  module Set: Set;
-  module String: String;
-};
-
 /** Functions for working with functions. */
 module Fun: {
   /** Functions for working with functions. 
@@ -56,6 +29,8 @@ module Fun: {
 
       This is primarily useful when working with imperative side-effecting code or to avoid [unused value](TODO) compiler warnings when you really meant it, and haven't just made a mistake.
 
+      {e Examples}
+
       {[
         module PretendMutableQueue : sig
           type 'a t
@@ -73,11 +48,11 @@ module Fun: {
 
   /** Create a function that {b always} returns the same value.
 
-      Useful with functions like {!List.map}:
+      Useful with functions like {!List.map} or {!Array.initialize}
+
+      {e Examples}
 
       {[List.map ~f:(Fun.constant 0) [1;2;3;4;5] = [0;0;0;0;0]]}
-
-      or {!Array.initialize}
 
       {[Array.initialize 6 ~f:(Fun.constant 0) = [|0;0;0;0;0;0|]]}
   */
@@ -93,6 +68,10 @@ module Fun: {
       For any arguments [x] and [y], [(flip f) x y] is [f y x].
 
       Perhaps you want to [fold] something, but the arguments of a function you already have access to are in the wrong order.
+
+      {e Examples}
+
+      TODO
   */
   let flip: (('a, 'b) => 'c, 'b, 'a) => 'c;
 
@@ -105,6 +84,9 @@ module Fun: {
       It can help you avoid parentheses, which can be nice sometimes.
 
       Maybe you want to apply a function to a [match] expression? That sort of thing.
+
+      {e Examples}
+      {[TODO]}
   */
   let (<|): ('a => 'b, 'a) => 'b;
 
@@ -224,29 +206,11 @@ module Container: {
   };
 };
 
-module type Comparable = {
-  /** TODO */
-  // file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Comparable/index.html
-  type t;
-  let compare: (t, t) => int;
-};
-
-module type Comparator = {
-  /** TODO */
-  type t;
-  type identity;
-  let compare: (t, t) => int;
-};
-
-/** TODO */
-type comparator('k, 'id) = (module Comparator with
-                               type identity = 'id and type t = 'k);
-
 /** Functions for working with boolean ([true] or [false]) values. */
 module Bool: {
   /** Functions for working with boolean values.
 
-      Booleans in Ocaml / Reason are represented by the [true] and [false] literals.
+      Booleans in OCaml / Reason are represented by the [true] and [false] literals.
 
       Whilst a bool isnt a variant, you can still exhaustivly pattern match on them:
 
@@ -910,7 +874,7 @@ module Option: {
 
       In most situations you just want to use the [Some] constructor directly.
 
-      However Ocaml doesn't support piping to variant constructors.
+      However OCaml doesn't support piping to variant constructors.
 
       Note that when using the Reason syntax you {b can} use fast pipe ( [->] ) with variant constructors, so you don't need this function.
 
@@ -1290,21 +1254,21 @@ module Char: {
 
   /** Convert an ASCII [code point][cp] to a character.
 
-    Returns [None] if the codepoint is outside the range of 0 to 255 inclusive.
+      Returns [None] if the codepoint is outside the range of 0 to 255 inclusive.
 
-    {e Examples}
+      {e Examples}
 
-    {[Char.ofCode 65 = Some 'A']}
+      {[Char.ofCode 65 = Some 'A']}
 
-    {[Char.ofCode 66 = Some 'B']}
+      {[Char.ofCode 66 = Some 'B']}
 
-    {[Char.ofCode 3000 = None]}
+      {[Char.ofCode 3000 = None]}
 
-    {[Char.ofCode (-1) = None]}
+      {[Char.ofCode (-1) = None]}
 
-    The full range of extended ASCII is from [0] to [255]. For numbers outside that range, you get [None].
+      The full range of extended ASCII is from [0] to [255]. For numbers outside that range, you get [None].
 
-    [cp]: https://en.wikipedia.org/wiki/Code_point
+      [cp]: https://en.wikipedia.org/wiki/Code_point
   */
   let ofCode: int => option(char);
 
@@ -1467,7 +1431,7 @@ module Char: {
   */
   let isWhitespace: char => bool;
 
-  {2 Conversion}
+  /** {2 Conversion} */
 
   /** Convert to the corresponding ASCII [code point][cp].
 
@@ -2185,7 +2149,7 @@ module Float: {
    
       TODO
   */
-  let ofString: string => option(t);
+  let ofString: string => (t);
 
   /** {2 Conversion} */
 
@@ -2438,6 +2402,9 @@ module Int: {
   */
   let modulo: (t, ~by: t) => t;
 
+  /** See {!Int.modulo} */
+  let ( mod ): (t, t) => t;
+
   /** Get the remainder after division. Here are bunch of examples of dividing by four:
 
       Use {!Int.modulo} for a different treatment of negative numbers.
@@ -2558,11 +2525,10 @@ module Int: {
   let toString: t => string;
 };
 
-module Int64: {
-    /** TODO */
-    type t = Int64.t
-  }
-}
+// module Int64: {
+//     /** TODO */
+//     type t = Int64.t
+// };
 
 /** Arbitrary precision integers.  */
 module Integer: {
@@ -2673,20 +2639,21 @@ module Integer: {
   /** See {!Integer.multiply} */
   let ( * ): (t, t) => t;
 
-  /** Integer division:
+  /** Integer division
 
-    [2 Exceptions}
+    Notice that the remainder is discarded.
+
+    {2 Exceptions}
 
     Throws [Division_by_zero] when the divisor is [0].
 
     {e Examples}
+
     TODO
+
     {[Integer.divide 3 ~by:2 = 1]}
 
     {[27 / 5 = 5]}
-
-    Notice that the remainder is discarded.
-
   */
   let divide: (t, ~by: t) => t;
 
@@ -3394,7 +3361,9 @@ module String: {
   */
   let words: t => list(t);
 
-  /** TODO */
+  /** TODO 
+   * returns the list of lines that comprise t. The lines do not include the trailing "\n" or "\r\n".
+  */
   let lines: t => list(t);
 
   /** TODO
@@ -3483,30 +3452,37 @@ module String: {
     space and others as described in <https://www.ecma-international.org/ecma-262/5.1/#sec-7.2>)
     removed from [s].
 
+    [strip ?drop s] returns a string with consecutive chars satisfying drop 
+    (by default {!Char.isWhitespace}) stripped from the beginning and end of s.
+
+    {e Examples}
+    
     {[String.trim "  abc  " = "abc"]}
     {[String.trim "  abc def  " = "abc def"]}
     {[String.trim {js|\n\u00a0 \t abc \f\r \t|js} = "abc"]}
   */
-  let trim: t => t;
+  let trim: (~drop:(char => bool)=?, t) => t;
 
-  /** TODO */
-  let trimLeft: t => t;
+  /** Like {!trim} but only drops characters from the beginning of the string. */
+  let trimLeft: (~drop:(char => bool)=?, t) => t;
 
-  /** TODO */
-  let trimRight: t => t;
+  /** Like {!trim} but only drops characters from the end of the string. */
+  let trimRight: (~drop:(char => bool)=?, t) => t;
 
-  /**
+  /** TODO
     [String.insertAt ~insert:ins, ~index:n, s)] returns a new string with the value [ins]
     inserted at position [n] in [s]. If [n] is less than zero, the position is evaluated as
     [(length s) - (n + 1)]. [n] is pinned to the range [0..length s].
 
+    {e Examples}
+    
     {[
-    String.insertAt ~insert:"**" ~index:2 "abcde" = "ab**cde"
-    String.insertAt ~insert:"**" ~index:0 "abcde" = "**abcde"
-    String.insertAt ~insert:"**" ~index:5 "abcde" = "abcde**"
-    String.insertAt ~insert:"**" ~index:(-2) "abcde" = "abc**de"
-    String.insertAt ~insert:"**" ~index:(-9) "abcde" = "**abcde"
-    String.insertAt ~insert:"**" ~index:9 "abcde" = "abcde**"
+      String.insertAt ~insert:"**" ~index:2 "abcde" = "ab**cde"
+      String.insertAt ~insert:"**" ~index:0 "abcde" = "**abcde"
+      String.insertAt ~insert:"**" ~index:5 "abcde" = "abcde**"
+      String.insertAt ~insert:"**" ~index:(-2) "abcde" = "abc**de"
+      String.insertAt ~insert:"**" ~index:(-9) "abcde" = "**abcde"
+      String.insertAt ~insert:"**" ~index:9 "abcde" = "abcde**"
     ]}
   */
   let insertAt: (t, ~index: int, ~value: t) => t;
@@ -3809,9 +3785,7 @@ module Map: {
 
   /** {1 Construction} */
 
-  /** A [Map] can be constructed using one of the functions available in {!Map.Int}, {!Map.String} or {!Map.Poly} (See the warning) or by providing a comparator to {!Map.empty}, {!Map.singleton}, {!Map.ofArray} or {!Map.ofList}. TODO link to comparators. */
-
-  let empty: comparator('k, 'id) => t('k, 'v, 'id);
+  /** A [Map] can be constructed using one of the functions available in {!Map.Int}, {!Map.String} or {!Map.Poly} */
 
   /** {1 Basic operations} */
 
@@ -4175,26 +4149,15 @@ module Array: {
     Why [filterMap] and not just {!filter} then {!map}?
 
     {!filterMap} removes the {!Option} layer automatically.
+
     If your mapping is already returning an {!Option} and you want to skip over [None]s, then [filterMap] is much nicer to use.
 
-    TODO a good example of this.
+    {[
+      let characters = ['a'; '9'; '6'; ' '; '2'; 'z' ]
+      filterMap characters ~f:Char.toDigit = [9; 6; 2];
+    ]}
   */
   let filterMap: (t('a), ~f: 'a => option('b)) => t('b);
-
-  /** TODO Returns an array of arrays (i.e., groups) whose concatenation is equal to the original array.
-
-      Each group is broken where [break] returns true on a pair of successive elements.
-
-      {[
-        Array.group ~break:(<>) [|'M';'i';'s';'s';'i';'s';'s';'i';'p';'p';'i'|] =
-          [|[|'M'|];[|'i'|];[|'s';'s'|];[|'i'|];[|'s';'s'|];[|'i'|];[|'p';'p'|];[|'i'|]|]
-      ]}
-  */
-  // let group: (t('a), ~break: ('a, 'a) => bool) => t(t('a));
-  
-  /** TODO */
-  let groupBy:
-    (t('a), comparator('b, 'id), ~f: 'a => 'b) => Map.t('b, list('a), 'id);
 
   /** [Array.swap array i j] swaps the value at index [i] with the value at index [j].
 

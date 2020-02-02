@@ -208,15 +208,16 @@ module List = {
     Belt.List.reduceReverse(t, initial, f);
 
   let findIndex = (list, ~f) => {
-    let rec loop = (i, l) => 
+    let rec loop = (i, l) =>
       switch (l) {
       | [] => None
-      | [x, ...rest] => {
-        if (f(i, x)) { Some((i, x)) } else {
-          loop(i + 1, rest)
+      | [x, ...rest] =>
+        if (f(i, x)) {
+          Some((i, x));
+        } else {
+          loop(i + 1, rest);
         }
       };
-    };
 
     loop(0, list);
   };
@@ -356,8 +357,7 @@ module List = {
 
   let splitWhen = (t, ~f) =>
     switch (findIndex(t, ~f=(_, element) => f(element))) {
-    | Some((index, _)) =>
-      splitAt(t, ~index);
+    | Some((index, _)) => splitAt(t, ~index)
     | None => (t, [])
     };
 
@@ -548,7 +548,9 @@ module Option = {
     };
 
   let getUnsafe =
-    getOrFailWith(~exn=Invalid_argument("Option.getUnsafe called with None"));
+    getOrFailWith(
+      ~exn=Invalid_argument("Option.getUnsafe called with None"),
+    );
 
   let toArray = t =>
     switch (t) {
@@ -765,10 +767,10 @@ module Float = {
 
   let isInfinite = n => !Js.Float.isFinite(n) && !isNaN(n);
 
-  [@bs.scope "Number"] [@bs.val] external isInteger: t => t = "isInteger";
+  [@bs.scope "Number"] [@bs.val] external isInteger: t => bool = "isInteger";
 
   [@bs.scope "Number"] [@bs.val]
-  external isSafeInteger: t => t = "isSafeInteger";
+  external isSafeInteger: t => bool = "isSafeInteger";
 
   let maximum = (x, y) =>
     if (isNaN(x) || isNaN(y)) {
@@ -1000,9 +1002,9 @@ module Integer = {
 
   [@bs.val] external fromFloat: float => t = "BigInt";
 
-  [@bs.val] external fromStringUnsafe: string => (t) = "BigInt";
+  [@bs.val] external fromStringUnsafe: string => t = "BigInt";
 
-  let fromString = (string) => {
+  let fromString = string => {
     // TODO "" should parse as None
     switch (fromStringUnsafe(string)) {
     | value => Some(value)
@@ -1048,7 +1050,7 @@ module Integer = {
 
   let remainder = (n: t, ~by: t): t => modulo(n, ~by);
 
-  let power: (t, t) => t = [%raw (a, ) => "{return a ** b}"];
+  let power: (t, t) => t = [%raw a => "{return a ** b}"];
 
   let ( ** ) = power;
 
@@ -1340,22 +1342,6 @@ module String = {
 module Set = {
   type t('a, 'cmp) = Belt.Set.t('a, 'cmp);
 
-
-  let empty =
-      (
-        type a,
-        type id,
-        module Cmp: Comparator with type t = a and type identity = id,
-      ) =>
-    Belt.Set.make(
-      ~id=(module
-           {
-             type t = Cmp.t;
-             type identity = Cmp.identity;
-             let cmp = Cmp.compare->Obj.magic;
-           }): Belt.Map.id(Cmp.t, Cmp.identity),
-    );
-
   let length = Belt.Set.size;
 
   let isEmpty = Belt.Set.isEmpty;
@@ -1504,8 +1490,7 @@ module Map = {
 
   let minimum = Belt.Map.minKey;
 
-  let extent = t =>
-    Option.both(minimum(t), maximum(t));
+  let extent = t => Option.both(minimum(t), maximum(t));
 
   let toArray = Belt.Map.toArray;
 

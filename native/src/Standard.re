@@ -1,3 +1,4 @@
+
 module Fun = {
   external identity: 'a => 'a = "%identity";
 
@@ -57,20 +58,6 @@ module Container = {
     let add: (t, t) => t;
   };
 };
-
-module type Comparable = {
-  type t;
-  let compare: (t, t) => int;
-};
-
-module type Comparator = {
-  type t;
-  type identity;
-  let compare: (t, t) => int;
-};
-
-type comparator('k, 'id) = (module Comparator with
-                               type identity = 'id and type t = 'k);
 
 module Bool = {
   type t = bool;
@@ -966,6 +953,8 @@ module Int = {
 
   let modulo = (n, ~by) => n mod by;
 
+  let (mod) = (mod);
+
   let remainder = (n, ~by) => Base.Int.rem(n, by);
 
   let maximum = Base.Int.max;
@@ -1177,6 +1166,7 @@ module String = {
 
   let words = split(~on=" ");
 
+  // TODO this is broken on windows
   let lines = split(~on="\n");
 
   let startsWith = (t, ~prefix) => Base.String.is_prefix(~prefix, t);
@@ -1217,6 +1207,20 @@ module String = {
   let toArray = string => Base.String.to_list(string) |> Array.of_list;
 
   let toList = Base.String.to_list;
+
+  let trim = Base.String.strip;
+
+  let trimLeft = Base.String.lstrip;
+
+  let trimRight = Base.String.rstrip;
+
+  let forEach = Base.String.iter;
+
+  let fold = (s, ~initial, ~f) => Base.String.fold(s, ~init=initial, ~f);
+
+  let compare = Base.String.compare;
+
+  let equal = Base.String.equal;
 };
 
 module Set = {
@@ -1297,22 +1301,6 @@ module Set = {
 
 module Map = {
   type t('key, 'value, 'cmp) = Base.Map.t('key, 'value, 'cmp);
-
-  let convertComparator =
-      (
-        type k,
-        type id,
-        module Cmp: Comparator with type t = k and type identity = id,
-      )
-      : Base.Map.comparator(Cmp.t, Cmp.identity) =>
-    (module
-     {
-       type t = Cmp.t;
-       type comparator_witness = Cmp.identity;
-       let comparator = Obj.magic(Cmp.compare);
-     });
-
-  let empty = comp => Base.Map.empty(convertComparator(comp));
 
   let isEmpty = Base.Map.is_empty;
 
@@ -1505,23 +1493,6 @@ module Array = {
 
   let count = (t, ~f) =>
     fold(t, ~initial=0, ~f=(total, element) => total + (f(element) ? 1 : 0));
-
-  let groupBy = (t, comparator, ~f) =>
-    fold(
-      t,
-      ~initial=Map.empty(comparator),
-      ~f=(map, element) => {
-        let key = f(element);
-        Base.Map.update(
-          map,
-          key,
-          ~f=
-            fun
-            | None => [element]
-            | Some(elements) => [element, ...elements],
-        );
-      },
-    );
 
   let swap = Base.Array.swap;
 

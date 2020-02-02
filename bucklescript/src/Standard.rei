@@ -3596,7 +3596,7 @@ module Array: {
   */
   let foldRight: (t('a), ~initial: 'b, ~f: ('b, 'a) => 'b) => 'b;
 
-  let shuffle: t('a) => unit;
+  let shuffle: t('a) => t('a);
 
   /** Reverses an array {b in place}, mutating the existing array.
 

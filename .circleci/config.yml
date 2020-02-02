@@ -51,4 +51,3 @@ workflows:
     jobs:
       - bucklescript-build-and-test
       - native-build-and-test
-      - source-code-formatting

@@ -19,7 +19,6 @@
   "dependencies": {},
   "devDependencies": {
     "@glennsl/bs-jest": "0.4.9",
-    "@ristostevcev/bs-odoc": "1.3.0",
     "bs-platform": "7.0.1"
   },
   "jest": {

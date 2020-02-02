@@ -738,10 +738,7 @@ describe("Char", () => {
   });
 });
 
-describe(
-  "Float",
-  Float.(
-    () => {
+Float.(describe("Float", () => {
       test("zero", () => {
         expect(zero) |> toEqual(0.)
       });
