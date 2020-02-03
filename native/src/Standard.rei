@@ -1943,7 +1943,7 @@ module Float: {
       {[Float.isInteger 4.0 = true]}
 
       {[Float.isInteger Float.pi = false]}
-      
+
       TODO
   */
   let isInteger: t => bool;
@@ -2331,16 +2331,15 @@ module Float: {
   
   /** Converts a [float] to a {!String} by TODO
     
-     {e Examples}
+      {e Examples}
 
-     TODO
+      TODO
    */
   let toString: t => string;
 
-
   /** {2 Comparison} */
 
-  /** TODO */
+  /** Test two floats for equality */
   let equal: (t, t) => bool;
 
   /** TODO */
@@ -2427,7 +2426,7 @@ module Int: {
   /** {1 Operators }
     
       {b Note } You do not need to open the {!Int} module to use the 
-      {!( + )}, {!( - )}, {!( * )}, {! (mod)} or {!( / )} operators, these are 
+      {!( + )}, {!( - )}, {!( * )}, {!( ** )}, {! (mod)} or {!( / )} operators, these are 
       available as soon as you [open Standard]
   */
 
@@ -2553,7 +2552,7 @@ module Int: {
 
   /** Perform {{: https://en.wikipedia.org/wiki/Modular_arithmetic } modular arithmetic }.
 
-      If you intend to use [modulo] to detect even and odd numbers consider using {!Int.isEven} or {!Int.is_odd}.
+      If you intend to use [modulo] to detect even and odd numbers consider using {!Int.isEven} or {!Int.idOdd}.
 
       The [modulo] function works in the typical mathematical way when you run into negative numbers
 
@@ -2634,9 +2633,9 @@ module Int: {
     {e Examples} 
 
     {[
-      Int.is_odd 7 = true
-      Int.is_odd 8 = false
-      Int.is_odd 0 = false
+      Int.idOdd 7 = true
+      Int.idOdd 8 = false
+      Int.idOdd 0 = false
     ]}
   */
   let isOdd: t => bool;
@@ -2728,26 +2727,26 @@ module Integer: {
 
   /** {1 Creation} */
 
-  /** TODO */
+  /** Create an {!Integer} from an {!Int} */
   let ofInt: int => t;
 
-  /** TODO */
+  /** Create an {!Integer} from an Int64 */
   let ofInt64: Int64.t => t;
 
   /** TODO */
-  let ofFloat: float => t;
+  let ofFloat: float => option(t);
 
   /** Attempt to parse a {!String} into a {!Integer}.
       
       {e Examples}
       
       {[
-        Integer.ofString "0" = Some 0.
-        Integer.ofString "42" = Some 42.
-        Integer.ofString "-3" = Some (-3)
-        Integer.ofString "123_456" = Some 123_456
-        Integer.ofString "0xFF" = Some 255
-        Integer.ofString "0x00A" = Some 10
+        Integer.ofString "0" = Some (ofInt 0)
+        Integer.ofString "42" = Some (ofInt 42)
+        Integer.ofString "-3" = Some (ofInt -3)
+        Integer.ofString "123_456" = Some (ofInt 123_456)
+        Integer.ofString "0xFF" = Some (ofInt 255)
+        Integer.ofString "0x00A" = Some (ofInt 10)
         Integer.ofString "Infinity" = None
         Integer.ofString "NaN" = None
     ]}
@@ -2767,7 +2766,6 @@ module Integer: {
   /** Add two {!Integer}s.
 
       {e Examples}
-      TODO
       
       {[
         open Integer;
@@ -2787,6 +2785,8 @@ module Integer: {
 
   /** Subtract numbers
     
+      {e Examples}
+      
       {[Integer.(subtract one one = zero)]}
 
       Alternatively the operator can be used:
@@ -2804,13 +2804,18 @@ module Integer: {
   /** Multiply two integers
       
       {e Examples}
-      TODO
      
-      {[Integer.multiply 2 7 = 14]}
+      {[
+        open Integer
+        multiply ofInt(2) ofInt(7) = ofInt(14)
+      ]}
 
       Alternatively the operator can be used:
 
-      {[(2 * 7) = 14]}
+      {[
+        open Integer
+        (ofInt 2) * (ofInt 7) = ofInt 14
+      ]}
   */
   let multiply: (t, t) => t;
 
@@ -2823,15 +2828,19 @@ module Integer: {
 
       {3 Exceptions}
 
-      Throws [Division_by_zero] when the divisor is [0].
+      Throws [Division_by_zero] when the divisor is [zero].
 
       {e Examples}
 
-      TODO
+      {[
+        open Integer
+        divide ofInt(3) ~by:ofInt(2) = ofInt(1)
+      ]}
 
-      {[Integer.divide 3 ~by:2 = 1]}
-
-      {[27 / 5 = 5]}
+      {[
+        open Integer
+        ofInt(27) / ofInt(5) = ofInt(5)
+      ]}
   */
   let divide: (t, ~by: t) => t;
 
@@ -2839,14 +2848,22 @@ module Integer: {
   let (/): (t, t) => t;
 
   /** Exponentiation, takes the base first, then the exponent.
+    
+      Alternatively the [**] operator can be used, but comes with some drawbacks:
+      - You must use an {!Int} for the exponent
+      - You cant supply a [modulo]
 
       {e Examples}
-        TODO
-      {[Integer.power ~base:7 ~exponent:3 ~modulo:300 = 43]}
 
-      Alternatively the [**] operator can be used:
+      {[
+        open Integer
+        power ~base:(ofInt 7) ~exponent:(ofInt 3) ~modulo:(ofInt 300) = ofInt 43
+      ]}
 
-      {[7 ** 3 = 343]}
+      {[
+        open Integer
+        (ofInt 7) ** 4 = ofInt 2401
+      ]}
   */
   let power: (~base: t, ~exponent: t, ~modulo: t) => t;
 
@@ -2856,86 +2873,101 @@ module Integer: {
   /** Flips the 'sign' of an integer so that positive integers become negative and negative integers become positive. Zero stays as it is.
     
       {e Examples}
-      
-      TODO
+            
       {[
-        Integer.negate 8 = (-8)
-        Integer.negate (-7) = 7
-        Integer.negate 0 = 0
+        open Integer
+
+        negate (ofInt 8) = ofInt -8
+        negate (ofInt -7) = ofInt 7
+        negate zero = zero
       ]}
   */
   let negate: t => t;
 
   /** Get the {{: https://en.wikipedia.org/wiki/Absolute_value } absolute value } of a number.
 
-    {e Examples}
-    TODO
-    {[
-      Integer.absolute 8 = 8
-      Integer.absolute (-7) = 7
-      Integer.absolute 0 = 0
-    ]}
+      {e Examples}
+      
+      {[
+        open Integer
+
+        absolute 8 = 8
+        absolute (-7) = 7
+        absolute 0 = 0
+      ]}
   */
   let absolute: t => t;
 
   /** Perform {{: https://en.wikipedia.org/wiki/Modular_arithmetic } modular arithmetic }.
 
-    If you intend to use [modulo] to detect even and odd numbers consider using {!Integer.isEven} or {!Integer.is_odd}.
+      If you intend to use [modulo] to detect even and odd numbers consider using {!Integer.isEven} or {!Integer.isOdd}.
 
-    {e Examples}
-    TODO
-    {[
-    Integer.modulo ~by:2 0 = 0
-    Integer.modulo ~by:2 1 = 1
-    Integer.modulo ~by:2 2 = 0
-    Integer.modulo ~by:2 3 = 1
-    s]}
+      Our [modulo] function works in the typical mathematical way when you run into negative numbers
 
-    Our [modulo] function works in the typical mathematical way when you run into negative numbers:
+      Use {!Integer.remainder} for a different treatment of negative numbers.
 
-    {[
-      List.map ~f:(Integer.modulo ~by:4) [(-5); (-4); -3; -2; -1;  0;  1;  2;  3;  4;  5 ] =
-        [3; 0; 1; 2; 3; 0; 1; 2; 3; 0; 1]
-    ]}
+      {e Examples}
+      
+      {[
+        open Integer
 
-    Use {!Integer.remainder} for a different treatment of negative numbers.
+        let three = ofInt 3 in
+        let two = ofInt 2 in
+
+        modulo three ~by:three = zero
+        modulo two ~by:three = two
+        modulo one ~by:three = one
+        modulo zero ~by:three = zero
+        modulo (negate one) ~by:three = one
+        modulo (negate two) ~by:three = two
+        modulo (negate three) ~by:three = zero
+      ]}
   */
   let modulo: (t, ~by: t) => t;
 
   /** Get the remainder after division. Here are bunch of examples of dividing by four:
 
-    {e Examples}
-    TODO
-    {[
-      List.map
-        ~f:(Integer.remainder ~by:4)
-        [(-5); (-4); (-3); (-2); (-1); 0; 1; 2; 3; 4; 5] =
-          [(-1); 0; (-3); (-2); (-1); 0; 1; 2; 3; 0; 1]
-    ]}
+      Use {!Integer.modulo} for a different treatment of negative numbers.
 
-    Use {!Integer.modulo} for a different treatment of negative numbers.
+      {e Examples}
+      
+      {[
+        open Integer
+        let three = ofInt 3 in
+        let two = ofInt 2 in
+
+        remainder three ~by:three = zero
+        remainder two ~by:three = two
+        remainder one ~by:three = one
+        remainder zero ~by:three = zero
+        remainder (negate one) ~by:three = (negate one)
+        remainder (negate two) ~by:three = (negate two)
+        remainder (negate three) ~by:three = zero
+      ]}
   */
   let remainder: (t, ~by: t) => t;
 
   /** Returns the larger of two [Integers]s
 
-    {e Examples}
-    TODO
-    {[
-    Integer.maximum 7 9 = 9
-    Integer.maximum (-4) (-1) = (-1)
-    ]}
+      {e Examples}
+      
+      {[
+        open Integer
+
+        maximum (ofInt 7) (ofInt 9) = (ofInt 9)
+        maximum (ofInt -4) (ofInt -1) = (ofInt -1)
+      ]}
   */
   let maximum: (t, t) => t;
 
   /** Returns the smaller of two [Integers]s
 
-    {e Examples}
-    TODO
-    {[
-    Integer.minimum 7 9 = 7
-    Integer.minimum (-4) (-1) = (-4)
-    ]}
+      {e Examples}
+      
+      {[
+        minimum (ofInt 7) (ofInt 9) = (ofInt 7)
+        minimum (ofInt -4) (ofInt -1) = (ofInt -4)
+      ]}
   */
   let minimum: (t, t) => t;
 
@@ -2943,55 +2975,63 @@ module Integer: {
 
   /** Check if an [int] is even
 
-    {e Examples}
-    TODO
-    {[
-    Integer.isEven 8 = true
-    Integer.isEven 7 = false
-    Integer.isEven 0 = true
-    ]}
+      {e Examples}
+      
+      {[
+        Integer.isEven (ofInt 8) = true
+        Integer.isEven (ofInt 7) = false
+        Integer.isEven (ofInt 0) = true
+      ]}
   */
   let isEven: t => bool;
 
   /** Check if an [int] is odd
 
     {e Examples}
-    TODO
     {[
-    Integer.is_odd 7 = true
-    Integer.is_odd 8 = false
-    Integer.is_odd 0 = false
+      open Integer
+      idOdd (ofInt 7) = true
+      idOdd (ofInt 8) = false
+      idOdd (ofInt 0) = false
     ]}
   */
   let isOdd: t => bool;
 
-  /** Clamps [n] within the inclusive [lower] and [upper] bounds.
+  /** Clamps an integer within the inclusive [lower] and [upper] bounds.
 
-    {e Examples}
-    TODO
-    {[
-      Integer.clamp ~lower:0 ~upper:8 5 = 5
-      Integer.clamp ~lower:0 ~upper:8 9 = 8
-      Integer.clamp ~lower:(-10) ~upper:(-5) 5 = (-5)
-    ]}
+      {2 Exceptions}
+      
+      Throws an [Invalid_argument] exception if [lower > upper]
 
-    Throws an [Invalid_argument] exception if [lower > upper]
+      {e Examples}
+
+      {[
+        open Integer
+        
+        clamp ~lower:zero ~upper:(ofInt 8) (ofInt 5) = (ofInt 5)
+        clamp ~lower:zero ~upper:(ofInt 8) (ofInt 9) = (ofInt 8)
+        clamp ~lower:(ofInt -10) ~upper:(ofInt -5) (ofInt 5) = (ofInt -5)
+      ]}
   */
   let clamp: (t, ~lower: t, ~upper: t) => t;  
-  /** TODO */
-  let inRange: (t, ~lower: t, ~upper: t) => bool;
-  /** Checks if [n] is between [lower] and up to, but not including, [upper].
 
-    {e Examples}
-    TODO
-    {[
-    Integer.inRange ~lower:2 ~upper:4 3 = true
-    Integer.inRange ~lower:5 ~upper:8 4 = false
-    Integer.inRange ~lower:(-6) ~upper:(-2) (-3) = true
-    ]}
+  /** Checks if an integer is between [lower] and up to, but not including, [upper].
 
-    Throws an [Invalid_argument] exception if [lower > upper]
+      {2 Exceptions}
+      
+      Throws an [Invalid_argument] exception if [lower > upper]
+
+      {e Examples}
+      
+      {[
+        open Integer
+        
+        inRange ~lower:(ofInt 2) ~upper:(ofInt 4) (ofInt 3) = true
+        inRange ~lower:(ofInt 5) ~upper:(ofInt 8) (ofInt 4) = false
+        inRange ~lower:(ofInt -6) ~upper:(ofInt -2) (ofInt -3) = true
+      ]}
   */
+  let inRange: (t, ~lower: t, ~upper: t) => bool;
 
   /** {1 Conversion } */
 
