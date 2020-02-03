@@ -4,5 +4,4 @@
 (license MIT)
 (authors "Dean Merchant")
 (maintainers "deanmerchant@gmail.com")
-
 (using fmt 1.2)

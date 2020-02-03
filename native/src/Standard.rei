@@ -454,14 +454,15 @@ module Result: {
 
       When using the reson syntax you {b can} use constructors with the fast pipe.
 
-      TODO link
+      {[5->Ok = Ok(5)]}
 
       And you can use the placeholder syntax for use with functions like {!List.map}
-      TODO can you?
 
       {[
         List.map([1,2,3], ~f:Ok(_)) == [Ok(1),Ok(2),Ok(3)]
       ]}
+
+      See the {Reason docs {https://reasonml.github.io/docs/en/pipe-first#pipe-into-variants}} for more.
 
       {e Examples}
 
@@ -904,7 +905,15 @@ module Result: {
 /** Functions for working with optional values. */
 module Option: {
   /** {!Option} represents a value which may not be present.
+     
+      It is a variant containing the [Some('a)] and [None] constructors
 
+      {[
+        type t('a) =
+          | Some('a)
+          | None
+      ]}
+     
       Many other languages use [null] or [nil] to represent something similar.
 
       {!Option} values are very common and they are used in a number of ways:
@@ -914,28 +923,20 @@ module Option: {
       - Return values for functions that are not defined over their entire input range (partial functions).
       - Return value for otherwise reporting simple errors, where None is returned on error.
 
+      Lots of functions in [Standard] return options, one you have one you can 
+      work with the value it might contain by:
+
+      - Pattern matching
+      - Using {!map} or {!bind} (or their operators in {!Infix})
+      - Unwrapping it using {!get}, or its operator {!Infix.(|?)}      
+      - Converting a [None] into an exception using{!getOrFailWith}
+
       If the function you are writing can fail in a variety of ways, use a {!Result} instead to
       better communicate with the caller.
 
-      If a function only fails in unexpected, unpreventable ways, maybe you want raise exception.
-
-      TODO
-
-      But how to get the value {b out} of the option
-      - use {!map} or {!bind} to work with the wrapped value instead.
-      - {!get}, or its operator {!Infix.(|?)}
-      - {!orElse}
-      - {!getOrFailWith}
+      If a function only fails in unexpected, unrecoverable ways, maybe you want raise exception.
   */
 
-  /** A variant containing the [Some('a)] and [None] constructors
-
-      {[
-        type t('a) =
-          | Some('a)
-          | None
-      ]}
-  */
   type t('a) = option('a);
 
   /** A function version of the [Some] constructor.
@@ -944,9 +945,9 @@ module Option: {
 
       However OCaml doesn't support piping to variant constructors.
 
-      Note that when using the Reason syntax you {b can} use fast pipe ( [->] ) with variant constructors, so you don't need this function.
-
-      TODO link to fast pipe docs
+      Note that when using the Reason syntax you {b can} use fast pipe ([->]) with variant constructors, so you don't need this function.
+      
+      See the {Reason docs {https://reasonml.github.io/docs/en/pipe-first#pipe-into-variants}} for more.
 
       {e Examples} 
 
@@ -1123,19 +1124,30 @@ module Option: {
   let get: (t('a), ~default: 'a) => 'a;
 
   /** Unwrap an [option('a)] returning the enclosed ['a].
-
-      Raises the provided [exn] if called with [None].
-
+      
       {b Note} in most situations it is encouraged to use pattern matching, {!get}, {!map} or {!bind}.
       Can you structure your code slightly differently to avoid potentially raising an exception?
 
-      {3 Exceptions}
+      {2 Exceptions}
 
-      Raises an [Invalid_argument] exception if called with [None]
+      Raises the provided [exn] if called with [None].
 
       {e Examples}
 
-      [TODO]
+      {[
+        Option.getOrFailWith (Ok "Wolf") ~exn:(Invalid_argument "Thats no wolf") = "Wolf"
+      ]}
+
+      {|
+        Option.getOrFailWith (Error "Dog") ~exn:(Invalid_argument "Thats no wolf")
+        // Raises [Invalid_argument "Thats no wolf")]
+      |}
+        
+      {|
+        exception FelineEncounterd
+        Option.getOrFailWith (Error "Kitten") ~exn:FelineEncountered
+        // Raises [FelineEncountered]
+      |}
   */
   let getOrFailWith: (t('a), ~exn: exn) => 'a;
 
@@ -1195,8 +1207,7 @@ module Option: {
       TODO
    */
   let fold: (t('a), ~initial: 'b, ~f: ('b, 'a) => 'b) => 'b;  
-  /** TODO */
-  let toArray: t('a) => array('a);
+
   /** Convert an option to a {!Array}.
 
       [None] is represented as an empty list and [Some] is represented as a list of one element.
@@ -1207,8 +1218,8 @@ module Option: {
 
       {[Option.toArray (None) = [||]]}
   */  
-  /** TODO */
-  let toList: t('a) => list('a);
+  let toArray: t('a) => array('a);
+
   /** Convert an option to a {!List}.
 
       [None] is represented as an empty list and [Some] is represented as a list of one element.
@@ -1219,6 +1230,7 @@ module Option: {
 
       {[Option.toList (None) = []]}
   */
+  let toList: t('a) => list('a);
 
   /** Convert an option to a {!Result}.
 
@@ -1236,10 +1248,32 @@ module Option: {
 
   /** {2 Comparison} */
 
-  /** TODO */
+  /** Test two optional values for equality using the provided function
+      
+      {e Examples}
+
+      {[Option.equal Int.equal (Some 1) (Some 1) = true]}
+
+      {[Option.equal Int.equal (Some 1) (Some 3) = false]}
+
+      {[Option.equal Int.equal (Some 1) None = false]}
+
+      {[Option.equal Int.equal None None = true]}
+   */
   let equal: (('a, 'a) => bool, t('a), t('a)) => bool;
 
-  /** TODO */
+  /** Compare two optional values using the provided function. 
+      
+      A [None] is "less" than a [Some]
+
+      {e Examples}
+
+      {[Option.compare Int.compare (Some 1) (Some 3) = -1]}
+
+      {[Option.compare Int.compare (Some 1) None = 1]}
+
+      {[Option.compare Int.compare None None = 0]}
+  */
   let compare: (('a, 'a) => int, t('a), t('a)) => int;
 
   module Infix: {
@@ -1309,11 +1343,10 @@ module Char: {
 
       Character literals are enclosed in ['a'] pair of single quotes.
 
+      {[let digit = '7']}
+
       The functions in this module work on ASCII characters (range 0-255) only, 
       {b not Unicode}.
-
-      TODO Link to unicode characters
-      TODO in bucklescript you can ...
 
       Since character 128 through 255 have varying values depending on what 
       standard you are using (ISO 8859-1 or Windows 1252), you are advised to 
@@ -1563,10 +1596,10 @@ module Char: {
 
   /** {2 Comparison} */
 
-  /** TODO */
+  /** Test two {!Char}s for equality */
   let equal: (t, t) => bool;
 
-  /** TODO */
+  /** Compare two {!Char}s */
   let compare: (t, t) => int;
 };
 
@@ -1646,17 +1679,13 @@ module Float: {
   /** The largest (furthest from zero) representable positive [float] */
   let largestValue: t;
 
-  /** The smallest representable positive [float]. The closest to zero without actually being zero.
-      TODO isn't this epsilon?
-   */
+  /** The smallest representable positive [float]. The closest to zero without actually being zero. */
   let smallestValue: t;
 
   /** For floats greater than [maximumSafeInteger], it no longer holds that [Float.(n + 1.) > n]  */
-  // TODO verify
   let maximumSafeInteger: t;
 
   /** For floats less than [minimumSafeInteger], it no longer holds that [Float.(n - 1.) < n]  */
-  // TODO verify
   let minimumSafeInteger: t;
 
   /** {1 Basic arithmetic and operators} */
@@ -1827,7 +1856,6 @@ module Float: {
 
       {[Float.clamp ~lower:(-10.) ~upper:(-5.) 5. = -5.]}
   */  
-  /** TODO */
   let clamp: (t, ~lower: t, ~upper: t) => t;
 
   /** {2 Fancier math} */
@@ -1842,7 +1870,6 @@ module Float: {
 
       {[Float.squareRoot 9.0 = 3.0]}
   */  
-  /** TODO */
   let squareRoot: t => t;
 
   /** Calculate the logarithm of a number with a given base.
@@ -1853,7 +1880,6 @@ module Float: {
 
       {[Float.log ~base:2. 256. = 8.]}
   */  
-  /** TODO */
   let log: (t, ~base: t) => t;
 
   /** {1 Checks} */
@@ -1914,15 +1940,23 @@ module Float: {
   
       {e Examples}
 
-      TODO 
+      {[Float.isInteger 4.0 = true]}
+
+      {[Float.isInteger Float.pi = false]}
+      
+      TODO
   */
   let isInteger: t => bool;
 
   /** Determine whether the passed value is a safe integer (number between -(2**53 - 1) and 2**53 - 1). 
    
-     {e Examples}
+      {e Examples}
 
-      TODO 
+      {[Float.isInteger 4.0 = true]}
+      
+      {[Float.isInteger Float.pi = false]}
+
+      TODO
   */
   let isSafeInteger: t => bool;
 
@@ -2217,8 +2251,7 @@ module Float: {
         Float.floor -1.5 = -2.0
         Float.floor -1.8 = -2.0
       ]}
-  */  
-  /** TODO */
+  */
   let floor: t => t;
 
   /** Ceiling function, equivalent to [Float.round ~direction:`Up].
@@ -3849,8 +3882,7 @@ module Set: {
       {e Examples}
       
       {[Set.filter (Set.Int.ofList [1;2;3]) ~f:Int.isEven |> Set.toList = [2]]}
-  */  
-  /** TODO */
+  */
   let filter: (t('a, 'cmp), ~f: 'a => bool) => t('a, 'cmp);
 
   /** Divide a set into two according to [f]. The first set will contain the values that [f] returns [true] for, values that [f] returns [false] for will end up in the second. 
@@ -4012,8 +4044,7 @@ module Map: {
 
   /** A [Map] can be constructed using one of the functions available in {!Map.Int}, {!Map.String} or {!Map.Poly} */
 
-  /** {1 Basic operations} */  
-  /** TODO */
+  /** {1 Basic operations} */
   let add: (t('k, 'v, 'cmp), ~key: 'k, ~value: 'v) => t('k, 'v, 'cmp);
   /** Adds a new entry to a map. If [key] is allready present, its previous value is replaced with [value].
 
@@ -4252,9 +4283,9 @@ module Array: {
 
   /** {2 Create}
 
-      You can create an [array] in OCaml with the [[|1; 2; 3|]] syntax. */  
-  /** TODO */
-  let empty: t('a);
+      You can create an [array] in OCaml with the [[|1; 2; 3|]] syntax. 
+  */  
+
   /** An empty array.
 
       {e Examples} 
@@ -4262,6 +4293,7 @@ module Array: {
       {[Array.empty = [||]]}
 
       {[Array.length Array.empty = 0]} */
+  let empty: t('a);
 
   /** Create an array with only one element.
 
@@ -4998,9 +5030,22 @@ module Array: {
   let toIndexedList: t('a) => list((int, 'a));
 
   /** {2 Comparison} */  
-  /** TODO */
+
+  /** Test two arrays for equality using the provided function to test pairs of elements. */
   let equal: (('a, 'a) => bool, t('a), t('a)) => bool;  
-  /** TODO */
+
+  /** Compare two arrays using the provided function to compare pairs of elements. 
+
+      A shorter array is 'less' than a longer one.
+
+      {e Examples}
+
+      {[Array.compare Int.compare [|1;2;3|] [|1;2;3;4|] = -1]} 
+
+      {[Array.compare Int.compare [|1;2;3|] [|1;2;3|] = 0]} 
+
+      {[Array.compare Int.compare [|1;2;5|] [|1;2;3|] = 1]} 
+  */
   let compare: (('a, 'a) => int, t('a), t('a)) => int;
 };
 
@@ -5576,39 +5621,50 @@ module List: {
     */
   let length: t('a) => int;
 
-  // TODO
+  /** Reverse the elements in a list 
+   
+      {e Examples}
+
+      {[List.reverse [1;2;3] = [3;2;1]]}
+   */  
   let reverse: t('a) => t('a);
 
   /** {1 Query} */
 
   /** Determine if a list is empty.
+   
+      {e Examples}
 
-    {[List.isEmpty List.empty = true]}
+      {[List.isEmpty List.empty = true]}
 
-    {[List.isEmpty [||] = true]}
+      {[List.isEmpty [||] = true]}
 
-    {[List.isEmpty [|1; 2; 3|] = false]}
+      {[List.isEmpty [|1; 2; 3|] = false]}
   */
   let isEmpty: t(_) => bool;
 
   /** Prepend a value to the front of a list.
 
-      {[List.cons [2;3;4] 1 = [1;2;3;4]]}
-
       The [::] operator can also be used
-
-      {[1 :: [2;3;4] = [1;2;3;4]]}
 
       And in Reason you can use the [spread]() syntax.
       {[
         [1, ...[1,2,3]]
       ]}
+         
+      {e Examples}
+
+      {[List.cons [2;3;4] 1 = [1;2;3;4]]}
+
+      {[1 :: [2;3;4] = [1;2;3;4]]}
   */
   let cons: (t('a), 'a) => t('a);
 
   /** Determine if [f] returns true for [any] values in a list.
     
       Stops iteration as soon as [f] returns true.
+   
+      {e Examples}
 
       {[List.any ~f:isEven [|2;3|] = true]}
 
@@ -5619,6 +5675,10 @@ module List: {
   let any: (t('a), ~f: 'a => bool) => bool;
 
   /** Determine if [f] returns true for [all] values in a list.
+
+      Stops iteration as soon as [f] returns false.
+         
+      {e Examples}
 
       {[List.all ~f:Int.isEven [|2;4|] = true]}
 
@@ -5631,6 +5691,8 @@ module List: {
   /** Find the smallest element using the provided [compare] function.
 
       Returns [None] if called on an empty array.
+   
+      {e Examples}
 
       {[List.minimum [|7;5;8;6|] ~compare:Int.compare = Some 5]}
   */
@@ -5639,6 +5701,8 @@ module List: {
   /** Find the largest element using the provided [compare] function.
 
       Returns [None] if called on an empty array.
+   
+      {e Examples}
 
       {[List.maximum [|7;5;8;6|] ~compare:compare = Some 8]}
   */
@@ -5647,32 +5711,14 @@ module List: {
   /** Find a {!Tuple} of the [(minimum, maximum)] elements using the provided [compare] function.
 
       Returns [None] if called on an empty array.
+   
+      {e Examples}
 
       {[List.extent [|7;5;8;6|] ~compare:compare = Some (5, 8)]}
   */
   let extent: (t('a), ~compare: ('a, 'a) => int) => option(('a, 'a));
 
-  // TODO
-  /** Returns a list of lists (i.e., groups) whose concatenation is equal to the original list.
-
-      Each group is broken where [break] returns true on a pair of successive elements.
-
-      {[
-        List.group ~break:(<>) ['M';'i';'s';'s';'i';'s';'s';'i';'p';'p';'i'] =
-          [['M'];['i'];['s';'s'];['i'];['s';'s'];['i'];['p';'p'];['i']]
-      ]}
-
-      {[
-        TODO example showing the groups will have an order
-
-        List.group ~break:(Int.isEven) [1,2,6,3,1,7,8] =
-          [['M'];['i'];['s';'s'];['i'];['s';'s'];['i'];['p';'p'];['i']]
-      ]}
-  */
-  // let group: (t('a), ~break: ('a, 'a) => bool) => t(t('a));
-
-  // TODO
-  /**
+  /** TODO
     {[
       List.groupWhile ~f:(fun x y -> x mod 2 == y mod 2)
         [2; 4; 6; 5; 3; 1; 8; 7; 9] = [[2; 4; 6]; [5; 3; 1]; [8]; [7; 9]]
@@ -5680,10 +5726,16 @@ module List: {
   */
   let groupWhile: (t('a), ~f: ('a, 'a) => bool) => t(t('a));
   
-  // TODO
-  /** [List.insertAt ~index=n ~value=v xs] returns a new list with the value [v] inserted
-      before position [n] in [xs]. If [n] is less than zero or greater than the length of [xs],
-      returns a list consisting only of the value [v].
+  
+  /** Insert a new element at the specified index.
+    
+      The element previously occupying [index] will now be at [index + 1]
+
+      If [index] is greater than then length of the list, it will be appended:
+
+      {e Exceptions}
+
+      Raises an [Invalid_argument] exception if [index] is negative
 
       {e Examples}
 
@@ -5696,35 +5748,29 @@ module List: {
       {[List.insertAt ~index:(-1) ~value:999 [100; 101; 102; 103] = [999]]}
 
       {[List.insertAt ~index:5 ~value:999 [100; 101; 102; 103] = [999]]}
-  */
-  /** Returns a new list with [value] at position [index].
-
-    The element previously occuping [index] will now be at [index + 1]
-
-    {[List.insertAt [1; 2; 3] ~index:1 ~value:4 = [1; 4; 2; 3]]}
-
-    If [index] is greater than then length of the list, it will be appended:
-
-    {[List.insertAt [1; 2; 3] ~index:100 ~value:4 = [1; 2; 3; 4]]}
-  */
+  */  
   let insertAt: (t('a), ~index: int, ~value: 'a) => t('a);
 
   /** Places [sep] between all the elements of the given list.
 
-    {[List.intersperse ~sep:"on" [|"turtles"; "turtles"; "turtles"|] = [|"turtles"; "on"; "turtles"; "on"; "turtles"|]]}
+      {e Examples}
+      
+      {[List.intersperse ~sep:"on" [|"turtles"; "turtles"; "turtles"|] = [|"turtles"; "on"; "turtles"; "on"; "turtles"|]]}
 
-    {[List.intersperse ~sep:0 [||] = [||]]}
+      {[List.intersperse ~sep:0 [||] = [||]]}
   */
   let intersperse: (t('a), ~sep: 'a) => t('a);
 
   /** Sort using the provided [compare] function.
 
-    On native it uses {{: https://en.wikipedia.org/wiki/Merge_sort } merge sort} which means the sort is stable,
-    runs in linear heap space, logarithmic stack space and n * log (n) time.
+      On native it uses {{: https://en.wikipedia.org/wiki/Merge_sort } merge sort} which means the sort is stable,
+      runs in linear heap space, logarithmic stack space and n * log (n) time.
 
-    When targeting javascript the time and space complexity of the sort cannot be guaranteed as it depends on the implementation.
+      When targeting javascript the time and space complexity of the sort cannot be guaranteed as it depends on the implementation.
 
-    {[List.sort [5;6;8;3;6] ~compare:compare = [3;5;6;6;8]]}
+      {e Examples}
+      
+      {[List.sort [5;6;8;3;6] ~compare:Int.compare = [3;5;6;6;8]]}
   */
   let sort: (t('a), ~compare: ('a, 'a) => int) => t('a);
 
@@ -5736,6 +5782,9 @@ module List: {
       
       You use [List.forEach] when you want to process a list only for side effects.
 
+
+      {e Examples}
+      
       {[
         List.forEach [|1; 2; 3|] ~f:(fun int -> print (Int.toString int))
         // Prints
@@ -5748,6 +5797,8 @@ module List: {
 
   /** Like {!forEach} but [f] is also called with the elements index.
 
+      {e Examples}
+      
       {[
         List.forEachI [1; 2; 3] ~f:(fun index int -> printf "%d: %d" index int)
         (* 
