@@ -35,12 +35,13 @@ module Fun: {
         module PretendMutableQueue : sig
           type 'a t
 
-          val pushReturningIndex : 'a t -> 'a -> int
+          /** Adds an element to the queue, returning the new length of the queue */
+          val pushReturningLength : 'a t -> 'a -> int
         end
 
         let addListToQueue queue list =
           List.forEach list ~f:(fun element ->
-            ignore (PretentMutableQueue.pushReturningIndex queue element)
+            ignore (PretentMutableQueue.pushReturningLength queue element)
           )
       ]}
   */
@@ -58,14 +59,14 @@ module Fun: {
   */
   let constant: ('a, 'b) => 'a;
   
-  // TODO
+  // TODO come up with a use case.
   /** A function which always returns its second argument. */
   let sequence: ('a, 'b) => 'b;
 
   // TODO
-  /** [flip f] reverses the argument order of the binary function [f].
+  /** Reverses the argument order of a function.
     
-      For any arguments [x] and [y], [(flip f) x y] is [f y x].
+      For any arguments [x] and [y], [(flip f) x y] is the same as [f y x].
 
       Perhaps you want to [fold] something, but the arguments of a function you already have access to are in the wrong order.
 
@@ -96,9 +97,11 @@ module Fun: {
   /** Saying [x |> f] is exactly the same as [f x], just a bit longer.
 
       It is called the “pipe” operator because it lets you write “pipelined” code.
+
+      It can make nested function calls more readable.
+
       For example, say we have a [sanitize] function for turning user input into
       integers:
-
 
       {[
         (* Before *)
@@ -114,7 +117,7 @@ module Fun: {
           input
           |> String.trim
           |> Int.ofString
-      ]}
+      ]}      
 
       This can be overused! When you have three or four steps, the code often gets clearer if you break things out into
       some smaller piplines assigned to variables. Now the transformation has a name, maybe it could have a type annotation.
@@ -269,11 +272,6 @@ module Bool: {
 
       If the 'left' operand evaluates to [false], the 'right' operand is not evaluated.
 
-      Right-associative operator at precedence level 3/11.
-
-      TODO explain precendence
-      TODO explain Right-associative
-
       {e Examples}
 
       {[Bool.(true && true) = true]}
@@ -292,8 +290,6 @@ module Bool: {
 
       If the 'left' operand evaluates to [true], the 'right' operand is not evaluated.
 
-      Right-associative operator at precedence level 2/11.
-
       {e Examples}
 
       {[Bool.(true || true) = true]}
@@ -308,7 +304,7 @@ module Bool: {
 
   /** The exclusive or operator.
 
-      Returns [true] if exactly one of its operands is [true].
+      Returns [true] if {b exactly one} of its operands is [true].
 
       {e Examples}
 
@@ -400,10 +396,13 @@ module Bool: {
 
   /** {2 Comparison} */
 
-  /** TODO */
+  /** Test two boolean values for equality */
   let equal: (t, t) => bool;
 
-  /** TODO */
+  /** Compare two boolean values.  
+
+      [false] is 'less' than [true] 
+  */
   let compare: (t, t) => int;
 };
 
@@ -476,13 +475,11 @@ module Result: {
 
       {e Examples}
 
-      // TODO what exception *does* this throw?
       {[Result.attempt(() => 5 / 0) = Error(Division_by_zero)]}
 
-      // TODO what exception *does* this throw?
       {[
         let numbers = [|1,2,3|];
-        Result.attempt(() => numbers[3]) = Error(Invalid_argument("Out of bounds"))
+        Result.attempt(() => numbers[3]) = Error(Invalid_argument "index out of bounds")
       ]}
   */
   let attempt: (unit => 'ok) => t(exn, 'ok);
@@ -499,10 +496,13 @@ module Result: {
 
   /** Check if a {!Result} is an [Ok].
 
-      Useful when you want to perform some side affect based on the presence of an [Ok].
-      TODO define side affect
+      Useful when you want to perform some side affect based on the presence of 
+      an [Ok] like logging.
 
-      {b Note} if you need access to the contained value its often better just to use pattern matching directly.
+      {b Note} if you need access to the contained value rather than doing 
+      [Result.isOk] followed by {!Result.getUnsafe} its safer and just as 
+      convenient to use pattern matching directly or use one of {!Result.bind} 
+      or {!Result.map}
 
       {e Examples}
 
@@ -514,33 +514,36 @@ module Result: {
 
   /** Check if a {!Result} is an [Error].
 
-      Useful when you want to perform some side affect based on the presence of an [Error].
-      TODO define side affect
-
-      {b Note} if you need access to the contained value its often better just to use pattern matching directly.
+      Useful when you want to perform some side affect based on the presence of 
+      an [Error] like logging.
+      
+      {b Note} if you need access to the contained value rather than doing 
+      [Result.isOk] followed by {!Result.getUnsafe} its safer and just as 
+      convenient to use pattern matching directly or use one of {!Result.bind} 
+      or {!Result.map}
 
       {e Examples}
 
-      {[Result.isOk(Ok(3)) == true]}
+      {[Result.isError(Ok(3)) == false]}
 
-      {[Result.isOk(Error(3)) == false]}
+      {[Result.isError(Error(3)) == true]}
   */
   let isError: t(_, _) => bool;
 
-  /** Returns [Error(error)] if the first argument is [Error(error)], otherwise return the second argument.
+  /** Returns the first argument if it {!isError}, otherwise return the second argument.
 
-      Unlike the built in [&&] operator, the [and_] function does not short-circuit.
+      Unlike the {!Bool.(&&)} operator, the [and_] function does not short-circuit.
       When you call [and_], both arguments are evaluated before being passed to the function.
 
       {e Examples}
 
-      {[Result.and_ (Ok 11) (Ok 22) = Ok 22]}
+      {[Result.and_ (Ok "Antelope") (Ok "Salmon") = Ok "Salmon"]}
 
-      {[Result.and_ (Error "TODO think of some good text") (Ok 22) = (Error "TODO think of some good text")]}
+      {[Result.and_ (Error `UnexpectedBird("Finch")) (Ok "Salmon") = (Error `UnexpectedBird("Finch"))]}
 
-      {[Result.and_ (Ok 11) (Error "TODO think of some good text") = (Error "TODO think of some good text")]}
+      {[Result.and_ (Ok "Antelope") (Error `UnexpectedBird("Finch")) = (Error `UnexpectedBird("Finch"))
 
-      {[Result.and_ (Error "TODO 1") (Error "TODO 2") = (Error "TODO 1")]}
+      {[Result.and_ (Error `UnexpectedInvertabrate("Honey bee") `UnexpectedBird("Finch") = (Error `UnexpectedBird("Honey Bee"))]}
   */
   let and_: (t('error, 'ok), t('error, 'ok)) => t('error, 'ok);
 
@@ -551,30 +554,31 @@ module Result: {
 
     {e Examples}
 
-    {[Result.or_ (Ok 11) (Ok 22) = Ok 11]}
+    {[Result.or_ (Ok "Boar") (Ok "Gecko") = (Ok "Boar")]}
 
-    {[Result.or_ Error("TODO think of some good text") (Ok 22) = Ok 22]}
+    {[Result.or_ Error(`UnexpectedInvertabrate("Periwinkle")) (Ok "Gecko") = (Ok "Gecko")]}
 
-    {[Result.or_ (Ok 11) Error("TODO think of some good text") = Ok 11]}
+    {[Result.or_ (Ok "Boar") Error(`UnexpectedInvertabrate("Periwinkle")) = (Ok "Boar") ]}
 
-    {[Result.or_ Error("TODO 1") Error("TODO 2") = Error("TODO 2")]}
+    {[Result.or_ Error(`UnexpectedInvertabrate("Periwinkle")) Error(`UnexpectedBird("Robin")) = Error(`UnexpectedBird("Robin"))]}
   */
   let or_: (t('error, 'ok), t('error, 'ok)) => t('error, 'ok);  
-  /** TODO */
-  let orElse:
-    (t('error, 'ok), ~f: 'error => t('error, 'ok)) => t('error, 'ok);
 
-  /** TODO
+  /** Combine two results, if both are [Ok] returns an [Ok] containing a {!Tuple} of the values.
+    
+      If either is an [Error], returns the [Error].
+
+      The same as writing [Result.map2 ~f:Tuple.make]
 
       {e Examples}
 
-      {[Result.both (Ok "success") (Ok 1) = Ok ("success", 1)]}
+      {[Result.both (Ok "Badger") (Ok "Rhino") = Ok ("Dog", "Rhino")]}
 
-      {[Result.both (Error "TODO 1") (Ok 1) = Error "TODO 1"]}
+      {[Result.both Error(`UnexpectedBird("Flamingo")) (Ok "Rhino") = Error(`UnexpectedBird("Flamingo"))]}
 
-      {[Result.both (Ok "success") (Error "TODO 2") = Error "TODO 2"]}
+      {[Result.both (Ok "Badger") Error(`UnexpectedInvertabrate("Blue ringed octopus")) = Error(`UnexpectedInvertabrate("Blue ringed octopus"))]}
 
-      {[Result.both (Error "TODO 1") (Error "TODO 2") = Error "TODO 1"]}
+      {[Result.both Error(`UnexpectedBird("Flamingo")) Error(`UnexpectedInvertabrate("Blue ringed octopus")) = Error(`UnexpectedBird("Flamingo"))]}
   */
   let both: (t('error, 'a), t('error, 'b)) => t('error, ('a, 'b));
 
@@ -584,9 +588,9 @@ module Result: {
 
       {[Result.join (Ok (Ok 2)) = Ok 2]}
 
-      {[Result.join (Ok (Error "TODO 2")) = Error "TODO 2"]}
+      {[Result.join (Ok (Error (`UnexpectedBird "Peregrin falcon"))) = Error(`UnexpectedBird("Peregrin falcon"))]}
 
-      {[Result.join (Error "TODO 1") = Error "TODO 1"]}
+      {[Result.join Error(`UnexpectedInvertabrate("Woodlouse")) = Error(`UnexpectedInvertabrate("Woodlouse"))]}
   */
   let join: t('error, t('error, 'a)) => t('error, 'a);
 
@@ -596,27 +600,37 @@ module Result: {
 
       {[Result.get ~default:0 (Ok 12) = 12]}
 
-      {[Result.get ~default:0 (Error "bad") = 0]}
+      {[Result.get ~default:0 (Error(`UnexpectedBird("Ostrich"))) = 0]}
   */
   let get: (t('error, 'ok), ~default: 'ok) => 'ok;
 
   /** Unwrap a Result, raising the provided [~exn] in case of an [Error]
 
       {e Exmples}
+      
+      {[
+        exception UnexpectedAnimal
 
-      TODO
-      {[Result.getOrFailWith (Ok 12)  = 12]}
-      {[Result.getOrFailWith ~default:0 (Error "bad") = 0]}
+        Result.getOrFailWith (Ok 12) ~exn:UnexpectedAnimal  = 12
+      ]}
+      
+      {[
+        Result.getOrFailWith (Error(`UnexpectedBird("Chicken"))) ~exn:UnexpectedAnimal 
+        // Raises an [UnexpectedAnimal] exception.
+      ]}
   */
   let getOrFailWith: (t(_, 'ok), ~exn: exn) => 'ok;
 
-  /** Unwrap a Result, raising a [TODO] exception in case of an [Error]
+  /** Unwrap a Result, raising an exception in case of an [Error]
+
+      {e Exceptions}
+
+      Raises an [Invalid_argument "Result.getUnsafe called with an Error"] exception.
 
       {e Exmples}
 
       {[Result.getUnsafe (Ok 12) = 12]}
 
-      TODO
       {[Result.getUnsafe (Error "bad") ]}
   */
   let getUnsafe: t(_, 'a) => 'a;
@@ -625,9 +639,9 @@ module Result: {
 
       {e Exmples}
 
-      {[Result.getError ~default:"TODO Ok" (Error "No desserts") = "bad"]}
+      {[Result.getError ~default:`UnexpectedInvertabrate("Ladybird") (Error `UnexpectedBird("Swallow")) = `UnexpectedBird("Swallow"]}
 
-      {[Result.getError ~default:"Default error message" (Ok 5) = "Default error message"]}
+      {[Result.getError ~default:`UnexpectedInvertabrate("Ladybird") (Ok 5) = `UnexpectedInvertabrate("Ladybird")]}
   */
   let getError: (t('error, 'ok), ~default: 'error) => 'error;
 
@@ -652,7 +666,7 @@ module Result: {
 
   /** If all of the elements of a list are [Ok], returns an [Ok] of the the list of unwrapped values.
 
-      If any of the elements in [results] are of the form [Error err], the first is returned.
+      If {b any} of the elements are an [Error], the first one encountered is returned.
 
       {e Examples}
 
@@ -668,7 +682,7 @@ module Result: {
 
       {[Result.map (Ok 3) ~f:(Int.add 1) = Ok 9]}
 
-      {[Result.map (Error "bad") ~f:(Int.add 1)  = Error "bad"]}
+      {[Result.map (Error "three") ~f:(Int.add 1) = Error "three"]}
   */
   let map: (t('error, 'a), ~f: 'a => 'b) => t('error, 'b);
 
@@ -684,8 +698,6 @@ module Result: {
 
   /** Converts an [Result.t('error, Option.t('ok)] into a [Option.t(Result.t('error, 'ok))]
 
-      TODO when is this useful
-
       {e Examples}
 
       {[Result.transpose (Ok (Some 5)) = Some (Ok 5)]}
@@ -696,9 +708,10 @@ module Result: {
   */
   let transpose: t('error, option('ok)) => option(t('error, 'ok));
 
-  /** TODO
-      Run a function which may fail on a result.
-
+  /** Run a function which may fail on a result.
+   
+      Short-circuits of called with an [Error].
+      
       {e Examples}
 
       {[
@@ -717,6 +730,8 @@ module Result: {
         )
       ]}
 
+      {e Examples}
+
       {[Result.bind ~f:reciprical (Ok 4.0) = Ok 0.25]}
 
       {[Result.bind ~f:reciprical (Error "Missing number!") = Error "Missing number!"]}
@@ -734,11 +749,14 @@ module Result: {
   /** TODO Seriously what would you use this for */
   let fold: (t(_, 'ok), ~initial: 'b, ~f: ('b, 'ok) => 'b) => 'b;
 
-  /** Run a function against an [Ok(value)], ignores [Error].
+  /** Run a function against an [Ok(value)], ignores [Error]s.
 
       {e Examples}
 
-      TODO
+      {[
+        Result.forEach(Ok("Dog"), ~f:print_endline);
+        // prints "Dog"
+      ]}
    */
   let forEach: (t(_, 'ok), ~f: 'ok => unit) => unit;
 
@@ -5744,7 +5762,12 @@ module List: {
 
   /** {1 Convert} */
 
-  /** Converts a list of strings into a {!String}. */
+  /** Converts a list of strings into a {!String}, placing [sep] between each string in the result.
+     
+      {e Examples}
+    
+      {[List.join ["Ant", "Bat", "Cat"] ~sep:", " = "Ant, Bat, Cat"]}
+   */
   let join: (t(string), ~sep: string) => string;
 
   /** Converts a list to an {!Array}. */
@@ -5752,9 +5775,20 @@ module List: {
 
   /** {2 Comparison} */
 
-  /** TODO */
+  /** Test two lists for equality using the provided function to test elements. */
   let equal: (('a, 'a) => bool, t('a), t('a)) => bool;  
-  
-  /** TODO */
+
+  /** Compare two lists using the provided function to compare elements. 
+
+      A shorter list is 'less' than a longer one.
+
+      {e Examples}
+
+      {[List.compare Int.compare [1;2;3] [1;2;3;4] = -1]} 
+
+      {[List.compare Int.compare [1;2;3] [1;2;3] = 0]} 
+
+      {[List.compare Int.compare [1;2;5] [1;2;3] = 1]} 
+  */
   let compare: (('a, 'a) => int, t('a), t('a)) => int;
 };
