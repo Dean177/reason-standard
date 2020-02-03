@@ -3025,7 +3025,7 @@ module Integer: {
       
       {[
         open Integer
-        
+
         inRange ~lower:(ofInt 2) ~upper:(ofInt 4) (ofInt 3) = true
         inRange ~lower:(ofInt 5) ~upper:(ofInt 8) (ofInt 4) = false
         inRange ~lower:(ofInt -6) ~upper:(ofInt -2) (ofInt -3) = true
@@ -3540,10 +3540,12 @@ module String: {
   */
   let repeat: (string, ~count: int) => string;
 
-  /** TODO */
+  /** Create a string by providing a length and a function to choose characters. 
+      TODO
+  */
   let initialize: (int, ~f: int => char) => string;
 
-  /** TODO */
+  /** Check if a string is empty */
   let isEmpty: string => bool;
 
   /** Returns the length of the given string.
@@ -3551,6 +3553,8 @@ module String: {
       TODO note on unicode characters 
 
       {e Examples}
+
+      {[String.length "你好" = 6]}
   */
   let length: string => int;
 
@@ -3605,20 +3609,27 @@ module String: {
   */
   let words: t => list(t);
 
-  /** TODO 
-   * returns the list of lines that comprise t. The lines do not include the trailing "\n" or "\r\n".
+  /** Split a string into a list of lines.
+
+      A line ends when "\n" or "\r\n" is encountered.  
+     
+      {e Examples}
+      
+      TODO
   */
   let lines: t => list(t);
 
-  /** TODO
-    {[
-      String.split ~on:"/" "a/b/c" = ["a"; "b"; "c"]
-      String.split ~on:"--" "a--b--c" = ["a"; "b"; "c"]
-      String.split ~on:"/" "abc" = ["abc"]
-      String.split ~on:"/" "" = [""]
-      String.split ~on:"" "abc" = ["a"; "b"; "c"]
-    ]}
+  /** Divide a string into a list of strings, splitting whenever [on] is encountered.
+   
+      {e Examples}
 
+      {[
+        String.split ~on:"/" "a/b/c" = ["a"; "b"; "c"]
+        String.split ~on:"--" "a--b--c" = ["a"; "b"; "c"]
+        String.split ~on:"/" "abc" = ["abc"]
+        String.split ~on:"/" "" = [""]
+        String.split ~on:"" "abc" = ["a"; "b"; "c"]
+      ]}
   */
   let split: (t, ~on: t) => list(t);
 
@@ -3628,17 +3639,19 @@ module String: {
   /** TODO */
   let endsWith: (t, ~suffix: string) => bool;
 
-  /** Converts all upper case letters in [s] to
-    lower case. This function works only with ASCII characters,
-    not Unicode.
+  /** Converts all upper case letters to lower case. 
+    
+      {b Note} This function works only with ASCII characters, not Unicode.
 
-    {[String.toLowercase "AaBbCc123" = "aabbcc123"]}
+      {e Examples}
+      
+      {[String.toLowercase "AaBbCc123" = "aabbcc123"]}
   */
   let toLowercase: string => string;
 
-  /** Converts all lower case letters in [s] to upper case.  
+  /** Converts all lower case letters to upper case.  
       
-      This function works only with ASCII characters, not Unicode.
+      {b Note} This function works only with ASCII characters, not Unicode.
 
       {e Examples}
 
@@ -3648,11 +3661,11 @@ module String: {
 
   /** Converts the first letter to lower case if it is upper case.
     
-      This function works only with ASCII characters, not Unicode.
+      {b Note} This function works only with ASCII characters, not Unicode.
 
       {e Examples}
 
-      TODO
+      {[String.uncapitalize "Anastasia" = "anastasia"]}
   */
   let uncapitalize: string => string;
 
@@ -3662,32 +3675,45 @@ module String: {
 
       {e Examples}
 
-      TODO
+      {[String.uncapitalize "den" = "Den"]}
   */
   let capitalize: string => string;
 
-  /** TODO 
-    [isCapitalized s] returns [true] if  the first letter
-    of [s] is upper case, [false] otherwise. This function
-    works only with ASCII characters, not Unicode.
+  /** Test if the first letter of a string is upper case. 
+    
+      This function works only with ASCII characters, not Unicode.
+
+      {e Examples}
+      
+      {[String.isCapitalized "Anastasia" = true]}
+
+      {[String.isCapitalized "" = false]}
   */
   let isCapitalized: string => bool;
 
-  /**
-    [String.includes ~substring:sub s]
-    returns [true] if [sub] is contained anywhere in [s]; [false] otherwise.
-    [String.includes ~substring:"" s] returns [true] for all [s].
+  /** Check if one string appears within another
+    
+      {e Examples}
+
+      {[String.includes "team" ~substring:"tea" = true]}
+
+      {[String.includes "team" ~substring:"i" = false]}
+
+      {[String.includes "ABC" ~substring:"" = true]}
   */
   let includes: (t, ~substring: string) => bool;
 
-  /** TODO 
-    [String.reverse s] returns a new string
-    with its characters in the reverse order of the characters in
-    [s]. This function works with Unicode characters.
+  /** Reverse a string
+    
+      {b Note} This function does not work with Unicode characters.
+
+      {e Examples}
+
+      {[String.reverse "stressed" = "desserts"]}
   */
   let reverse: string => string;
 
-  /** TODO */
+  /** Extract */
   let slice: (~to_: int=?, t, ~from: int) => t;
 
   /** TODO 
