@@ -5,7 +5,7 @@ title: "Roadmap"
 ## Future
 
 - [ ] Bool
-- [ ] Immutable Vector
+- [ ] Vector (Immutable, Growable array-like)
 - [ ] Buffer: file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Buffer/index.html
 - [ ] Random
   - file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Random/index.html
@@ -32,7 +32,6 @@ title: "Roadmap"
 - Range
   - https://immutable-js.github.io/immutable-js/docs/#/Range
 - Slice
-- Vector
 - Lazy
 - DoublyLinkedList
 - file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Lazy/index.html
@@ -43,7 +42,6 @@ title: "Roadmap"
   file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Hash/index.html
 - Hashable
   file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Hashable/index.html
-
 - Unit
 - Record
 - Object

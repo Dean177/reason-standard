@@ -1,4 +1,3 @@
-
 module Fun = {
   external identity: 'a => 'a = "%identity";
 
@@ -131,6 +130,14 @@ module Tuple = {
   let toArray = ((a, b)) => [|a, b|];
 
   let toList = ((a, b)) => [a, b];
+
+  let equal = (equalFirst, equalSecond, (a, b), (a', b')) => equalFirst(a, a') && equalSecond(b, b');
+
+  let compare = (compareFirst, compareSecond, (a, b), (a', b')) => 
+    switch (compareFirst(a,a')) {
+    | 0 => compareSecond(b, b')
+    | result => result
+    };
 };
 
 module Tuple3 = {
@@ -181,6 +188,18 @@ module Tuple3 = {
   let toArray = ((a, b, c)) => [|a, b, c|];
 
   let toList = ((a, b, c): ('a, 'a, 'a)): list('a) => [a, b, c];
+
+  let equal = (equalFirst, equalSecond, equalThird, (a, b, c), (a', b', c')) =>
+    equalFirst(a, a') && equalSecond(b, b') && equalThird(c, c');
+
+  let compare = (compareFirst, compareSecond, compareThird, (a, b, c), (a', b', c')) => 
+    switch (compareFirst(a,a')) {
+    | 0 => switch(compareSecond(b, b')) {
+      | 0 => compareThird(c,c')
+      | result => result
+    }
+    | result => result
+    };
 };
 
 module List = {
@@ -441,6 +460,25 @@ module List = {
   let sort = Base.List.sort;
 
   let join = (t, ~sep) => String.concat(sep, t);
+
+    
+  let rec equal = (equalElement, a, b) =>
+    switch (a, b) {
+      | ([], []) => true
+      | ([x,...xs], [y, ...ys]) => equalElement(x, y) && equal(equalElement, xs, ys)
+      | _ => false
+    }
+
+  let compare = (compareElement, a, b) => 
+    switch (a, b) {
+      | ([], []) => 0
+      | ([], ys) => -1
+      | (xs, []) => 1
+      | ([x,...xs], [y, ...ys]) => switch (compare(x, y)) {
+        | 0 => compare(xs, ys)
+        | result => result
+      } 
+    };
 };
 
 module Option = {
@@ -530,6 +568,19 @@ module Option = {
     let (|?) = (t, default) => get(t, ~default);
     let (>>=) = (t, f) => bind(t, ~f);
     let (>>|) = (t, f) => map(t, ~f);
+  };
+
+  let equal = (equal, a, b) => switch (a, b) {
+    | (None, None) => true
+    | (Some(a'), Some(b')) => equal(a',b')
+    | _ => false
+  };
+
+  let compare = (compare, a, b) => switch (a, b) {
+    | (None, None) => 0
+    | (Some(a'), Some(b')) => compare(a',b')
+    | (None, Some(_)) => -1
+    | (Some(_), None) => 1
   };
 };
 
@@ -645,6 +696,20 @@ module Result = {
     | _ => ()
     };
 
+  
+  let equal = (equalError, equalOk, a, b) => switch (a, b) {
+    | (Error(a'), Error(b')) => equalError(a',b')
+    | (Ok(a'), Ok(b')) => equalOk(a',b')
+    | _ => false
+  };
+
+  let compare = (compareError, compareOk, a, b) => switch (a, b) {
+    | (Error(a'), Error(b')) => compareError(a', b')
+    | (Ok(a'), Ok(b')) => compareOk(a',b')
+    | (Error(_), Ok(_)) => -1
+    | (Ok(_), Error(_)) => 1
+  };
+
   let pp =
       (
         errf: (Format.formatter, 'err) => unit,
@@ -713,6 +778,10 @@ module Char = {
   let isPrintable = Base.Char.is_print;
 
   let isWhitespace = Base.Char.is_whitespace;
+
+  let equal = (==);
+
+  let compare = compare;
 };
 
 module Float = {
@@ -908,6 +977,10 @@ module Float = {
   let toInt = Base.Float.iround_towards_zero;
 
   let toString = Base.Float.to_string;
+
+  let equal = (==);
+
+  let compare = compare;
 };
 
 module Int = {
@@ -1003,6 +1076,10 @@ module Int = {
   let toFloat = Base.Int.to_float;
 
   let toString = Base.Int.to_string;
+
+  let equal = (==);
+
+  let compare = compare;
 };
 
 module Integer = {
@@ -1020,10 +1097,6 @@ module Integer = {
     | exception _ => None
     };
   };
-
-  let compare = Z.compare;
-
-  let equal = (==);
 
   let zero = Z.zero;
 
@@ -1126,6 +1199,10 @@ module Integer = {
     };
 
   [@bs.send] external toString: t => string = "toString";
+
+  let equal = (==);
+
+  let compare = Z.compare;
 };
 
 module String = {
@@ -1218,9 +1295,9 @@ module String = {
 
   let fold = (s, ~initial, ~f) => Base.String.fold(s, ~init=initial, ~f);
 
-  let compare = Base.String.compare;
-
   let equal = Base.String.equal;
+
+  let compare = Base.String.compare;
 };
 
 module Set = {
@@ -1662,4 +1739,43 @@ module Array = {
       (i - 1, [(i, x), ...acc])
     )
     |> Base.snd;
+  
+  let equal = (equal, a, b) =>
+    if (length(a) != length(b)) {
+      false
+    } else if  (length(a) == 0) {
+      true
+    } else {
+      let rec loop = (index) => {
+        if (index == length(a)) {
+          true
+        } else {
+          equal(a[index], b[index]) && loop(index + 1)
+        }
+      }
+      loop(0)
+    };
+
+  let compare = (compare, a, b) => {
+    switch (Int.compare(length(a), length(b))) {
+    | 0 => {
+      if (length(a) === 0) {
+        0
+      } else {
+        let rec loop = (index) => {
+          if (index == length(a)) {
+            0
+          } else {
+            switch(compare(a[index], b[index])) {
+              | 0 => loop(index + 1)
+              | result => result
+            }
+          }
+        }
+        loop(0)
+      }
+    }
+    | result => result
+    };
+  };
 };

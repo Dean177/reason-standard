@@ -1,7 +1,12 @@
-include Standard_shared
-
 module Option = struct
-  include StandardShared.Option
+  include Standard.Option
+
+  let (let*) = map
+  let (let+) = both
+end
+
+module Result = struct
+  include Standard.Option
 
   let (let*) = map
   let (let+) = both
