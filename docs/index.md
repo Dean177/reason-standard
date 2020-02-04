@@ -2,32 +2,17 @@
 title: "Standard"
 ---
 
-Some introduction text. Lists out all the headings from h1 to h6. 
+![](./is_it_worth_the_time.png)
 
-Easy to customise. 
+Standard provides an easy-to-use, comprehensive and performant standard library, that has the same API for the OCaml and Bucklescript compilers.
 
-Some more text. 
+```reason
+open Standard;
 
-> Additional text.
+String.toList("somestring")
+->List.filterMap(~f=character => 
+  Char.toCode(character)->Int.add(1)->Char.ofCode
+)
+->String.ofList
+```
 
-## Heading H2
-Heading 2 text
-
-## Second Heading
-Heading 3 text
-
-#### Heading H4
-Heading 4 text
-
-##### Heading H5
-Heading 5 text
-
-###### Heading H6
-Heading 6 text
-
-## Lists
-- Item 1
-- Item 2
-- Item 3
-- Item 4
-- Item 5

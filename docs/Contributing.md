@@ -85,7 +85,7 @@ Avoid the following:
 
 They don't help anyone understand how anything works, but they can make someone who is struggling with a new concept or module feel inadequate.
 
-Avoid this style of documentation
+### Avoid this style of documentation
 
 > `lfindi ?pos t ~f` returns the smallest `i >= pos` such that `f i t.[i]`, if there is such an `i`. By default, `pos = 0`.
 

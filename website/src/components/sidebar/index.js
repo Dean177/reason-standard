@@ -2,8 +2,7 @@ import React from "react";
 import {Tree} from './tree';
 import {StaticQuery, graphql} from "gatsby";
 import styled from 'styled-components'
-
-let ExternalLink = (props) => `TODO ${props.size}`
+import { colors, dimensions } from "../../theme";
 
 const ListItem = styled(({ className, active, level, ...props }) => {
     return (
@@ -43,30 +42,65 @@ const ListItem = styled(({ className, active, level, ...props }) => {
 `;
 
 const Sidebar = styled('aside')`
-  background-color: #372476;
-  background: linear-gradient(#372476, #3b173b);
+  background-color: ${colors.purple.base};
+  background: linear-gradient(${colors.purple.base}, ${colors.purple.dark});
+
   width: 100%;
   height: 100vh;
   overflow: auto;
-  position: fixed;
-  padding-left: 0px;
-  position: sticky;
+  /* position: fixed; */
+  /* position: sticky; */
   top: 0;
-  padding-right: 0;
 
-  @media only screen and (max-width: 1023px) {
+  .sideBarUL {
+    margin-top: 32px;
+  }
+
+  .sideBarUL li {
+    list-style-type: none;
+    width: auto;
+  }
+
+  .sideBarUL li a {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    padding: 7px 24px 7px 16px;
+    padding-left: 10px;
+    padding-right: 25px;
+    border-style: solid none solid solid;
+    border-width: 1px 0px 1px 1px;
+    border-color: transparent currentcolor transparent transparent;
+  }
+
+  .sideBarUL .item {
+    list-style: none;
+    padding: 0;
+  }
+
+  .sideBarUL .item > a {
+    color: #fff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    position: relative;
     width: 100%;
-    height: 100vh;
-  }
-  @media (min-width: 767px) and (max-width:1023px) {
-    padding-left: 0;
+    padding-right: 35px;
+    padding-left: 15px;
+    &:hover {
+      background-color: #542683;
+      color: #fff;
+    }
   }
 
-  @media only screen and (max-width: 767px) {
-    padding-left: 0px;
-    background-color: #372476;
-    background: #372476;
-    height: auto;
+  .sideBarUL .item .item {
+    margin-left: 16px;
+  }
+
+  @media only screen and (min-width: 767px) {
+    height: 100vh;
+    width: ${dimensions.leftSidebarWidth}px;
   }
 `;
 
@@ -110,18 +144,7 @@ export const LeftSidebar = ({location}) => (
           <ul className={'sideBarUL'}>
             <Tree
               edges={allMdx.edges}
-            />
-            <Divider />
-            {[].map((link, key) => {
-              if (link.link !== '' && link.text !== '') {
-                return (
-                  <ListItem key={key} to={link.link}>
-                    {link.text}
-                    <ExternalLink size={14} />
-                  </ListItem>
-                );
-              }
-            })}
+            />          
           </ul>
         </Sidebar>
       );

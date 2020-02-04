@@ -15,6 +15,36 @@ const RightSidebarContainer = styled('aside')`
   position: -moz-sticky;
   position: sticky;
   top: 0;
+
+  .rightSideBarUL {
+    margin-top: 32px;
+  }
+
+  .rightSideBarUL li {
+    list-style-type: none;
+    border-left: 1px solid #e6ecf1;
+    border-left-color: rgb(230, 236, 241);
+  }
+
+  .rightSideBarUL li a {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.5;
+    padding: 7px 24px 7px 16px;
+  }
+
+  .rightSideTitle {
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    padding: 7px 24px 7px 16px;
+    border-left: 1px solid #e6ecf1;
+    border-left-color: rgb(230, 236, 241);
+    color: #4c5767;
+  }
+
   @media only screen and (max-width: 50rem) {
     width: 100%;
     position: relative;
@@ -86,7 +116,7 @@ export const RightSidebar = ({ location }) => (
 
       return (
         <RightSidebarContainer>
-          <ul className={"rightSideBarUL"}>
+          <ul css={"rightSideBarUL"}>
             <li className={"rightSideTitle"}>CONTENTS</li>
             {allMdx.edges.map((item) => {
               return item.node.tableOfContents.items.map((innerItem, index) => {

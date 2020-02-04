@@ -1,5 +1,5 @@
 ---
-title: "Alternatives"
+title: "Data first vs Data last"
 ---
 https://www.javierchavarri.com/data-first-and-data-last-a-comparison/
 https://github.com/BuckleScript/bucklescript/issues/2625

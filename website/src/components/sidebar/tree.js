@@ -1,6 +1,50 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
+import { createGlobalStyle } from 'styled-components'
 import {Opened, Closed} from '../Icon';
-import {Link} from '../Link';
+import { Link } from '../Link';
+
+let TreeStyles = createGlobalStyle`
+
+.showFrontLine .item >a:hover {
+  background-color: #542683;
+}
+.showFrontLine .active >a {
+  color: #fff;
+  background-color: #473485;
+}
+
+.showFrontLine  .item .item {
+  border-left: 1px solid #e6ecf1;
+  border-left-color: rgb(230, 236, 241);
+  padding: 0;
+  width: calc(100% - 16px);
+}
+
+.showFrontLine .item .active>a {
+  border-color: rgb(230,236,241);
+  border-style: solid none solid solid;
+  border-width: 1px 0px 1px 1px;
+  background-color: #542683;
+  color: #fff;
+}
+
+
+
+.firstLevel ul li .collapser svg path {
+  fill: #fff;
+}
+.active .collapser >svg >path {
+  fill: #663399;
+}
+
+.firstLevel ul .item ul .item {
+  border-left: 1px solid #e6ecf1;
+}
+
+.firstLevel>ul>.item{
+  margin-left: 0;
+}
+`;
 
 const TreeNode = ({
   className = '',
@@ -11,9 +55,6 @@ const TreeNode = ({
   items,
 }) => {
   const isCollapsed = collapsed[url];
-  const collapse = () => {
-    setCollapsed(url);
-  };
   const hasChildren = items.length !== 0;
   let location;
   if (typeof document != 'undefined') {
@@ -27,7 +68,9 @@ const TreeNode = ({
           {title}
           {hasChildren ? (
             <button
-              onClick={collapse}
+              onClick={() => {
+    setCollapsed(url)
+  }}
               aria-label="collapse"
               className="collapser"
             >
@@ -127,11 +170,14 @@ export const Tree = ({edges}) => {
     });
   }
   return (
+    <>
+      <TreeStyles />
     <TreeNode
       className={'showFrontLine firstLevel'}
       setCollapsed={toggle}
       collapsed={collapsed}
       {...treeData}
-    />
+      />
+      </>
   );
 }
