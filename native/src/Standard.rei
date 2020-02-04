@@ -346,32 +346,6 @@ module Bool: {
   */
   let negate: ('a => bool, 'a) => bool;
 
-  /** Test for the equality of two [bool] values.
-
-      {e Examples}
-
-      {[Bool.equal true true = true]}
-
-      {[Bool.equal false false = true]}
-
-      {[Bool.equal false true = false]}
-  */
-  let equal: (t, t) => t;
-
-  /** Compare two boolean values
-
-      {e Examples}
-
-      {[Bool.compare true false = 1]}
-
-      {[Bool.compare false true = -1]}
-
-      {[Bool.compare true true = 0]}
-
-      {[Bool.compare false false = 0]}
-  */
-  let compare: (t, t) => int;
-
   /** {1 Conversion} */
 
   /** Convert a [bool] to a {!String}
@@ -396,12 +370,30 @@ module Bool: {
 
   /** {2 Comparison} */
 
-  /** Test two boolean values for equality */
-  let equal: (t, t) => bool;
+  
+  /** Test for the equality of two [bool] values.
 
-  /** Compare two boolean values.  
+      {e Examples}
 
-      [false] is 'less' than [true] 
+      {[Bool.equal true true = true]}
+
+      {[Bool.equal false false = true]}
+
+      {[Bool.equal false true = false]}
+  */
+  let equal: (t, t) => t;
+
+  /** Compare two boolean values
+
+      {e Examples}
+
+      {[Bool.compare true false = 1]}
+
+      {[Bool.compare false true = -1]}
+
+      {[Bool.compare true true = 0]}
+
+      {[Bool.compare false false = 0]}
   */
   let compare: (t, t) => int;
 };
@@ -462,7 +454,7 @@ module Result: {
         List.map([1,2,3], ~f:Ok(_)) == [Ok(1),Ok(2),Ok(3)]
       ]}
 
-      See the {Reason docs {https://reasonml.github.io/docs/en/pipe-first#pipe-into-variants}} for more.
+      See the {{: https://reasonml.github.io/docs/en/pipe-first#pipe-into-variants} Reason docs } for more.
 
       {e Examples}
 
@@ -947,7 +939,7 @@ module Option: {
 
       Note that when using the Reason syntax you {b can} use fast pipe ([->]) with variant constructors, so you don't need this function.
       
-      See the {Reason docs {https://reasonml.github.io/docs/en/pipe-first#pipe-into-variants}} for more.
+      See the {{: https://reasonml.github.io/docs/en/pipe-first#pipe-into-variants} Reason docs } for more.
 
       {e Examples} 
 
@@ -1138,16 +1130,16 @@ module Option: {
         Option.getOrFailWith (Ok "Wolf") ~exn:(Invalid_argument "Thats no wolf") = "Wolf"
       ]}
 
-      {|
+      {[
         Option.getOrFailWith (Error "Dog") ~exn:(Invalid_argument "Thats no wolf")
-        // Raises [Invalid_argument "Thats no wolf")]
-      |}
+        Raises [Invalid_argument "Thats no wolf")]
+      ]}
         
-      {|
+      {[
         exception FelineEncounterd
         Option.getOrFailWith (Error "Kitten") ~exn:FelineEncountered
         // Raises [FelineEncountered]
-      |}
+      ]}
   */
   let getOrFailWith: (t('a), ~exn: exn) => 'a;
 
@@ -1362,7 +1354,7 @@ module Char: {
       {[let char = 'c']}
   */
 
-  /** Convert an ASCII [code point][cp] to a character.
+  /** Convert an ASCII {{: https://en.wikipedia.org/wiki/Code_point } code point } to a character.
 
       Returns [None] if the codepoint is outside the range of 0 to 255 inclusive.
 
@@ -1376,9 +1368,7 @@ module Char: {
 
       {[Char.ofCode (-1) = None]}
 
-      The full range of extended ASCII is from [0] to [255]. For numbers outside that range, you get [None].
-
-      [cp]: https://en.wikipedia.org/wiki/Code_point
+      The full range of extended ASCII is from [0] to [255]. For numbers outside that range, you get [None].      
   */
   let ofCode: int => option(char);
 
@@ -1515,7 +1505,7 @@ module Char: {
   */
   let isAlphanumeric: char => bool;
 
-  /** Detect if a character is a [printable](https://en.wikipedia.org/wiki/ASCII#Printable_characters) character
+  /** Detect if a character is a {{: https://en.wikipedia.org/wiki/ASCII#Printable_characters } printable } character
    
       A Printable character has a {!code} in the range 32 to 127, inclusive ([' '] to ['~']).
 
@@ -2342,7 +2332,7 @@ module Float: {
   /** Test two floats for equality */
   let equal: (t, t) => bool;
 
-  /** TODO */
+  /** Compare two floats */
   let compare: (t, t) => int;
 };
 
@@ -2373,9 +2363,8 @@ module Int: {
       which means that [int] math is well-defined in the range [-2 ** 30] to [2 ** 30 - 1] for 32bit platforms [-2 ** 62] to [2 ** 62 - 1] for 64bit platforms.
 
       You can read about the reasons for OCamls unusual integer sizes {{: https://v1.realworldocaml.org/v1/en/html/memory-representation-of-values.html} here }.
-
-      TODO verify this, it seems incorrect.
-      When targeting JavaScript, that range is [-2 ** 53] to [2 ** 53 - 1].
+      
+      When targeting Bucklescript {{: [ints] are 32 bits} https://bucklescript.github.io/docs/en/common-data-types.html#int }.
 
       Outside of that range, the behavior is determined by the compilation target.
 
@@ -2708,10 +2697,10 @@ module Int: {
 
   /** {2 Comparison} */
 
-  /** TODO */
+  /** Test two [int]s for equality */
   let equal: (t, t) => bool;
 
-  /** TODO */
+  /** Compare two [int]s */
   let compare: (t, t) => int;
 };
 
@@ -2733,7 +2722,14 @@ module Integer: {
   /** Create an {!Integer} from an Int64 */
   let ofInt64: Int64.t => t;
 
-  /** TODO */
+  /** Create an {!Integer} from an Int64. 
+
+      Returns [None] when called with {!Float.nan}, {!Float.infinity} or {!Float.negativeInfinity}
+
+      {e Examples}
+
+
+  */
   let ofFloat: float => option(t);
 
   /** Attempt to parse a {!String} into a {!Integer}.
@@ -3052,11 +3048,12 @@ module Integer: {
       TODO
   */
   let toInt64: t => option(Int64.t);  
+
   /** TODO */
   let toFloat: t => option(float);  
+
   /** TODO */
   let toString: t => string;
-
 
   /** {2 Comparison} */
 
@@ -4641,8 +4638,8 @@ module Array: {
       {e Examples}
 
       {[
-        let characters = ['a'; '9'; '6'; ' '; '2'; 'z' ]
-        filterMap characters ~f:Char.toDigit = [9; 6; 2];
+        let characters = [|'a'; '9'; '6'; ' '; '2'; 'z' |]
+        Array.filterMap characters ~f:Char.toDigit = [|9; 6; 2|];
       ]}
 
       {[
@@ -5074,7 +5071,12 @@ module Array: {
 
   /** {1 Convert} */
 
-  // TODO
+  /** Converts a list of strings into a {!String}, placing [sep] between each string in the result.
+     
+      {e Examples}
+    
+      {[Array.join [|"Ant", "Bat", "Cat"|] ~sep:", " = "Ant, Bat, Cat"]}
+   */
   let join: (t(string), ~sep: string) => string;
 
   /** Create a {!List} of elements from an array.
@@ -5305,16 +5307,15 @@ module List: {
   */
   let bind: (t('a), ~f: 'a => t('b)) => t('b);
 
-  /**
-    Apply a function [f] to every element and its index.
+  /** Apply a function [f] to every element and its index.
 
-    {e Examples}
-    
-    {[
-      List.mapI(["zero", "one", "two"], ~f=(index,  element) => 
-        (Int.toString(index)) ++ ": " ++ element
-      ) = ["0: zero"; "1: one"; "2: two"]
-    ]}
+      {e Examples}
+      
+      {[
+        List.mapI(["zero", "one", "two"], ~f=(index,  element) => 
+          (Int.toString(index)) ++ ": " ++ element
+        ) = ["0: zero"; "1: one"; "2: two"]
+      ]}
   */
   let mapI: (t('a), ~f: (int, 'a) => 'b) => t('b);
 
@@ -5336,10 +5337,12 @@ module List: {
   */
   let map2: (t('a), t('b), ~f: ('a, 'b) => 'c) => t('c);
 
-  /** Combine three lists, using [f] to combine each {!Tuple3} of elements.
+  /** Combine three lists, using [f] to combine each trio of elements.
       
       If one list is longer, the extra elements are dropped.
 
+      {e Examples}
+      
       {[
         List.map3
           ~f:Tuple3.create
@@ -5359,6 +5362,8 @@ module List: {
 
       The sub-lists are guaranteed to always be of length [size] and iteration stops once a sub-list would extend beyond the end of the list.
 
+      {e Examples}
+      
       {[List.sliding [1;2;3;4;5] ~size:1 = [[1]; [2]; [3]; [4]; [5]] ]}
 
       {[List.sliding [1;2;3;4;5] ~size:2 = [[1;2]; [2;3]; [3;4]; [4;5]] ]}
@@ -5379,6 +5384,10 @@ module List: {
 
       Returns [None] if the list is empty.
 
+      {b Warning} This will iterate through the entire list. 
+
+      {e Examples}
+
       {[List.last [1;2;3] = Some 3]}
 
       {[List.last [1] = Some 1]}
@@ -5387,24 +5396,29 @@ module List: {
   */
   let last: t('a) => option('a);
 
-  // TODO
-  /**
-    [List.includes ~value: v xs] returns [true]
-    if the given value [v] is found in thelist [xs], [false] otherwise.
-
-    {[
-    List.includes ~value:3 [1;3;5;7] = true
-    List.includes ~value:4 [1;3;5;7] = false
-    List.includes ~value:5 [] = false
-    ]}
-  */
   /** Test if a list contains the specified element using the provided [equal] to test for equality.
+   
+      This function may iterate the entire list, so if your code needs to 
+      repeatedly perform this check, maybe you want a {!Set} instead.
 
-      {[List.contains [1; 2; 3] 2 ~equal:(=) = true]}
+      {e Examples}
+
+      {[List.contains [1; 2; 3] 2 ~equal:Int.equal = true]}
+
+      {[
+        List.includes ~value:3 [1;3;5;7] = true
+        List.includes ~value:4 [1;3;5;7] = false
+        List.includes ~value:5 [] = false
+    ]}
   */
   let includes: (t('a), 'a, ~equal: ('a, 'a) => bool) => bool;
 
-  // TODO
+  /** Count the number of elements which [f] returns [true] for
+    
+      {e Examples}
+
+      {[List.count [7;5;8;6] ~f:Int.isEven = 2]}
+   */
   let count: (t('a), ~f: 'a => bool) => int;
 
   /** As an {!Option} get of all of the elements of a list except the last one.
@@ -5430,20 +5444,25 @@ module List: {
       {!filterMap} removes the {!Option} layer automatically.
       If your mapping is already returning an {!Option} and you want to skip over Nones, then [filterMap] is much nicer to use.
 
+      {e Examples}
+
+      {[
+        let characters = ['a'; '9'; '6'; ' '; '2'; 'z' ]
+        filterMap characters ~f:Char.toDigit = [9; 6; 2];
+      ]}
+
       {[List.filterMap [3; 4; 5; 6] ~f:(fun number ->
         if Int.isEven number then
           Some (number * number)
         else
           None
       ) = [16; 36]}
-
-      TODO create a good examples where this is useful
   */
   let filterMap: (t('a), ~f: 'a => option('b)) => t('b);
 
   /** Returns the element at position [index] in the list.
 
-      Returns [None] if the list is empty, or [index] is outside of the bounds of the list.
+      Returns [None] if [index] is outside of the bounds of the list.
 
       {e Examples}
 
@@ -5457,84 +5476,90 @@ module List: {
 
   /** Keep elements that [f] returns [true] for.
 
+      {e Examples}
+      
       {[List.filter ~f:Int.isEven [1; 2; 3; 4; 5; 6] = [2; 4; 6]]}
   */
   let filter: (t('a), ~f: 'a => bool) => t('a);
 
-  // TODO
+  /** Like {!filter} but [f] is also called with each elements index. */
   let filterI: (t('a), ~f: (int, 'a) => bool) => t('a);
 
   /** {1 Deconstruct} */
 
   /** Split a list into a {!Tuple} of lists. Values which [f] returns true for will end up in {!Tuple.first}.
-
-    {[List.partition [1;2;3;4;5;6] ~f:Int.isOdd = ([1;3;5], [2;4;6])]}
+      
+      {e Examples}
+    
+      {[List.partition [1;2;3;4;5;6] ~f:Int.isOdd = ([1;3;5], [2;4;6])]}
   */
   let partition: (t('a), ~f: 'a => bool) => (t('a), t('a));
 
   /** Decompose a list of {!Tuple} into a {!Tuple} of lists.
 
-    {[List.unzip [(0, true); (17, false); (1337, true)] = ([0;17;1337], [true; false; true])]}
+      {e Examples}
+      
+      {[List.unzip [(0, true); (17, false); (1337, true)] = ([0;17;1337], [true; false; true])]}
   */
   let unzip: t(('a, 'b)) => (t('a), t('b));
 
   /** Decompose a list of {!Tuple3} into a {!Tuple3} of lists.
+      
+      {e Examples}
 
-    {[List.unzip [(0, true); (17, false); (1337, true)] = ([0;17;1337], [true; false; true])]}
+      {[List.unzip [(0, true); (17, false); (1337, true)] = ([0;17;1337], [true; false; true])]}
   */
   let unzip3: t(('a, 'b, 'c)) => (t('a), t('b), t('c));
 
-  /**
-    After applying [f] to every element of the list, [fold] returns the accumulator.
+  /** Transform a list into a value
+   
+      After applying [f] to every element of the list, [fold] returns the accumulator.
 
-    [fold] iterates over the elements of the list from first to last.
+      [fold] iterates over the elements of the list from first to last.      
 
-    Folding is useful whenever you have a collection of something, and want to produce a single value from it.
+      For examples if we have:
 
-    For examples if we have:
+      {[
+        let numbers = [1, 2, 3] in
+        let sum =
+          List.fold numbers ~initial:0 ~f:(fun accumulator element -> accumulator + element)
+        in
+        sum = 6
+      ]}
 
-    {[
-      let numbers = [1, 2, 3] in
-      let sum =
-        List.fold numbers ~initial:0 ~f:(fun accumulator element -> accumulator +element)
-      in
-      sum = 6
-    ]}
+      Walking though each iteration step by step:
 
-    Walking though each iteration step by step:
+      + [accumulator: 0, element: 1, result: 1]
+      + [accumulator: 1, element: 2, result: 3]
+      + [accumulator: 3, element: 3, result: 6]
 
-    + [accumulator: 0, element: 1, result: 1]
-    + [accumulator: 1, element: 2, result: 3]
-    + [accumulator: 3, element: 3, result: 6]
+      And so the final result is [6]. (Note that in this case you probably want to use {!List.sum})
 
-    And so the final result is [6]. (Note that in this case you probably want to use {!Array.sum})
+      {b Examples continued}
 
-    {b Examples continued}
+      {[List.fold [|1; 2; 3|] ~initial:[] ~f:(List.cons) = [3; 2; 1]]}
 
-    {[Array.fold [|1; 2; 3|] ~initial:[] ~f:(List.cons) = [3; 2; 1]]}
+      {[
+        let unique integers =
+          List.fold integers ~initial:Set.Int.empty ~f:Set.add |> Set.toList
+        in
+        unique [|1; 1; 2; 3; 2|] = [|1; 2; 3|]
+      ]}
 
-    {[
-      let unique integers =
-        Array.fold integers ~initial:Set.Int.empty ~f:Set.add |> Set.toArray
-      in
-      unique [|1; 1; 2; 2; 3|] = [|1; 2; 3|]
-    ]}
-
-    {[
-      let lastEven integers =
-        Array.fold integers ~initial:None ~f:(fun last int ->
-          if Int.isEven then
-            Some int
-          else
-            last
-        )
-      in
-      lastEven [|1;2;3;4;5|] = Some 4
-    ]}
+      {[
+        let lastEven integers =
+          List.fold integers ~initial:None ~f:(fun last int ->
+            if Int.isEven then
+              Some int
+            else
+              last
+          )
+        in
+        lastEven [|1;2;3;4;5|] = Some 4
+      ]}
   */
   let fold: (t('a), ~initial: 'b, ~f: ('b, 'a) => 'b) => 'b;
 
-  // TODO
   /** This method is like {!foldLeft} except that it iterates over the elements of the list from last to first. */
   let foldRight: (t('a), ~initial: 'b, ~f: ('b, 'a) => 'b) => 'b;
 
@@ -5542,6 +5567,8 @@ module List: {
 
     If [f] doesn't return [true] for any of the elements [find] will return [None]
 
+    {e Example}
+    
     {[List.find ~f:Int.isEven [|1; 3; 4; 8;|] = Some 4]}
 
     {[List.find ~f:Int.isOdd [|0; 2; 4; 8;|] = None]}
@@ -5552,19 +5579,32 @@ module List: {
 
   /** Returns, as an option, a tuple of the first element and its index for which [f] evaluates to true.
 
-    If no element satisfies the [predicate], [findIndex] returns [None].
+      If [f] doesnt return [true] for any [(index, element)] pair, returns [None].
 
-    {[List.findIndex ~f:(fun index number -> index > 2 && Int.isEven number) [|1; 3; 4; 8;|] = Some (3, 8)]}
+      {e Example}
+      
+      {[List.findIndex ~f:(fun index number -> index > 2 && Int.isEven number) [|1; 3; 4; 8;|] = Some (3, 8)]}
   */
   let findIndex: (t('a), ~f: (int, 'a) => bool) => option((int, 'a));
 
-  /**
-   * TODO count > length ? return none
+  /** Attempt to take the first [count] elements of a list.
+    
+     If the list has fewer than [count] elements, returns [None].
+
+     {e Example}
+
+     {[List.take [1;2;3] ~count:2 = Some [1;2]]}
+
+     {[List.take [] ~count:2 = None]}
+
+     {[List.take [1;2;3;4] ~count:8 = None]}
   */
   let take: (t('a), ~count: int) => t('a);
 
   /** Take elements from a list until [f] returns [false]
     
+      {e Examples}
+      
       {[
         List.takeWhile ~f:Int.isEven [2; 4; 6; 7; 8; 9] = [2; 4; 6]
         List.takeWhile ~f:Int.isEven [2; 4; 6] = [2; 4; 6]
@@ -5575,6 +5615,8 @@ module List: {
 
   /** Drop the first [count] elements from the front of a list.
     
+      {e Examples}
+      
       {[List.drop [1;2;3;4] ~count:2 = [3;4]}
 
       {[List.drop [1;2;3;4] ~count:6 = []]}
@@ -5583,6 +5625,8 @@ module List: {
 
   /** Drop elements from a list until [f] returns [false]
    
+      {e Examples}
+
       {[
         List.dropWhile ~f:Int.isEven [2; 4; 6; 7; 8; 9] = [7; 8; 9]
         List.dropWhile ~f:Int.isEven [2; 4; 6; 8] = []
@@ -5597,18 +5641,34 @@ module List: {
 
       Elements with an index greater than or equal to [index] will be in the second.
 
+      If [index] is outside of the bounds of the list, all elements will be in the first component of the tuple.
+
+      {e Examples}
+
       {[List.splitAt [1;2;3;4;5] ~index:2 = ([1;2], [3;4;5])]}
   */
   let splitAt: (t('a), ~index: int) => (t('a), t('a));
   
-  // TODO
-  /** Divides a list at the first element [f] returns [true] for.
+  
+  /** Divides a list into a {!Tuple} at the first element [f] returns [true] for.        
+
+      Elements up to (but not including) the first element [f] returns [true] for
+      will be in the first component of the tuple, the remaining elements will be
+      in the second
+    
+      {e Examples}
+
+      {[List.splitWhen [2; 4; 5; 6; 7] ~f:Int.isEven = ([2; 4], [5; 6; 7])]} 
+
+      {[List.splitWhen [2; 4; 5; 6; 7] ~f:(Fun.constant false) = ([2; 4; 5; 6; 7], [])]} 
   */
   let splitWhen: (t('a), ~f: 'a => bool) => (t('a), t('a));
 
   /** Returns a new list with the value at [index] updated to be the result of applying [f].
 
       If [index] is outside of the bounds of the list, returns the list as-is.
+
+      {e Examples}
 
       {[List.updateAt [1; 2; 3] ~index:1 ~f:(Int.add 3) = [1; 5; 3]]}
 
@@ -5619,27 +5679,17 @@ module List: {
   */
   let updateAt: (t('a), ~index: int, ~f: 'a => 'a) => t('a);
 
-  // TODO
-  /**
-    [List.removeAt n xs] returns a new list with the item at the given index removed.
-    If [n] is less than zero or greater than the length of [xs], the new list is
-    the same as the original.
-
-    {[
-      List.removeAt ~index:2, ["a"; "b"; "c"; "d"] = ["a"; "b"; "d"]
-      List.removeAt ~index:(-2) ["a"; "b"; "c"; "d"] = ["a"; "b"; "c"; "d"]
-      List.removeAt ~index:7 ["a"; "b"; "c"; "d"] = ["a"; "b"; "c"; "d"]
-    ]}
-  */
   /** Creates a new list without the element at [index].
     
       If [index] is outside of the bounds of the list, returns the list as-is.
+
+      {e Examples}
 
       {[List.removeAt [1; 2; 3] ~index:2 = [1; 2]]}
 
       {[
         let animals = ["Ant"; "Bat"; "Cat"] in
-        animals == List.removeAt animals ~index:4
+        List.equal String.equal animals (List.removeAt animals ~index:4) = true
       ]}
   */
   let removeAt: (t('a), ~index: int) => t('a);
@@ -5784,11 +5834,29 @@ module List: {
   */
   let extent: (t('a), ~compare: ('a, 'a) => int) => option(('a, 'a));
 
-  /** TODO
-    {[
-      List.groupWhile ~f:(fun x y -> x mod 2 == y mod 2)
-        [2; 4; 6; 5; 3; 1; 8; 7; 9] = [[2; 4; 6]; [5; 3; 1]; [8]; [7; 9]]
-    ]}
+  /** Divide a list into groups.
+
+      [f] is called with consecutive elements, when [f] returns [false] a new group is started.
+
+      {e Examples}
+
+      {[
+        List.groupWhile [1;2;3;] ~f:(Fun.constant false) = [[1]; [2]; [3]]
+      ]}
+
+      {[
+        List.groupWhile [1;2;3;] ~f:(Fun.constant true) = [[1; 2; 3]]
+      ]}
+
+      {[
+        List.groupWhile ~f:String.equal
+          ["a"; "b"; "b"; "a"; "a"; "a"; "b"; "a"] = [["a"]; ["b"; "b"]; ["a"; "a"; "a";] ["b"]; ["a"]]
+      ]}
+
+      {[
+        List.groupWhile ~f:(fun x y -> x mod 2 == y mod 2)
+          [2; 4; 6; 5; 3; 1; 8; 7; 9] = [[2; 4; 6]; [5; 3; 1]; [8]; [7; 9]]
+      ]}
   */
   let groupWhile: (t('a), ~f: ('a, 'a) => bool) => t(t('a));
   

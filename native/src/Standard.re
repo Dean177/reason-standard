@@ -1089,7 +1089,11 @@ module Integer = {
 
   let ofInt64 = Z.of_int64;
 
-  let ofFloat = Z.of_float;
+  let ofFloat = (float) => 
+    switch (Z.of_float(float)) {
+    | integer => Some(integer)
+    | exception Z.Overflow => None;
+    }
 
   let ofString = string => {
     switch (Z.of_string(string)) {
@@ -1183,24 +1187,18 @@ module Integer = {
       Some(Z.to_int64(t));
     };
 
-  // let maxFloat = [@raw "2n ** (64n - 1n) - 1n"];
-  // let toFloat = (t) =>
-  // if (t > maxFloat) {
-  // None;
-  // } else {
-  // Some(asIntN(53, t));
-  // };
   let toFloat = t =>
-    if (t > ofFloat(Base.Float.max_finite_value)
-        || t < ofFloat(Base.Float.(- max_finite_value))) {
-      None;
-    } else {
+    // TODO
+    // if (t > ofFloat(Base.Float.max_finite_value)
+    //     || t < ofFloat(Base.Float.(- max_finite_value))) {
+    //   None;
+    // } else {
       Some(Z.to_float(t));
-    };
+    // };
 
   [@bs.send] external toString: t => string = "toString";
 
-  let equal = (==);
+  let equal = Z.equal;
 
   let compare = Z.compare;
 };
