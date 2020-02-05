@@ -27,7 +27,9 @@ module Fun: {
 
   /** Discards the value it is given and returns [()]
 
-      This is primarily useful when working with imperative side-effecting code or to avoid [unused value](TODO) compiler warnings when you really meant it, and haven't just made a mistake.
+      This is primarily useful when working with imperative side-effecting code
+      or to avoid [unused value] compiler warnings when you really meant it, 
+      and haven't just made a mistake.
 
       {e Examples}
 
@@ -59,16 +61,15 @@ module Fun: {
   */
   let constant: ('a, 'b) => 'a;
   
-  // TODO come up with a use case.
   /** A function which always returns its second argument. */
   let sequence: ('a, 'b) => 'b;
 
-  // TODO
   /** Reverses the argument order of a function.
     
       For any arguments [x] and [y], [(flip f) x y] is the same as [f y x].
 
-      Perhaps you want to [fold] something, but the arguments of a function you already have access to are in the wrong order.
+      Perhaps you want to [fold] something, but the arguments of a function you 
+      already have access to are in the wrong order.
 
       {e Examples}
 
@@ -79,15 +80,17 @@ module Fun: {
   /** See {!Fun.(<|)} */
   let apply: ('a => 'b, 'a) => 'b;
 
-  // TODO
-  /** [f <| x] is exactly the same as [f x].
+  /** Like {!(|>)} but in the opposite direction.
+    
+      [f <| x] is exactly the same as [f x].
     
       It can help you avoid parentheses, which can be nice sometimes.
 
       Maybe you want to apply a function to a [match] expression? That sort of thing.
 
       {e Examples}
-      {[TODO]}
+      
+      TODO
   */
   let (<|): ('a => 'b, 'a) => 'b;
 
@@ -145,7 +148,6 @@ module Fun: {
   /** See {!Fun.compose} */
   let (<<): ('b => 'c, 'a => 'b, 'a) => 'c;
 
-  // TODO
   /** Function composition, passing results along in the suggested direction.
       
       For example, the following code checks if the square root of a number is odd:
@@ -160,6 +162,8 @@ module Fun: {
   /** Useful for performing some side affect in {!Fun.pipe}-lined code.
 
       Most commonly used to log a value in the middle of a pipeline of function calls.
+
+      {e Examples}
 
       {[
         let sanitize (input: string) : int option =
@@ -182,12 +186,20 @@ module Fun: {
   /**  Useful in combination with functions like `filter` */
   let negate: ('a => bool, 'a) => bool;
 
-  // TODO
+  // TODO a better type than unit for the return value?
   /** Runs the provided function, forever. */
   let forever: (unit => unit) => unit;
 
-  // TODO
-  /** Runs [f] n times.  */
+  /** Runs a function repeatedly.  
+    
+      {e Examples}
+
+      {[
+        let count = ref 0
+        times(10, fun () -> (count <- !count + 1))
+        !count = 10
+      ]} 
+  */
   let times: (int, ~f: unit => unit) => unit;
 };
 
@@ -419,9 +431,12 @@ module Result: {
         let y: Result.t(string, int) = Error("bad")
       ]}
 
-      // TODO Examples
-      // TODO When should you use an option
-      // TODO When should you use an exception
+      {b Note} The ['error] case can be of {b any} type and while [string] is very common you could also use:
+      - [string List.t] to allow errors to be accumulated
+      - [exn], in which case the result type just makes exceptions explicit in the return type          
+      - A variant or polymorphic variant, with one case per possible error. This is means each error can be dealt with explicitly. See {{: https://keleshev.com/composable-error-handling-in-ocaml } this excellent article} for mnore information on this approach.
+
+      If the function you are writing can only fail in a single obvious way, maybe you want an {!Option} instead.
   */
 
   type t('error, 'ok) = Result.t('ok, 'error);
@@ -444,7 +459,7 @@ module Result: {
 
       {b Note}
 
-      When using the reson syntax you {b can} use constructors with the fast pipe.
+      When targetting the Bucklescript compiler you {b can} use constructors with the fast pipe.
 
       {[5->Ok = Ok(5)]}
 
@@ -806,32 +821,6 @@ module Result: {
       {[Result.compare String.compare Int.compare (Error "Expected error") (Error "Unexpected error") = -1]}
   */
   let compare: (('error, 'error) => int, ('ok, 'ok) => int, t('error, 'ok), t('error, 'ok)) => int;
-
-  /** “pretty-prints” the [result], using [errFormat] if the [result] is an [Error] value or
-      [okFormat] if the [result] is an [Ok] value. [destFormat] is a formatter
-      that tells where to send the output.
-
-      TODO how do you use this?
-
-
-      The following example will print [<ok: 42><error: bad>] followed by a newline.
-
-      {[
-        let good: (string, int) Standard.Result.t = Ok 42
-        let notGood: (string, int) Standard.Result.t = Error "bad"
-        Result.pp Format.pp_print_string Format.pp_print_int Format.std_formatter good
-        Result.pp Format.pp_print_string Format.pp_print_int Format.std_formatter notGood
-        Format.pp_print_newline Format.std_formatter ();
-      ]}
-  */
-  let pp:
-    (
-      (Format.formatter, 'error) => unit,
-      (Format.formatter, 'ok) => unit,
-      Format.formatter,
-      t('error, 'ok)
-    ) =>
-    unit;
 
   /** In functions that make heavy use of {!Result}s placing a
 
@@ -1933,8 +1922,6 @@ module Float: {
       {[Float.isInteger 4.0 = true]}
 
       {[Float.isInteger Float.pi = false]}
-
-      TODO
   */
   let isInteger: t => bool;
 
@@ -1942,15 +1929,15 @@ module Float: {
    
       {e Examples}
 
-      {[Float.isInteger 4.0 = true]}
+      {[Float.isSafeInteger 4.0 = true]}
       
-      {[Float.isInteger Float.pi = false]}
+      {[Float.isSafeInteger Float.pi = false]}
 
-      TODO
+      {[Float.(isSafeInteger (maximumSafeInteger + 1.)) = false]}
   */
   let isSafeInteger: t => bool;
 
-  /** Checks if [n] is between [lower] and up to, but not including, [upper].
+  /** Checks if a float is between [lower] and up to, but not including, [upper].
 
       If [lower] is not specified, it's set to to [0.0].
 
@@ -2287,7 +2274,7 @@ module Float: {
   */
   let ofInt: int => t;
 
-  /** Convert a string to a float.
+  /** Convert a {!String} to a [float].
          
       {e Examples}
 
@@ -2319,7 +2306,7 @@ module Float: {
   */
   let toInt: t => option(int);
   
-  /** Converts a [float] to a {!String} by TODO
+  /** Convert a [float] to a {!String}
     
       {e Examples}
 
@@ -2338,7 +2325,7 @@ module Float: {
 
 /** Fixed precision integers */
 module Int: {
-  /** The platform-dependant {{: https://en.wikipedia.org/wiki/TODO } signed } {{: https://en.wikipedia.org/wiki/Integer } integer} type.
+  /** The platform-dependant {{: https://en.wikipedia.org/wiki/Signed_number_representations } signed } {{: https://en.wikipedia.org/wiki/Integer } integer} type.
 
       An [int] is a whole number.
 
@@ -3036,31 +3023,47 @@ module Integer: {
       Returns [None] when greater than [Int.maximumValue]
      
       {e Examples}
+
       TODO
   */
   let toInt: t => option(int);
 
-  /** Convert an {!Integer} to an {!Int} 
+  /** Convert an {!Integer} to an [Int64.t] 
     
       Returns [None] when greater than [Int64.maximumValue] or less than [Int64.minimumValue]
      
       {e Examples}
+
       TODO
   */
   let toInt64: t => option(Int64.t);  
 
-  /** TODO */
-  let toFloat: t => option(float);  
+  /** Convert an {!Integer} to an [Int64.t] 
+    
+      Returns {!Float.infinity} when greater than {!Float.largestValue}.
+     
+      {e Examples}
 
-  /** TODO */
+      {[Integer.ofString "8" |> Integer.toFloat = 8.0]}
+
+      {[
+        String.initialize 1000 ~f:(Fun.constant '9') 
+        |> Integer.ofString 
+        |> Integer.toFloat 
+          = Float.infinity
+      ]}
+  */
+  let toFloat: t => float;  
+
+  /** Gives a human-readable, decimal string representation */
   let toString: t => string;
 
   /** {2 Comparison} */
 
-  /** TODO */
+  /** Test two {!Integer}s for equality */
   let equal: (t, t) => bool;
 
-  /** TODO */
+  /** Compare two {!Integer}s */
   let compare: (t, t) => int;
 };
 
@@ -3245,10 +3248,28 @@ module Tuple: {
 
   /** {2 Comparison} */
 
-  /** TODO */
+  /** Test two {!Tuple}s for equality, using the provided functions to test the 
+      first and second components.
+
+      {e Examples}
+
+      {[Tuple.equal Int.equal String.equal (1, "Fox") (1, "Fox") = true]}
+
+      {[Tuple.equal Int.equal String.equal (1, "Fox") (2, "Hen") = false]}
+   */
   let equal: (('a, 'a) => bool, ('b, 'b) => bool, t('a, 'b), t('a, 'b)) => bool;
 
-  /** TODO */
+  /** Compare two {!Tuple}s, using the provided functions to compare the first
+      components then, if the first components are equal, the second components.
+
+      {e Examples}
+
+      {[Tuple.compare Int.compare String.compare (1, "Fox") (1, "Fox") = 0]}
+
+      {[Tuple.compare Int.compare String.compare (1, "Fox") (1, "Eel") = 1]}
+
+      {[Tuple.compare Int.compare String.compare (1, "Fox") (2, "Hen") = -1]}
+   */
   let compare: (('a, 'a) => int, ('b, 'b) => int, t('a, 'b), t('a, 'b)) => int;
 };
 
@@ -3479,10 +3500,29 @@ module Tuple3: {
 
   /** {2 Comparison} */
 
-  /** TODO */
+  /** Test two {!Tuple3}s for equality, using the provided functions to test the 
+      first, second and third components.
+
+      {e Examples}
+
+      {[Tuple.equal Int.equal String.equal Char.equal (1, "Fox", 'j') (1, "Fox", 'k') = true]}
+
+      {[Tuple.equal Int.equal String.equal Char.equal (1, "Fox", 'j') (2, "Hen", 'j') = false]}
+   */
   let equal: (('a, 'a) => bool, ('b, 'b) => bool, ('c,'c) => bool, t('a, 'b,'c), t('a, 'b,'c)) => bool;
 
-  /** TODO */
+  /** Compare two {!Tuple3}s, using the provided functions to compare the first
+      components then, if the first components are equal, the second components, 
+      then the third components
+
+      {e Examples}
+
+      {[Tuple.compare Int.compare String.compare Char.compare (1, "Fox", 'j') (1, "Fox", 'j') = 0]}
+
+      {[Tuple.compare Int.compare String.compare Char.compare (1, "Fox", 'j') (1, "Eel", 'j') = 1]}
+
+      {[Tuple.compare Int.compare String.compare Char.compare (1, "Fox", 'j') (2, "Fox", 'm') = -1]}
+   */
   let compare: (('a, 'a) => int, ('b, 'b) => int, ('c,'c) => int, t('a, 'b,'c), t('a, 'b,'c)) => int;
 };
 
@@ -3538,7 +3578,12 @@ module String: {
   let repeat: (string, ~count: int) => string;
 
   /** Create a string by providing a length and a function to choose characters. 
-      TODO
+     
+      Returns an empty string if the length is negative.
+
+      {e Examples}
+
+      {[String.initialize 8 ~f:(Fun.constant '9') = "999999999"]}
   */
   let initialize: (int, ~f: int => char) => string;
 
@@ -3546,10 +3591,13 @@ module String: {
   let isEmpty: string => bool;
 
   /** Returns the length of the given string.
-      
-      TODO note on unicode characters 
+
+      {b Warning} if the string contains non-ASCII characters then {!length} will 
+      not equal the number of characters
 
       {e Examples}
+
+      {[String.length "abc" = 3]}
 
       {[String.length "你好" = 6]}
   */
@@ -3569,52 +3617,33 @@ module String: {
   */
   let uncons: string => option((char, string));
 
-  /** TODO
+  /** Drop [count] characters from the left side of a string.
 
-    {[
-      String.dropLeft ~count:3 "abcdefg" = "defg"
-      String.dropLeft ~count:0 "abcdefg" = "abcdefg"
-      String.dropLeft ~count:7 "abcdefg" = ""
-      String.dropLeft ~count:(-2) "abcdefg" = "fg"
-      String.dropLeft ~count:8 "abcdefg" = ""
-    ]}
+      {e Examples}
+
+      {[
+        String.dropLeft ~count:3 "abcdefg" = "defg"
+        String.dropLeft ~count:0 "abcdefg" = "abcdefg"
+        String.dropLeft ~count:7 "abcdefg" = ""
+        String.dropLeft ~count:(-2) "abcdefg" = "fg"
+        String.dropLeft ~count:8 "abcdefg" = ""
+      ]}
   */
   let dropLeft: (~count: int, string) => string;
 
-  /** TODO
+  /** Drop [count] characters from the right side of a string.
 
-    {[
-      String.dropRight ~count:3 "abcdefg" = "abcd"
-      String.dropRight ~count:0 "abcdefg" = "abcdefg"
-      String.dropRight ~count:7 "abcdefg" = ""
-      String.dropRight ~count:(-2) "abcdefg" = "abcdefg"
-      String.dropRight ~count:8 "abcdefg" = ""
-    ]}
+      {e Examples}
+      
+      {[
+        String.dropRight ~count:3 "abcdefg" = "abcd"
+        String.dropRight ~count:0 "abcdefg" = "abcdefg"
+        String.dropRight ~count:7 "abcdefg" = ""
+        String.dropRight ~count:(-2) "abcdefg" = "abcdefg"
+        String.dropRight ~count:8 "abcdefg" = ""
+      ]}
   */
   let dropRight: (~count: int, string) => string;
-
-  /** Split a string into a list of words.
-      
-      Equivalent to doing [String.split ~on:" "]
-
-      TODO verify
-      TODO is this all words does in other languages
-
-      {e Examples}
-
-      TODO
-  */
-  let words: t => list(t);
-
-  /** Split a string into a list of lines.
-
-      A line ends when "\n" or "\r\n" is encountered.  
-     
-      {e Examples}
-      
-      TODO
-  */
-  let lines: t => list(t);
 
   /** Divide a string into a list of strings, splitting whenever [on] is encountered.
    
@@ -3630,10 +3659,24 @@ module String: {
   */
   let split: (t, ~on: t) => list(t);
 
-  /** TODO */
+  /** See if the second string starts with [prefix] 
+     
+      {e Examples}
+
+      {[String.startsWith ~prefix:"the" "theory" = true]}
+
+      {[String.startsWith ~prefix:"ory" "theory" = false]}
+  */
   let startsWith: (t, ~prefix: string) => bool;
 
-  /** TODO */
+  /** See if the second string ends with [suffix].
+
+      {e Examples}
+
+      {[String.endsWith ~suffix:"the" "theory" = false]}
+
+      {[String.endsWith ~suffix:"ory" "theory" = true]} 
+  */
   let endsWith: (t, ~suffix: string) => bool;
 
   /** Converts all upper case letters to lower case. 
@@ -3713,20 +3756,15 @@ module String: {
   /** Extract */
   let slice: (~to_: int=?, t, ~from: int) => t;
 
-  /** TODO 
-    [String.trim s] returns a new string with
-    leading and trailing whitespace (blank, tab, newline,non-breaking
-    space and others as described in <https://www.ecma-international.org/ecma-262/5.1/#sec-7.2>)
-    removed from [s].
+  /** Removes leading and trailing {! Char.isWhitespace whitespace} from a string
 
-    [strip ?drop s] returns a string with consecutive chars satisfying drop 
-    (by default {!Char.isWhitespace}) stripped from the beginning and end of s.
+      {e Examples}
+      
+      {[String.trim "  abc  " = "abc"]}
 
-    {e Examples}
-    
-    {[String.trim "  abc  " = "abc"]}
-    {[String.trim "  abc def  " = "abc def"]}
-    {[String.trim {js|\n\u00a0 \t abc \f\r \t|js} = "abc"]}
+      {[String.trim "  abc def  " = "abc def"]}
+
+      {[String.trim "\r\n\t abc \n\n" = "abc"]}
   */
   let trim: (~drop:(char => bool)=?, t) => t;
 
@@ -3736,38 +3774,31 @@ module String: {
   /** Like {!trim} but only drops characters from the end of the string. */
   let trimRight: (~drop:(char => bool)=?, t) => t;
 
-  /** TODO
-    [String.insertAt ~insert:ins, ~index:n, s)] returns a new string with the value [ins]
-    inserted at position [n] in [s]. If [n] is less than zero, the position is evaluated as
-    [(length s) - (n + 1)]. [n] is pinned to the range [0..length s].
-
-    {e Examples}
+  /** Insert a string at [index]
     
-    {[
-      String.insertAt ~insert:"**" ~index:2 "abcde" = "ab**cde"
-      String.insertAt ~insert:"**" ~index:0 "abcde" = "**abcde"
-      String.insertAt ~insert:"**" ~index:5 "abcde" = "abcde**"
-      String.insertAt ~insert:"**" ~index:(-2) "abcde" = "abc**de"
-      String.insertAt ~insert:"**" ~index:(-9) "abcde" = "**abcde"
-      String.insertAt ~insert:"**" ~index:9 "abcde" = "abcde**"
-    ]}
+      {e Examples}
+      
+      {[
+        String.insertAt ~insert:"**" ~index:2 "abcde" = "ab**cde"
+        String.insertAt ~insert:"**" ~index:0 "abcde" = "**abcde"
+        String.insertAt ~insert:"**" ~index:5 "abcde" = "abcde**"
+        String.insertAt ~insert:"**" ~index:(-2) "abcde" = "abc**de"
+        String.insertAt ~insert:"**" ~index:(-9) "abcde" = "**abcde"
+        String.insertAt ~insert:"**" ~index:9 "abcde" = "abcde**"
+      ]}
   */
   let insertAt: (t, ~index: int, ~value: t) => t;
 
-  /** TODO */
+  /** Run [f] on each character in a string. */
   let forEach: (t, ~f: char => unit) => unit;
 
-  /** TODO */
+  /** Like {!Array.fold} but the elements are {!Char}s  */
   let fold: (t, ~initial: 'a, ~f: ('a, char) => 'a) => 'a;
 
   /** {2 Conversion} */
 
   /** Returns an {!Array} of the individual characters in the given string. 
       
-      TODO wut
-      Works with Unicode characters, but because they don't have a literal representation, there is
-      no example here.
-
       {e Examples}
 
       {[
@@ -3779,10 +3810,6 @@ module String: {
 
   /** Returns a {!List} of the individual characters in the given string. 
       
-      TODO wut
-      Works with Unicode characters, but because they don't have a literal representation, there is
-      no example here.
-
       {e Examples}
 
       {[
@@ -3797,10 +3824,10 @@ module String: {
   /** TODO explain what this is for */
   type identity;
 
-  /** TODO */
+  /** Test two string for equality */
   let equal: (t, t) => bool;
   
-  /** TODO */
+  /** Test two string for equality */
   let compare: (t, t) => int;
 };
 

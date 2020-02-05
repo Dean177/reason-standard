@@ -469,13 +469,13 @@ module List = {
       | _ => false
     }
 
-  let compare = (compareElement, a, b) => 
+  let rec compare = (compareElement, a, b) => 
     switch (a, b) {
       | ([], []) => 0
-      | ([], ys) => -1
-      | (xs, []) => 1
-      | ([x,...xs], [y, ...ys]) => switch (compare(x, y)) {
-        | 0 => compare(xs, ys)
+      | ([], _) => -1
+      | (_, []) => 1
+      | ([x, ...xs], [y, ...ys]) => switch (compareElement(x, y)) {
+        | 0 => compare(compareElement, xs, ys)
         | result => result
       } 
     };
@@ -616,11 +616,6 @@ module Result = {
     | _ => b
     };
 
-  let orElse = (t, ~f) => switch(t) {
-    | Ok(_) => t
-    | Error(error) => f(error)
-  };
-
   let and_ = (a, b) =>
     switch (a) {
     | Ok(_) => b
@@ -709,24 +704,6 @@ module Result = {
     | (Error(_), Ok(_)) => -1
     | (Ok(_), Error(_)) => 1
   };
-
-  let pp =
-      (
-        errf: (Format.formatter, 'err) => unit,
-        okf: (Format.formatter, 'ok) => unit,
-        fmt: Format.formatter,
-        r: t('err, 'ok),
-      ) =>
-    switch (r) {
-    | Ok(ok) =>
-      Format.pp_print_string(fmt, "<ok: ");
-      okf(fmt, ok);
-      Format.pp_print_string(fmt, ">");
-    | Error(err) =>
-      Format.pp_print_string(fmt, "<error: ");
-      errf(fmt, err);
-      Format.pp_print_string(fmt, ">");
-    };
 
   module Infix = {
     let (|?) = (t, default) => get(t, ~default);
@@ -845,8 +822,7 @@ module Float = {
 
   let isInteger = t => t == Base.Float.round(t);
 
-  // TODO
-  let isSafeInteger = _t => false;
+  let isSafeInteger = t => isInteger(t) && t <= maximumSafeInteger;
 
   let clamp = (n, ~lower, ~upper) =>
     if (upper < lower) {
@@ -1187,14 +1163,7 @@ module Integer = {
       Some(Z.to_int64(t));
     };
 
-  let toFloat = t =>
-    // TODO
-    // if (t > ofFloat(Base.Float.max_finite_value)
-    //     || t < ofFloat(Base.Float.(- max_finite_value))) {
-    //   None;
-    // } else {
-      Some(Z.to_float(t));
-    // };
+  let toFloat = Z.to_float;
 
   [@bs.send] external toString: t => string = "toString";
 
@@ -1239,11 +1208,6 @@ module String = {
     Str.split(Str.regexp_string(on), t);
   };
 
-  let words = split(~on=" ");
-
-  // TODO this is broken on windows
-  let lines = split(~on="\n");
-
   let startsWith = (t, ~prefix) => Base.String.is_prefix(~prefix, t);
 
   let endsWith = (t, ~suffix) => Base.String.is_suffix(~suffix, t);
@@ -1266,8 +1230,6 @@ module String = {
   let ofChar = Base.String.of_char;
 
   let slice = (~to_=0, str, ~from) => String.sub(str, from, to_ - from);
-
-  let trim = String.trim;
 
   // TODO bad implementation
   let insertAt = (t, ~index: int, ~value: string): string => {
