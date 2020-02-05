@@ -1173,20 +1173,10 @@ module Option: {
   */
   let isNone: t('a) => bool;
 
-  /** Run a function against a value, if it is present.
-
-      {e Examples}
-
-      TODO
-   */
+  /** Run a function against a value, if it is present. */
   let forEach: (t('a), ~f: 'a => unit) => unit;
 
-  /** Run a function against a value, if it is present.
-
-      {e Examples}
-
-      TODO
-   */
+  /** TODO */
   let fold: (t('a), ~initial: 'b, ~f: ('b, 'a) => 'b) => 'b;  
 
   /** Convert an option to a {!Array}.
@@ -1973,10 +1963,8 @@ module Float: {
 
       {[Float.degrees 180. = Float.pi]}
 
-      TODO verify
-      {[Float.degrees 360. = 0]}
+      {[Float.degrees 360. = Float.pi * 2.]}
 
-      TODO verify
       {[Float.degrees 90. = Float.pi /. 2.]}
   */
   let degrees: t => radians;
@@ -2207,8 +2195,6 @@ module Float: {
 
       {3 Halves rounded towards the closest even number}
 
-      This tie-breaking rule is the default rounding mode used in TODO
-
       {[
         Float.round ~direction:(`Closest `ToEven) -1.5 = -2.0
         Float.round ~direction:(`Closest `ToEven) -2.5 = -2.0
@@ -2275,12 +2261,24 @@ module Float: {
   let ofInt: int => t;
 
   /** Convert a {!String} to a [float].
+    
+      Parses [nan] and [infinity] case-insensitive.
          
       {e Examples}
 
-      TODO
+      {[Float.ofString "4.667" = Some 4.667]}
+
+      {[Float.ofString "-4.667" = Some (-4.667)]}
+
+      {[Float.ofString "Hamster" = None]}
+
+      {[Float.ofString "NaN" = Some Float.nan]}
+
+      {[Float.ofString "nan" = Some Float.nan]}
+
+      {[Float.ofString "Infinity" = Some Float.infinity]}
   */
-  let ofString: string => (t);
+  let ofString: string => option(t);
 
   /** {2 Conversion} */
 
@@ -3024,17 +3022,21 @@ module Integer: {
      
       {e Examples}
 
-      TODO
+      {[Integer.ofString "4" |> Integer.toString = Some 4]}
+
+      {[String.repeat "9" ~times:10_000 |> Integer.ofString |> Integer.toString = None]}
   */
   let toInt: t => option(int);
 
   /** Convert an {!Integer} to an [Int64.t] 
     
-      Returns [None] when greater than [Int64.maximumValue] or less than [Int64.minimumValue]
+      Returns [None] when greater than [Int64.max_int] or less than [Int64.min_int]
      
       {e Examples}
 
-      TODO
+      {[Integer.ofString "1" |> Integer.toInt64 = Some Int64.one]}
+
+      {[String.repeat "9" ~times:10_000 |> Integer.ofString |> Integer.toInt64 = None]}
   */
   let toInt64: t => option(Int64.t);  
 
@@ -3844,7 +3846,7 @@ module Set: {
       The specialized modules {!Set.Int}, {!Set.String} are in general more efficient.
   */
 
-  type t('a, 'cmp);
+  type t('a, 'id);
 
   /** {1 Construction} */
 
@@ -3860,7 +3862,7 @@ module Set: {
 
       {[Set.add (Set.Int.ofList [1; 2]) 2 |> Set.toList = [1; 2]]}
   */
-  let add: (t('a, 'cmp), 'a) => t('a, 'cmp);
+  let add: (t('a, 'id), 'a) => t('a, 'id);
 
   /** Remove a value from a set, if the set doesn't contain the value anyway, returns the original set
 
@@ -3874,7 +3876,7 @@ module Set: {
         originalSet == newSet
       ]}
   */
-  let remove: (t('a, 'cmp), 'a) => t('a, 'cmp);
+  let remove: (t('a, 'id), 'a) => t('a, 'id);
 
   /** Determine if a value is in a set
 
@@ -3947,7 +3949,7 @@ module Set: {
 
       {[Set.difference (Set.Int.ofList [2;3;4]) (Set.Int.ofList [1;2;5]) |> Set.toList = [3;4]]}
   */
-  let difference: (t('a, 'cmp), t('a, 'cmp)) => t('a, 'cmp);
+  let difference: (t('a, 'id), t('a, 'id)) => t('a, 'id);
 
   /** Get the intersection of two sets. Keeps values that appear in both sets.
 
@@ -3955,7 +3957,7 @@ module Set: {
       
       {[Set.intersection (Set.Int.ofList [1;2;5]) (Set.Int.ofList [2;3;4]) |> Set.toList= [2]]}
   */
-  let intersection: (t('a, 'cmp), t('a, 'cmp)) => t('a, 'cmp);
+  let intersection: (t('a, 'id), t('a, 'id)) => t('a, 'id);
 
   /** Get the union of two sets. Keep all values.
 
@@ -3963,7 +3965,7 @@ module Set: {
       
       {[Set.union (Set.Int.ofList [1;2;5]) (Set.Int.ofList [2;3;4]) |> Set.toList = [1;2;3;4;5]]}
   */
-  let union: (t('a, 'cmp), t('a, 'cmp)) => t('a, 'cmp);
+  let union: (t('a, 'id), t('a, 'id)) => t('a, 'id);
 
   /** {1 Transform} */
 
@@ -3973,16 +3975,21 @@ module Set: {
       
       {[Set.filter (Set.Int.ofList [1;2;3]) ~f:Int.isEven |> Set.toList = [2]]}
   */
-  let filter: (t('a, 'cmp), ~f: 'a => bool) => t('a, 'cmp);
+  let filter: (t('a, 'id), ~f: 'a => bool) => t('a, 'id);
 
   /** Divide a set into two according to [f]. The first set will contain the values that [f] returns [true] for, values that [f] returns [false] for will end up in the second. 
 
       {e Examples}
       
-      TODO
+      {[
+        let numbers = Set.Int.ofList [1; 1; 5; 6; 5; 7; 9; 8] in
+        let (evens, odds) = Set.partition numbers ~f:Int.isEven in
+        Set.toList evens = [6; 8]
+        Set.toList odds = [1; 5; 7; 9]
+      ]}
   */
   let partition:
-    (t('a, 'cmp), ~f: 'a => bool) => (t('a, 'cmp), t('a, 'cmp));
+    (t('a, 'id), ~f: 'a => bool) => (t('a, 'id), t('a, 'id));
 
   /** Transform a set into a value which is result of running each element in the set through [f], where each successive invocation is supplied the return value of the previous.
 
@@ -3999,23 +4006,13 @@ module Set: {
 
   /** {1 Conversion} */
 
-  /** Converts a set into an {!Array}. 
-
-      {e Examples}
-      
-      TODO
-  */
+  /** Converts a set into an {!Array} */
   let toArray: t('a, _) => array('a);
 
-  /** Converts a set into a {!List}. 
-
-      {e Examples}
-
-      TODO
-  */
+  /** Converts a set into a {!List}. */
   let toList: t('a, _) => list('a);
 
-  /** Construct sets which can hold any data type using the polymorphic [compare] function */
+  /** Construct sets which can hold any data type using the polymorphic [compare] function. */
   module Poly: {
     type identity;
 
@@ -4128,14 +4125,14 @@ module Map: {
       The specialized modules {!Map.Int}, {!Map.String} are in general more efficient. */
 
   /* TODO explain the type */
-  type t('key, 'value, 'cmp);
+  type t('key, 'value, 'id);
 
   /** {1 Construction} */
 
   /** A [Map] can be constructed using one of the functions available in {!Map.Int}, {!Map.String} or {!Map.Poly} */
 
   /** {1 Basic operations} */
-  let add: (t('k, 'v, 'cmp), ~key: 'k, ~value: 'v) => t('k, 'v, 'cmp);
+  let add: (t('k, 'v, 'id), ~key: 'k, ~value: 'v) => t('k, 'v, 'id);
   /** Adds a new entry to a map. If [key] is allready present, its previous value is replaced with [value].
 
       {e Examples}
@@ -4149,23 +4146,52 @@ module Map: {
 
       {e Examples}
       
-      TODO
+      let animalPopulations = Map.String.ofList [
+        ("Elephant", 3_156);           
+        ("Mosquito", 56_123_156);           
+        ("Rhino", 3);           
+        ("Shrew", 56_423);          
+      ] in
+      Map.remove animalPopulations "Mosquito" |> Map.toList = [
+        ("Elephant", 3_156);           
+        ("Rhino", 3);           
+        ("Shrew", 56_423);          
+      ];
   */
-  let remove: (t('k, 'v, 'cmp), 'k) => t('k, 'v, 'cmp);
+  let remove: (t('k, 'v, 'id), 'k) => t('k, 'v, 'id);
 
   /** Get the value associated with a key. If the key is not present in the map, returns [None]. 
 
       {e Examples}
 
-      TODO
+      let animalPopulations = Map.String.ofList [
+        ("Elephant", 3_156);           
+        ("Mosquito", 56_123_156);           
+        ("Rhino", 3);           
+        ("Shrew", 56_423);          
+      ] in
+      Map.get animalPopulations "Shrew" = Some 56_423;
   */
-  let get: (t('k, 'v, 'cmp), 'k) => option('v);
+  let get: (t('k, 'v, 'id), 'k) => option('v);
 
-  /** Returns, as an {!Option} the first key-value pair for which [f] evaluates to true. If [f] doesn't return [true] for any of the elements [find] will return [None]. 
-
+  /** Returns, as an {!Option} the first key-value pair for which [f] evaluates to true. 
+     
+      If [f] doesn't return [true] for any of the elements [find] will return [None]. 
+    
+      Searches starting from the smallest {b key}
+      
       {e Examples}
       
-      TODO
+      {[
+        Map.String.ofList [
+          ("Elephant", 3_156);           
+          ("Mosquito", 56_123_156);           
+          ("Rhino", 3);           
+          ("Shrew", 56_423);          
+        ]
+        |> Map.find ~f:(fun ~key ~value -> value > 10_000)
+          = Some ("Mosquito", 56_123_156)
+      ]}
   */
   let find:
     (t('k, 'v, _), ~f: (~key: 'k, ~value: 'v) => bool) => option(('k, 'v));
@@ -4174,41 +4200,67 @@ module Map: {
 
       {e Examples}
       
-      TODO
+      {[
+        let animalPopulations = Map.String.ofList [
+          ("Elephant", 3_156);           
+          ("Mosquito", 56_123_156);           
+          ("Rhino", 3);           
+          ("Shrew", 56_423);          
+        ] in
+
+        Map.update animalPopulations ~key:"Hedgehog" ~f:(fun population -> 
+          match population
+          | None => Some 1
+          | Some count => Some (count + 1)
+        ) 
+        |> Map.toList = [
+          ("Elephant", 3_156);        
+          ("Hedgehog", 1);   
+          ("Mosquito", 56_123_156);           
+          ("Rhino", 3);           
+          ("Shrew", 56_423);          
+        ]
+      ]}
   */
   let update:
-    (t('k, 'v, 'cmp), ~key: 'k, ~f: option('v) => option('v)) =>
-    t('k, 'v, 'cmp);
+    (t('k, 'v, 'id), ~key: 'k, ~f: option('v) => option('v)) =>
+    t('k, 'v, 'id);
 
   /** Returns the number of key-value pairs present in the map. 
 
       {e Examples}
       
-      TODO
+      {[Map.Int.ofList [(1, "Hornet"); (3, "Marmot")] |> Map.length = 2]}
   */
   let length: t(_, _, _) => int;
 
-  /** Returns the smallest {b key } in the map. 
+  /** Returns, as an {!Option}, the smallest {b key } in the map. 
+    
+      Returns [None] if the map is empty.
 
       {e Examples}
       
-      TODO
+      {[Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")] |> Map.length = Some 1]}
   */
   let minimum: t('key, _, _) => option('key);
 
   /** Returns the largest {b key } in the map. 
    
+      Returns [None] if the map is empty.
+      
       {e Examples}
 
-      TODO
+      {[Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")] |> Map.length = Some 8]}
   */
   let maximum: t('key, _, _) => option('key);
 
-  /** Returns a tuple [(minimum, maximum)] {b key} in the map. 
+  /** Returns, as an {!Option}, a {!Tuple} of the [(minimum, maximum)] {b key}s in the map. 
      
+      Returns [None] if the map is empty.
+      
       {e Examples}
 
-      TODO 
+      {[Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")] |> Map.length = Some (1, 8)]}
   */
   let extent: t('key, _, _) => option(('key, 'key));
 
@@ -4228,7 +4280,10 @@ module Map: {
 
   /** {1 Combine} */
 
-  /** Combine two maps. You provide a function [f] which is provided the key and the optional value from each map and needs to account for the three possibilities:
+  /** Combine two maps. 
+      
+      You provide a function [f] which is provided the key and the optional 
+      value from each map and needs to account for the three possibilities:
 
       1. Only the 'left' map includes a value for the key.
       2. Both maps contain a value for the key.
@@ -4238,60 +4293,155 @@ module Map: {
 
       {e Examples}
 
-      TODO
+      {[
+        let animalToPopulation = Map.String.ofList [
+          ("Elephant", 3_156);           
+          ("Shrew", 56_423);          
+        ]
+        in
+        let animalToPopulationGrowthRate = Map.String.ofList [
+          ("Elephant", 0.88);           
+          ("Squirrel", 1.2);          
+          ("Python", 4.0);          
+        ]
+
+        Map.merge animalToPopulation animalToPopulationGrowthRate ~f:(fun _animal population growth) ->
+          match (Option.both (population, growth))
+          | Some(population, growth) => Float.(ofInt population * growth)
+          | None => None
+        )
+        |> Map.toList
+          = [("Elephant", 2777.28)]
+      ]}
   */
   let merge:
     (
-      t('k, 'v1, 'cmp),
-      t('k, 'v2, 'cmp),
+      t('k, 'v1, 'id),
+      t('k, 'v2, 'id),
       ~f: ('k, option('v1), option('v2)) => option('v3)
     ) =>
-    t('k, 'v3, 'cmp);
+    t('k, 'v3, 'id);
 
   /** {1 Transformations} */
 
-  /** TODO */
-  let map: (t('k, 'v, 'cmp), ~f: 'v => 'b) => t('k, 'b, 'cmp);
+  /** Apply a function to all values in a dictionary. 
+      
+      {e Examples} 
 
-  /** TODO */
+      {[
+        Map.String.ofList [
+          ("Elephant", 3_156);           
+          ("Shrew", 56_423);          
+        ]
+        |> Map.map ~f:Int.toString
+        |> Map.toList
+          = [
+          ("Elephant", "3156");           
+          ("Shrew", "56423");          
+        ]
+      ]}
+  */
+  let map: (t('k, 'v, 'id), ~f: 'v => 'b) => t('k, 'b, 'id);
+
+  /** Like {!map} but [f] is also called with each values corresponding key */
   let mapI: (t('k, 'va, 'i), ~f: ('k, 'va) => 'vb) => t('k, 'vb, 'i);
 
   /** Keep elements that [f] returns [true] for. 
    
       {e Examples}
       
-      TODO
+      {[
+        Map.String.ofList [
+          ("Elephant", 3_156);           
+          ("Shrew", 56_423);          
+        ]
+        |> Map.map ~f:(fun population -> population > 10_000)
+        |> Map.toList
+          = [
+          ("Shrew", "56423");          
+        ]
+      ]}
   */
-  let filter: (t('k, 'v, 'cmp), ~f: 'v => bool) => t('k, 'v, 'cmp);
+  let filter: (t('k, 'v, 'id), ~f: 'v => bool) => t('k, 'v, 'id);
 
   /** Divide a map into two, the first map will contain the key-value pairs that [f] returns [true] for, pairs that [f] returns [false] for will end up in the second. 
    
       {e Examples}
       
-      TODO
+      {[
+        let (endangered, notEndangered) = Map.String.ofList [
+          ("Elephant", 3_156);           
+          ("Mosquito", 56_123_156);           
+          ("Rhino", 3);           
+          ("Shrew", 56_423);          
+        ]
+        |> Map.partition ~f:(fun population -> population < 10_000)
+        in
+
+        Map.toList endangered = [
+          ("Elephant", 3_156);           
+          ("Rhino", 3);           
+        ];
+
+        Map.toList notEndangered = [
+          ("Mosquito", 56_123_156);           
+          ("Shrew", 56_423);    
+        ];
+      ]}
   */
   let partition:
-    (t('k, 'v, 'cmp), ~f: (~key: 'k, ~value: 'v) => bool) =>
-    (t('k, 'v, 'cmp), t('k, 'v, 'cmp));
+    (t('k, 'v, 'id), ~f: (~key: 'k, ~value: 'v) => bool) =>
+    (t('k, 'v, 'id), t('k, 'v, 'id));
 
-  /** TODO */
+  /** Like {!Array.fold} but [f] is also called with both the [key] and [value] */
   let fold:
     (t('k, 'v, _), ~initial: 'a, ~f: ('a, ~key: 'k, ~value: 'v) => 'a) => 'a;
 
-  /** Runs a function [f] against each value in the map. 
-   
-      {e Examples}
-      
-      TODO
-  */
+  /** Runs a function [f] against each {b value} in the map. */
   let forEach: (t(_, 'v, _), ~f: 'v => unit) => unit;
 
   /** {1 Conversion} */
 
-  /** Get a {!List} of all of the keys in a map. */
+  /** Get a {!List} of all of the keys in a map. 
+
+      {e Examples}
+
+      {[
+        Map.String.ofList [
+          ("Elephant", 3_156);           
+          ("Mosquito", 56_123_156);           
+          ("Rhino", 3);           
+          ("Shrew", 56_423);          
+        ]
+        |> Map.keys = [
+          "Elephant";           
+          "Mosquito";           
+          "Rhino";           
+          "Shrew";          
+        ]
+      ]}  
+  */
   let keys: t('k, _, _) => list('k);
 
-  /** Get a {!List} of all of the values in a map. */
+  /** Get a {!List} of all of the values in a map. 
+      
+      {e Examples}
+
+      {[
+        Map.String.ofList [
+          ("Elephant", 3_156);           
+          ("Mosquito", 56_123_156);           
+          ("Rhino", 3);           
+          ("Shrew", 56_423);          
+        ]
+        |> Map.values = [
+          3_156;           
+          56_123_156;           
+          3;           
+          56_423;          
+        ]
+      ]}   
+  */
   let values: t(_, 'v, _) => list('v);
 
   /** Get an {!Array} of all of the key-value pairs in a map. */
@@ -4329,7 +4479,8 @@ module Map: {
     let empty: t('value);
 
     /** Create a map from a key and value
-      {[Map.Int.singleton ~key:1 ~value:"Ant" |> Map.toList = [(1, "Ant")]]}
+        
+        {[Map.Int.singleton ~key:1 ~value:"Ant" |> Map.toList = [(1, "Ant")]]}
     */
     let singleton: (~key: int, ~value: 'v) => t('v);
 
@@ -4348,7 +4499,8 @@ module Map: {
     let empty: t('value);
 
     /** Create a map from a key and value
-      {[Map.String.singleton ~key:"Ant" ~value:1 |> Map.toList = [("Ant", 1)]]}
+      
+        {[Map.String.singleton ~key:"Ant" ~value:1 |> Map.toList = [("Ant", 1)]]}
     */
     let singleton: (~key: string, ~value: 'v) => t('v);
 
@@ -4578,10 +4730,25 @@ module Array: {
   */
   let set: (t('a), int, 'a) => unit;
 
-  /** TODO */
+  /** Like {!set} but with labelled arguments */
   let setAt: (t('a), ~index: int, ~value: 'a) => unit;
 
-  /** TODO */
+  /** Calculate the sum of a list using the provided modules [zero] value and [add] function.
+    
+      {e Examples}
+
+      {[Array.sum [|1;2;3|] (module Int) = 6]}
+
+      {[Array.sum [|4.0;4.5;5.0|] (module Float) = 13.5]}
+
+      {[
+        module StringSum = {
+          type t = string;
+          let zero = ""
+          let add = (++)
+        };
+        Array.sum([|"a", "b", "c"|], (module StringSum)) = "abc"]}
+  */
   let sum: (t('a), (module Container.Sum with type t = 'a)) => 'a;
 
   /** Count the number of elements which [f] returns [true] for
@@ -4750,51 +4917,63 @@ module Array: {
   */
   let map3: (t('a), t('b), t('c), ~f: ('a, 'b, 'c) => 'd) => t('d);
 
-  /** TODO 
+  /** {!map} [f] onto an array and {!concatenate} the resulting arrays
     
-    {e Examples}
+      {e Examples}
 
-    {[Array.bind ~f xs = Array.map ~f xs |> Array.concatenate]}
-
-    {[Array.bind ~f:(fun n -> [|n; n|]) [|1; 2; 3|] = [|1; 1; 2; 2; 3; 3|]]} */
+      {[Array.bind ~f:(fun n -> [|n; n|]) [|1; 2; 3|] = [|1; 1; 2; 2; 3; 3|]]} 
+  */
   let bind: (t('a), ~f: 'a => t('b)) => t('b);
 
-  /** TODO The same as doing [sliding ~size ~step:size] */
+  /** Split an array into equally sized chunks.
+    
+      If there aren't enough elements to make the last 'chunk', those elements are ignored.
+
+      {e Examples}
+      
+      {[
+        Array.chunksOf ~size:2 [|"#FFBA49"; "#9984D4"; "#20A39E"; "#EF5B5B"; "#23001E"|] =  [|
+          [|"#FFBA49"; "#9984D4"|];
+          [|"#20A39E"; "#EF5B5B"|];
+        |]
+      ]}
+   */
   let chunksOf: (t('a), ~size: int) => t(t('a));
 
   /** Provides a sliding 'window' of sub-arrays over an array.
 
-    The first sub-array starts at index [0] of the array and takes the first [size] elements.
+      The first sub-array starts at index [0] of the array and takes the first [size] elements.
 
-    The sub-array then advances the index [step] (which defaults to 1) positions before taking the next [size] elements.
+      The sub-array then advances the index [step] (which defaults to 1) positions before taking the next [size] elements.
 
-    The sub-arrays are guaranteed to always be of length [size] and iteration stops once a sub-array would extend beyond the end of the array.
+      The sub-arrays are guaranteed to always be of length [size] and iteration stops once a sub-array would extend beyond the end of the array.
 
-    {e Examples}
-      
-    {[Array.sliding [|1;2;3;4;5|] ~size:1 = [|[|1|]; [|2|]; [|3|]; [|4|]; [|5|]|] ]}
+      {e Examples}
+        
+      {[Array.sliding [|1;2;3;4;5|] ~size:1 = [|[|1|]; [|2|]; [|3|]; [|4|]; [|5|]|] ]}
 
-    {[Array.sliding [|1;2;3;4;5|] ~size:2 = [|[|1;2|]; [|2;3|]; [|3;4|]; [|4;5|]|] ]}
+      {[Array.sliding [|1;2;3;4;5|] ~size:2 = [|[|1;2|]; [|2;3|]; [|3;4|]; [|4;5|]|] ]}
 
-    {[Array.sliding [|1;2;3;4;5|] ~size:3 = [|[|1;2;3|]; [|2;3;4|]; [|3;4;5|]|] ]}
+      {[Array.sliding [|1;2;3;4;5|] ~size:3 = [|[|1;2;3|]; [|2;3;4|]; [|3;4;5|]|] ]}
 
-    {[Array.sliding [|1;2;3;4;5|] ~size:2 ~step:2 = [|[|1;2|]; [|3;4|]|] ]}
+      {[Array.sliding [|1;2;3;4;5|] ~size:2 ~step:2 = [|[|1;2|]; [|3;4|]|] ]}
 
-    {[Array.sliding [|1;2;3;4;5|] ~size:1 ~step:3 = [|[|1|]; [|4|]|] ]}
+      {[Array.sliding [|1;2;3;4;5|] ~size:1 ~step:3 = [|[|1|]; [|4|]|] ]}
   */
   let sliding: (~step: int=?, t('a), ~size: int) => t(t('a));
 
   /** Returns, as an {!Option}, the first element for which [f] evaluates to [true].
 
-    If [f] doesn't return [true] for any of the elements [find] will return [None]
+      If [f] doesn't return [true] for any of the elements [find] will return [None]
 
-    {e Examples}
-      
-    {[Array.find ~f:Int.isEven [|1; 3; 4; 8;|] = Some 4]}
+      {e Examples}
+        
+      {[Array.find ~f:Int.isEven [|1; 3; 4; 8;|] = Some 4]}
 
-    {[Array.find ~f:Int.isOdd [|0; 2; 4; 8;|] = None]}
+      {[Array.find ~f:Int.isOdd [|0; 2; 4; 8;|] = None]}
 
-    {[Array.find ~f:Int.isEven [||] = None]} */
+      {[Array.find ~f:Int.isEven [||] = None]} 
+  */
   let find: (t('a), ~f: 'a => bool) => option('a);
 
   /** Similar to {!Array.find} but [f] is also called with the current index, and the return value will be a tuple of the index the passing value was found at and the passing value.

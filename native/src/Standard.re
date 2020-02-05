@@ -89,7 +89,10 @@ module Bool = {
     | _ => None
     };
 
-  [@bs.send] external toString: bool => string = "toString";
+  let toString = fun 
+    | true => "true"
+    | false => "false"
+    ;
 
   let toInt = t => t ? 1 : 0;
 };
@@ -768,7 +771,10 @@ module Float = {
 
   let ofInt = Base.Float.of_int;
 
-  let ofString = Base.Float.of_string;
+  let ofString = string => 
+    try(Some(Base.Float.of_string(string))) {
+    | Invalid_argument(_) => None
+    };
 
   let zero = 0.0;
 
@@ -1165,7 +1171,7 @@ module Integer = {
 
   let toFloat = Z.to_float;
 
-  [@bs.send] external toString: t => string = "toString";
+  let toString = Z.to_string;
 
   let equal = Z.equal;
 
