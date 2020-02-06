@@ -21,9 +21,13 @@
     "@glennsl/bs-jest": "0.4.9",
     "bs-platform": "7.0.1"
   },
+  "Jest 25 is required for BigInt support": "",
+  "resolutions": {
+    "@glennsl/bs-jest/jest": "25.1.0"
+  },
   "jest": {
     "testMatch": [
-      "**/test/*_test.bs.js"
+      "**/test/*Test.bs.js"
     ]
   }
 }

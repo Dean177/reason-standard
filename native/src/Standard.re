@@ -537,7 +537,7 @@ module Option = {
 
   let getUnsafe = x =>
     switch (x) {
-    | None => raise(Invalid_argument("getUnsafe called with None"))
+    | None => raise(Invalid_argument("Option.getUnsafe called with None"))
     | Some(x) => x
     };
 
