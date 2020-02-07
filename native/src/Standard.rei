@@ -2255,8 +2255,6 @@ module Container: {
   /** This module contains module signatures which are used in functions which accept first class modules.
 
       TODO this could do with some links explaining those concepts, or linking to a good explanation
-
-      TODO Maybe just remove the 'Contianer' wrapper
   */
 
   module type Sum = {

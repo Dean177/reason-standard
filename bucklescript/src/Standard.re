@@ -1348,7 +1348,7 @@ module String = {
   type identity;
 
   let initialize = (length, ~f) =>
-    Js.Array.joinWith("", Array.init(length, f));
+    Js.Array.joinWith("", Array.init(length, (index) => f(index) |> Char.toString));
 
   // TODO why the trip to code?
   let ofArray = characters =>

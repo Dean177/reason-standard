@@ -65,6 +65,11 @@ let testAll =
   );
 };
 
+module Skip = {
+  let test = (_description, _run) => ();
+  let testAll = (_description, _values, _run) => ();
+};
+
 let expect = (actual: 'a): expectation('a) => {
   Expectation(currentFunction^ ++ " - " ++ currentDescription^, actual);
 };

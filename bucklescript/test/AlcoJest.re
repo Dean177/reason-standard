@@ -50,6 +50,8 @@ let test = test;
 
 let testAll = testAll;
 
+module Skip = Skip;
+
 let expect = expect;
 
 let toEqual = (_: Eq.t('a), value: 'a) => toEqual(value);
