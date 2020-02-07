@@ -254,7 +254,7 @@ module List = {
     Belt.List.drop(t, count)->(Belt.Option.getWithDefault([]));
 
   let take = (t, ~count) =>
-    Belt.List.take(t, count)->Belt.Option.getWithDefault([]);
+    Belt.List.take(t, count);
 
   let initial = l =>
     switch (reverse(l)) {
@@ -293,10 +293,25 @@ module List = {
     loop(0, list);
   };
 
-  let splitAt = (t, ~index) => (
-    take(t, ~count=index),
-    drop(t, ~count=index),
-  );
+  let splitAt = (t, ~index) => {
+    if (index < 0) {
+      raise(Invalid_argument("List.splitAt called with negative index"))
+    };
+
+    let rec loop = (front, back, i) => {
+      switch(back) {
+      | [] => (t, [])
+      | [element, ...rest] => 
+        if (i == 0) {
+          (reverse(front), back)
+        } else {
+          loop([element, ...front], rest, i - 1);
+        }
+      }
+    }
+
+    loop([], t, index);
+  };
 
   let updateAt: (t('a), ~index: int, ~f: 'a => 'a) => t('a) =
     (t, ~index, ~f) =>
@@ -421,15 +436,40 @@ module List = {
     };
 
   let insertAt = (t, ~index, ~value) => {
-    let (front, back) = splitAt(t, ~index);
-    append(front, [value, ...back]);
+    if (index < 0) {
+      raise(Invalid_argument("List.splitAt called with negative index"))
+    };
+
+    let rec loop = (front, back, i) => {
+      switch(back) {
+      | [] => reverse([value, ...front])
+      | [element, ...rest] => 
+        if (i == 0) {
+          append(reverse(front), [value, element, ...rest])
+        } else {
+          loop([element, ...front], rest, index - 1);
+        }
+      }
+    }
+
+    loop([], t, index);
   };
 
-  let splitWhen = (t, ~f) =>
-    switch (findIndex(t, ~f=(_, element) => f(element))) {
-    | Some((index, _)) => splitAt(t, ~index)
-    | None => (t, [])
-    };
+  let splitWhen = (t, ~f) => {
+    let rec loop = (front, back) => {
+      switch (back) {
+      | [] => (t, [])
+      | [element, ...rest] => {
+        if (f(element)) {
+          (reverse(front), back)
+        } else {
+          loop([element, ...front], rest)
+        }
+      }
+      }
+    }
+    loop([], t)
+  };
 
   let intersperse = (t, ~sep) =>
     switch (t) {
@@ -1039,12 +1079,11 @@ module Integer = {
   
   let ofFloat = (float) => Some(ofFloatUnsafe(float));
 
-  [@bs.val] external ofStringUnsafe: string => t = "BigInt";
+  [@bs.val] external ofStringUnsafe: string => Js.Nullable.t(t) = "BigInt";
 
   let ofString = string => {
-    // TODO "" should parse as None
-    switch (ofStringUnsafe(string)) {
-    | value => Some(value)
+    switch (ofStringUnsafe(string) |> Js.Nullable.toOption) {
+    | value => value
     | exception _ => None
     };
   };
@@ -1060,6 +1099,12 @@ module Integer = {
   let isEven: t => bool = [%raw n => "{ return n % 2 === 0 }"];
 
   let isOdd: t => bool = [%raw n => "{ return n % 2 !== 0 }"];
+
+  let (<): (t, t) => bool = [%raw (a, b) => "{return a < b}"];
+  // let (<=) = [%raw (a, b) => "{return a <= b}"];
+  let (==): (t, t) => bool = [%raw (a, b) => "{return a === b}"];
+  let (>=): (t, t) => bool = [%raw (a, b) => "{return a > b}"];
+  let (>): (t, t) => bool = [%raw (a, b) => "{return a >= b}"];
 
   let add = [%raw (a, b) => "{return a + b}"];
 
@@ -1138,7 +1183,7 @@ module Integer = {
     if (upper < lower) {
       raise(Invalid_argument("~lower must be less than or equal to ~upper"));
     } else {
-      max(lower, min(upper, n));
+      maximum(lower, minimum(upper, n));
     };
 
   let inRange = (n, ~lower, ~upper) =>
@@ -1151,28 +1196,20 @@ module Integer = {
   [@bs.val] [@bs.scope "BigInt"] external asIntN: (int, t) => 'a = "asIntN";
 
   let toInt = t =>
-    if (t > ofInt(Int.maximumValue)) {
+    if (t > ofInt(Int.maximumValue) || t > ofInt(Int.minimumValue)) {
       None;
     } else {
-      Some(asIntN(53, t));
+      Some(asIntN(32, t));
     };
 
   let toInt64 = t =>
-    if (t > ofInt64(Int64.max_int)) {
+    if (t > ofInt64(Int64.max_int) || t < ofInt64(Int64.min_int)) {
       None;
     } else {
-      Some(asIntN(63, t));
+      Some(asIntN(64, t));
     };
 
-  // let maxFloat = [@raw "2n ** (64n - 1n) - 1n"];
-  // let toFloat = (t) =>
-  // if (t > maxFloat) {
-  // None;
-  // } else {
-  // Some(asIntN(53, t));
-  // };
-  // TODOs
-  let toFloat = _ => 0.;
+  [@bs.val] external toFloat: t => float = "Number";
 
   [@bs.send] external toString: t => string = "toString";
 };

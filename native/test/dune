@@ -1,7 +1,7 @@
 (executable
   (name runtest)
   (flags (-warn-error +A))
-  (libraries reason-standard alcotest junit junit_alcotest)
+  (libraries reason-standard alcotest)
 )
 
 (rule
@@ -26,7 +26,7 @@
 
 (rule
   (target IntegerTest.re)
-  (action (copy ../../bucklescript/test/IntTest.re ./IntegerTest.re)))
+  (action (copy ../../bucklescript/test/IntegerTest.re ./IntegerTest.re)))
 
 (rule
   (target IntTest.re)

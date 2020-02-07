@@ -22,6 +22,14 @@ module Eq = {
     AT.testable(pp, eq);
   };
 
+  let integer = {
+    let eq = Standard.Integer.equal;
+
+    let pp = Obj.magic(Z.pp_print);
+
+    AT.testable(pp, eq);
+  };
+
   let float = AT.float(0.0)
 }
 

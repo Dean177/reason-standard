@@ -170,6 +170,11 @@ let suite = suite("List", () => {
     test("at end", () => {
       expect(splitAt(~index=3, [1, 3, 5])) |> toEqual(Eq.(pair(list(int), list(int))), ([1, 3, 5], []))
     });
+
+    test("past end", () => {
+      expect(splitAt(~index=6, [1, 3, 5]))
+      |> toEqual(Eq.(pair(list(int), list(int))), ([1, 3, 5], []))
+    });
   });
 
   describe("splitWhen", () => {
@@ -270,7 +275,7 @@ let suite = suite("List", () => {
     });
 
     test("after end of list", () => {
-      expect(insertAt(~index=4, ~value=2, [1, 3])) |> toEqual(Eq.(list(int)), [1, 3, 2])
+      expect(insertAt(~index=4, ~value=2, [1, 3]) |> toArray) |> toEqual(Eq.(array(int)), [|1, 3, 2|])
     });
   });
 

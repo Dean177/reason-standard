@@ -4427,7 +4427,7 @@ module List: {
 
      {[List.take [1;2;3;4] ~count:8 = None]}
   */
-  let take: (t('a), ~count: int) => t('a);
+  let take: (t('a), ~count: int) => option(t('a));
 
   /** Take elements from a list until [f] returns [false]
     
@@ -4443,6 +4443,8 @@ module List: {
 
   /** Drop the first [count] elements from the front of a list.
     
+      If count is greater than the length of the list, returns an empty list.
+      
       {e Examples}
       
       {[List.drop [1;2;3;4] ~count:2 = [3;4]}
@@ -4707,9 +4709,7 @@ module List: {
 
       {[List.insertAt ~index:4 ~value:999 [100; 101; 102; 103] = [100; 101; 102; 103; 999]]}
 
-      {[List.insertAt ~index:(-1) ~value:999 [100; 101; 102; 103] = [999]]}
-
-      {[List.insertAt ~index:5 ~value:999 [100; 101; 102; 103] = [999]]}
+      {[List.insertAt ~index:5 ~value:999 [100; 101; 102; 103] = [100; 101; 102; 103; 999]]}
   */  
   let insertAt: (t('a), ~index: int, ~value: 'a) => t('a);
 

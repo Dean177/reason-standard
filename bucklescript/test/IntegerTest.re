@@ -1,7 +1,7 @@
 open Standard;
 open AlcoJest;
 
-suite("Integer", () => {
+let suite = suite("Integer", () => {
   open Integer;
 
   describe("add", () => {
@@ -57,13 +57,15 @@ suite("Integer", () => {
   });
 
   describe("absolute", () => {
-    test("positive number", () => {
+    test("positive numbers stay positive", () => {
       expect(absolute(ofInt(8))) |> toEqual(Eq.integer, ofInt(8))
     });
-    test("negative number", () => {
+
+    test("negative numbers become positive", () => {
       expect(absolute(ofInt(-7))) |> toEqual(Eq.integer, ofInt(7))
     });
-    test("zero", () => {
+
+    test("zero is left as it is", () => {
       expect(absolute(zero)) |> toEqual(Eq.integer, zero)
     });
   });
@@ -149,7 +151,7 @@ suite("Integer", () => {
       expect(ofString("42")) |> toEqual(Eq.(option(integer)), Some(ofInt(42)))
     });
     test("123_456", () => {
-      expect(ofString("123_456")) |> toEqual(Eq.(option(integer)), Some(ofInt(123_456)))
+      expect(ofString("123_456")) |> toEqual(Eq.(option(integer)), None)
     });
     test("-42", () => {
       expect(ofString("-42")) |> toEqual(Eq.(option(integer)), Some(ofInt(-42)))
@@ -174,10 +176,11 @@ suite("Integer", () => {
     });
     test("--4", () => {
       expect(ofString("--4")) |> toEqual(Eq.(option(integer)), None)
-    });
+    }); 
+
     test("empty string", () => {
-      expect(ofString(" ")) |> toEqual(Eq.(option(integer)), None)
-    });
+      expect(ofString("")) |> toEqual(Eq.(option(integer)), Some(zero))
+    });   
   });
 
   describe("toString", () => {

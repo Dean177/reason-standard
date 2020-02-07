@@ -454,8 +454,8 @@ module List = {
       }
     });
 
-  let insertAt = (l: list('a), ~index: int, ~value: 'a): list('a) => {
-    let (front, back) = splitAt(~index, l);
+  let insertAt = (t: list('a), ~index: int, ~value: 'a): list('a) => {
+    let (front, back) = splitAt(t, ~index);
     append(front, [value, ...back]);
   };
 

@@ -308,10 +308,9 @@ let suite = suite("Float", () => {
       expect(toPolar((3.0, 4.0))) |> toEqual(Eq.(pair(float, float)), (5.0, 0.9272952180016122))
     });
 
-    test("toPolar", () => {
-      let (r, theta) = toPolar((5.0, 12.0));
-      expect(r) |> toBeCloseTo((13.0));
-      expect(theta) |> toBeCloseTo((1.17601));
+    let (r, theta) = toPolar((5.0, 12.0));
+    testAll("toPolar", [(r, 13.0), (theta, 1.17601)], ((actual, expected)) => {
+      expect(actual) |> toBeCloseTo(expected);
     });
   });
 
