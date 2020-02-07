@@ -18,10 +18,10 @@ Here is an example from the String library:
 want to create a string primarly by consing, perhaps for decoding
 something.
 
-    fromList ['e','l','m'] == "elm"
+    ofList ['e','l','m'] == "elm"
 -}
-fromList : List Char -> String
-fromList = ...
+ofList : List Char -> String
+ofList = ...
 Notice that:
 
 A documentation comment starts {-| and ends with -}. The vertical bar indicates that it is a special comment.

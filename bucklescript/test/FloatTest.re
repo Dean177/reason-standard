@@ -1,6 +1,6 @@
 open AlcoJest;
 
-suite("Float", () => {
+let suite = suite("Float", () => {
   open Standard.Float;
 
   test("zero", () => {
@@ -16,16 +16,16 @@ suite("Float", () => {
   });
 
   test("infinity", () => {
-    expect(infinity *. 2.) |> toEqual(Eq.float, infinity)
+    expect(infinity *. 2. == infinity) |> toEqual(Eq.bool, true);
   });
 
   test("negativeInfinity", () => {
-    expect(negativeInfinity *. 2.) |> toEqual(Eq.float, negativeInfinity)
+    expect(negativeInfinity *. 2. == negativeInfinity) |> toEqual(Eq.bool, true);
   });
 
   describe("equals", () => {
     test("zero", () => {
-      expect(0. == (-0.)) |> toBeTrue()
+      expect(0. == (-0.)) |> toEqual(Eq.bool, true)
     })
   });
 
@@ -61,10 +61,10 @@ suite("Float", () => {
       expect(divide(3.14, ~by=2.)) |> toEqual(Eq.float, 1.57)
     });
     test("divide by zero", () => {
-      expect(divide(3.14, ~by=0.)) |> toEqual(Eq.float, infinity)
+      expect(divide(3.14, ~by=0.) == infinity) |> toEqual(Eq.bool, true);
     });
     test("divide by negative zero", () => {
-      expect(divide(3.14, ~by=-0.)) |> toEqual(Eq.float, negativeInfinity)
+      expect(divide(3.14, ~by=-0.) == negativeInfinity) |> toEqual(Eq.bool, true);
     });
 
     test("/", () => {
@@ -122,10 +122,10 @@ suite("Float", () => {
       expect(maximum(-4., -1.)) |> toEqual(Eq.float, -1.)
     });
     test("nan", () => {
-      expect(maximum(7., nan)) |> toEqual(Eq.float, nan)
+      expect(maximum(7., nan) |> isNaN) |> toEqual(Eq.bool, true);
     });
     test("infinity", () => {
-      expect(maximum(7., infinity)) |> toEqual(Eq.float, infinity)
+      expect(maximum(7., infinity) == infinity) |> toEqual(Eq.bool, true);
     });
     test("negativeInfinity", () => {
       expect(maximum(7., negativeInfinity)) |> toEqual(Eq.float, 7.)
@@ -140,13 +140,13 @@ suite("Float", () => {
       expect(minimum(-4., -1.)) |> toEqual(Eq.float, -4.)
     });
     test("nan", () => {
-      expect(minimum(7., nan)) |> toEqual(Eq.float, nan)
+      expect(minimum(7., nan) |> isNaN) |> toEqual(Eq.bool, true);
     });
     test("infinity", () => {
-      expect(minimum(7., infinity)) |> toEqual(Eq.float, 7.)
+      expect(minimum(7., infinity)) |> toEqual(Eq.float, 7.);
     });
     test("negativeInfinity", () => {
-      expect(minimum(7., negativeInfinity)) |> toEqual(Eq.float, negativeInfinity)
+      expect(minimum(7., negativeInfinity) == negativeInfinity) |> toEqual(Eq.bool, true);
     });
   });
 
@@ -167,13 +167,13 @@ suite("Float", () => {
       expect(clamp(~lower=-10., ~upper=-5., -15.)) |> toEqual(Eq.float, -10.)
     });
     test("nan upper bound", () => {
-      expect(clamp(~lower=-7.9, ~upper=nan, -6.6)) |> toEqual(Eq.float, nan)
+      expect(clamp(~lower=-7.9, ~upper=nan, -6.6) |> isNaN) |> toEqual(Eq.bool, true)
     });
     test("nan lower bound", () => {
-      expect(clamp(~lower=nan, ~upper=0., -6.6)) |> toEqual(Eq.float, nan)
+      expect(clamp(~lower=nan, ~upper=0., -6.6) |> isNaN) |> toEqual(Eq.bool, true);
     });
     test("nan value", () => {
-      expect(clamp(~lower=2., ~upper=8., nan)) |> toEqual(Eq.float, nan)
+      expect(clamp(~lower=2., ~upper=8., nan) |> isNaN) |> toEqual(Eq.bool, true);
     });
     test("invalid arguments", () => {
       expect(() => {
@@ -190,7 +190,7 @@ suite("Float", () => {
       expect(squareRoot(20.25)) |> toEqual(Eq.float, 4.5)
     });
     test("negative number", () => {
-      expect(squareRoot(-1.)) |> toEqual(Eq.float, nan)
+      expect(squareRoot(-1.) |> isNaN) |> toEqual(Eq.bool, true)
     });
   });
 
@@ -202,7 +202,7 @@ suite("Float", () => {
       expect(log(~base=2., 256.)) |> toEqual(Eq.float, 8.)
     });
     test("of zero", () => {
-      expect(log(~base=10., 0.)) |> toEqual(Eq.float, negativeInfinity)
+      expect(log(~base=10., 0.) == negativeInfinity) |> toEqual(Eq.bool, true)
     });
   });
 
@@ -293,13 +293,13 @@ suite("Float", () => {
     expect(turns(1.)) |> toEqual(Eq.float, 2. * pi)
   });
 
-  describe("fromPolar", () => {
-    let (x, y) = fromPolar((squareRoot(2.), degrees(45.)));
+  describe("ofPolar", () => {
+    let (x, y) = ofPolar((squareRoot(2.), degrees(45.)));
     test("x", () => {
       expect(x) |> toBeCloseTo(1.)
     });
     test("y", () => {
-      expect(y) |> toBeCloseTo(1.)
+      expect(y) |> toEqual(Eq.float, 1.)
     });
   });
 
@@ -309,38 +309,40 @@ suite("Float", () => {
     });
 
     test("toPolar", () => {
-      expect(toPolar((5.0, 12.0))) |> toEqual(Eq.(pair(float, float)), (13.0, 1.1760052070951352))
+      let (r, theta) = toPolar((5.0, 12.0));
+      expect(r) |> toBeCloseTo((13.0));
+      expect(theta) |> toBeCloseTo((1.17601));
     });
   });
 
   describe("cos", () => {
     test("cos", () => {
-      expect(cos(degrees(60.))) |> toEqual(Eq.float, 0.5000000000000001)
+      expect(cos(degrees(60.))) |> toBeCloseTo(0.5)
     });
 
     test("cos", () => {
-      expect(cos(radians(pi / 3.))) |> toEqual(Eq.float, 0.5000000000000001)
+      expect(cos(radians(pi / 3.))) |> toBeCloseTo(0.5)
     });
   });
 
   describe("acos", () => {
     test("1 / 2", () =>
-      expect(acos(1. / 2.)) |> toEqual(Eq.float, 1.0471975511965979)
+      expect(acos(1. / 2.)) |> toBeCloseTo(1.0472)
     )
   });
 
   describe("sin", () => {
     test("30 degrees", () => {
-      expect(sin(degrees(30.))) |> toEqual(Eq.float, 0.49999999999999994)
+      expect(sin(degrees(30.))) |> toBeCloseTo(0.5);
     });
     test("pi / 6", () => {
-      expect(sin(radians(pi / 6.))) |> toEqual(Eq.float, 0.49999999999999994)
+      expect(sin(radians(pi / 6.))) |> toBeCloseTo(0.5);
     });
   });
 
   describe("asin", () => {
     test("asin", () =>
-      expect(asin(1. / 2.)) |> toEqual(Eq.float, 0.5235987755982989)
+      expect(asin(1. / 2.)) |> toBeCloseTo(0.523599)
     )
   });
 
@@ -652,15 +654,15 @@ suite("Float", () => {
     });
   });
 
-  describe("fromInt", () => {
+  describe("ofInt", () => {
     test("5", () => {
-      expect(fromInt(5)) |> toEqual(Eq.float, 5.0)
+      expect(ofInt(5)) |> toEqual(Eq.float, 5.0)
     });
     test("0", () => {
       expect(zero) |> toEqual(Eq.float, 0.0)
     });
     test("-7", () => {
-      expect(fromInt(-7)) |> toEqual(Eq.float, -7.0)
+      expect(ofInt(-7)) |> toEqual(Eq.float, -7.0)
     });
   });
 

@@ -2,12 +2,22 @@ open Jest;
 open Expect;
 
 module Eq: {
+  /** This module is purely to make the API match the one provided in
+      native/test/AlcoJest.re
+      All of the implementations are `ignore` since although Alcotest requires
+      matchers which can test for equality and pretty print types, Jest doesn't
+      need these as it compares values structurally (which is fine for the
+      included types)
+  */
+
   type t('a);
   let bool: t(bool);
   let char: t(char);
   let int: t(int);
+  let integer: t(Standard.Integer.t);
   let float: t(float);
   let string: t(string);
+  let unit: t(unit);
   let array: (t('a)) => t(array('a));
   let list: (t('a)) => t(list('a));
   let option: (t('a)) => t(option('a));
@@ -20,15 +30,17 @@ module Eq: {
   let bool = ignore;
   let char = ignore;
   let int = ignore;
+  let integer = ignore;
   let float = ignore;
   let string = ignore;
+  let unit = ignore;
   let array = (_) => ignore;
   let list = (_) => ignore;
   let option = (_) => ignore;
   let result = (_, _) => ignore;
   let pair = (_,_) => ignore;
   let trio = (_,_, _) => ignore;
-}
+};
 
 let suite = describe;
 
@@ -41,10 +53,6 @@ let testAll = testAll;
 let expect = expect;
 
 let toEqual = (_: Eq.t('a), value: 'a) => toEqual(value);
-
-let toBeTrue = () => toBe(true);
-
-let toBeFalse = () => toBe(false);
 
 let toBeCloseTo = toBeCloseTo;
 

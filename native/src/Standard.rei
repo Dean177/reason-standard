@@ -1,228 +1,5 @@
-/** Functions for working with functions. */
-module Fun: {
-  /** Functions for working with functions. 
-   
-      While the functions in this module can often make code more concise, this 
-      often imposes a readability burden on future readers.
-  */
-
-  /** Given a value, returns exactly the same value. This may seem pointless at first glance but it can often be useful when an api offers you more control than you actually need.
-
-      Perhaps you want to create an array of integers
-
-      {[Array.initialize 6 ~f:Fun.identity = [|0;1;2;3;4;5|]]}
-
-      (In this particular case you probably want to use {!Array.range}.)
-
-      Or maybe you need to register a callback, but dont want to do anything:
-
-      {[
-        let httpMiddleware = HttpLibrary.createMiddleWare(
-          ~onEventYouDoCareAbout=transformAndReturn,
-          ~onEventYouDontCareAbout=Fun.identity,
-        }
-      ]}
-  */
-  external identity: 'a => 'a = "%identity";
-
-  /** Discards the value it is given and returns [()]
-
-      This is primarily useful when working with imperative side-effecting code
-      or to avoid [unused value] compiler warnings when you really meant it, 
-      and haven't just made a mistake.
-
-      {e Examples}
-
-      {[
-        module PretendMutableQueue : sig
-          type 'a t
-
-          /** Adds an element to the queue, returning the new length of the queue */
-          val pushReturningLength : 'a t -> 'a -> int
-        end
-
-        let addListToQueue queue list =
-          List.forEach list ~f:(fun element ->
-            ignore (PretentMutableQueue.pushReturningLength queue element)
-          )
-      ]}
-  */
-  external ignore: _ => unit = "%ignore";
-
-  /** Create a function that {b always} returns the same value.
-
-      Useful with functions like {!List.map} or {!Array.initialize}
-
-      {e Examples}
-
-      {[List.map ~f:(Fun.constant 0) [1;2;3;4;5] = [0;0;0;0;0]]}
-
-      {[Array.initialize 6 ~f:(Fun.constant 0) = [|0;0;0;0;0;0|]]}
-  */
-  let constant: ('a, 'b) => 'a;
-  
-  /** A function which always returns its second argument. */
-  let sequence: ('a, 'b) => 'b;
-
-  /** Reverses the argument order of a function.
-    
-      For any arguments [x] and [y], [(flip f) x y] is the same as [f y x].
-
-      Perhaps you want to [fold] something, but the arguments of a function you 
-      already have access to are in the wrong order.
-
-      {e Examples}
-
-      TODO
-  */
-  let flip: (('a, 'b) => 'c, 'b, 'a) => 'c;
-
-  /** See {!Fun.(<|)} */
-  let apply: ('a => 'b, 'a) => 'b;
-
-  /** Like {!(|>)} but in the opposite direction.
-    
-      [f <| x] is exactly the same as [f x].
-    
-      It can help you avoid parentheses, which can be nice sometimes.
-
-      Maybe you want to apply a function to a [match] expression? That sort of thing.
-
-      {e Examples}
-      
-      TODO
-  */
-  let (<|): ('a => 'b, 'a) => 'b;
-
-  /** See {!Fun.(|>)} */ 
-  external pipe: ('a, 'a => 'b) => 'b = "%revapply";
-
-  /** Saying [x |> f] is exactly the same as [f x], just a bit longer.
-
-      It is called the “pipe” operator because it lets you write “pipelined” code.
-
-      It can make nested function calls more readable.
-
-      For example, say we have a [sanitize] function for turning user input into
-      integers:
-
-      {[
-        (* Before *)
-        let sanitize (input: string) : int option =
-          Int.ofString (String.trim input)
-      ]}
-
-      We can rewrite it like this:
-
-      {[
-        (* After *)
-        let sanitize (input: string) : int option =
-          input
-          |> String.trim
-          |> Int.ofString
-      ]}      
-
-      This can be overused! When you have three or four steps, the code often gets clearer if you break things out into
-      some smaller piplines assigned to variables. Now the transformation has a name, maybe it could have a type annotation.
-
-      It can often be more self-documenting that way!
-  */
-  external (|>): ('a, 'a => 'b) => 'b = "%revapply";
-
-  /** Function composition, passing results along in the suggested direction.
-      
-      For example, the following code (in a very roundabout way) checks if a number divided by two is odd:
-
-      {[let isHalfOdd = Fun.(not << Int.isEven << Int.divide ~by:2)]}
-
-      You can think of this operator as equivalent to the following:
-
-      {[(g << f)  ==  (fun x -> g (f x))]}
-
-      So our example expands out to something like this:
-
-      {[let isHalfOdd = fun n -> not (Int.isEven (Int.divide ~by:2 n))]}
-  */
-  let compose: ('b => 'c, 'a => 'b, 'a) => 'c;
-
-  /** See {!Fun.compose} */
-  let (<<): ('b => 'c, 'a => 'b, 'a) => 'c;
-
-  /** Function composition, passing results along in the suggested direction.
-      
-      For example, the following code checks if the square root of a number is odd:
-
-      {[Int.squareRoot >> Int.isEven >> not]}
-  */
-  let composeRight: ('a => 'b, 'b => 'c, 'a) => 'c;
-
-  /** See {!Fun.composeRight} */
-  let (>>): ('a => 'b, 'b => 'c, 'a) => 'c;
-
-  /** Useful for performing some side affect in {!Fun.pipe}-lined code.
-
-      Most commonly used to log a value in the middle of a pipeline of function calls.
-
-      {e Examples}
-
-      {[
-        let sanitize (input: string) : int option =
-          input
-          |> String.trim
-          |> Fun.tap ~f:(fun trimmedString -> print_endline trimmedString)
-          |> Int.ofString
-      ]}
-
-      {[
-        Array.filter [|1;3;2;5;4;|] ~f:Int.isEven
-        |> Fun.tap ~f:(fun numbers -> numbers.(0) <- 0)
-        |> Fun.tap ~f:Array.reverseInPlace
-        = [|4;0|]
-      ]}
-  */
-  let tap: ('a, ~f: 'a => unit) => 'a;
-
-  // TODO
-  /**  Useful in combination with functions like `filter` */
-  let negate: ('a => bool, 'a) => bool;
-
-  // TODO a better type than unit for the return value?
-  /** Runs the provided function, forever. */
-  let forever: (unit => unit) => unit;
-
-  /** Runs a function repeatedly.  
-    
-      {e Examples}
-
-      {[
-        let count = ref 0
-        times(10, fun () -> (count <- !count + 1))
-        !count = 10
-      ]} 
-  */
-  let times: (int, ~f: unit => unit) => unit;
-};
-
-module Container: {
-  /** This module contains module signatures which are used in functions which accept first class modules.
-
-      TODO this could do with some links explaining those concepts, or linking to a good explanation
-
-      TODO Maybe just remove the 'Contianer' wrapper
-  */
-
-  module type Sum = {
-    /** Modules which conform to this signature can be used with functions like
-        {!Array.sum}, {!List.sum} or {!Set.sum}
-    */
-    type t;
-    let zero: t;
-    let add: (t, t) => t;
-  };
-};
-
 /** Functions for working with boolean ([true] or [false]) values. */
-module Bool: {
+module Bool: ({
   /** Functions for working with boolean values.
 
       Booleans in OCaml / Reason are represented by the [true] and [false] literals.
@@ -408,905 +185,7 @@ module Bool: {
       {[Bool.compare false false = 0]}
   */
   let compare: (t, t) => int;
-};
-
-/** Functions for working with computations which may fail. */
-module Result: {
-  /** A {!Result} is used to represent a computation which may fail.
-      
-      A [Result] is a variant, which has a constructor for successful results ([Ok('ok)]), 
-      and one for unsuccessful results ([Error('error)]).
-
-      {[
-          type t('error, 'ok) =
-            | Ok('ok)
-            | Error('error);
-        ]}
-
-      Here is how you would annotate a [Result] variable whose [Ok]
-      variant is an integer and whose [Error] variant is a string:
-
-      {[
-        let x: Result.t(string, int) = Ok(3);
-        let y: Result.t(string, int) = Error("bad")
-      ]}
-
-      {b Note} The ['error] case can be of {b any} type and while [string] is very common you could also use:
-      - [string List.t] to allow errors to be accumulated
-      - [exn], in which case the result type just makes exceptions explicit in the return type          
-      - A variant or polymorphic variant, with one case per possible error. This is means each error can be dealt with explicitly. See {{: https://keleshev.com/composable-error-handling-in-ocaml } this excellent article} for mnore information on this approach.
-
-      If the function you are writing can only fail in a single obvious way, maybe you want an {!Option} instead.
-  */
-
-  type t('error, 'ok) = Result.t('ok, 'error);
-
-  /** {1 Creation} */
-
-  /** A function alternative to the [Ok] constructor which can be used in places where
-      the constructor isn't permitted such as at the of a {!(|>)} or functions like {!List.map}.
-
-      {e Examples}
-
-      {[String.reverse "desserts" |> Result.ok = Ok "stressed"]}
-
-      {[List.map [1; 2; 3] ~f:Result.ok = [Ok 1; Ok 2; Ok 3]]}
-  */
-  let ok: 'ok => t('error, 'ok);
-
-  /** A function alternative to the [Error] constructor which can be used in places where
-      the constructor isn't permitted such as at the of a {!Fun.pipe} or functions like {!List.map}.
-
-      {b Note}
-
-      When targetting the Bucklescript compiler you {b can} use constructors with the fast pipe.
-
-      {[5->Ok = Ok(5)]}
-
-      And you can use the placeholder syntax for use with functions like {!List.map}
-
-      {[
-        List.map([1,2,3], ~f:Ok(_)) == [Ok(1),Ok(2),Ok(3)]
-      ]}
-
-      See the {{: https://reasonml.github.io/docs/en/pipe-first#pipe-into-variants} Reason docs } for more.
-
-      {e Examples}
-
-      {[Int.negate 3 |> Result.error 3 = Error (-3)]}
-
-      {[List.map [1; 2; 3] ~f:Result.error = [Error 1; Error 2; Error 3]]}
-  */
-  let error: 'error => t('error, 'ok);
-
-  /** Run the provided function and wrap the returned value in a {!Result}, catching any exceptions raised.
-
-      {e Examples}
-
-      {[Result.attempt(() => 5 / 0) = Error(Division_by_zero)]}
-
-      {[
-        let numbers = [|1,2,3|];
-        Result.attempt(() => numbers[3]) = Error(Invalid_argument "index out of bounds")
-      ]}
-  */
-  let attempt: (unit => 'ok) => t(exn, 'ok);
-
-  /** Convert an {!Option} to a {!Result} where a [Some(value)] becomes [Ok(value)] and a [None] becomes [Error(error)].
-
-      {e Examples}
-
-      {[Result.ofOption(Some(84), ~error="Greater than 100") == Ok(8)]}
-
-      {[Result.ofOption(None, ~error="Greater than 100") == Error("Greater than 100")]}
-  */
-  let ofOption: (option('ok), ~error: 'error) => t('error, 'ok);
-
-  /** Check if a {!Result} is an [Ok].
-
-      Useful when you want to perform some side affect based on the presence of 
-      an [Ok] like logging.
-
-      {b Note} if you need access to the contained value rather than doing 
-      [Result.isOk] followed by {!Result.getUnsafe} its safer and just as 
-      convenient to use pattern matching directly or use one of {!Result.bind} 
-      or {!Result.map}
-
-      {e Examples}
-
-      {[Result.isOk(Ok(3)) == true]}
-
-      {[Result.isOk(Error(3)) == false]}
-  */
-  let isOk: t(_, _) => bool;
-
-  /** Check if a {!Result} is an [Error].
-
-      Useful when you want to perform some side affect based on the presence of 
-      an [Error] like logging.
-      
-      {b Note} if you need access to the contained value rather than doing 
-      [Result.isOk] followed by {!Result.getUnsafe} its safer and just as 
-      convenient to use pattern matching directly or use one of {!Result.bind} 
-      or {!Result.map}
-
-      {e Examples}
-
-      {[Result.isError(Ok(3)) == false]}
-
-      {[Result.isError(Error(3)) == true]}
-  */
-  let isError: t(_, _) => bool;
-
-  /** Returns the first argument if it {!isError}, otherwise return the second argument.
-
-      Unlike the {!Bool.(&&)} operator, the [and_] function does not short-circuit.
-      When you call [and_], both arguments are evaluated before being passed to the function.
-
-      {e Examples}
-
-      {[Result.and_ (Ok "Antelope") (Ok "Salmon") = Ok "Salmon"]}
-
-      {[Result.and_ (Error `UnexpectedBird("Finch")) (Ok "Salmon") = (Error `UnexpectedBird("Finch"))]}
-
-      {[Result.and_ (Ok "Antelope") (Error `UnexpectedBird("Finch")) = (Error `UnexpectedBird("Finch"))
-
-      {[Result.and_ (Error `UnexpectedInvertabrate("Honey bee") `UnexpectedBird("Finch") = (Error `UnexpectedBird("Honey Bee"))]}
-  */
-  let and_: (t('error, 'ok), t('error, 'ok)) => t('error, 'ok);
-
-  /** Return the first argument if it {!isOk}, otherwise return the second.
-
-    Unlike the built in [||] operator, the [or_] function does not short-circuit.
-    When you call [or_], both arguments are evaluated before being passed to the function.
-
-    {e Examples}
-
-    {[Result.or_ (Ok "Boar") (Ok "Gecko") = (Ok "Boar")]}
-
-    {[Result.or_ Error(`UnexpectedInvertabrate("Periwinkle")) (Ok "Gecko") = (Ok "Gecko")]}
-
-    {[Result.or_ (Ok "Boar") Error(`UnexpectedInvertabrate("Periwinkle")) = (Ok "Boar") ]}
-
-    {[Result.or_ Error(`UnexpectedInvertabrate("Periwinkle")) Error(`UnexpectedBird("Robin")) = Error(`UnexpectedBird("Robin"))]}
-  */
-  let or_: (t('error, 'ok), t('error, 'ok)) => t('error, 'ok);  
-
-  /** Combine two results, if both are [Ok] returns an [Ok] containing a {!Tuple} of the values.
-    
-      If either is an [Error], returns the [Error].
-
-      The same as writing [Result.map2 ~f:Tuple.make]
-
-      {e Examples}
-
-      {[Result.both (Ok "Badger") (Ok "Rhino") = Ok ("Dog", "Rhino")]}
-
-      {[Result.both Error(`UnexpectedBird("Flamingo")) (Ok "Rhino") = Error(`UnexpectedBird("Flamingo"))]}
-
-      {[Result.both (Ok "Badger") Error(`UnexpectedInvertabrate("Blue ringed octopus")) = Error(`UnexpectedInvertabrate("Blue ringed octopus"))]}
-
-      {[Result.both Error(`UnexpectedBird("Flamingo")) Error(`UnexpectedInvertabrate("Blue ringed octopus")) = Error(`UnexpectedBird("Flamingo"))]}
-  */
-  let both: (t('error, 'a), t('error, 'b)) => t('error, ('a, 'b));
-
-  /** Collapse a nested result, removing one layer of nesting.
-
-      {e Examples}
-
-      {[Result.join (Ok (Ok 2)) = Ok 2]}
-
-      {[Result.join (Ok (Error (`UnexpectedBird "Peregrin falcon"))) = Error(`UnexpectedBird("Peregrin falcon"))]}
-
-      {[Result.join Error(`UnexpectedInvertabrate("Woodlouse")) = Error(`UnexpectedInvertabrate("Woodlouse"))]}
-  */
-  let join: t('error, t('error, 'a)) => t('error, 'a);
-
-  /** Unwrap a Result using the [~default] value in case of an [Error]
-
-      {e Exmples}
-
-      {[Result.get ~default:0 (Ok 12) = 12]}
-
-      {[Result.get ~default:0 (Error(`UnexpectedBird("Ostrich"))) = 0]}
-  */
-  let get: (t('error, 'ok), ~default: 'ok) => 'ok;
-
-  /** Unwrap a Result, raising the provided [~exn] in case of an [Error]
-
-      {e Exmples}
-      
-      {[
-        exception UnexpectedAnimal
-
-        Result.getOrFailWith (Ok 12) ~exn:UnexpectedAnimal  = 12
-      ]}
-      
-      {[
-        Result.getOrFailWith (Error(`UnexpectedBird("Chicken"))) ~exn:UnexpectedAnimal 
-        // Raises an [UnexpectedAnimal] exception.
-      ]}
-  */
-  let getOrFailWith: (t(_, 'ok), ~exn: exn) => 'ok;
-
-  /** Unwrap a Result, raising an exception in case of an [Error]
-
-      {e Exceptions}
-
-      Raises an [Invalid_argument "Result.getUnsafe called with an Error"] exception.
-
-      {e Exmples}
-
-      {[Result.getUnsafe (Ok 12) = 12]}
-
-      {[Result.getUnsafe (Error "bad") ]}
-  */
-  let getUnsafe: t(_, 'a) => 'a;
-
-  /** Like {!Result.get} but unwraps an [Error] value instead
-
-      {e Exmples}
-
-      {[Result.getError ~default:`UnexpectedInvertabrate("Ladybird") (Error `UnexpectedBird("Swallow")) = `UnexpectedBird("Swallow"]}
-
-      {[Result.getError ~default:`UnexpectedInvertabrate("Ladybird") (Ok 5) = `UnexpectedInvertabrate("Ladybird")]}
-  */
-  let getError: (t('error, 'ok), ~default: 'error) => 'error;
-
-  /** Combine two results
-          
-      If one of the results is an [Error], that becomes the return result.
-
-      If both are [Error] values, returns its first.
-
-      {e Examples}
-
-      {[Result.map2 (Ok 7) (Ok 3) ~f:Int.add = Ok 10]
-
-      {[Result.map2 (Error "A") (Ok 3) ~f:Int.add = Error "A"]}
-
-      {[Result.map2 (Ok 7) (Error "B") ~f:Int.add = Error "B"]}
-
-      {[Result.map2 (Error "A") (Error "B") ~f:Int.add = Error ("A")]}
-  */
-  let map2:
-    (t('error, 'a), t('error, 'b), ~f: ('a, 'b) => 'c) => t('error, 'c);
-
-  /** If all of the elements of a list are [Ok], returns an [Ok] of the the list of unwrapped values.
-
-      If {b any} of the elements are an [Error], the first one encountered is returned.
-
-      {e Examples}
-
-      {[Result.combine [Ok 1; Ok 2; Ok 3; Ok 4] = Ok [1; 2; 3; 4]]}
-
-      {[Result.combine [Ok 1; Error "two"; Ok 3; Error "four"] = Error "two"]}
-  */
-  let combine: list(t('error, 'ok)) => t('error, list('ok));
-
-  /** Transforms the ['ok] in a result using [f]. Leaves the ['error] untouched.
-
-      {e Examples}
-
-      {[Result.map (Ok 3) ~f:(Int.add 1) = Ok 9]}
-
-      {[Result.map (Error "three") ~f:(Int.add 1) = Error "three"]}
-  */
-  let map: (t('error, 'a), ~f: 'a => 'b) => t('error, 'b);
-
-  /** Transforms the value in an [Error] using [f]. Leaves an [Ok] untouched.
-
-      {e Examples}
-
-      {[Result.mapError (Ok 3) ~f:String.reverse = Ok 3]}
-
-      {[Result.mapError (Error "bad") ~f:(Int.add 1)  = Error "bad"]}
-  */
-  let mapError: (t('a, 'ok), ~f: 'a => 'b) => t('b, 'ok);
-
-  /** Converts an [Result.t('error, Option.t('ok)] into a [Option.t(Result.t('error, 'ok))]
-
-      {e Examples}
-
-      {[Result.transpose (Ok (Some 5)) = Some (Ok 5)]}
-
-      {[Result.transpose (Ok (None)) = None]}
-
-      {[Result.transpose (Error "fail") = (Some (Error "fail"))]}
-  */
-  let transpose: t('error, option('ok)) => option(t('error, 'ok));
-
-  /** Run a function which may fail on a result.
-   
-      Short-circuits of called with an [Error].
-      
-      {e Examples}
-
-      {[
-        let reciprical (x:float) : (string, float) Standard.Result.t = (
-          if (x = 0.0) then
-            Error "Divide by zero"
-          else
-            Ok (1.0 /. x)
-        )
-
-        let root (x:float) : (string, float) Standard.Result.t = (
-          if (x < 0.0) then
-            Error "Cannot be negative"
-          else
-            Ok (Float.squareRoot x)
-        )
-      ]}
-
-      {e Examples}
-
-      {[Result.bind ~f:reciprical (Ok 4.0) = Ok 0.25]}
-
-      {[Result.bind ~f:reciprical (Error "Missing number!") = Error "Missing number!"]}
-
-      {[Result.bind ~f:reciprical (Ok 0.0) = Error "Divide by zero"]}
-
-      {[Result.bind (Ok 4.0) ~f:root  |> Result.bind ~f:reciprical = Ok 0.5]}
-
-      {[Result.bind (Ok -2.0) ~f:root |> Result.bind ~f:reciprical = Error "Cannot be negative"]}
-
-      {[Result.bind (Ok 0.0) ~f:root |> Result.bind ~f:reciprical = Error "Divide by zero"]}
-  */
-  let bind: (t('error, 'a), ~f: 'a => t('error, 'b)) => t('error, 'b);
-
-  /** TODO Seriously what would you use this for */
-  let fold: (t(_, 'ok), ~initial: 'b, ~f: ('b, 'ok) => 'b) => 'b;
-
-  /** Run a function against an [Ok(value)], ignores [Error]s.
-
-      {e Examples}
-
-      {[
-        Result.forEach(Ok("Dog"), ~f:print_endline);
-        // prints "Dog"
-      ]}
-   */
-  let forEach: (t(_, 'ok), ~f: 'ok => unit) => unit;
-
-  /** {1 Conversion} */
-
-  /** Convert a {!Result} to an {!Option}.
-
-      An [Ok x] becomes [Some x]
-
-      An [Error _] becomes [None]
-
-      {e Examples}
-
-      {[Result.toOption (Ok 42) = Some 42]}
-
-      {[Result.toOption (Error "Missing number!") = None]}
-  */
-  let toOption: t(_, 'ok) => option('ok);
-
-  /** {2 Comparison} */
-
-  /** Test two results for equality using the provided functions.
-
-      {e Examples} 
-
-      {[Result.equal String.equal Int.equal (Ok 3) (Ok 3) = true]}
-
-      {[Result.equal String.equal Int.equal (Ok 3) (Ok 4) = false]}
-
-      {[Result.equal String.equal Int.equal (Error "Fail") (Error "Fail") = true]}
-
-      {[Result.equal String.equal Int.equal (Error "Expected error") (Error "Unexpected error") = false]}
-
-      {[Result.equal String.equal Int.equal (Error "Fail") (Ok 4) = false]}
-  */
-  let equal: (('error, 'error) => bool, ('ok, 'ok) => bool, t('error, 'ok), t('error, 'ok)) => bool;
-
-  /** Compare results for using the provided functions.
-    
-      In the case when one of the results is an [Error] and one is [Ok], [Error]s  are considered 'less' then [Ok]s
-
-      {e Examples} 
-
-      {[Result.compare String.compare Int.compare (Ok 3) (Ok 3) = 0]}
-
-      {[Result.compare String.compare Int.compare (Ok 3) (Ok 4) = -1]}
-
-      {[Result.compare String.compare Int.compare (Error "Fail") (Error "Fail") = 0]}
-
-      {[Result.compare String.compare Int.compare (Error "Fail") (Ok 4) = -1]}
-
-      {[Result.compare String.compare Int.compare (Ok 4) (Error "Fail") = 1]}
-
-      {[Result.compare String.compare Int.compare (Error "Expected error") (Error "Unexpected error") = -1]}
-  */
-  let compare: (('error, 'error) => int, ('ok, 'ok) => int, t('error, 'ok), t('error, 'ok)) => int;
-
-  /** In functions that make heavy use of {!Result}s placing a
-
-      {[open Result.Infix]}
-
-      Can make code significantly more concise at the expense of placing a greater cognitive burden on future readers.
-  */
-  module Infix: {
-    /** Module doc S */
-
-    /** An operator version of {!Result.get} where the [default] value goes to the right of the operator.
-
-        {e Examples}
-
-        The following eamples assume [open Result.Infix] is in scope.
-
-        {[Ok 4 |? 8 = 4]}
-
-        {[Error "Missing number!" |? 8 = 8]}
-    */
-    let (|?): (t('err, 'a), 'a) => 'a;
-
-    /** An operator version of {!bind}
-
-        {e Examples}
-
-        The following examples assume
-
-        {[
-          open Result.Infix
-
-          let reciprical (x:float) : (string, float) Standard.Result.t =
-            if (x = 0.0) then
-              Error "Divide by zero"
-            else
-              Ok (1.0 /. x)
-        ]}
-
-        Is in scope.
-
-        {[Ok 4. >>= reciprical = Ok 0.25]}
-
-        {[Error "Missing number!" >>= reciprical = Error "Missing number!"]}
-
-        {[Ok 0. >>= reciprical = Error "Divide by zero"]}
-    */
-    let (>>=): (t('err, 'ok), 'ok => t('err, 'ok)) => t('err, 'ok);
-
-    /** An operator version of {!map}
-
-        {e Examples}
-
-        The following examples assume [open Result.Infix] is in scope.
-
-        {[Ok 4 >>| Int.add(1) = Ok 5]}
-
-        {[Error "Its gone bad" >>| Int.add(1) = Error "Its gone bad"]}
-    */
-    let (>>|): (t('err, 'a), 'a => 'b) => t('err, 'b);
-  };
-};
-
-/** Functions for working with optional values. */
-module Option: {
-  /** {!Option} represents a value which may not be present.
-     
-      It is a variant containing the [Some('a)] and [None] constructors
-
-      {[
-        type t('a) =
-          | Some('a)
-          | None
-      ]}
-     
-      Many other languages use [null] or [nil] to represent something similar.
-
-      {!Option} values are very common and they are used in a number of ways:
-      - Initial values
-      - Optional function arguments
-      - Optional record fields
-      - Return values for functions that are not defined over their entire input range (partial functions).
-      - Return value for otherwise reporting simple errors, where None is returned on error.
-
-      Lots of functions in [Standard] return options, one you have one you can 
-      work with the value it might contain by:
-
-      - Pattern matching
-      - Using {!map} or {!bind} (or their operators in {!Infix})
-      - Unwrapping it using {!get}, or its operator {!Infix.(|?)}      
-      - Converting a [None] into an exception using{!getOrFailWith}
-
-      If the function you are writing can fail in a variety of ways, use a {!Result} instead to
-      better communicate with the caller.
-
-      If a function only fails in unexpected, unrecoverable ways, maybe you want raise exception.
-  */
-
-  type t('a) = option('a);
-
-  /** A function version of the [Some] constructor.
-
-      In most situations you just want to use the [Some] constructor directly.
-
-      However OCaml doesn't support piping to variant constructors.
-
-      Note that when using the Reason syntax you {b can} use fast pipe ([->]) with variant constructors, so you don't need this function.
-      
-      See the {{: https://reasonml.github.io/docs/en/pipe-first#pipe-into-variants} Reason docs } for more.
-
-      {e Examples} 
-
-      {[String.reverse("desserts") |> Option.some = Some "desserts" ]}
-   */
-  let some: 'a => option('a);
-
-  /** Returns [None] if the first argument is [None], otherwise return the second argument.
-
-    Unlike the built in [&&] operator, the [and_] function does not short-circuit.
-
-    When you call [and_], both arguments are evaluated before being passed to the function.
-
-    {e Examples}
-
-    {[Option.and_ (Some 11) (Some 22) = Some 22]}
-
-    {[Option.and_ None (Some 22) = None]}
-
-    {[Option.and_ (Some 11) None = None]}
-
-    {[Option.and_ None None = None]}
-  */
-  let and_: (t('a), t('a)) => t('a);
-
-  /** Return the first argument if it {!isSome}, otherwise return the second.
-
-    Unlike the built in [||] operator, the [or_] function does not short-circuit.
-    When you call [or_], both arguments are evaluated before being passed to the function.
-
-    {e Examples}
-
-    {[Option.or_ (Some 11) (Some 22) = Some 11]}
-
-    {[Option.or_ None (Some 22) = Some 22]}
-
-    {[Option.or_ (Some 11) None = Some 11]}
-
-    {[Option.or_ None None = None]}
-  */
-  let or_: (t('a), t('a)) => t('a);
-
-  /** Similar to {!or_}, but evaluates its second argument only if the first is [None].
-
-      {e Examples}
-
-      {[Option.orElse (Some 11) ~f:(fun () -> (Some 22)) = Some 11]}
-
-      {[Option.orElse None ~f:(fun () -> (Some 22)) = Some 22]}
-  */
-  let orElse: (t('a), ~f: unit => t('a)) => t('a);
-
-  /** Transform two options into an option of a {!Tuple}.
-
-      Returns None if either of the aguments is None.
-
-      {e Examples}
-
-      {[Option.both (Some 3004) (Some "Ant") = Some (3004, "Ant")]}
-
-      {[Option.both (Some 3004) None = None]}
-
-      {[Option.both None (Some "Ant") = None]}
-
-      {[Option.both None None = None]}
-  */
-  let both: (t('a), t('b)) => t(('a, 'b));
-
-  /** Flatten two optional layers into a single optional layer.
-
-      {e Examples}
-
-      {[Option.join (Some (Some 4)) = Some 4]}
-
-      {[Option.join (Some None) = None]}
-
-      {[Option.join (None) = None]}
-  */
-  let join: t(t('a)) => t('a);
-
-  /** Transform the value inside an option.
-
-      Leaves [None] untouched.
-
-      See {!Infix.(>>|)} for an operator version of this function.
-
-      {e Examples}
-
-      {[Option.map ~f:(fun x -> x * x) (Some 9) = Some 81]}
-
-      {[Option.map ~f:Int.toString (Some 9) = Some "9"]}
-
-      {[Option.map ~f:(fun x -> x * x) None = None]}
-  */
-  let map: (t('a), ~f: 'a => 'b) => t('b);
-
-  /** Combine two {!Option}s
-      
-      If both options are [Some] returns, as [Some] the result of running [f] on both values.
-   
-      If either value is [None], returns [None]  
-
-      {e Examples}
-
-      {[Option.map2 (Some 3) (Some 4) ~f=Int.add = Some 7]}
-
-      {[Option.map2 (Some 3) (Some 4) ~f=Tuple.make = Some (3, 4)]}
-
-      {[Option.map2 (Some 3) None ~f=Int.add = None]}
-
-      {[Option.map2 None (Some 4) ~f=Int.add = None]}
-  */
-  let map2: (t('a), t('b), ~f: ('a, 'b) => 'c) => t('c);
-
-  /** Chain together many computations that may not return a value.
-
-      It is helpful to see its definition:
-      {[
-        let bind = (t, ~f) =>
-          switch (t) {
-          | Some(x) => f(x)
-          | None => None
-          };
-      ]}
-
-      This means we only continue with the callback if we have a value.
-
-      For example, say you need to parse some user input as a month:
-
-      {[
-        let toValidMonth = (month: int): option(int) =>
-          if (1 <= month && month <= 12) {
-            Some(month)
-          } else {
-            None
-          }
-
-        let parseMonth = (userInput: string): option(int) =>
-          Int.ofString(userInput)
-          |> Option.bind(~f=toValidMonth)
-      ]}
-
-      In the [parseMonth] function, if [String.toInt] produces [None] (because
-      the [userInput] was not an integer) this entire chain of operations will
-      short-circuit and result in [None]. If [toValidMonth] results in [None],
-      again the chain of computations will result in [None].
-
-      See {!Infix.(>>=)} for an operator version of this function.
-
-      {e Examples}
-
-      {[Option.bind (Some [1, 2, 3]) ~f=List.head = Some 1]}
-
-      {[Option.bind (Some []) ~f=List.head = None]}
-  */
-  let bind: (t('a), ~f: 'a => t('b)) => t('b);
-
-  /** Unwrap an [option('a)] returning [default] if called with [None].
-
-      This comes in handy when paired with functions like {!Map.get} or {!List.head} which return an {!Option}.
-
-      See {!Infix.(|?)} for an operator version of this function.
-
-      {b Note} This can be overused! Many cases are better handled using pattern matching, {!map} or {!bind}.
-
-      {e Examples}
-
-      {[Option.get ~default:99 (Some 42) = 42]}
-
-      {[Option.get ~default:99 None = 99]}
-
-      {[Option.get ~default:"unknown" (Map.get Map.String.empty "Tom") = "unknown"]}
-  */
-  let get: (t('a), ~default: 'a) => 'a;
-
-  /** Unwrap an [option('a)] returning the enclosed ['a].
-      
-      {b Note} in most situations it is encouraged to use pattern matching, {!get}, {!map} or {!bind}.
-      Can you structure your code slightly differently to avoid potentially raising an exception?
-
-      {2 Exceptions}
-
-      Raises the provided [exn] if called with [None].
-
-      {e Examples}
-
-      {[
-        Option.getOrFailWith (Ok "Wolf") ~exn:(Invalid_argument "Thats no wolf") = "Wolf"
-      ]}
-
-      {[
-        Option.getOrFailWith (Error "Dog") ~exn:(Invalid_argument "Thats no wolf")
-        Raises [Invalid_argument "Thats no wolf")]
-      ]}
-        
-      {[
-        exception FelineEncounterd
-        Option.getOrFailWith (Error "Kitten") ~exn:FelineEncountered
-        // Raises [FelineEncountered]
-      ]}
-  */
-  let getOrFailWith: (t('a), ~exn: exn) => 'a;
-
-  /** Unwrap an [option('a)] returning the enclosed ['a].
-
-      {b Note} in most situations it is better to use pattern matching, {!get}, {!map} or {!bind}.
-      Can you structure your code slightly differently to avoid potentially raising an exception?
-
-      {3 Exceptions}
-
-      Raises an [Invalid_argument] exception if called with [None]
-
-      {e Examples}
-
-      {[List.head [1;2;3] |> Option.getUnsafe = 1]}
-
-      {[List.head [] |> Option.getUnsafe]}
-  */
-  let getUnsafe: t('a) => 'a;
-
-  /** Check if an {!Option} is a [Some].
-
-      In most situtations you should just use pattern matching instead.
-
-      {e Examples}
-
-      {[Option.isSome (Some 3004) = true]}
-
-      {[Option.isSome None = false]}
-  */
-  let isSome: t('a) => bool;
-
-  /** Check if an {!Option} is a [None].
-
-      In most situtations you should just use pattern matching instead.
-
-      {e Examples}
-
-      {[Option.isNone (Some 3004) = false]}
-
-      {[Option.isNone None = true]}
-  */
-  let isNone: t('a) => bool;
-
-  /** Run a function against a value, if it is present. */
-  let forEach: (t('a), ~f: 'a => unit) => unit;
-
-  /** TODO */
-  let fold: (t('a), ~initial: 'b, ~f: ('b, 'a) => 'b) => 'b;  
-
-  /** Convert an option to a {!Array}.
-
-      [None] is represented as an empty list and [Some] is represented as a list of one element.
-
-      {e Examples}
-
-      {[Option.toArray (Some 3004) = [|3004|]]}
-
-      {[Option.toArray (None) = [||]]}
-  */  
-  let toArray: t('a) => array('a);
-
-  /** Convert an option to a {!List}.
-
-      [None] is represented as an empty list and [Some] is represented as a list of one element.
-
-      {e Examples}
-
-      {[Option.toList (Some 3004) = [3004]]}
-
-      {[Option.toList (None) = []]}
-  */
-  let toList: t('a) => list('a);
-
-  /** Convert an option to a {!Result}.
-
-      [Some(value)] is transformed into [Ok(value)].
-
-      [None] is transformed into [Error(or_)].
-
-      {e Examples}
-
-      {[Option.toResult (Some 3004) ~or:"Missing number!" = Ok 3004]}
-
-      {[Option.toResult (None) ~or:"Missing number!" = Error "Missing number!"]}
-  */
-  let toResult: (t('ok), ~or_: 'error) => Result.t('error, 'ok);
-
-  /** {2 Comparison} */
-
-  /** Test two optional values for equality using the provided function
-      
-      {e Examples}
-
-      {[Option.equal Int.equal (Some 1) (Some 1) = true]}
-
-      {[Option.equal Int.equal (Some 1) (Some 3) = false]}
-
-      {[Option.equal Int.equal (Some 1) None = false]}
-
-      {[Option.equal Int.equal None None = true]}
-   */
-  let equal: (('a, 'a) => bool, t('a), t('a)) => bool;
-
-  /** Compare two optional values using the provided function. 
-      
-      A [None] is "less" than a [Some]
-
-      {e Examples}
-
-      {[Option.compare Int.compare (Some 1) (Some 3) = -1]}
-
-      {[Option.compare Int.compare (Some 1) None = 1]}
-
-      {[Option.compare Int.compare None None = 0]}
-  */
-  let compare: (('a, 'a) => int, t('a), t('a)) => int;
-
-  module Infix: {
-    /** Operators for code that works extensively with {!Option}s.
-
-        This module is intended to be [open]ed at the top of a block of code (or module) that uses
-        its operators extensively.
-
-        {[
-          open Option.Infix;
-          let nameToAge = Map.String.ofArray([|
-            ("Ant", 1),
-            ("Bat", 5),
-            ("Cat", 19),
-          |]);
-
-          let catAge = Map.get nameToAge "Cat" |? 8;
-          // 19
-
-          let ageDifference =
-            Map.get nameToAge "Ant"
-            >>= (antAge => {
-              Map.get nameToAge "Bat"
-              >>| (batAge => {
-                Int.absolute(batAge - antAge)
-              })
-            });
-          // Some (4)
-        ]}
-     */
-
-    let (|?): (t('a), 'a) => 'a;
-    /** The operator version of {!get}
-
-       {e Examples}
-
-       {[Some 3004 |? 8 = 3004]}
-
-       {[None |? 8 = 8]}
-    */
-
-    let (>>|): (t('a), 'a => 'b) => t('b);
-    /** The operator version of {!map}
-
-        {e Examples}
-
-        {[Some "desserts" >>| String.reverse = Some "stressed"]}
-
-        {[None >>| String.reverse = None]}
-    */
-
-    let (>>=): (t('a), 'a => t('b)) => t('b);
-    /** The operator version of {!bind}
-
-        {e Examples}
-
-        {[Some [1, 2, 3] >>= List.head = Some 1]}
-
-        {[Some [] >>= List.head = None]}
-    */
-  };
-};
+});
 
 /** Functions for working with single characters. */
 module Char: {
@@ -2476,7 +1355,7 @@ module Int: {
         8 // 4 = 2.0
       ]}
   */
-  let (/\/): (t, t) => float;
+  let (%): (t, t) => float;
 
   /** Exponentiation, takes the base first, then the exponent.
       
@@ -2713,7 +1592,7 @@ module Integer: {
 
       {e Examples}
 
-
+      TODO
   */
   let ofFloat: float => option(t);
 
@@ -2830,15 +1709,13 @@ module Integer: {
 
   /** Exponentiation, takes the base first, then the exponent.
     
-      Alternatively the [**] operator can be used, but comes with some drawbacks:
-      - You must use an {!Int} for the exponent
-      - You cant supply a [modulo]
+      Alternatively the [**] operator can be used.
 
       {e Examples}
 
       {[
         open Integer
-        power ~base:(ofInt 7) ~exponent:(ofInt 3) ~modulo:(ofInt 300) = ofInt 43
+        power ~base:(ofInt 7) ~exponent:3 ~modulo:(ofInt 300) = ofInt 43
       ]}
 
       {[
@@ -2846,7 +1723,7 @@ module Integer: {
         (ofInt 7) ** 4 = ofInt 2401
       ]}
   */
-  let power: (~base: t, ~exponent: t, ~modulo: t) => t;
+  let power: (~modulo: t=?, ~base: t, ~exponent: int) => t;
 
   /** See {!Integer.power} */
   let ( ** ): (t, int) => t;
@@ -3067,465 +1944,6 @@ module Integer: {
 
   /** Compare two {!Integer}s */
   let compare: (t, t) => int;
-};
-
-/** Functions for manipulating pairs of values */
-module Tuple: {
-  /** Functions for manipulating pairs of values */
-
-  type t('a, 'b) = ('a, 'b);
-
-  /** {2 Create} */
-
-  /** Create a two-tuple with the given values.
-
-      The values do not have to be of the same type.
-
-      {e Examples}
-
-      {[Tuple.make(3, 4) = (3, 4)]}
-
-      {[
-        let zip = (xs: List.t('a), ys: List.t('b)): List.t(('a, 'b)) =
-          List.map2(xs, ys, ~f:Tuple.make);
-      ]}
-  */
-  let make: ('a, 'b) => ('a, 'b);
-
-  /** Create a tuple from the first two elements of an {!Array}.
-
-      If the array is longer than two elements, the extra elements are ignored.
-
-      If the array is less than two elements, returns [None]
-
-      {e Examples}
-
-      {[Tuple.ofArray [|1; 2|] = Some (1, 2)]}
-
-      {[Tuple.ofArray [|1|] = None]}
-
-      {[Tuple.ofArray [|4;5;6|] = Some (4, 5)]}
-  */
-  let ofArray: array('a) => option(('a, 'a));
-
-  /** Create a tuple from the first two elements of a {!List}.
-
-      If the list is longer than two elements, the extra elements are ignored.
-
-      If the list is less than two elements, returns [None]
-
-      {e Examples}
-
-      {[Tuple.ofList [1; 2] = Some (1, 2)]}
-
-      {[Tuple.ofList [1] = None]}
-
-      {[Tuple.ofList [4;5;6] = Some (4, 5)]}
-  */
-  let ofList: list('a) => option(('a, 'a));
-
-  /** Extract the first value from a tuple.
-
-      {e Examples}
-      
-      {[Tuple.first (3, 4) = 3]}
-
-      {[Tuple.first ("john", "doe") = "john"]}
-  */
-  let first: (('a, 'b)) => 'a;
-
-  /** Extract the second value from a tuple.
-
-      {e Examples}
-      
-      {[Tuple.second (3, 4) = 4]}
-
-      {[Tuple.second ("john", "doe") = "doe"]}
-  */
-  let second: (('a, 'b)) => 'b;
-
-  /** {2 Transform} */
-
-  /** Transform the {!first} value in a tuple.
-
-      {e Examples}
-      
-      {[Tuple.mapFirst ~f:String.reverse ("stressed", 16) = ("desserts", 16)]}
-
-      {[Tuple.mapFirst ~f:String.length ("stressed", 16) = (8, 16)]}
-  */
-  let mapFirst: (('a, 'b), ~f: 'a => 'x) => ('x, 'b);
-
-  /** Transform the second value in a tuple.
-
-      {e Examples}
-      
-      {[Tuple.mapSecond ~f:Float.squareRoot ("stressed", 16.) = ("stressed", 4.)]}
-
-      {[Tuple.mapSecond ~f:(~-) ("stressed", 16) = ("stressed", -16)]}
-  */
-  let mapSecond: (('a, 'b), ~f: 'b => 'c) => ('a, 'c);
-
-  /** Transform both values of a tuple, using [f] for the first value and [g] for the second.
-
-      {e Examples}
-      
-      {[Tuple.mapEach ~f:String.reverse ~g:Float.squareRoot ("stressed", 16.) = ("desserts", 4.)]}
-
-      {[Tuple.mapEach ~f:String.length ~g:(~-) ("stressed", 16) = (8, -16)]}
-  */
-  let mapEach: (('a, 'b), ~f: 'a => 'x, ~g: 'b => 'y) => ('x, 'y);
-
-  /** Transform both of the values of a tuple using the same function.
-
-      [mapAll] can only be used on tuples which have the same type for each value.
-
-      {e Examples}
-      
-      {[Tuple.mapAll ~f:(Int.add 1) (3, 4, 5) = (4, 5, 6)]}
-
-      {[Tuple.mapAll ~f:String.length ("was", "stressed") = (3, 8)]}
-  */
-  let mapAll: (('a, 'a), ~f: 'a => 'b) => ('b, 'b);
-
-  /** Switches the first and second values of a tuple.
-
-      {e Examples}
-      
-      {[Tuple.swap (3, 4) = (4, 3)]}
-
-      {[Tuple.swap ("stressed", 16) = (16, "stressed")]}
-  */
-  let swap: (('a, 'b)) => ('b, 'a);
-
-  /** Takes a function [f] which takes a single argument of a tuple ['a * 'b] and returns a function which takes two arguments that can be partially applied.
-
-      {e Examples}
-      
-      {[
-        let squareArea (width, height) = width * height
-        let curriedArea : float -> float -> float = curry squareArea
-        let heights = [3, 4, 5]
-
-        List.map widths ~f:(curriedArea 4) = [12; 16; 20]
-      ]}
-  */
-  let curry: ((('a, 'b)) => 'c, 'a, 'b) => 'c;
-
-  /** Takes a function which takes two arguments and returns a function which takes a single argument of a tuple.
-
-      {e Examples}
-      
-      {[
-        let sum (a : int) (b: int) : int = a + b
-        let uncurriedSum : (int * int) -> int = uncurry add
-        uncurriedSum (3, 4) = 7
-      ]}
-  */
-  let uncurry: (('a, 'b) => 'c, ('a, 'b)) => 'c;
-
-  /** {2 Conversion} */
-
-  /** Turns a tuple into an {!Array} of length two.
-
-      This function can only be used on tuples which have the same type for each value.
-
-      {e Examples}
-      
-      {[Tuple.toArray (3, 4) = [|3; 4|]]}
-
-      {[Tuple.toArray ("was", "stressed") = [|"was"; "stressed"|]]}
-  */
-  let toArray: (('a, 'a)) => array('a);
-
-  /** Turns a tuple into a list of length two. This function can only be used on tuples which have the same type for each value.
-
-      {e Examples}
-      
-      {[Tuple.toList (3, 4) = [3; 4]]}
-
-      {[Tuple.toList ("was", "stressed") = ["was"; "stressed"]]}
-  */
-  let toList: (('a, 'a)) => list('a);
-
-  /** {2 Comparison} */
-
-  /** Test two {!Tuple}s for equality, using the provided functions to test the 
-      first and second components.
-
-      {e Examples}
-
-      {[Tuple.equal Int.equal String.equal (1, "Fox") (1, "Fox") = true]}
-
-      {[Tuple.equal Int.equal String.equal (1, "Fox") (2, "Hen") = false]}
-   */
-  let equal: (('a, 'a) => bool, ('b, 'b) => bool, t('a, 'b), t('a, 'b)) => bool;
-
-  /** Compare two {!Tuple}s, using the provided functions to compare the first
-      components then, if the first components are equal, the second components.
-
-      {e Examples}
-
-      {[Tuple.compare Int.compare String.compare (1, "Fox") (1, "Fox") = 0]}
-
-      {[Tuple.compare Int.compare String.compare (1, "Fox") (1, "Eel") = 1]}
-
-      {[Tuple.compare Int.compare String.compare (1, "Fox") (2, "Hen") = -1]}
-   */
-  let compare: (('a, 'a) => int, ('b, 'b) => int, t('a, 'b), t('a, 'b)) => int;
-};
-
-/** Functions for manipulating trios of values */
-module Tuple3: {
-  /** Functions for manipulating trios of values */
-
-  type t('a, 'b, 'c) = ('a, 'b, 'c);
-
-  /** {2 Create} */
-
-  /** Create a {!Tuple3}.
-    
-      {e Examples} 
-      
-      {[Tuple3.create 3 "cat" false = (3, "cat", false)]}
-
-      {[
-        List.map3 ~f:Tuple3.create [1;2;3] ['a'; 'b'; 'c'] [4.; 5.; 6.] = 
-          [(1, 'a', 4.), (2, 'b', 5.), (3, 'c', 6.)]
-      ]}
-  */
-  let make: ('a, 'b, 'c) => ('a, 'b, 'c);
-
-  /** Create a tuple from the first two elements of an {!Array}.
-
-      If the array is longer than two elements, the extra elements are ignored.
-
-      If the array is less than two elements, returns [None]
-
-      {e Examples}
-
-      {[Tuple3.ofArray [|1; 2;3 |] = Some (1, 2, 3)]}
-
-      {[Tuple3.ofArray [|1; 2|] = None]}
-
-      {[Tuple3.ofArray [|4;5;6;7|] = Some (4, 5, 6)]}
-  */
-  let ofArray: array('a) => option(('a, 'a, 'a));
-
-   /** Create a tuple from the first two elements of a {!List}.
-
-      If the list is longer than two elements, the extra elements are ignored.
-
-      If the list is less than two elements, returns [None]
-
-      {e Examples}
-
-      {[Tuple3.ofList [1; 2; 3] = Some (1, 2, 3)]}
-
-      {[Tuple3.ofList [1; 2] = None]}
-
-      {[Tuple3.ofList [4; 5; 6; 7] = Some (4, 5, 6)]}
-  */
-  let ofList: list('a) => option(('a, 'a, 'a));
-
-  /** Extract the first value from a tuple.
-
-      {e Examples}
-      
-      {[Tuple3.first (3, 4, 5) = 3]}
-
-      {[Tuple3.first ("john", "danger", "doe") = "john"]}
-  */
-  let first: (('a, 'b, 'c)) => 'a;
-
-  /** Extract the second value from a tuple.
-
-      {e Examples}
-      
-      {[Tuple.second (3, 4, 5) = 4]}
-
-      {[Tuple.second ("john", "danger", "doe") = "danger"]}
-  */
-  let second: (('a, 'b, 'c)) => 'b;
-
-  /** Extract the third value from a tuple.
-
-      {e Examples}
-      
-      {[Tuple.third (3, 4, 5) = 5]}
-
-      {[Tuple.third ("john", "danger", "doe") = "doe"]}
-  */
-  let third: (('a, 'b, 'c)) => 'c;
-
-  /** Extract the first and second values of a {!Tuple3} as a {!Tuple}.
-
-      {e Examples}
-      
-      {[Tuple3.initial (3, "stressed", false) = (3, "stressed")]}
-
-      {[Tuple3.initial ("john", 16, true) = ("john", 16)]}
-  */
-  let initial: (('a, 'b, 'c)) => ('a, 'b);
-
-  /** Extract the second and third values of a {!Tuple3} as a {!Tuple}.
-
-      {e Examples}
-      
-      {[Tuple3.tail (3, "stressed", false) = ("stressed", false)]}
-
-      {[Tuple3.tail ("john", 16, true) = (16, true)]}
-  */
-  let tail: (('a, 'b, 'c)) => ('b, 'c);
-
-  /** Transform the first value in a tuple.
-
-      {e Examples}
-      
-      {[Tuple3.mapFirst ~f:String.reverse ("stressed", 16, false) = ("desserts", 16, false)]}
-
-      {[Tuple3.mapFirst ~f:String.length ("stressed", 16, false) = (8, 16, false)]}
-  */
-  let mapFirst: (('a, 'b, 'c), ~f: 'a => 'x) => ('x, 'b, 'c);
-
-  /** Transform the second value in a tuple.
-
-      {e Examples}
-      
-      {[Tuple3.mapSecond ~f:Float.squareRoot ("stressed", 16., false) = ("stressed", 4., false)]}
-
-      {[Tuple3.mapSecond ~f:(~-) ("stressed", 16, false) = ("stressed", -16, false)]}
-  */
-  let mapSecond: (('a, 'b, 'c), ~f: 'b => 'y) => ('a, 'y, 'c);
-
-  /** Transform the third value in a tuple.
-
-      {e Examples}
-      
-      {[Tuple3.mapThird ~f:not ("stressed", 16, false) ("stressed", 16, true)]}
-  */
-  let mapThird: (('a, 'b, 'c), ~f: 'c => 'z) => ('a, 'b, 'z);
-
-  /** Transform each value in a tuple by applying [f] to the {!first} value, [g] to the {!second} value and [h] to the {!third} value.
-
-      {e Examples}
-      
-      {[
-        Tuple3.mapEach
-          ~f:String.reverse
-          ~g:Float.squareRoot
-          ~h:Bool.not
-          ("stressed", 16., false) = ("desserts", 4., true)
-      ]}
-  */
-  let mapEach:
-    (('a, 'b, 'c), ~f: 'a => 'x, ~g: 'b => 'y, ~h: 'c => 'z) => ('x, 'y, 'z);
-
-  /** Transform all the values of a tuple using the same function.
-
-      [mapAll] can only be used on tuples which have the same type for each value.
-      
-      {e Examples}
-
-      {[Tuple.mapAll ~f:Float.squareRoot (9., 16., 25.) = (3., 4., 5.)]}
-
-      {[Tuple.mapAll ~f:String.length ("was", "stressed", "then") = (3, 8, 4)]}
-  */
-  let mapAll: (('a, 'a, 'a), ~f: 'a => 'b) => ('b, 'b, 'b);
-
-  /** Move each value in the tuple one position to the left, moving the value in the first position into the last position.
-
-      {e Examples}
-      
-      {[Tuple.rotateLeft (3, 4, 5) = (4, 5, 3)]}
-
-      {[Tuple.rotateLeft ("was", "stressed", "then") = ("stressed", "then", "was")]}
-  */
-  let rotateLeft: (('a, 'b, 'c)) => ('b, 'c, 'a);
-
-  /** Move each value in the tuple one position to the right, moving the value in the last position into the first position.
-
-      {e Examples}
-      
-      {[Tuple.rotateRight (3, 4, 5) = (5, 3, 4)]}
-
-      {[Tuple.rotateRight ("was", "stressed", "then") = ("then", "was", "stressed")]}
-  */
-  let rotateRight: (('a, 'b, 'c)) => ('c, 'a, 'b);
-
-  /** Takes a function which takes a single argument of a {!Tuple3} and returns a function which takes three arguments that can be partially applied.
-
-      {e Examples}
-    
-      {[
-        let cubeVolume (width, height, depth) = width * height * depth in
-        let curriedVolume : float -> float -> float = curry squareArea in
-        let depths = [3; 4; 5] in
-        List.map depths ~f:(curriedVolume 3 4) = [36; 48; 60]
-      ]}
-  */
-  let curry: ((('a, 'b, 'c)) => 'd, 'a, 'b, 'c) => 'd;
-
-  /** [uncurry f] takes a function [f] which takes three arguments and returns a function which takes a single argument of a {!Tuple3}  
-      
-      {e Examples}
-
-      TODO
-  */
-  let uncurry: (('a, 'b, 'c) => 'd, ('a, 'b, 'c)) => 'd;
-
-  /** {2 Conversion} */
-
-  /** Turns a tuple into a {!List} of length three.
-
-      This function can only be used on tuples which have the same type for each value.
-
-      {e Examples}
-      
-      {[Tuple3.toArray (3, 4, 5) = [3; 4; 5]]}
-
-      {[Tuple3.toArray ("was", "stressed", "then") = ["was"; "stressed"; "then"]]}
-  */
-  let toArray: (('a, 'a, 'a)) => array('a);
-
-  /** Turns a tuple into a {!List} of length three.
-
-      This function can only be used on tuples which have the same type for each value.
-
-      {e Examples}
-      
-      {[Tuple3.toList (3, 4, 5) = [3; 4; 5]]}
-
-      {[Tuple3.toList ("was", "stressed", "then") = ["was"; "stressed"; "then"]]}
-  */
-  let toList: (('a, 'a, 'a)) => list('a);
-
-  /** {2 Comparison} */
-
-  /** Test two {!Tuple3}s for equality, using the provided functions to test the 
-      first, second and third components.
-
-      {e Examples}
-
-      {[Tuple.equal Int.equal String.equal Char.equal (1, "Fox", 'j') (1, "Fox", 'k') = true]}
-
-      {[Tuple.equal Int.equal String.equal Char.equal (1, "Fox", 'j') (2, "Hen", 'j') = false]}
-   */
-  let equal: (('a, 'a) => bool, ('b, 'b) => bool, ('c,'c) => bool, t('a, 'b,'c), t('a, 'b,'c)) => bool;
-
-  /** Compare two {!Tuple3}s, using the provided functions to compare the first
-      components then, if the first components are equal, the second components, 
-      then the third components
-
-      {e Examples}
-
-      {[Tuple.compare Int.compare String.compare Char.compare (1, "Fox", 'j') (1, "Fox", 'j') = 0]}
-
-      {[Tuple.compare Int.compare String.compare Char.compare (1, "Fox", 'j') (1, "Eel", 'j') = 1]}
-
-      {[Tuple.compare Int.compare String.compare Char.compare (1, "Fox", 'j') (2, "Fox", 'm') = -1]}
-   */
-  let compare: (('a, 'a) => int, ('b, 'b) => int, ('c,'c) => int, t('a, 'b,'c), t('a, 'b,'c)) => int;
 };
 
 /** Functions for working with ["strings"] */
@@ -3768,13 +2186,13 @@ module String: {
 
       {[String.trim "\r\n\t abc \n\n" = "abc"]}
   */
-  let trim: (~drop:(char => bool)=?, t) => t;
+  let trim: (t) => t;
 
   /** Like {!trim} but only drops characters from the beginning of the string. */
-  let trimLeft: (~drop:(char => bool)=?, t) => t;
+  let trimLeft: (t) => t;
 
   /** Like {!trim} but only drops characters from the end of the string. */
-  let trimRight: (~drop:(char => bool)=?, t) => t;
+  let trimRight: (t) => t;
 
   /** Insert a string at [index]
     
@@ -3833,682 +2251,896 @@ module String: {
   let compare: (t, t) => int;
 };
 
-/** A collection of unique values */
-module Set: {
-  /** A {!Set} represents a unique collection of values.
+/** Interfaces for use with container types like {!Array} or {!List} */
+module Container: {
+  /** This module contains module signatures which are used in functions which accept first class modules.
 
-      [Set] is an immutable data structure which means operations like {!Set.add} and {!Set.remove} do not modify the data structure, but return a new set with the desired changes.
+      TODO this could do with some links explaining those concepts, or linking to a good explanation
 
-      Since the usage is so common the {!Set.Int} and {!Set.String} modules are available, offering a convenient way to construct new sets.
-
-      For other data types you can use {!Set.Poly} which uses OCaml's polymorphic [compare] function.
-
-      The specialized modules {!Set.Int}, {!Set.String} are in general more efficient.
+      TODO Maybe just remove the 'Contianer' wrapper
   */
 
-  type t('a, 'id);
-
-  /** {1 Construction} */
-
-  /** A [Set] can be constructed using one of the functions available in the {!Set.Int}, {!Set.String} or {!Set.Poly} sub-modules. */
-
-  /** {1 Basic operations} */
-
-  /** Insert a value into a set.
-
-      {e Examples}
-      
-      {[Set.add (Set.Int.ofList [1; 2]) 3 |> Set.toList = [1; 2; 3]]}
-
-      {[Set.add (Set.Int.ofList [1; 2]) 2 |> Set.toList = [1; 2]]}
-  */
-  let add: (t('a, 'id), 'a) => t('a, 'id);
-
-  /** Remove a value from a set, if the set doesn't contain the value anyway, returns the original set
-
-      {e Examples}
-      
-      {[Set.remove (Set.Int.ofList [1; 2]) 2 |> Set.toList = [1]]}
-
-      {[
-        let originalSet = Set.Int.ofList [1; 2] in
-        let newSet = Set.remove orignalSet 3 in
-        originalSet == newSet
-      ]}
-  */
-  let remove: (t('a, 'id), 'a) => t('a, 'id);
-
-  /** Determine if a value is in a set
-
-      {e Examples}
-      
-     {[Set.includes (Set.String.ofList ["Ant"; "Bat"; "Cat"]) "Bat" = true]}
-  */
-  let includes: (t('a, _), 'a) => bool;
-
-  /** Determine the number of elements in a set.
-
-      {e Examples}
-      
-      {[Set.length (Set.Int.ofList [1; 2; 3])) = 3]}
-  */
-  let length: t(_, _) => int;
-
-  /** Returns, as an {!Option}, the first element for which [f] evaluates to [true]. If [f] doesn't return [true] for any of the elements [find] will return [None].
-
-      {e Examples}
-      
-      {[Set.find ~f:Int.isEven (Set.Int.ofList [1; 3; 4; 8]) = Some 4]}
-
-      {[Set.find ~f:Int.isOdd (Set.Int.ofList [0; 2; 4; 8]) = None]}
-
-      {[Set.find ~f:Int.isEven Set.Int.empty = None]} */
-  let find: (t('v, _), ~f: 'v => bool) => option('v);
-
-  /** {1 Query} */
-
-  /** Check if a set is empty.
-
-      {e Examples}
-      
-      {[Set.isEmpty (Set.Int.empty) = true]}
-
-      {[Set.isEmpty (Set.Int.singleton 4) = false]}
-  */
-  let isEmpty: t(_, _) => bool;
-
-  /** Determine if [f] returns true for [any] values in a set.
-
-      {e Examples}
-      
-      {[Set.any (Set.Int.ofArray [|2;3|]) ~f:Int.isEven = true]}
-
-      {[Set.any (Set.Int.ofList [1;3]) ~f:Int.isEven = false]}
-
-      {[Set.any (Set.Int.ofList []) ~f:Int.isEven = false]} */
-  let any: (t('v, _), ~f: 'v => bool) => bool;
-
-  /** Determine if [f] returns true for [all] values in a set.
-
-      {e Examples}
-      
-      {[Set.all ~f:Int.isEven (Set.Int.ofArray [|2;4|]) = true]}
-
-      {[Set.all ~f:Int.isEven (Set.Int.ofLis [2;3]) = false]}
-
-      {[Set.all ~f:Int.isEven Set.Int.empty = true]} */
-  let all: (t('v, _), ~f: 'v => bool) => bool;
-
-  /** {1 Combine} */
-
-  /** Returns a new set with the values from the first set which are not in the second set.
-
-      {e Examples}
-      
-      {[Set.difference (Set.Int.ofList [1;2;5]) (Set.Int.ofList [2;3;4]) |> Set.toList = [1;5]]}
-
-      {[Set.difference (Set.Int.ofList [2;3;4]) (Set.Int.ofList [1;2;5]) |> Set.toList = [3;4]]}
-  */
-  let difference: (t('a, 'id), t('a, 'id)) => t('a, 'id);
-
-  /** Get the intersection of two sets. Keeps values that appear in both sets.
-
-      {e Examples}
-      
-      {[Set.intersection (Set.Int.ofList [1;2;5]) (Set.Int.ofList [2;3;4]) |> Set.toList= [2]]}
-  */
-  let intersection: (t('a, 'id), t('a, 'id)) => t('a, 'id);
-
-  /** Get the union of two sets. Keep all values.
-
-      {e Examples}
-      
-      {[Set.union (Set.Int.ofList [1;2;5]) (Set.Int.ofList [2;3;4]) |> Set.toList = [1;2;3;4;5]]}
-  */
-  let union: (t('a, 'id), t('a, 'id)) => t('a, 'id);
-
-  /** {1 Transform} */
-
-  /** Keep elements that [f] returns [true] for.
-
-      {e Examples}
-      
-      {[Set.filter (Set.Int.ofList [1;2;3]) ~f:Int.isEven |> Set.toList = [2]]}
-  */
-  let filter: (t('a, 'id), ~f: 'a => bool) => t('a, 'id);
-
-  /** Divide a set into two according to [f]. The first set will contain the values that [f] returns [true] for, values that [f] returns [false] for will end up in the second. 
-
-      {e Examples}
-      
-      {[
-        let numbers = Set.Int.ofList [1; 1; 5; 6; 5; 7; 9; 8] in
-        let (evens, odds) = Set.partition numbers ~f:Int.isEven in
-        Set.toList evens = [6; 8]
-        Set.toList odds = [1; 5; 7; 9]
-      ]}
-  */
-  let partition:
-    (t('a, 'id), ~f: 'a => bool) => (t('a, 'id), t('a, 'id));
-
-  /** Transform a set into a value which is result of running each element in the set through [f], where each successive invocation is supplied the return value of the previous.
-
-    See {!Array.fold} for a more in-depth explanation.
-
-    {e Examples}
-
-    {[Set.fold ~f:( * ) ~initial:1 (Set.Int.ofList [1;2;3;4]) = 24]}
-  */
-  let fold: (t('a, _), ~initial: 'b, ~f: ('b, 'a) => 'b) => 'b;
-
-  /** Runs a function [f] against each element of the set. */
-  let forEach: (t('a, _), ~f: 'a => unit) => unit;
-
-  /** {1 Conversion} */
-
-  /** Converts a set into an {!Array} */
-  let toArray: t('a, _) => array('a);
-
-  /** Converts a set into a {!List}. */
-  let toList: t('a, _) => list('a);
-
-  /** Construct sets which can hold any data type using the polymorphic [compare] function. */
-  module Poly: {
-    type identity;
-
-    type nonrec t('a) = t('a, identity);
-
-    /** The empty set */
-    let empty: unit => t('a);
-
-    /** Create a set of a single value
-
-        {e Examples}
-      
-        {[Set.Int.singleton (5, "Emu") |> Set.toList = [(5, "Emu")]]}
+  module type Sum = {
+    /** Modules which conform to this signature can be used with functions like
+        {!Array.sum}, {!List.sum} or {!Set.sum}
     */
-
-    let singleton: 'a => t('a);
-
-    /** Create a set from an {!Array}
-
-        {e Examples}
-        
-        {[Set.Poly.ofArray [(1, "Ant");(2, "Bat");(2, "Bat")] |> Set.toList = [(1, "Ant"); (2, "Bat")]]}
-    */
-    let ofArray: array('a) => t('a);
-
-    /** Create a set from a {!List}
-
-      {e Examples}
-      
-      {[Set.Poly.ofList [(1, "Ant");(2, "Bat");(2, "Bat")] |> Set.toList = [(1, "Ant"); (2, "Bat")]]}
-    */
-    let ofList: list('a) => t('a);
-  };
-
-  /** Construct sets of {!Int}s */
-  module Int: {
-    type nonrec t = t(Int.t, Int.identity);
-
-    /** A set with nothing in it. */
-    let empty: t;
-
-    /** Create a set from a single {!Int}
-
-      {e Examples}
-      
-      {[Set.Int.singleton 5 |> Set.toList = [5]]}
-    */
-    let singleton: int => t;
-
-    /** Create a set from an {!Array}
-
-        {e Examples}
-        
-        {[Set.Int.ofArray [|1;2;3;3;2;1;7|] |> Set.toArray = [|1;2;3;7|]]}
-    */
-    let ofArray: array(int) => t;
-
-    /** Create a set from a {!List}
-
-        {e Examples}
-      
-        {[Set.Int.ofList [1;2;3;3;2;1;7] |> Set.toList = [1;2;3;7]]}
-    */
-    let ofList: list(int) => t;
-  };
-
-  /** Construct sets of {!String}s */
-  module String: {
-    type nonrec t = t(String.t, String.identity);
-
-    /** A set with nothing in it. */
-    let empty: t;
-
-    /** Create a set of a single {!String}
-
-        {e Examples}
-        
-        {[Set.String.singleton "Bat" |> Set.toList = ["Bat"]]}
-    */
-    let singleton: String.t => t;
-
-    /** Create a set from an {!Array}
-      
-        {e Examples}
-
-        {[Set.String.ofArray [|"a";"b";"g";"b";"g";"a";"a"|] |> Set.toArray = [|"a";"b";"g"|]]}
-    */
-    let ofArray: array(String.t) => t;
-
-    /** Create a set from a {!List}
-
-        {e Examples}
-        
-        {[Set.String.ofList [|"a";"b";"g";"b";"g";"a";"a"|] |> Set.toList = ["a";"b";"g"]]}
-    */
-    let ofList: list(String.t) => t;
+    type t;
+    let zero: t;
+    let add: (t, t) => t;
   };
 };
 
-/** A collection of key-value pairs */
-module Map: {
-  /** A [Map] represents a unique mapping from keys to values.
-
-      [Map] is an immutable data structure which means operations like {!Map.add} and {!Map.remove} do not modify the data structure, but return a new map with the desired changes.
-
-      Since the usage is so common the {!Map.Int} and {!Map.String} modules are available, offering a convenient way to construct new Maps.
-
-      For other data types you can use {!Map.Poly} which internally uses OCaml's polymorphic [compare] function on the keys.
-
-      The specialized modules {!Map.Int}, {!Map.String} are in general more efficient. */
-
-  /* TODO explain the type */
-  type t('key, 'value, 'id);
-
-  /** {1 Construction} */
-
-  /** A [Map] can be constructed using one of the functions available in {!Map.Int}, {!Map.String} or {!Map.Poly} */
-
-  /** {1 Basic operations} */
-  let add: (t('k, 'v, 'id), ~key: 'k, ~value: 'v) => t('k, 'v, 'id);
-  /** Adds a new entry to a map. If [key] is allready present, its previous value is replaced with [value].
-
-      {e Examples}
-      
-      {[Map.add (Map.Int.ofList [(1, "Ant"), (2, "Bat")]) ~key:3 ~value:"Cat"  |> Map.toList = [(1, "Ant"), (2, "Bat"), (3, "Cat")]]}
-
-      {[Map.add (Map.Int.ofList [(1, "Ant"), (2, "Bat")]) ~key:2 ~value:"Bug" |> Map.toList = [(1, "Ant"), (2, "Bug")]]}
-  */
-
-  /** Removes a key-value pair from a map based on they provided key. 
-
-      {e Examples}
-      
-      let animalPopulations = Map.String.ofList [
-        ("Elephant", 3_156);           
-        ("Mosquito", 56_123_156);           
-        ("Rhino", 3);           
-        ("Shrew", 56_423);          
-      ] in
-      Map.remove animalPopulations "Mosquito" |> Map.toList = [
-        ("Elephant", 3_156);           
-        ("Rhino", 3);           
-        ("Shrew", 56_423);          
-      ];
-  */
-  let remove: (t('k, 'v, 'id), 'k) => t('k, 'v, 'id);
-
-  /** Get the value associated with a key. If the key is not present in the map, returns [None]. 
-
-      {e Examples}
-
-      let animalPopulations = Map.String.ofList [
-        ("Elephant", 3_156);           
-        ("Mosquito", 56_123_156);           
-        ("Rhino", 3);           
-        ("Shrew", 56_423);          
-      ] in
-      Map.get animalPopulations "Shrew" = Some 56_423;
-  */
-  let get: (t('k, 'v, 'id), 'k) => option('v);
-
-  /** Returns, as an {!Option} the first key-value pair for which [f] evaluates to true. 
+/** Functions for working with optional values. */
+module Option: {
+  /** {!Option} represents a value which may not be present.
      
-      If [f] doesn't return [true] for any of the elements [find] will return [None]. 
-    
-      Searches starting from the smallest {b key}
-      
-      {e Examples}
-      
+      It is a variant containing the [Some('a)] and [None] constructors
+
       {[
-        Map.String.ofList [
-          ("Elephant", 3_156);           
-          ("Mosquito", 56_123_156);           
-          ("Rhino", 3);           
-          ("Shrew", 56_423);          
-        ]
-        |> Map.find ~f:(fun ~key ~value -> value > 10_000)
-          = Some ("Mosquito", 56_123_156)
+        type t('a) =
+          | Some('a)
+          | None
       ]}
-  */
-  let find:
-    (t('k, 'v, _), ~f: (~key: 'k, ~value: 'v) => bool) => option(('k, 'v));
-
-  /** Update the value for a specific key using [f]. If [key] is not present in the map [f] will be called with [None]. 
-
-      {e Examples}
-      
-      {[
-        let animalPopulations = Map.String.ofList [
-          ("Elephant", 3_156);           
-          ("Mosquito", 56_123_156);           
-          ("Rhino", 3);           
-          ("Shrew", 56_423);          
-        ] in
-
-        Map.update animalPopulations ~key:"Hedgehog" ~f:(fun population -> 
-          match population
-          | None => Some 1
-          | Some count => Some (count + 1)
-        ) 
-        |> Map.toList = [
-          ("Elephant", 3_156);        
-          ("Hedgehog", 1);   
-          ("Mosquito", 56_123_156);           
-          ("Rhino", 3);           
-          ("Shrew", 56_423);          
-        ]
-      ]}
-  */
-  let update:
-    (t('k, 'v, 'id), ~key: 'k, ~f: option('v) => option('v)) =>
-    t('k, 'v, 'id);
-
-  /** Returns the number of key-value pairs present in the map. 
-
-      {e Examples}
-      
-      {[Map.Int.ofList [(1, "Hornet"); (3, "Marmot")] |> Map.length = 2]}
-  */
-  let length: t(_, _, _) => int;
-
-  /** Returns, as an {!Option}, the smallest {b key } in the map. 
-    
-      Returns [None] if the map is empty.
-
-      {e Examples}
-      
-      {[Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")] |> Map.length = Some 1]}
-  */
-  let minimum: t('key, _, _) => option('key);
-
-  /** Returns the largest {b key } in the map. 
-   
-      Returns [None] if the map is empty.
-      
-      {e Examples}
-
-      {[Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")] |> Map.length = Some 8]}
-  */
-  let maximum: t('key, _, _) => option('key);
-
-  /** Returns, as an {!Option}, a {!Tuple} of the [(minimum, maximum)] {b key}s in the map. 
      
-      Returns [None] if the map is empty.
-      
-      {e Examples}
+      Many other languages use [null] or [nil] to represent something similar.
 
-      {[Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")] |> Map.length = Some (1, 8)]}
+      {!Option} values are very common and they are used in a number of ways:
+      - Initial values
+      - Optional function arguments
+      - Optional record fields
+      - Return values for functions that are not defined over their entire input range (partial functions).
+      - Return value for otherwise reporting simple errors, where None is returned on error.
+
+      Lots of functions in [Standard] return options, one you have one you can 
+      work with the value it might contain by:
+
+      - Pattern matching
+      - Using {!map} or {!bind} (or their operators in {!Infix})
+      - Unwrapping it using {!get}, or its operator {!Infix.(|?)}      
+      - Converting a [None] into an exception using{!getOrFailWith}
+
+      If the function you are writing can fail in a variety of ways, use a {!Result} instead to
+      better communicate with the caller.
+
+      If a function only fails in unexpected, unrecoverable ways, maybe you want raise exception.
   */
-  let extent: t('key, _, _) => option(('key, 'key));
 
-  /** {1 Checks} */
+  type t('a) = option('a);
 
-  /** Determine if a map is empty. */
-  let isEmpty: t(_, _, _) => bool;
+  /** A function version of the [Some] constructor.
 
-  /** Determine if a map includes [key].  */
-  let includes: (t('k, _, _), 'k) => bool;
+      In most situations you just want to use the [Some] constructor directly.
 
-  /** Determine if [f] returns [true] for [any] values in a map. */
-  let any: (t(_, 'v, _), ~f: 'v => bool) => bool;
+      However OCaml doesn't support piping to variant constructors.
 
-  /** Determine if [f] returns [true] for [all] values in a map. */
-  let all: (t(_, 'v, _), ~f: 'v => bool) => bool;
-
-  /** {1 Combine} */
-
-  /** Combine two maps. 
+      Note that when using the Reason syntax you {b can} use fast pipe ([->]) with variant constructors, so you don't need this function.
       
-      You provide a function [f] which is provided the key and the optional 
-      value from each map and needs to account for the three possibilities:
+      See the {{: https://reasonml.github.io/docs/en/pipe-first#pipe-into-variants} Reason docs } for more.
 
-      1. Only the 'left' map includes a value for the key.
-      2. Both maps contain a value for the key.
-      3. Only the 'right' map includes a value for the key.
-
-      You then traverse all the keys, building up whatever you want.
-
-      {e Examples}
-
-      {[
-        let animalToPopulation = Map.String.ofList [
-          ("Elephant", 3_156);           
-          ("Shrew", 56_423);          
-        ]
-        in
-        let animalToPopulationGrowthRate = Map.String.ofList [
-          ("Elephant", 0.88);           
-          ("Squirrel", 1.2);          
-          ("Python", 4.0);          
-        ]
-
-        Map.merge animalToPopulation animalToPopulationGrowthRate ~f:(fun _animal population growth) ->
-          match (Option.both (population, growth))
-          | Some(population, growth) => Float.(ofInt population * growth)
-          | None => None
-        )
-        |> Map.toList
-          = [("Elephant", 2777.28)]
-      ]}
-  */
-  let merge:
-    (
-      t('k, 'v1, 'id),
-      t('k, 'v2, 'id),
-      ~f: ('k, option('v1), option('v2)) => option('v3)
-    ) =>
-    t('k, 'v3, 'id);
-
-  /** {1 Transformations} */
-
-  /** Apply a function to all values in a dictionary. 
-      
       {e Examples} 
 
+      {[String.reverse("desserts") |> Option.some = Some "desserts" ]}
+   */
+  let some: 'a => option('a);
+
+  /** Returns [None] if the first argument is [None], otherwise return the second argument.
+
+    Unlike the built in [&&] operator, the [and_] function does not short-circuit.
+
+    When you call [and_], both arguments are evaluated before being passed to the function.
+
+    {e Examples}
+
+    {[Option.and_ (Some 11) (Some 22) = Some 22]}
+
+    {[Option.and_ None (Some 22) = None]}
+
+    {[Option.and_ (Some 11) None = None]}
+
+    {[Option.and_ None None = None]}
+  */
+  let and_: (t('a), t('a)) => t('a);
+
+  /** Return the first argument if it {!isSome}, otherwise return the second.
+
+    Unlike the built in [||] operator, the [or_] function does not short-circuit.
+    When you call [or_], both arguments are evaluated before being passed to the function.
+
+    {e Examples}
+
+    {[Option.or_ (Some 11) (Some 22) = Some 11]}
+
+    {[Option.or_ None (Some 22) = Some 22]}
+
+    {[Option.or_ (Some 11) None = Some 11]}
+
+    {[Option.or_ None None = None]}
+  */
+  let or_: (t('a), t('a)) => t('a);
+
+  /** Transform two options into an option of a {!Tuple}.
+
+      Returns None if either of the aguments is None.
+
+      {e Examples}
+
+      {[Option.both (Some 3004) (Some "Ant") = Some (3004, "Ant")]}
+
+      {[Option.both (Some 3004) None = None]}
+
+      {[Option.both None (Some "Ant") = None]}
+
+      {[Option.both None None = None]}
+  */
+  let both: (t('a), t('b)) => t(('a, 'b));
+
+  /** Flatten two optional layers into a single optional layer.
+
+      {e Examples}
+
+      {[Option.join (Some (Some 4)) = Some 4]}
+
+      {[Option.join (Some None) = None]}
+
+      {[Option.join (None) = None]}
+  */
+  let join: t(t('a)) => t('a);
+
+  /** Transform the value inside an option.
+
+      Leaves [None] untouched.
+
+      See {!Infix.(>>|)} for an operator version of this function.
+
+      {e Examples}
+
+      {[Option.map ~f:(fun x -> x * x) (Some 9) = Some 81]}
+
+      {[Option.map ~f:Int.toString (Some 9) = Some "9"]}
+
+      {[Option.map ~f:(fun x -> x * x) None = None]}
+  */
+  let map: (t('a), ~f: 'a => 'b) => t('b);
+
+  /** Combine two {!Option}s
+      
+      If both options are [Some] returns, as [Some] the result of running [f] on both values.
+   
+      If either value is [None], returns [None]  
+
+      {e Examples}
+
+      {[Option.map2 (Some 3) (Some 4) ~f=Int.add = Some 7]}
+
+      {[Option.map2 (Some 3) (Some 4) ~f=Tuple.make = Some (3, 4)]}
+
+      {[Option.map2 (Some 3) None ~f=Int.add = None]}
+
+      {[Option.map2 None (Some 4) ~f=Int.add = None]}
+  */
+  let map2: (t('a), t('b), ~f: ('a, 'b) => 'c) => t('c);
+
+  /** Chain together many computations that may not return a value.
+
+      It is helpful to see its definition:
       {[
-        Map.String.ofList [
-          ("Elephant", 3_156);           
-          ("Shrew", 56_423);          
-        ]
-        |> Map.map ~f:Int.toString
-        |> Map.toList
-          = [
-          ("Elephant", "3156");           
-          ("Shrew", "56423");          
-        ]
+        let bind = (t, ~f) =>
+          switch (t) {
+          | Some(x) => f(x)
+          | None => None
+          };
+      ]}
+
+      This means we only continue with the callback if we have a value.
+
+      For example, say you need to parse some user input as a month:
+
+      {[
+        let toValidMonth = (month: int): option(int) =>
+          if (1 <= month && month <= 12) {
+            Some(month)
+          } else {
+            None
+          }
+
+        let parseMonth = (userInput: string): option(int) =>
+          Int.ofString(userInput)
+          |> Option.bind(~f=toValidMonth)
+      ]}
+
+      In the [parseMonth] function, if [String.toInt] produces [None] (because
+      the [userInput] was not an integer) this entire chain of operations will
+      short-circuit and result in [None]. If [toValidMonth] results in [None],
+      again the chain of computations will result in [None].
+
+      See {!Infix.(>>=)} for an operator version of this function.
+
+      {e Examples}
+
+      {[Option.bind (Some [1, 2, 3]) ~f=List.head = Some 1]}
+
+      {[Option.bind (Some []) ~f=List.head = None]}
+  */
+  let bind: (t('a), ~f: 'a => t('b)) => t('b);
+
+  /** Unwrap an [option('a)] returning [default] if called with [None].
+
+      This comes in handy when paired with functions like {!Map.get} or {!List.head} which return an {!Option}.
+
+      See {!Infix.(|?)} for an operator version of this function.
+
+      {b Note} This can be overused! Many cases are better handled using pattern matching, {!map} or {!bind}.
+
+      {e Examples}
+
+      {[Option.get ~default:99 (Some 42) = 42]}
+
+      {[Option.get ~default:99 None = 99]}
+
+      {[Option.get ~default:"unknown" (Map.get Map.String.empty "Tom") = "unknown"]}
+  */
+  let get: (t('a), ~default: 'a) => 'a;
+
+  /** Unwrap an [option('a)] returning the enclosed ['a].
+      
+      {b Note} in most situations it is encouraged to use pattern matching, {!get}, {!map} or {!bind}.
+      Can you structure your code slightly differently to avoid potentially raising an exception?
+
+      {2 Exceptions}
+
+      Raises the provided [exn] if called with [None].
+
+      {e Examples}
+
+      {[
+        Option.getOrFailWith (Ok "Wolf") ~exn:(Invalid_argument "Thats no wolf") = "Wolf"
+      ]}
+
+      {[
+        Option.getOrFailWith (Error "Dog") ~exn:(Invalid_argument "Thats no wolf")
+        Raises [Invalid_argument "Thats no wolf")]
+      ]}
+        
+      {[
+        exception FelineEncounterd
+        Option.getOrFailWith (Error "Kitten") ~exn:FelineEncountered
+        // Raises [FelineEncountered]
       ]}
   */
-  let map: (t('k, 'v, 'id), ~f: 'v => 'b) => t('k, 'b, 'id);
+  let getOrFailWith: (t('a), ~exn: exn) => 'a;
 
-  /** Like {!map} but [f] is also called with each values corresponding key */
-  let mapI: (t('k, 'va, 'i), ~f: ('k, 'va) => 'vb) => t('k, 'vb, 'i);
+  /** Unwrap an [option('a)] returning the enclosed ['a].
 
-  /** Keep elements that [f] returns [true] for. 
-   
+      {b Note} in most situations it is better to use pattern matching, {!get}, {!map} or {!bind}.
+      Can you structure your code slightly differently to avoid potentially raising an exception?
+
+      {3 Exceptions}
+
+      Raises an [Invalid_argument] exception if called with [None]
+
       {e Examples}
+
+      {[List.head [1;2;3] |> Option.getUnsafe = 1]}
+
+      {[List.head [] |> Option.getUnsafe]}
+  */
+  let getUnsafe: t('a) => 'a;
+
+  /** Check if an {!Option} is a [Some].
+
+      In most situtations you should just use pattern matching instead.
+
+      {e Examples}
+
+      {[Option.isSome (Some 3004) = true]}
+
+      {[Option.isSome None = false]}
+  */
+  let isSome: t('a) => bool;
+
+  /** Check if an {!Option} is a [None].
+
+      In most situtations you should just use pattern matching instead.
+
+      {e Examples}
+
+      {[Option.isNone (Some 3004) = false]}
+
+      {[Option.isNone None = true]}
+  */
+  let isNone: t('a) => bool;
+
+  /** Run a function against a value, if it is present. */
+  let forEach: (t('a), ~f: 'a => unit) => unit;
+
+  /** TODO */
+  let fold: (t('a), ~initial: 'b, ~f: ('b, 'a) => 'b) => 'b;  
+
+  /** Convert an option to a {!Array}.
+
+      [None] is represented as an empty list and [Some] is represented as a list of one element.
+
+      {e Examples}
+
+      {[Option.toArray (Some 3004) = [|3004|]]}
+
+      {[Option.toArray (None) = [||]]}
+  */  
+  let toArray: t('a) => array('a);
+
+  /** Convert an option to a {!List}.
+
+      [None] is represented as an empty list and [Some] is represented as a list of one element.
+
+      {e Examples}
+
+      {[Option.toList (Some 3004) = [3004]]}
+
+      {[Option.toList (None) = []]}
+  */
+  let toList: t('a) => list('a);
+
+  /** {2 Comparison} */
+
+  /** Test two optional values for equality using the provided function
+      
+      {e Examples}
+
+      {[Option.equal Int.equal (Some 1) (Some 1) = true]}
+
+      {[Option.equal Int.equal (Some 1) (Some 3) = false]}
+
+      {[Option.equal Int.equal (Some 1) None = false]}
+
+      {[Option.equal Int.equal None None = true]}
+   */
+  let equal: (('a, 'a) => bool, t('a), t('a)) => bool;
+
+  /** Compare two optional values using the provided function. 
+      
+      A [None] is "less" than a [Some]
+
+      {e Examples}
+
+      {[Option.compare Int.compare (Some 1) (Some 3) = -1]}
+
+      {[Option.compare Int.compare (Some 1) None = 1]}
+
+      {[Option.compare Int.compare None None = 0]}
+  */
+  let compare: (('a, 'a) => int, t('a), t('a)) => int;
+
+  module Infix: {
+    /** Operators for code that works extensively with {!Option}s.
+
+        This module is intended to be [open]ed at the top of a block of code (or module) that uses
+        its operators extensively.
+
+        {[
+          open Option.Infix;
+          let nameToAge = Map.String.ofArray([|
+            ("Ant", 1),
+            ("Bat", 5),
+            ("Cat", 19),
+          |]);
+
+          let catAge = Map.get nameToAge "Cat" |? 8;
+          // 19
+
+          let ageDifference =
+            Map.get nameToAge "Ant"
+            >>= (antAge => {
+              Map.get nameToAge "Bat"
+              >>| (batAge => {
+                Int.absolute(batAge - antAge)
+              })
+            });
+          // Some (4)
+        ]}
+     */
+
+    let (|?): (t('a), 'a) => 'a;
+    /** The operator version of {!get}
+
+       {e Examples}
+
+       {[Some 3004 |? 8 = 3004]}
+
+       {[None |? 8 = 8]}
+    */
+
+    let (>>|): (t('a), 'a => 'b) => t('b);
+    /** The operator version of {!map}
+
+        {e Examples}
+
+        {[Some "desserts" >>| String.reverse = Some "stressed"]}
+
+        {[None >>| String.reverse = None]}
+    */
+
+    let (>>=): (t('a), 'a => t('b)) => t('b);
+    /** The operator version of {!bind}
+
+        {e Examples}
+
+        {[Some [1, 2, 3] >>= List.head = Some 1]}
+
+        {[Some [] >>= List.head = None]}
+    */
+  };
+};
+
+/** Functions for working with computations which may fail. */
+module Result: {
+  /** A {!Result} is used to represent a computation which may fail.
+      
+      A [Result] is a variant, which has a constructor for successful results ([Ok('ok)]), 
+      and one for unsuccessful results ([Error('error)]).
+
+      {[
+          type t('ok, 'error) =
+            | Ok('ok)
+            | Error('error);
+        ]}
+
+      Here is how you would annotate a [Result] variable whose [Ok]
+      variant is an integer and whose [Error] variant is a string:
+
+      {[
+        let x: Result.t(string, int) = Ok(3);
+        let y: Result.t(string, int) = Error("bad")
+      ]}
+
+      {b Note} The ['error] case can be of {b any} type and while [string] is very common you could also use:
+      - [string List.t] to allow errors to be accumulated
+      - [exn], in which case the result type just makes exceptions explicit in the return type          
+      - A variant or polymorphic variant, with one case per possible error. This is means each error can be dealt with explicitly. See {{: https://keleshev.com/composable-error-handling-in-ocaml } this excellent article} for mnore information on this approach.
+
+      If the function you are writing can only fail in a single obvious way, maybe you want an {!Option} instead.
+  */
+
+  type t('ok, 'error) = Result.t('ok, 'error);
+
+  /** {1 Creation} */
+
+  /** A function alternative to the [Ok] constructor which can be used in places where
+      the constructor isn't permitted such as at the of a {!(|>)} or functions like {!List.map}.
+
+      {e Examples}
+
+      {[String.reverse "desserts" |> Result.ok = Ok "stressed"]}
+
+      {[List.map [1; 2; 3] ~f:Result.ok = [Ok 1; Ok 2; Ok 3]]}
+  */
+  let ok: 'ok => t('ok, 'error);
+
+  /** A function alternative to the [Error] constructor which can be used in places where
+      the constructor isn't permitted such as at the of a {!Fun.pipe} or functions like {!List.map}.
+
+      {b Note}
+
+      When targetting the Bucklescript compiler you {b can} use constructors with the fast pipe.
+
+      {[5->Ok = Ok(5)]}
+
+      And you can use the placeholder syntax for use with functions like {!List.map}
+
+      {[
+        List.map([1,2,3], ~f:Ok(_)) == [Ok(1),Ok(2),Ok(3)]
+      ]}
+
+      See the {{: https://reasonml.github.io/docs/en/pipe-first#pipe-into-variants} Reason docs } for more.
+
+      {e Examples}
+
+      {[Int.negate 3 |> Result.error 3 = Error (-3)]}
+
+      {[List.map [1; 2; 3] ~f:Result.error = [Error 1; Error 2; Error 3]]}
+  */
+  let error: 'error => t('ok, 'error);
+
+  /** Run the provided function and wrap the returned value in a {!Result}, catching any exceptions raised.
+
+      {e Examples}
+
+      {[Result.attempt(() => 5 / 0) = Error(Division_by_zero)]}
+
+      {[
+        let numbers = [|1,2,3|];
+        Result.attempt(() => numbers[3]) = Error(Invalid_argument "index out of bounds")
+      ]}
+  */
+  let attempt: (unit => 'ok) => t('ok, exn);
+
+  /** Convert an {!Option} to a {!Result} where a [Some(value)] becomes [Ok(value)] and a [None] becomes [Error(error)].
+
+      {e Examples}
+
+      {[Result.ofOption(Some(84), ~error="Greater than 100") == Ok(8)]}
+
+      {[Result.ofOption(None, ~error="Greater than 100") == Error("Greater than 100")]}
+  */
+  let ofOption: (option('ok), ~error: 'error) => t('ok, 'error);
+
+  /** Check if a {!Result} is an [Ok].
+
+      Useful when you want to perform some side affect based on the presence of 
+      an [Ok] like logging.
+
+      {b Note} if you need access to the contained value rather than doing 
+      [Result.isOk] followed by {!Result.getUnsafe} its safer and just as 
+      convenient to use pattern matching directly or use one of {!Result.bind} 
+      or {!Result.map}
+
+      {e Examples}
+
+      {[Result.isOk(Ok(3)) == true]}
+
+      {[Result.isOk(Error(3)) == false]}
+  */
+  let isOk: t(_, _) => bool;
+
+  /** Check if a {!Result} is an [Error].
+
+      Useful when you want to perform some side affect based on the presence of 
+      an [Error] like logging.
+      
+      {b Note} if you need access to the contained value rather than doing 
+      [Result.isOk] followed by {!Result.getUnsafe} its safer and just as 
+      convenient to use pattern matching directly or use one of {!Result.bind} 
+      or {!Result.map}
+
+      {e Examples}
+
+      {[Result.isError(Ok(3)) == false]}
+
+      {[Result.isError(Error(3)) == true]}
+  */
+  let isError: t(_, _) => bool;
+
+  /** Returns the first argument if it {!isError}, otherwise return the second argument.
+
+      Unlike the {!Bool.(&&)} operator, the [and_] function does not short-circuit.
+      When you call [and_], both arguments are evaluated before being passed to the function.
+
+      {e Examples}
+
+      {[Result.and_ (Ok "Antelope") (Ok "Salmon") = Ok "Salmon"]}
+
+      {[Result.and_ (Error `UnexpectedBird("Finch")) (Ok "Salmon") = (Error `UnexpectedBird("Finch"))]}
+
+      {[Result.and_ (Ok "Antelope") (Error `UnexpectedBird("Finch")) = (Error `UnexpectedBird("Finch"))
+
+      {[Result.and_ (Error `UnexpectedInvertabrate("Honey bee") `UnexpectedBird("Finch") = (Error `UnexpectedBird("Honey Bee"))]}
+  */
+  let and_: (t('ok, 'error), t('ok, 'error)) => t('ok, 'error);
+
+  /** Return the first argument if it {!isOk}, otherwise return the second.
+
+    Unlike the built in [||] operator, the [or_] function does not short-circuit.
+    When you call [or_], both arguments are evaluated before being passed to the function.
+
+    {e Examples}
+
+    {[Result.or_ (Ok "Boar") (Ok "Gecko") = (Ok "Boar")]}
+
+    {[Result.or_ Error(`UnexpectedInvertabrate("Periwinkle")) (Ok "Gecko") = (Ok "Gecko")]}
+
+    {[Result.or_ (Ok "Boar") Error(`UnexpectedInvertabrate("Periwinkle")) = (Ok "Boar") ]}
+
+    {[Result.or_ Error(`UnexpectedInvertabrate("Periwinkle")) Error(`UnexpectedBird("Robin")) = Error(`UnexpectedBird("Robin"))]}
+  */
+  let or_: (t('ok, 'error), t('ok, 'error)) => t('ok, 'error);  
+
+  /** Combine two results, if both are [Ok] returns an [Ok] containing a {!Tuple} of the values.
+    
+      If either is an [Error], returns the [Error].
+
+      The same as writing [Result.map2 ~f:Tuple.make]
+
+      {e Examples}
+
+      {[Result.both (Ok "Badger") (Ok "Rhino") = Ok ("Dog", "Rhino")]}
+
+      {[Result.both Error(`UnexpectedBird("Flamingo")) (Ok "Rhino") = Error(`UnexpectedBird("Flamingo"))]}
+
+      {[Result.both (Ok "Badger") Error(`UnexpectedInvertabrate("Blue ringed octopus")) = Error(`UnexpectedInvertabrate("Blue ringed octopus"))]}
+
+      {[Result.both Error(`UnexpectedBird("Flamingo")) Error(`UnexpectedInvertabrate("Blue ringed octopus")) = Error(`UnexpectedBird("Flamingo"))]}
+  */
+  let both: (t('a, 'error), t('b, 'error)) => t(('a, 'b), 'error);
+
+  /** Collapse a nested result, removing one layer of nesting.
+
+      {e Examples}
+
+      {[Result.join (Ok (Ok 2)) = Ok 2]}
+
+      {[Result.join (Ok (Error (`UnexpectedBird "Peregrin falcon"))) = Error(`UnexpectedBird("Peregrin falcon"))]}
+
+      {[Result.join Error(`UnexpectedInvertabrate("Woodlouse")) = Error(`UnexpectedInvertabrate("Woodlouse"))]}
+  */
+  let join: t(t('ok, 'error), 'error) => t('ok, 'error);
+
+  /** Unwrap a Result using the [~default] value in case of an [Error]
+
+      {e Exmples}
+
+      {[Result.get ~default:0 (Ok 12) = 12]}
+
+      {[Result.get ~default:0 (Error(`UnexpectedBird("Ostrich"))) = 0]}
+  */
+  let get: (t('ok, 'error), ~default: 'ok) => 'ok;
+
+  /** Unwrap a Result, raising the provided [~exn] in case of an [Error]
+
+      {e Exmples}
       
       {[
-        Map.String.ofList [
-          ("Elephant", 3_156);           
-          ("Shrew", 56_423);          
-        ]
-        |> Map.map ~f:(fun population -> population > 10_000)
-        |> Map.toList
-          = [
-          ("Shrew", "56423");          
-        ]
-      ]}
-  */
-  let filter: (t('k, 'v, 'id), ~f: 'v => bool) => t('k, 'v, 'id);
+        exception UnexpectedAnimal
 
-  /** Divide a map into two, the first map will contain the key-value pairs that [f] returns [true] for, pairs that [f] returns [false] for will end up in the second. 
-   
-      {e Examples}
+        Result.getOrFailWith (Ok 12) ~exn:UnexpectedAnimal  = 12
+      ]}
       
       {[
-        let (endangered, notEndangered) = Map.String.ofList [
-          ("Elephant", 3_156);           
-          ("Mosquito", 56_123_156);           
-          ("Rhino", 3);           
-          ("Shrew", 56_423);          
-        ]
-        |> Map.partition ~f:(fun population -> population < 10_000)
-        in
-
-        Map.toList endangered = [
-          ("Elephant", 3_156);           
-          ("Rhino", 3);           
-        ];
-
-        Map.toList notEndangered = [
-          ("Mosquito", 56_123_156);           
-          ("Shrew", 56_423);    
-        ];
+        Result.getOrFailWith (Error(`UnexpectedBird("Chicken"))) ~exn:UnexpectedAnimal 
+        // Raises an [UnexpectedAnimal] exception.
       ]}
   */
-  let partition:
-    (t('k, 'v, 'id), ~f: (~key: 'k, ~value: 'v) => bool) =>
-    (t('k, 'v, 'id), t('k, 'v, 'id));
+  let getOrFailWith: (t('ok, _), ~exn: exn) => 'ok;
 
-  /** Like {!Array.fold} but [f] is also called with both the [key] and [value] */
-  let fold:
-    (t('k, 'v, _), ~initial: 'a, ~f: ('a, ~key: 'k, ~value: 'v) => 'a) => 'a;
+  /** Unwrap a Result, raising an exception in case of an [Error]
 
-  /** Runs a function [f] against each {b value} in the map. */
-  let forEach: (t(_, 'v, _), ~f: 'v => unit) => unit;
+      {e Exceptions}
+
+      Raises an [Invalid_argument "Result.getUnsafe called with an Error"] exception.
+
+      {e Exmples}
+
+      {[Result.getUnsafe (Ok 12) = 12]}
+
+      {[Result.getUnsafe (Error "bad") ]}
+  */
+  let getUnsafe: t('ok, _) => 'ok;
+
+  /** Like {!Result.get} but unwraps an [Error] value instead
+
+      {e Exmples}
+
+      {[Result.getError ~default:`UnexpectedInvertabrate("Ladybird") (Error `UnexpectedBird("Swallow")) = `UnexpectedBird("Swallow"]}
+
+      {[Result.getError ~default:`UnexpectedInvertabrate("Ladybird") (Ok 5) = `UnexpectedInvertabrate("Ladybird")]}
+  */
+  let getError: (t('ok, 'error), ~default: 'error) => 'error;
+
+  /** Combine two results
+          
+      If one of the results is an [Error], that becomes the return result.
+
+      If both are [Error] values, returns its first.
+
+      {e Examples}
+
+      {[Result.map2 (Ok 7) (Ok 3) ~f:Int.add = Ok 10]
+
+      {[Result.map2 (Error "A") (Ok 3) ~f:Int.add = Error "A"]}
+
+      {[Result.map2 (Ok 7) (Error "B") ~f:Int.add = Error "B"]}
+
+      {[Result.map2 (Error "A") (Error "B") ~f:Int.add = Error ("A")]}
+  */
+  let map2:
+    (t('a, 'error), t('b, 'error), ~f: ('a, 'b) => 'c) => t('c, 'error);
+
+  /** If all of the elements of a list are [Ok], returns an [Ok] of the the list of unwrapped values.
+
+      If {b any} of the elements are an [Error], the first one encountered is returned.
+
+      {e Examples}
+
+      {[Result.combine [Ok 1; Ok 2; Ok 3; Ok 4] = Ok [1; 2; 3; 4]]}
+
+      {[Result.combine [Ok 1; Error "two"; Ok 3; Error "four"] = Error "two"]}
+  */
+  let combine: list(t('ok, 'error)) => t(list('ok), 'error);
+
+  /** Transforms the ['ok] in a result using [f]. Leaves the ['error] untouched.
+
+      {e Examples}
+
+      {[Result.map (Ok 3) ~f:(Int.add 1) = Ok 9]}
+
+      {[Result.map (Error "three") ~f:(Int.add 1) = Error "three"]}
+  */
+  let map: (t('a, 'error), ~f: 'a => 'b) => t('b, 'error);
+
+  /** Transforms the value in an [Error] using [f]. Leaves an [Ok] untouched.
+
+      {e Examples}
+
+      {[Result.mapError (Ok 3) ~f:String.reverse = Ok 3]}
+
+      {[Result.mapError (Error "bad") ~f:(Int.add 1)  = Error "bad"]}
+  */
+  let mapError: (t('ok, 'a), ~f: 'a => 'b) => t('ok, 'b);
+
+  /** Converts an [Result.t('error, Option.t('ok)] into a [Option.t(Result.t('ok, 'error))]
+
+      {e Examples}
+
+      {[Result.transpose (Ok (Some 5)) = Some (Ok 5)]}
+
+      {[Result.transpose (Ok (None)) = None]}
+
+      {[Result.transpose (Error "fail") = (Some (Error "fail"))]}
+  */
+  let transpose: t(option('ok), 'error) => option(t('ok, 'error));
+
+  /** Run a function which may fail on a result.
+   
+      Short-circuits of called with an [Error].
+      
+      {e Examples}
+
+      {[
+        let reciprical (x:float) : (string, float) Standard.Result.t = (
+          if (x = 0.0) then
+            Error "Divide by zero"
+          else
+            Ok (1.0 /. x)
+        )
+
+        let root (x:float) : (string, float) Standard.Result.t = (
+          if (x < 0.0) then
+            Error "Cannot be negative"
+          else
+            Ok (Float.squareRoot x)
+        )
+      ]}
+
+      {e Examples}
+
+      {[Result.bind ~f:reciprical (Ok 4.0) = Ok 0.25]}
+
+      {[Result.bind ~f:reciprical (Error "Missing number!") = Error "Missing number!"]}
+
+      {[Result.bind ~f:reciprical (Ok 0.0) = Error "Divide by zero"]}
+
+      {[Result.bind (Ok 4.0) ~f:root  |> Result.bind ~f:reciprical = Ok 0.5]}
+
+      {[Result.bind (Ok -2.0) ~f:root |> Result.bind ~f:reciprical = Error "Cannot be negative"]}
+
+      {[Result.bind (Ok 0.0) ~f:root |> Result.bind ~f:reciprical = Error "Divide by zero"]}
+  */
+  let bind: (t('a, 'error), ~f: 'a => t('b, 'error)) => t('b, 'error);
+
+  /** TODO Seriously what would you use this for */
+  let fold: (t('ok, _), ~initial: 'b, ~f: ('b, 'ok) => 'b) => 'b;
+
+  /** Run a function against an [Ok(value)], ignores [Error]s.
+
+      {e Examples}
+
+      {[
+        Result.forEach(Ok("Dog"), ~f:print_endline);
+        // prints "Dog"
+      ]}
+   */
+  let forEach: (t('ok, _), ~f: 'ok => unit) => unit;
 
   /** {1 Conversion} */
 
-  /** Get a {!List} of all of the keys in a map. 
+  /** Convert a {!Result} to an {!Option}.
+
+      An [Ok x] becomes [Some x]
+
+      An [Error _] becomes [None]
 
       {e Examples}
 
-      {[
-        Map.String.ofList [
-          ("Elephant", 3_156);           
-          ("Mosquito", 56_123_156);           
-          ("Rhino", 3);           
-          ("Shrew", 56_423);          
-        ]
-        |> Map.keys = [
-          "Elephant";           
-          "Mosquito";           
-          "Rhino";           
-          "Shrew";          
-        ]
-      ]}  
+      {[Result.toOption (Ok 42) = Some 42]}
+
+      {[Result.toOption (Error "Missing number!") = None]}
   */
-  let keys: t('k, _, _) => list('k);
+  let toOption: t('ok, _) => option('ok);
 
-  /** Get a {!List} of all of the values in a map. 
-      
-      {e Examples}
+  /** {2 Comparison} */
 
-      {[
-        Map.String.ofList [
-          ("Elephant", 3_156);           
-          ("Mosquito", 56_123_156);           
-          ("Rhino", 3);           
-          ("Shrew", 56_423);          
-        ]
-        |> Map.values = [
-          3_156;           
-          56_123_156;           
-          3;           
-          56_423;          
-        ]
-      ]}   
+  /** Test two results for equality using the provided functions.
+
+      {e Examples} 
+
+      {[Result.equal String.equal Int.equal (Ok 3) (Ok 3) = true]}
+
+      {[Result.equal String.equal Int.equal (Ok 3) (Ok 4) = false]}
+
+      {[Result.equal String.equal Int.equal (Error "Fail") (Error "Fail") = true]}
+
+      {[Result.equal String.equal Int.equal (Error "Expected error") (Error "Unexpected error") = false]}
+
+      {[Result.equal String.equal Int.equal (Error "Fail") (Ok 4) = false]}
   */
-  let values: t(_, 'v, _) => list('v);
+  let equal: (('ok, 'ok) => bool, ('error, 'error) => bool, t('ok, 'error), t('ok, 'error)) => bool;
 
-  /** Get an {!Array} of all of the key-value pairs in a map. */
-  let toArray: t('key, 'value, _) => array(('key, 'value));
+  /** Compare results for using the provided functions.
+    
+      In the case when one of the results is an [Error] and one is [Ok], [Error]s  are considered 'less' then [Ok]s
 
-  /** Get a {!List} of all of the key-value pairs in a map. */
-  let toList: t('key, 'value, _) => list(('key, 'value));
+      {e Examples} 
 
-  /** Construct a Map which can be keyed by any data type using the polymorphic [compare] function. */
-  module Poly: {
-    type identity;
+      {[Result.compare String.compare Int.compare (Ok 3) (Ok 3) = 0]}
 
-    type nonrec t('key, 'value) = t('key, 'value, identity);
+      {[Result.compare String.compare Int.compare (Ok 3) (Ok 4) = -1]}
 
-    /** A map with nothing in it. */
-    let empty: unit => t('k, 'v);
+      {[Result.compare String.compare Int.compare (Error "Fail") (Error "Fail") = 0]}
 
-    /** Create a map from a key and value
-      {[Map.Poly.singleton ~key:false ~value:1 |> Map.toList = [(false, 1)]]}
+      {[Result.compare String.compare Int.compare (Error "Fail") (Ok 4) = -1]}
+
+      {[Result.compare String.compare Int.compare (Ok 4) (Error "Fail") = 1]}
+
+      {[Result.compare String.compare Int.compare (Error "Expected error") (Error "Unexpected error") = -1]}
+  */
+  let compare: (('ok, 'ok) => int, ('error, 'error) => int, t('ok, 'error), t('ok, 'error)) => int;
+
+  /** In functions that make heavy use of {!Result}s placing a
+
+      {[open Result.Infix]}
+
+      Can make code significantly more concise at the expense of placing a greater cognitive burden on future readers.
+  */
+  module Infix: {
+    /** Module doc S */
+
+    /** An operator version of {!Result.get} where the [default] value goes to the right of the operator.
+
+        {e Examples}
+
+        The following eamples assume [open Result.Infix] is in scope.
+
+        {[Ok 4 |? 8 = 4]}
+
+        {[Error "Missing number!" |? 8 = 8]}
     */
-    let singleton: (~key: 'k, ~value: 'v) => t('k, 'v);
+    let (|?): (t('a, 'error), 'a) => 'a;
 
-    /** Create a map from an {!Array} of key-value tuples */
-    let ofArray: array(('key, 'value)) => t('key, 'value);
+    /** An operator version of {!bind}
 
-    /** Create a map from a {!List} of key-value tuples */
-    let ofList: list(('key, 'value)) => t('key, 'value);
-  };
+        {e Examples}
 
-  /** Construct a Map with {!Int}s for keys. */
-  module Int: {
-    type nonrec t('value) = t(Int.t, 'value, Int.identity);
+        The following examples assume
 
-    /** A map with nothing in it. */
-    let empty: t('value);
+        {[
+          open Result.Infix
 
-    /** Create a map from a key and value
-        
-        {[Map.Int.singleton ~key:1 ~value:"Ant" |> Map.toList = [(1, "Ant")]]}
+          let reciprical (x:float) : (string, float) Standard.Result.t =
+            if (x = 0.0) then
+              Error "Divide by zero"
+            else
+              Ok (1.0 /. x)
+        ]}
+
+        Is in scope.
+
+        {[Ok 4. >>= reciprical = Ok 0.25]}
+
+        {[Error "Missing number!" >>= reciprical = Error "Missing number!"]}
+
+        {[Ok 0. >>= reciprical = Error "Divide by zero"]}
     */
-    let singleton: (~key: int, ~value: 'v) => t('v);
+    let (>>=): (t('ok, 'error), 'ok => t('b, 'error)) => t('b, 'error);
 
-    /** Create a map from an {!Array} of key-value tuples */
-    let ofArray: array((int, 'value)) => t('value);
+    /** An operator version of {!map}
 
-    /** Create a map of a {!List} of key-value tuples */
-    let ofList: list((int, 'value)) => t('value);
-  };
+        {e Examples}
 
-  /** Construct a Map with {!String}s for keys. */
-  module String: {
-    type nonrec t('value) = t(String.t, 'value, String.identity);
+        The following examples assume [open Result.Infix] is in scope.
 
-    /** A map with nothing in it. */
-    let empty: t('value);
+        {[Ok 4 >>| Int.add(1) = Ok 5]}
 
-    /** Create a map from a key and value
-      
-        {[Map.String.singleton ~key:"Ant" ~value:1 |> Map.toList = [("Ant", 1)]]}
+        {[Error "Its gone bad" >>| Int.add(1) = Error "Its gone bad"]}
     */
-    let singleton: (~key: string, ~value: 'v) => t('v);
-
-    /** Create a map from an {!Array} of key-value tuples */
-    let ofArray: array((string, 'value)) => t('value);
-
-    /** Create a map from a {!List} of key-value tuples */
-    let ofList: list((string, 'value)) => t('value);
+    let (>>|): (t('a, 'error), 'a => 'b) => t('b, 'error);
   };
 };
 
@@ -4527,15 +3159,6 @@ module Array: {
 
       You can create an [array] in OCaml with the [[|1; 2; 3|]] syntax. 
   */  
-
-  /** An empty array.
-
-      {e Examples} 
-
-      {[Array.empty = [||]]}
-
-      {[Array.length Array.empty = 0]} */
-  let empty: t('a);
 
   /** Create an array with only one element.
 
@@ -4583,7 +3206,7 @@ module Array: {
 
       {e Examples} 
 
-      {[Array.fromList [1;2;3] = [|1;2;3|]]} */
+      {[Array.ofList [1;2;3] = [|1;2;3|]]} */
   let ofList: list('a) => t('a);
 
   /** Create a shallow copy of an array.          
@@ -5212,9 +3835,6 @@ module Array: {
   */
   let foldRight: (t('a), ~initial: 'b, ~f: ('b, 'a) => 'b) => 'b;
 
-  /** TODO */
-  let shuffle: t('a) => unit;
-
   /** Reverses an array {b in place}, mutating the existing array.
       
       {e Examples}
@@ -5291,7 +3911,7 @@ module Array: {
       
       {[Array.toList [|1;2;3|] = [1;2;3]]}
 
-      {[Array.toList (Array.fromList [3; 5; 8]) = [3; 5; 8]]} 
+      {[Array.toList (Array.ofList [3; 5; 8]) = [3; 5; 8]]} 
   */
   let toList: t('a) => list('a);
 
@@ -5499,7 +4119,7 @@ module List: {
 
       {e Examples}
 
-      {[List.map ~f:sqrt [|1.0; 4.0; 9.0|] = [|1.0; 2.0; 3.0|]]}
+      {[List.map ~f:Float.squareRoot [|1.0; 4.0; 9.0|] = [|1.0; 2.0; 3.0|]]}
   */
   let map: (t('a), ~f: 'a => 'b) => t('b);
 
@@ -6182,4 +4802,1348 @@ module List: {
       {[List.compare Int.compare [1;2;5] [1;2;3] = 1]} 
   */
   let compare: (('a, 'a) => int, t('a), t('a)) => int;
+};
+
+/** Functions for manipulating pairs of values */
+module Tuple: {
+  /** Functions for manipulating pairs of values */
+
+  type t('a, 'b) = ('a, 'b);
+
+  /** {2 Create} */
+
+  /** Create a two-tuple with the given values.
+
+      The values do not have to be of the same type.
+
+      {e Examples}
+
+      {[Tuple.make(3, 4) = (3, 4)]}
+
+      {[
+        let zip = (xs: List.t('a), ys: List.t('b)): List.t(('a, 'b)) =
+          List.map2(xs, ys, ~f:Tuple.make);
+      ]}
+  */
+  let make: ('a, 'b) => ('a, 'b);
+
+  /** Create a tuple from the first two elements of an {!Array}.
+
+      If the array is longer than two elements, the extra elements are ignored.
+
+      If the array is less than two elements, returns [None]
+
+      {e Examples}
+
+      {[Tuple.ofArray [|1; 2|] = Some (1, 2)]}
+
+      {[Tuple.ofArray [|1|] = None]}
+
+      {[Tuple.ofArray [|4;5;6|] = Some (4, 5)]}
+  */
+  let ofArray: array('a) => option(('a, 'a));
+
+  /** Create a tuple from the first two elements of a {!List}.
+
+      If the list is longer than two elements, the extra elements are ignored.
+
+      If the list is less than two elements, returns [None]
+
+      {e Examples}
+
+      {[Tuple.ofList [1; 2] = Some (1, 2)]}
+
+      {[Tuple.ofList [1] = None]}
+
+      {[Tuple.ofList [4;5;6] = Some (4, 5)]}
+  */
+  let ofList: list('a) => option(('a, 'a));
+
+  /** Extract the first value from a tuple.
+
+      {e Examples}
+      
+      {[Tuple.first (3, 4) = 3]}
+
+      {[Tuple.first ("john", "doe") = "john"]}
+  */
+  let first: (('a, 'b)) => 'a;
+
+  /** Extract the second value from a tuple.
+
+      {e Examples}
+      
+      {[Tuple.second (3, 4) = 4]}
+
+      {[Tuple.second ("john", "doe") = "doe"]}
+  */
+  let second: (('a, 'b)) => 'b;
+
+  /** {2 Transform} */
+
+  /** Transform the {!first} value in a tuple.
+
+      {e Examples}
+      
+      {[Tuple.mapFirst ~f:String.reverse ("stressed", 16) = ("desserts", 16)]}
+
+      {[Tuple.mapFirst ~f:String.length ("stressed", 16) = (8, 16)]}
+  */
+  let mapFirst: (('a, 'b), ~f: 'a => 'x) => ('x, 'b);
+
+  /** Transform the second value in a tuple.
+
+      {e Examples}
+      
+      {[Tuple.mapSecond ~f:Float.squareRoot ("stressed", 16.) = ("stressed", 4.)]}
+
+      {[Tuple.mapSecond ~f:(~-) ("stressed", 16) = ("stressed", -16)]}
+  */
+  let mapSecond: (('a, 'b), ~f: 'b => 'c) => ('a, 'c);
+
+  /** Transform both values of a tuple, using [f] for the first value and [g] for the second.
+
+      {e Examples}
+      
+      {[Tuple.mapEach ~f:String.reverse ~g:Float.squareRoot ("stressed", 16.) = ("desserts", 4.)]}
+
+      {[Tuple.mapEach ~f:String.length ~g:(~-) ("stressed", 16) = (8, -16)]}
+  */
+  let mapEach: (('a, 'b), ~f: 'a => 'x, ~g: 'b => 'y) => ('x, 'y);
+
+  /** Transform both of the values of a tuple using the same function.
+
+      [mapAll] can only be used on tuples which have the same type for each value.
+
+      {e Examples}
+      
+      {[Tuple.mapAll ~f:(Int.add 1) (3, 4, 5) = (4, 5, 6)]}
+
+      {[Tuple.mapAll ~f:String.length ("was", "stressed") = (3, 8)]}
+  */
+  let mapAll: (('a, 'a), ~f: 'a => 'b) => ('b, 'b);
+
+  /** Switches the first and second values of a tuple.
+
+      {e Examples}
+      
+      {[Tuple.swap (3, 4) = (4, 3)]}
+
+      {[Tuple.swap ("stressed", 16) = (16, "stressed")]}
+  */
+  let swap: (('a, 'b)) => ('b, 'a);
+
+  /** Takes a function [f] which takes a single argument of a tuple ['a * 'b] and returns a function which takes two arguments that can be partially applied.
+
+      {e Examples}
+      
+      {[
+        let squareArea (width, height) = width * height
+        let curriedArea : float -> float -> float = curry squareArea
+        let heights = [3, 4, 5]
+
+        List.map widths ~f:(curriedArea 4) = [12; 16; 20]
+      ]}
+  */
+  let curry: ((('a, 'b)) => 'c, 'a, 'b) => 'c;
+
+  /** Takes a function which takes two arguments and returns a function which takes a single argument of a tuple.
+
+      {e Examples}
+      
+      {[
+        let sum (a : int) (b: int) : int = a + b
+        let uncurriedSum : (int * int) -> int = uncurry add
+        uncurriedSum (3, 4) = 7
+      ]}
+  */
+  let uncurry: (('a, 'b) => 'c, ('a, 'b)) => 'c;
+
+  /** {2 Conversion} */
+
+  /** Turns a tuple into an {!Array} of length two.
+
+      This function can only be used on tuples which have the same type for each value.
+
+      {e Examples}
+      
+      {[Tuple.toArray (3, 4) = [|3; 4|]]}
+
+      {[Tuple.toArray ("was", "stressed") = [|"was"; "stressed"|]]}
+  */
+  let toArray: (('a, 'a)) => array('a);
+
+  /** Turns a tuple into a list of length two. This function can only be used on tuples which have the same type for each value.
+
+      {e Examples}
+      
+      {[Tuple.toList (3, 4) = [3; 4]]}
+
+      {[Tuple.toList ("was", "stressed") = ["was"; "stressed"]]}
+  */
+  let toList: (('a, 'a)) => list('a);
+
+  /** {2 Comparison} */
+
+  /** Test two {!Tuple}s for equality, using the provided functions to test the 
+      first and second components.
+
+      {e Examples}
+
+      {[Tuple.equal Int.equal String.equal (1, "Fox") (1, "Fox") = true]}
+
+      {[Tuple.equal Int.equal String.equal (1, "Fox") (2, "Hen") = false]}
+   */
+  let equal: (('a, 'a) => bool, ('b, 'b) => bool, t('a, 'b), t('a, 'b)) => bool;
+
+  /** Compare two {!Tuple}s, using the provided functions to compare the first
+      components then, if the first components are equal, the second components.
+
+      {e Examples}
+
+      {[Tuple.compare Int.compare String.compare (1, "Fox") (1, "Fox") = 0]}
+
+      {[Tuple.compare Int.compare String.compare (1, "Fox") (1, "Eel") = 1]}
+
+      {[Tuple.compare Int.compare String.compare (1, "Fox") (2, "Hen") = -1]}
+   */
+  let compare: (('a, 'a) => int, ('b, 'b) => int, t('a, 'b), t('a, 'b)) => int;
+};
+
+/** Functions for manipulating trios of values */
+module Tuple3: {
+  /** Functions for manipulating trios of values */
+
+  type t('a, 'b, 'c) = ('a, 'b, 'c);
+
+  /** {2 Create} */
+
+  /** Create a {!Tuple3}.
+    
+      {e Examples} 
+      
+      {[Tuple3.create 3 "cat" false = (3, "cat", false)]}
+
+      {[
+        List.map3 ~f:Tuple3.create [1;2;3] ['a'; 'b'; 'c'] [4.; 5.; 6.] = 
+          [(1, 'a', 4.), (2, 'b', 5.), (3, 'c', 6.)]
+      ]}
+  */
+  let make: ('a, 'b, 'c) => ('a, 'b, 'c);
+
+  /** Create a tuple from the first two elements of an {!Array}.
+
+      If the array is longer than two elements, the extra elements are ignored.
+
+      If the array is less than two elements, returns [None]
+
+      {e Examples}
+
+      {[Tuple3.ofArray [|1; 2;3 |] = Some (1, 2, 3)]}
+
+      {[Tuple3.ofArray [|1; 2|] = None]}
+
+      {[Tuple3.ofArray [|4;5;6;7|] = Some (4, 5, 6)]}
+  */
+  let ofArray: array('a) => option(('a, 'a, 'a));
+
+   /** Create a tuple from the first two elements of a {!List}.
+
+      If the list is longer than two elements, the extra elements are ignored.
+
+      If the list is less than two elements, returns [None]
+
+      {e Examples}
+
+      {[Tuple3.ofList [1; 2; 3] = Some (1, 2, 3)]}
+
+      {[Tuple3.ofList [1; 2] = None]}
+
+      {[Tuple3.ofList [4; 5; 6; 7] = Some (4, 5, 6)]}
+  */
+  let ofList: list('a) => option(('a, 'a, 'a));
+
+  /** Extract the first value from a tuple.
+
+      {e Examples}
+      
+      {[Tuple3.first (3, 4, 5) = 3]}
+
+      {[Tuple3.first ("john", "danger", "doe") = "john"]}
+  */
+  let first: (('a, 'b, 'c)) => 'a;
+
+  /** Extract the second value from a tuple.
+
+      {e Examples}
+      
+      {[Tuple.second (3, 4, 5) = 4]}
+
+      {[Tuple.second ("john", "danger", "doe") = "danger"]}
+  */
+  let second: (('a, 'b, 'c)) => 'b;
+
+  /** Extract the third value from a tuple.
+
+      {e Examples}
+      
+      {[Tuple.third (3, 4, 5) = 5]}
+
+      {[Tuple.third ("john", "danger", "doe") = "doe"]}
+  */
+  let third: (('a, 'b, 'c)) => 'c;
+
+  /** Extract the first and second values of a {!Tuple3} as a {!Tuple}.
+
+      {e Examples}
+      
+      {[Tuple3.initial (3, "stressed", false) = (3, "stressed")]}
+
+      {[Tuple3.initial ("john", 16, true) = ("john", 16)]}
+  */
+  let initial: (('a, 'b, 'c)) => ('a, 'b);
+
+  /** Extract the second and third values of a {!Tuple3} as a {!Tuple}.
+
+      {e Examples}
+      
+      {[Tuple3.tail (3, "stressed", false) = ("stressed", false)]}
+
+      {[Tuple3.tail ("john", 16, true) = (16, true)]}
+  */
+  let tail: (('a, 'b, 'c)) => ('b, 'c);
+
+  /** Transform the first value in a tuple.
+
+      {e Examples}
+      
+      {[Tuple3.mapFirst ~f:String.reverse ("stressed", 16, false) = ("desserts", 16, false)]}
+
+      {[Tuple3.mapFirst ~f:String.length ("stressed", 16, false) = (8, 16, false)]}
+  */
+  let mapFirst: (('a, 'b, 'c), ~f: 'a => 'x) => ('x, 'b, 'c);
+
+  /** Transform the second value in a tuple.
+
+      {e Examples}
+      
+      {[Tuple3.mapSecond ~f:Float.squareRoot ("stressed", 16., false) = ("stressed", 4., false)]}
+
+      {[Tuple3.mapSecond ~f:(~-) ("stressed", 16, false) = ("stressed", -16, false)]}
+  */
+  let mapSecond: (('a, 'b, 'c), ~f: 'b => 'y) => ('a, 'y, 'c);
+
+  /** Transform the third value in a tuple.
+
+      {e Examples}
+      
+      {[Tuple3.mapThird ~f:not ("stressed", 16, false) ("stressed", 16, true)]}
+  */
+  let mapThird: (('a, 'b, 'c), ~f: 'c => 'z) => ('a, 'b, 'z);
+
+  /** Transform each value in a tuple by applying [f] to the {!first} value, [g] to the {!second} value and [h] to the {!third} value.
+
+      {e Examples}
+      
+      {[
+        Tuple3.mapEach
+          ~f:String.reverse
+          ~g:Float.squareRoot
+          ~h:Bool.not
+          ("stressed", 16., false) = ("desserts", 4., true)
+      ]}
+  */
+  let mapEach:
+    (('a, 'b, 'c), ~f: 'a => 'x, ~g: 'b => 'y, ~h: 'c => 'z) => ('x, 'y, 'z);
+
+  /** Transform all the values of a tuple using the same function.
+
+      [mapAll] can only be used on tuples which have the same type for each value.
+      
+      {e Examples}
+
+      {[Tuple.mapAll ~f:Float.squareRoot (9., 16., 25.) = (3., 4., 5.)]}
+
+      {[Tuple.mapAll ~f:String.length ("was", "stressed", "then") = (3, 8, 4)]}
+  */
+  let mapAll: (('a, 'a, 'a), ~f: 'a => 'b) => ('b, 'b, 'b);
+
+  /** Move each value in the tuple one position to the left, moving the value in the first position into the last position.
+
+      {e Examples}
+      
+      {[Tuple.rotateLeft (3, 4, 5) = (4, 5, 3)]}
+
+      {[Tuple.rotateLeft ("was", "stressed", "then") = ("stressed", "then", "was")]}
+  */
+  let rotateLeft: (('a, 'b, 'c)) => ('b, 'c, 'a);
+
+  /** Move each value in the tuple one position to the right, moving the value in the last position into the first position.
+
+      {e Examples}
+      
+      {[Tuple.rotateRight (3, 4, 5) = (5, 3, 4)]}
+
+      {[Tuple.rotateRight ("was", "stressed", "then") = ("then", "was", "stressed")]}
+  */
+  let rotateRight: (('a, 'b, 'c)) => ('c, 'a, 'b);
+
+  /** Takes a function which takes a single argument of a {!Tuple3} and returns a function which takes three arguments that can be partially applied.
+
+      {e Examples}
+    
+      {[
+        let cubeVolume (width, height, depth) = width * height * depth in
+        let curriedVolume : float -> float -> float = curry squareArea in
+        let depths = [3; 4; 5] in
+        List.map depths ~f:(curriedVolume 3 4) = [36; 48; 60]
+      ]}
+  */
+  let curry: ((('a, 'b, 'c)) => 'd, 'a, 'b, 'c) => 'd;
+
+  /** [uncurry f] takes a function [f] which takes three arguments and returns a function which takes a single argument of a {!Tuple3}  
+      
+      {e Examples}
+
+      TODO
+  */
+  let uncurry: (('a, 'b, 'c) => 'd, ('a, 'b, 'c)) => 'd;
+
+  /** {2 Conversion} */
+
+  /** Turns a tuple into a {!List} of length three.
+
+      This function can only be used on tuples which have the same type for each value.
+
+      {e Examples}
+      
+      {[Tuple3.toArray (3, 4, 5) = [3; 4; 5]]}
+
+      {[Tuple3.toArray ("was", "stressed", "then") = ["was"; "stressed"; "then"]]}
+  */
+  let toArray: (('a, 'a, 'a)) => array('a);
+
+  /** Turns a tuple into a {!List} of length three.
+
+      This function can only be used on tuples which have the same type for each value.
+
+      {e Examples}
+      
+      {[Tuple3.toList (3, 4, 5) = [3; 4; 5]]}
+
+      {[Tuple3.toList ("was", "stressed", "then") = ["was"; "stressed"; "then"]]}
+  */
+  let toList: (('a, 'a, 'a)) => list('a);
+
+  /** {2 Comparison} */
+
+  /** Test two {!Tuple3}s for equality, using the provided functions to test the 
+      first, second and third components.
+
+      {e Examples}
+
+      {[Tuple.equal Int.equal String.equal Char.equal (1, "Fox", 'j') (1, "Fox", 'k') = true]}
+
+      {[Tuple.equal Int.equal String.equal Char.equal (1, "Fox", 'j') (2, "Hen", 'j') = false]}
+   */
+  let equal: (('a, 'a) => bool, ('b, 'b) => bool, ('c,'c) => bool, t('a, 'b,'c), t('a, 'b,'c)) => bool;
+
+  /** Compare two {!Tuple3}s, using the provided functions to compare the first
+      components then, if the first components are equal, the second components, 
+      then the third components
+
+      {e Examples}
+
+      {[Tuple.compare Int.compare String.compare Char.compare (1, "Fox", 'j') (1, "Fox", 'j') = 0]}
+
+      {[Tuple.compare Int.compare String.compare Char.compare (1, "Fox", 'j') (1, "Eel", 'j') = 1]}
+
+      {[Tuple.compare Int.compare String.compare Char.compare (1, "Fox", 'j') (2, "Fox", 'm') = -1]}
+   */
+  let compare: (('a, 'a) => int, ('b, 'b) => int, ('c,'c) => int, t('a, 'b,'c), t('a, 'b,'c)) => int;
+};
+
+/** A collection of unique values */
+module Set: {
+  /** A {!Set} represents a unique collection of values.
+
+      [Set] is an immutable data structure which means operations like {!Set.add} and {!Set.remove} do not modify the data structure, but return a new set with the desired changes.
+
+      Since the usage is so common the {!Set.Int} and {!Set.String} modules are available, offering a convenient way to construct new sets.
+
+      For other data types you can use {!Set.Poly} which uses OCaml's polymorphic [compare] function.
+
+      The specialized modules {!Set.Int}, {!Set.String} are in general more efficient.
+  */
+
+  type t('a, 'id);
+
+  /** {1 Construction} */
+
+  /** A [Set] can be constructed using one of the functions available in the {!Set.Int}, {!Set.String} or {!Set.Poly} sub-modules. */
+
+  /** {1 Basic operations} */
+
+  /** Insert a value into a set.
+
+      {e Examples}
+      
+      {[Set.add (Set.Int.ofList [1; 2]) 3 |> Set.toList = [1; 2; 3]]}
+
+      {[Set.add (Set.Int.ofList [1; 2]) 2 |> Set.toList = [1; 2]]}
+  */
+  let add: (t('a, 'id), 'a) => t('a, 'id);
+
+  /** Remove a value from a set, if the set doesn't contain the value anyway, returns the original set
+
+      {e Examples}
+      
+      {[Set.remove (Set.Int.ofList [1; 2]) 2 |> Set.toList = [1]]}
+
+      {[
+        let originalSet = Set.Int.ofList [1; 2] in
+        let newSet = Set.remove orignalSet 3 in
+        originalSet == newSet
+      ]}
+  */
+  let remove: (t('a, 'id), 'a) => t('a, 'id);
+
+  /** Determine if a value is in a set
+
+      {e Examples}
+      
+     {[Set.includes (Set.String.ofList ["Ant"; "Bat"; "Cat"]) "Bat" = true]}
+  */
+  let includes: (t('a, _), 'a) => bool;
+
+  /** Determine the number of elements in a set.
+
+      {e Examples}
+      
+      {[Set.length (Set.Int.ofList [1; 2; 3])) = 3]}
+  */
+  let length: t(_, _) => int;
+
+  /** Returns, as an {!Option}, the first element for which [f] evaluates to [true]. If [f] doesn't return [true] for any of the elements [find] will return [None].
+
+      {e Examples}
+      
+      {[Set.find ~f:Int.isEven (Set.Int.ofList [1; 3; 4; 8]) = Some 4]}
+
+      {[Set.find ~f:Int.isOdd (Set.Int.ofList [0; 2; 4; 8]) = None]}
+
+      {[Set.find ~f:Int.isEven Set.Int.empty = None]} */
+  let find: (t('v, _), ~f: 'v => bool) => option('v);
+
+  /** {1 Query} */
+
+  /** Check if a set is empty.
+
+      {e Examples}
+      
+      {[Set.isEmpty (Set.Int.empty) = true]}
+
+      {[Set.isEmpty (Set.Int.singleton 4) = false]}
+  */
+  let isEmpty: t(_, _) => bool;
+
+  /** Determine if [f] returns true for [any] values in a set.
+
+      {e Examples}
+      
+      {[Set.any (Set.Int.ofArray [|2;3|]) ~f:Int.isEven = true]}
+
+      {[Set.any (Set.Int.ofList [1;3]) ~f:Int.isEven = false]}
+
+      {[Set.any (Set.Int.ofList []) ~f:Int.isEven = false]} */
+  let any: (t('v, _), ~f: 'v => bool) => bool;
+
+  /** Determine if [f] returns true for [all] values in a set.
+
+      {e Examples}
+      
+      {[Set.all ~f:Int.isEven (Set.Int.ofArray [|2;4|]) = true]}
+
+      {[Set.all ~f:Int.isEven (Set.Int.ofLis [2;3]) = false]}
+
+      {[Set.all ~f:Int.isEven Set.Int.empty = true]} */
+  let all: (t('v, _), ~f: 'v => bool) => bool;
+
+  /** {1 Combine} */
+
+  /** Returns a new set with the values from the first set which are not in the second set.
+
+      {e Examples}
+      
+      {[Set.difference (Set.Int.ofList [1;2;5]) (Set.Int.ofList [2;3;4]) |> Set.toList = [1;5]]}
+
+      {[Set.difference (Set.Int.ofList [2;3;4]) (Set.Int.ofList [1;2;5]) |> Set.toList = [3;4]]}
+  */
+  let difference: (t('a, 'id), t('a, 'id)) => t('a, 'id);
+
+  /** Get the intersection of two sets. Keeps values that appear in both sets.
+
+      {e Examples}
+      
+      {[Set.intersection (Set.Int.ofList [1;2;5]) (Set.Int.ofList [2;3;4]) |> Set.toList= [2]]}
+  */
+  let intersection: (t('a, 'id), t('a, 'id)) => t('a, 'id);
+
+  /** Get the union of two sets. Keep all values.
+
+      {e Examples}
+      
+      {[Set.union (Set.Int.ofList [1;2;5]) (Set.Int.ofList [2;3;4]) |> Set.toList = [1;2;3;4;5]]}
+  */
+  let union: (t('a, 'id), t('a, 'id)) => t('a, 'id);
+
+  /** {1 Transform} */
+
+  /** Keep elements that [f] returns [true] for.
+
+      {e Examples}
+      
+      {[Set.filter (Set.Int.ofList [1;2;3]) ~f:Int.isEven |> Set.toList = [2]]}
+  */
+  let filter: (t('a, 'id), ~f: 'a => bool) => t('a, 'id);
+
+  /** Divide a set into two according to [f]. The first set will contain the values that [f] returns [true] for, values that [f] returns [false] for will end up in the second. 
+
+      {e Examples}
+      
+      {[
+        let numbers = Set.Int.ofList [1; 1; 5; 6; 5; 7; 9; 8] in
+        let (evens, odds) = Set.partition numbers ~f:Int.isEven in
+        Set.toList evens = [6; 8]
+        Set.toList odds = [1; 5; 7; 9]
+      ]}
+  */
+  let partition:
+    (t('a, 'id), ~f: 'a => bool) => (t('a, 'id), t('a, 'id));
+
+  /** Transform a set into a value which is result of running each element in the set through [f], where each successive invocation is supplied the return value of the previous.
+
+    See {!Array.fold} for a more in-depth explanation.
+
+    {e Examples}
+
+    {[Set.fold ~f:( * ) ~initial:1 (Set.Int.ofList [1;2;3;4]) = 24]}
+  */
+  let fold: (t('a, _), ~initial: 'b, ~f: ('b, 'a) => 'b) => 'b;
+
+  /** Runs a function [f] against each element of the set. */
+  let forEach: (t('a, _), ~f: 'a => unit) => unit;
+
+  /** {1 Conversion} */
+
+  /** Converts a set into an {!Array} */
+  let toArray: t('a, _) => array('a);
+
+  /** Converts a set into a {!List}. */
+  let toList: t('a, _) => list('a);
+
+  /** Construct sets which can hold any data type using the polymorphic [compare] function. */
+  module Poly: {
+    type identity;
+
+    type nonrec t('a) = t('a, identity);
+
+    /** The empty set */
+    let empty: unit => t('a);
+
+    /** Create a set of a single value
+
+        {e Examples}
+      
+        {[Set.Int.singleton (5, "Emu") |> Set.toList = [(5, "Emu")]]}
+    */
+
+    let singleton: 'a => t('a);
+
+    /** Create a set from an {!Array}
+
+        {e Examples}
+        
+        {[Set.Poly.ofArray [(1, "Ant");(2, "Bat");(2, "Bat")] |> Set.toList = [(1, "Ant"); (2, "Bat")]]}
+    */
+    let ofArray: array('a) => t('a);
+
+    /** Create a set from a {!List}
+
+      {e Examples}
+      
+      {[Set.Poly.ofList [(1, "Ant");(2, "Bat");(2, "Bat")] |> Set.toList = [(1, "Ant"); (2, "Bat")]]}
+    */
+    let ofList: list('a) => t('a);
+  };
+
+  /** Construct sets of {!Int}s */
+  module Int: {
+    type nonrec t = t(Int.t, Int.identity);
+
+    /** A set with nothing in it. */
+    let empty: t;
+
+    /** Create a set from a single {!Int}
+
+      {e Examples}
+      
+      {[Set.Int.singleton 5 |> Set.toList = [5]]}
+    */
+    let singleton: int => t;
+
+    /** Create a set from an {!Array}
+
+        {e Examples}
+        
+        {[Set.Int.ofArray [|1;2;3;3;2;1;7|] |> Set.toArray = [|1;2;3;7|]]}
+    */
+    let ofArray: array(int) => t;
+
+    /** Create a set from a {!List}
+
+        {e Examples}
+      
+        {[Set.Int.ofList [1;2;3;3;2;1;7] |> Set.toList = [1;2;3;7]]}
+    */
+    let ofList: list(int) => t;
+  };
+
+  /** Construct sets of {!String}s */
+  module String: {
+    type nonrec t = t(String.t, String.identity);
+
+    /** A set with nothing in it. */
+    let empty: t;
+
+    /** Create a set of a single {!String}
+
+        {e Examples}
+        
+        {[Set.String.singleton "Bat" |> Set.toList = ["Bat"]]}
+    */
+    let singleton: String.t => t;
+
+    /** Create a set from an {!Array}
+      
+        {e Examples}
+
+        {[Set.String.ofArray [|"a";"b";"g";"b";"g";"a";"a"|] |> Set.toArray = [|"a";"b";"g"|]]}
+    */
+    let ofArray: array(String.t) => t;
+
+    /** Create a set from a {!List}
+
+        {e Examples}
+        
+        {[Set.String.ofList [|"a";"b";"g";"b";"g";"a";"a"|] |> Set.toList = ["a";"b";"g"]]}
+    */
+    let ofList: list(String.t) => t;
+  };
+};
+
+/** A collection of key-value pairs */
+module Map: {
+  /** A [Map] represents a unique mapping from keys to values.
+
+      [Map] is an immutable data structure which means operations like {!Map.add} and {!Map.remove} do not modify the data structure, but return a new map with the desired changes.
+
+      Since the usage is so common the {!Map.Int} and {!Map.String} modules are available, offering a convenient way to construct new Maps.
+
+      For other data types you can use {!Map.Poly} which internally uses OCaml's polymorphic [compare] function on the keys.
+
+      The specialized modules {!Map.Int}, {!Map.String} are in general more efficient. */
+
+  /* TODO explain the type */
+  type t('key, 'value, 'id);
+
+  /** {1 Construction} 
+      
+      A [Map] can be constructed using one of the functions available in {!Map.Int}, {!Map.String} or {!Map.Poly} 
+  */
+
+  /** {1 Basic operations} */
+  let add: (t('k, 'v, 'id), ~key: 'k, ~value: 'v) => t('k, 'v, 'id);
+  /** Adds a new entry to a map. If [key] is allready present, its previous value is replaced with [value].
+
+      {e Examples}
+      
+      {[Map.add (Map.Int.ofList [(1, "Ant"), (2, "Bat")]) ~key:3 ~value:"Cat"  |> Map.toList = [(1, "Ant"), (2, "Bat"), (3, "Cat")]]}
+
+      {[Map.add (Map.Int.ofList [(1, "Ant"), (2, "Bat")]) ~key:2 ~value:"Bug" |> Map.toList = [(1, "Ant"), (2, "Bug")]]}
+  */
+
+  /** Removes a key-value pair from a map based on they provided key. 
+
+      {e Examples}
+      
+      let animalPopulations = Map.String.ofList [
+        ("Elephant", 3_156);           
+        ("Mosquito", 56_123_156);           
+        ("Rhino", 3);           
+        ("Shrew", 56_423);          
+      ] in
+      Map.remove animalPopulations "Mosquito" |> Map.toList = [
+        ("Elephant", 3_156);           
+        ("Rhino", 3);           
+        ("Shrew", 56_423);          
+      ];
+  */
+  let remove: (t('k, 'v, 'id), 'k) => t('k, 'v, 'id);
+
+  /** Get the value associated with a key. If the key is not present in the map, returns [None]. 
+
+      {e Examples}
+
+      let animalPopulations = Map.String.ofList [
+        ("Elephant", 3_156);           
+        ("Mosquito", 56_123_156);           
+        ("Rhino", 3);           
+        ("Shrew", 56_423);          
+      ] in
+      Map.get animalPopulations "Shrew" = Some 56_423;
+  */
+  let get: (t('k, 'v, 'id), 'k) => option('v);
+
+  /** Returns, as an {!Option} the first key-value pair for which [f] evaluates to true. 
+     
+      If [f] doesn't return [true] for any of the elements [find] will return [None]. 
+    
+      Searches starting from the smallest {b key}
+      
+      {e Examples}
+      
+      {[
+        Map.String.ofList [
+          ("Elephant", 3_156);           
+          ("Mosquito", 56_123_156);           
+          ("Rhino", 3);           
+          ("Shrew", 56_423);          
+        ]
+        |> Map.find ~f:(fun ~key ~value -> value > 10_000)
+          = Some ("Mosquito", 56_123_156)
+      ]}
+  */
+  let find:
+    (t('k, 'v, _), ~f: (~key: 'k, ~value: 'v) => bool) => option(('k, 'v));
+
+  /** Update the value for a specific key using [f]. If [key] is not present in the map [f] will be called with [None]. 
+
+      {e Examples}
+      
+      {[
+        let animalPopulations = Map.String.ofList [
+          ("Elephant", 3_156);           
+          ("Mosquito", 56_123_156);           
+          ("Rhino", 3);           
+          ("Shrew", 56_423);          
+        ] in
+
+        Map.update animalPopulations ~key:"Hedgehog" ~f:(fun population -> 
+          match population
+          | None => Some 1
+          | Some count => Some (count + 1)
+        ) 
+        |> Map.toList = [
+          ("Elephant", 3_156);        
+          ("Hedgehog", 1);   
+          ("Mosquito", 56_123_156);           
+          ("Rhino", 3);           
+          ("Shrew", 56_423);          
+        ]
+      ]}
+  */
+  let update:
+    (t('k, 'v, 'id), ~key: 'k, ~f: option('v) => option('v)) =>
+    t('k, 'v, 'id);
+
+  /** Returns the number of key-value pairs present in the map. 
+
+      {e Examples}
+      
+      {[Map.Int.ofList [(1, "Hornet"); (3, "Marmot")] |> Map.length = 2]}
+  */
+  let length: t(_, _, _) => int;
+
+  /** Returns, as an {!Option}, the smallest {b key } in the map. 
+    
+      Returns [None] if the map is empty.
+
+      {e Examples}
+      
+      {[Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")] |> Map.length = Some 1]}
+  */
+  let minimum: t('key, _, _) => option('key);
+
+  /** Returns the largest {b key } in the map. 
+   
+      Returns [None] if the map is empty.
+      
+      {e Examples}
+
+      {[Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")] |> Map.length = Some 8]}
+  */
+  let maximum: t('key, _, _) => option('key);
+
+  /** Returns, as an {!Option}, a {!Tuple} of the [(minimum, maximum)] {b key}s in the map. 
+     
+      Returns [None] if the map is empty.
+      
+      {e Examples}
+
+      {[Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")] |> Map.length = Some (1, 8)]}
+  */
+  let extent: t('key, _, _) => option(('key, 'key));
+
+  /** {1 Checks} */
+
+  /** Determine if a map is empty. */
+  let isEmpty: t(_, _, _) => bool;
+
+  /** Determine if a map includes [key].  */
+  let includes: (t('k, _, _), 'k) => bool;
+
+  /** Determine if [f] returns [true] for [any] values in a map. */
+  let any: (t(_, 'v, _), ~f: 'v => bool) => bool;
+
+  /** Determine if [f] returns [true] for [all] values in a map. */
+  let all: (t(_, 'v, _), ~f: 'v => bool) => bool;
+
+  /** {1 Combine} */
+
+  /** Combine two maps. 
+      
+      You provide a function [f] which is provided the key and the optional 
+      value from each map and needs to account for the three possibilities:
+
+      1. Only the 'left' map includes a value for the key.
+      2. Both maps contain a value for the key.
+      3. Only the 'right' map includes a value for the key.
+
+      You then traverse all the keys, building up whatever you want.
+
+      {e Examples}
+
+      {[
+        let animalToPopulation = Map.String.ofList [
+          ("Elephant", 3_156);           
+          ("Shrew", 56_423);          
+        ]
+        in
+        let animalToPopulationGrowthRate = Map.String.ofList [
+          ("Elephant", 0.88);           
+          ("Squirrel", 1.2);          
+          ("Python", 4.0);          
+        ]
+
+        Map.merge animalToPopulation animalToPopulationGrowthRate ~f:(fun _animal population growth) ->
+          match (Option.both (population, growth))
+          | Some(population, growth) => Float.(ofInt population * growth)
+          | None => None
+        )
+        |> Map.toList
+          = [("Elephant", 2777.28)]
+      ]}
+  */
+  let merge:
+    (
+      t('k, 'v1, 'id),
+      t('k, 'v2, 'id),
+      ~f: ('k, option('v1), option('v2)) => option('v3)
+    ) =>
+    t('k, 'v3, 'id);
+
+  /** {1 Transformations} */
+
+  /** Apply a function to all values in a dictionary. 
+      
+      {e Examples} 
+
+      {[
+        Map.String.ofList [
+          ("Elephant", 3_156);           
+          ("Shrew", 56_423);          
+        ]
+        |> Map.map ~f:Int.toString
+        |> Map.toList
+          = [
+          ("Elephant", "3156");           
+          ("Shrew", "56423");          
+        ]
+      ]}
+  */
+  let map: (t('k, 'v, 'id), ~f: 'v => 'b) => t('k, 'b, 'id);
+
+  /** Like {!map} but [f] is also called with each values corresponding key */
+  let mapI: (t('k, 'va, 'i), ~f: ('k, 'va) => 'vb) => t('k, 'vb, 'i);
+
+  /** Keep elements that [f] returns [true] for. 
+   
+      {e Examples}
+      
+      {[
+        Map.String.ofList [
+          ("Elephant", 3_156);           
+          ("Shrew", 56_423);          
+        ]
+        |> Map.map ~f:(fun population -> population > 10_000)
+        |> Map.toList
+          = [
+          ("Shrew", "56423");          
+        ]
+      ]}
+  */
+  let filter: (t('k, 'v, 'id), ~f: 'v => bool) => t('k, 'v, 'id);
+
+  /** Divide a map into two, the first map will contain the key-value pairs that [f] returns [true] for, pairs that [f] returns [false] for will end up in the second. 
+   
+      {e Examples}
+      
+      {[
+        let (endangered, notEndangered) = Map.String.ofList [
+          ("Elephant", 3_156);           
+          ("Mosquito", 56_123_156);           
+          ("Rhino", 3);           
+          ("Shrew", 56_423);          
+        ]
+        |> Map.partition ~f:(fun population -> population < 10_000)
+        in
+
+        Map.toList endangered = [
+          ("Elephant", 3_156);           
+          ("Rhino", 3);           
+        ];
+
+        Map.toList notEndangered = [
+          ("Mosquito", 56_123_156);           
+          ("Shrew", 56_423);    
+        ];
+      ]}
+  */
+  let partition:
+    (t('k, 'v, 'id), ~f: (~key: 'k, ~value: 'v) => bool) =>
+    (t('k, 'v, 'id), t('k, 'v, 'id));
+
+  /** Like {!Array.fold} but [f] is also called with both the [key] and [value] */
+  let fold:
+    (t('k, 'v, _), ~initial: 'a, ~f: ('a, ~key: 'k, ~value: 'v) => 'a) => 'a;
+
+  /** Runs a function [f] against each {b value} in the map. */
+  let forEach: (t(_, 'v, _), ~f: 'v => unit) => unit;
+
+  /** {1 Conversion} */
+
+  /** Get a {!List} of all of the keys in a map. 
+
+      {e Examples}
+
+      {[
+        Map.String.ofList [
+          ("Elephant", 3_156);           
+          ("Mosquito", 56_123_156);           
+          ("Rhino", 3);           
+          ("Shrew", 56_423);          
+        ]
+        |> Map.keys = [
+          "Elephant";           
+          "Mosquito";           
+          "Rhino";           
+          "Shrew";          
+        ]
+      ]}  
+  */
+  let keys: t('k, _, _) => list('k);
+
+  /** Get a {!List} of all of the values in a map. 
+      
+      {e Examples}
+
+      {[
+        Map.String.ofList [
+          ("Elephant", 3_156);           
+          ("Mosquito", 56_123_156);           
+          ("Rhino", 3);           
+          ("Shrew", 56_423);          
+        ]
+        |> Map.values = [
+          3_156;           
+          56_123_156;           
+          3;           
+          56_423;          
+        ]
+      ]}   
+  */
+  let values: t(_, 'v, _) => list('v);
+
+  /** Get an {!Array} of all of the key-value pairs in a map. */
+  let toArray: t('key, 'value, _) => array(('key, 'value));
+
+  /** Get a {!List} of all of the key-value pairs in a map. */
+  let toList: t('key, 'value, _) => list(('key, 'value));
+
+  /** Construct a Map which can be keyed by any data type using the polymorphic [compare] function. */
+  module Poly: {
+    type identity;
+
+    type nonrec t('key, 'value) = t('key, 'value, identity);
+
+    /** A map with nothing in it. */
+    let empty: unit => t('k, 'v);
+
+    /** Create a map from a key and value
+      {[Map.Poly.singleton ~key:false ~value:1 |> Map.toList = [(false, 1)]]}
+    */
+    let singleton: (~key: 'k, ~value: 'v) => t('k, 'v);
+
+    /** Create a map from an {!Array} of key-value tuples */
+    let ofArray: array(('key, 'value)) => t('key, 'value);
+
+    /** Create a map from a {!List} of key-value tuples */
+    let ofList: list(('key, 'value)) => t('key, 'value);
+  };
+
+  /** Construct a Map with {!Int}s for keys. */
+  module Int: {
+    type nonrec t('value) = t(Int.t, 'value, Int.identity);
+
+    /** A map with nothing in it. */
+    let empty: t('value);
+
+    /** Create a map from a key and value
+        
+        {[Map.Int.singleton ~key:1 ~value:"Ant" |> Map.toList = [(1, "Ant")]]}
+    */
+    let singleton: (~key: int, ~value: 'v) => t('v);
+
+    /** Create a map from an {!Array} of key-value tuples */
+    let ofArray: array((int, 'value)) => t('value);
+
+    /** Create a map of a {!List} of key-value tuples */
+    let ofList: list((int, 'value)) => t('value);
+  };
+
+  /** Construct a Map with {!String}s for keys. */
+  module String: {
+    type nonrec t('value) = t(String.t, 'value, String.identity);
+
+    /** A map with nothing in it. */
+    let empty: t('value);
+
+    /** Create a map from a key and value
+      
+        {[Map.String.singleton ~key:"Ant" ~value:1 |> Map.toList = [("Ant", 1)]]}
+    */
+    let singleton: (~key: string, ~value: 'v) => t('v);
+
+    /** Create a map from an {!Array} of key-value tuples */
+    let ofArray: array((string, 'value)) => t('value);
+
+    /** Create a map from a {!List} of key-value tuples */
+    let ofList: list((string, 'value)) => t('value);
+  };
+};
+
+/** Functions for working with functions. */
+module Fun: {
+  /** Functions for working with functions. 
+   
+      While the functions in this module can often make code more concise, this 
+      often imposes a readability burden on future readers.
+  */
+
+  /** Given a value, returns exactly the same value. This may seem pointless at first glance but it can often be useful when an api offers you more control than you actually need.
+
+      Perhaps you want to create an array of integers
+
+      {[Array.initialize 6 ~f:Fun.identity = [|0;1;2;3;4;5|]]}
+
+      (In this particular case you probably want to use {!Array.range}.)
+
+      Or maybe you need to register a callback, but dont want to do anything:
+
+      {[
+        let httpMiddleware = HttpLibrary.createMiddleWare(
+          ~onEventYouDoCareAbout=transformAndReturn,
+          ~onEventYouDontCareAbout=Fun.identity,
+        }
+      ]}
+  */
+  external identity: 'a => 'a = "%identity";
+
+  /** Discards the value it is given and returns [()]
+
+      This is primarily useful when working with imperative side-effecting code
+      or to avoid [unused value] compiler warnings when you really meant it, 
+      and haven't just made a mistake.
+
+      {e Examples}
+
+      {[
+        module PretendMutableQueue : sig
+          type 'a t
+
+          /** Adds an element to the queue, returning the new length of the queue */
+          val pushReturningLength : 'a t -> 'a -> int
+        end
+
+        let addListToQueue queue list =
+          List.forEach list ~f:(fun element ->
+            ignore (PretentMutableQueue.pushReturningLength queue element)
+          )
+      ]}
+  */
+  external ignore: _ => unit = "%ignore";
+
+  /** Create a function that {b always} returns the same value.
+
+      Useful with functions like {!List.map} or {!Array.initialize}
+
+      {e Examples}
+
+      {[List.map ~f:(Fun.constant 0) [1;2;3;4;5] = [0;0;0;0;0]]}
+
+      {[Array.initialize 6 ~f:(Fun.constant 0) = [|0;0;0;0;0;0|]]}
+  */
+  let constant: ('a, 'b) => 'a;
+  
+  /** A function which always returns its second argument. */
+  let sequence: ('a, 'b) => 'b;
+
+  /** Reverses the argument order of a function.
+    
+      For any arguments [x] and [y], [(flip f) x y] is the same as [f y x].
+
+      Perhaps you want to [fold] something, but the arguments of a function you 
+      already have access to are in the wrong order.
+
+      {e Examples}
+
+      TODO
+  */
+  let flip: (('a, 'b) => 'c, 'b, 'a) => 'c;
+
+  /** See {!Fun.(<|)} */
+  let apply: ('a => 'b, 'a) => 'b;
+
+  /** Like {!(|>)} but in the opposite direction.
+    
+      [f <| x] is exactly the same as [f x].
+    
+      It can help you avoid parentheses, which can be nice sometimes.
+
+      Maybe you want to apply a function to a [match] expression? That sort of thing.
+
+      {e Examples}
+      
+      TODO
+  */
+  let (<|): ('a => 'b, 'a) => 'b;
+
+  /** See {!Fun.(|>)} */ 
+  external pipe: ('a, 'a => 'b) => 'b = "%revapply";
+
+  /** Saying [x |> f] is exactly the same as [f x], just a bit longer.
+
+      It is called the “pipe” operator because it lets you write “pipelined” code.
+
+      It can make nested function calls more readable.
+
+      For example, say we have a [sanitize] function for turning user input into
+      integers:
+
+      {[
+        (* Before *)
+        let sanitize (input: string) : int option =
+          Int.ofString (String.trim input)
+      ]}
+
+      We can rewrite it like this:
+
+      {[
+        (* After *)
+        let sanitize (input: string) : int option =
+          input
+          |> String.trim
+          |> Int.ofString
+      ]}      
+
+      This can be overused! When you have three or four steps, the code often gets clearer if you break things out into
+      some smaller piplines assigned to variables. Now the transformation has a name, maybe it could have a type annotation.
+
+      It can often be more self-documenting that way!
+  */
+  external (|>): ('a, 'a => 'b) => 'b = "%revapply";
+
+  /** Function composition, passing results along in the suggested direction.
+      
+      For example, the following code (in a very roundabout way) checks if a number divided by two is odd:
+
+      {[let isHalfOdd = Fun.(not << Int.isEven << Int.divide ~by:2)]}
+
+      You can think of this operator as equivalent to the following:
+
+      {[(g << f)  ==  (fun x -> g (f x))]}
+
+      So our example expands out to something like this:
+
+      {[let isHalfOdd = fun n -> not (Int.isEven (Int.divide ~by:2 n))]}
+  */
+  let compose: ('b => 'c, 'a => 'b, 'a) => 'c;
+
+  /** See {!Fun.compose} */
+  let (<<): ('b => 'c, 'a => 'b, 'a) => 'c;
+
+  /** Function composition, passing results along in the suggested direction.
+      
+      For example, the following code checks if the square root of a number is odd:
+
+      {[Int.squareRoot >> Int.isEven >> not]}
+  */
+  let composeRight: ('a => 'b, 'b => 'c, 'a) => 'c;
+
+  /** See {!Fun.composeRight} */
+  let (>>): ('a => 'b, 'b => 'c, 'a) => 'c;
+
+  /** Useful for performing some side affect in {!Fun.pipe}-lined code.
+
+      Most commonly used to log a value in the middle of a pipeline of function calls.
+
+      {e Examples}
+
+      {[
+        let sanitize (input: string) : int option =
+          input
+          |> String.trim
+          |> Fun.tap ~f:(fun trimmedString -> print_endline trimmedString)
+          |> Int.ofString
+      ]}
+
+      {[
+        Array.filter [|1;3;2;5;4;|] ~f:Int.isEven
+        |> Fun.tap ~f:(fun numbers -> numbers.(0) <- 0)
+        |> Fun.tap ~f:Array.reverseInPlace
+        = [|4;0|]
+      ]}
+  */
+  let tap: ('a, ~f: 'a => unit) => 'a;
+
+  // TODO
+  /**  Useful in combination with functions like `filter` */
+  let negate: ('a => bool, 'a) => bool;
+
+  // TODO a better type than unit for the return value?
+  /** Runs the provided function, forever. */
+  let forever: (unit => unit) => unit;
+
+  /** Runs a function repeatedly.  
+    
+      {e Examples}
+
+      {[
+        let count = ref 0
+        times(10, fun () -> (count <- !count + 1))
+        !count = 10
+      ]} 
+  */
+  let times: (int, ~f: unit => unit) => unit;
 };

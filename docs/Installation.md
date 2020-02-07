@@ -24,9 +24,11 @@ Install via opam:
 opam install reason-standard
 ```
 
-Then add to your dune file:
+Then update the libraries section in your `dune` file:
 
-`(libraries (standard ...))`
+```clj
+(libraries (standard))
+```
 
 ### Using esy
 

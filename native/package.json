@@ -18,7 +18,7 @@
     "@esy-ocaml/reason": ">= 3.4.0 < 3.6.0",
     "@opam/alcotest": "0.8.5",
     "@opam/base": "v0.13.0",
-    "@opam/dune": "*",
+    "@opam/dune": "2.1.3",
     "@opam/zarith": "1.9.1",
     "ocaml": "~4.8.1000",
     "refmterr": "*"

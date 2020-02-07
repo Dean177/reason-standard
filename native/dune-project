@@ -1,7 +1,2 @@
 (lang dune 1.11)
 (name reason-standard)
-(source (github dean177/reason-standard))
-(license MIT)
-(authors "Dean Merchant")
-(maintainers "deanmerchant@gmail.com")
-(using fmt 1.2)

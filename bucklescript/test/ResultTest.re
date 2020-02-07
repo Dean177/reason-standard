@@ -1,18 +1,18 @@
 open Standard;
 open AlcoJest;
 
-suite("Result", () => {
+let suite = suite("Result", () => {
   open Result;
 
-  describe("fromOption", () => {
+  describe("ofOption", () => {
     test("maps None into Error", () => {
-      expect((fromOption(~error="error message", None)))
-      |> toEqual(Eq.(result(string, int)), Error("error message"))
+      expect((ofOption(~error="error message", None)))
+      |> toEqual(Eq.(result(int, string)), Error("error message"))
     });
 
     test("maps Some into Ok", () => {
-      expect((fromOption(~error="error message", Some(10))))
-      |> toEqual(Eq.(result(string, int)), Ok(10))
+      expect((ofOption(~error="error message", Some(10))))
+      |> toEqual(Eq.(result(int, string)), Ok(10))
     });
   })
 });

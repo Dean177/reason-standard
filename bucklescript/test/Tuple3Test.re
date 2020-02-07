@@ -1,82 +1,88 @@
 open Standard;
 open AlcoJest;
 
-suite("Tuple3", () => {
+let suite = suite("Tuple3", () => {
+  open Tuple3; 
+
   test("make", () => {
-    expect(Tuple3.make(3, 4, 5)) |> toEqual((3, 4, 5))
+    expect(make(3, 4, 5)) |> toEqual(Eq.(trio(int,int,int)), (3, 4, 5))
   });
 
   test("first", () => {
-    expect(Tuple3.first((3, 4, 5))) |> toEqual(3)
+    expect(first((3, 4, 5))) |> toEqual(Eq.int,3)
   });
 
   test("second", () => {
-    expect(Tuple3.second((3, 4, 5))) |> toEqual(4)
+    expect(second((3, 4, 5))) |> toEqual(Eq.int,4)
   });
 
   test("third", () => {
-    expect(Tuple3.third((3, 4, 5))) |> toEqual(5)
+    expect(third((3, 4, 5))) |> toEqual(Eq.int,5)
   });
 
   test("initial", () => {
-    expect(Tuple3.initial((3, 4, 5))) |> toEqual((3, 4))
+    expect(initial((3, 4, 5))) |> toEqual(Eq.(pair(int,int)), (3, 4))
   });
 
   test("tail", () => {
-    expect(Tuple3.tail((3, 4, 5))) |> toEqual((4, 5))
+    expect(tail((3, 4, 5))) |> toEqual(Eq.(pair(int,int)), (4, 5))
   });
 
   test("mapFirst", () => {
-    expect(Tuple3.mapFirst(~f=String.reverse, ("stressed", 16, false)))
-    |> toEqual(("desserts", 16, false))
+    expect(mapFirst(~f=String.reverse, ("stressed", 16, false)))
+    |> toEqual(Eq.(trio(string,int,bool)), ("desserts", 16, false))
   });
 
   test("mapSecond", () => {
-    expect(Tuple3.mapSecond(~f=sqrt, ("stressed", 16., false)))
-    |> toEqual(("stressed", 4., false))
+    expect(mapSecond(~f=Float.squareRoot, ("stressed", 16., false)))
+    |> toEqual(Eq.(trio(string,float,bool)), ("stressed", 4., false))
   });
 
   test("mapThird", () => {
-    expect(Tuple3.mapThird(~f=(!), ("stressed", 16, false)))
-    |> toEqual(("stressed", 16, true))
+    expect(mapThird(~f=(!), ("stressed", 16, false)))
+    |> toEqual(Eq.(trio(string,int,bool)), ("stressed", 16, true))
   });
 
   test("mapEach", () => {
     expect(
-      Tuple3.mapEach(
+      mapEach(
         ~f=String.reverse,
-        ~g=sqrt,
+        ~g=Float.squareRoot,
         ~h=(!),
         ("stressed", 16., false),
       ),
     )
-    |> toEqual(("desserts", 4., true))
+    |> toEqual(Eq.(trio(string,float,bool)), ("desserts", 4., true))
   });
 
   test("mapAll", () => {
-    expect(Tuple3.mapAll(~f=String.reverse, ("was", "stressed", "now")))
-    |> toEqual(("saw", "desserts", "won"))
+    expect(mapAll(~f=String.reverse, ("was", "stressed", "now")))
+    |> toEqual(Eq.(trio(string,string,string)), ("saw", "desserts", "won"))
   });
 
   test("rotateLeft", () => {
-    expect(Tuple3.rotateLeft((3, 4, 5))) |> toEqual((4, 5, 3))
+    expect(rotateLeft((3, 4, 5))) |> toEqual(Eq.(trio(int,int,int)), (4, 5, 3))
   });
 
   test("rotateRight", () => {
-    expect(Tuple3.rotateRight((3, 4, 5))) |> toEqual((5, 3, 4))
+    expect(rotateRight((3, 4, 5))) |> toEqual(Eq.(trio(int,int,int)), (5, 3, 4))
   });
 
   test("curry", () => {
     let tupleAdder = ((a, b, c)) => a + b + c;
-    expect(Tuple3.curry(tupleAdder, 3, 4, 5)) |> toEqual(12);
+    expect(curry(tupleAdder, 3, 4, 5)) |> toEqual(Eq.int, 12);
   });
 
   test("uncurry", () => {
     let curriedAdder = (a, b, c) => a + b + c;
-    expect(Tuple3.uncurry(curriedAdder, (3, 4, 5))) |> toEqual(12);
+    expect(uncurry(curriedAdder, (3, 4, 5))) |> toEqual(Eq.int, 12);
+  });
+
+  test("toArray", () => {
+    expect(toArray((3, 4, 5))) |> toEqual(Eq.(array(int)), [|3, 4, 5|])
   });
 
   test("toList", () => {
-    expect(Tuple3.toList((3, 4, 5))) |> toEqual([3, 4, 5])
+    expect(toList((3, 4, 5))) |> toEqual(Eq.(list(int)), [3, 4, 5])
   });
 });

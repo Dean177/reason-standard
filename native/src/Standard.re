@@ -1,3 +1,91 @@
+module Bool = {
+  type t = bool;
+
+  external (&&): (bool, bool) => bool = "%sequand";
+
+  external (||): (bool, bool) => bool = "%sequor";
+
+  let xor = (a, b) => a && !b || !a && b;
+
+  let (!) = (!);
+
+  let negate = (f, t) => !f(t);
+
+  let equal = (==);
+
+  let compare = compare;
+
+  let ofInt = i =>
+    switch (i) {
+    | 0 => Some(false)
+    | 1 => Some(true)
+    | _ => None
+    };
+
+  let ofString = string =>
+    switch (string) {
+    | "false" => Some(false)
+    | "true" => Some(true)
+    | _ => None
+    };
+
+  let toString = fun 
+    | true => "true"
+    | false => "false"
+    ;
+
+  let toInt = t => t ? 1 : 0;
+};
+
+module Char = {
+  type t = char;
+
+  let toCode = (c: char): int => Base.Char.to_int(c);
+
+  let ofCode = (i: int): option(char) =>
+    if (0 <= i && i <= 255) {
+      Some(Char.chr(i));
+    } else {
+      None;
+    };
+
+  let toString = Base.Char.to_string;
+
+  let ofString = (str: string): option(char) =>
+    switch (String.length(str)) {
+    | 1 => Some(str.[0])
+    | _ => None
+    };
+
+  let toDigit = char =>
+    switch (char) {
+    | '0'..'9' => Some(toCode(char) - toCode('0'))
+    | _ => None
+    };
+
+  let toLowercase = Base.Char.lowercase;
+
+  let toUppercase = Base.Char.uppercase;
+
+  let isLowercase = Base.Char.is_lowercase;
+
+  let isUppercase = Base.Char.is_uppercase;
+
+  let isLetter = Base.Char.is_alpha;
+
+  let isDigit = Base.Char.is_digit;
+
+  let isAlphanumeric = Base.Char.is_alphanum;
+
+  let isPrintable = Base.Char.is_print;
+
+  let isWhitespace = Base.Char.is_whitespace;
+
+  let equal = (==);
+
+  let compare = compare;
+};
+
 module Fun = {
   external identity: 'a => 'a = "%identity";
 
@@ -56,45 +144,6 @@ module Container = {
     let zero: t;
     let add: (t, t) => t;
   };
-};
-
-module Bool = {
-  type t = bool;
-
-  external (&&): (bool, bool) => bool = "%sequand";
-
-  external (||): (bool, bool) => bool = "%sequor";
-
-  let xor = (a, b) => a && !b || !a && b;
-
-  let (!) = (!);
-
-  let negate = (f, t) => !f(t);
-
-  let equal = (==);
-
-  let compare = compare;
-
-  let ofInt = i =>
-    switch (i) {
-    | 0 => Some(false)
-    | 1 => Some(true)
-    | _ => None
-    };
-
-  let ofString = string =>
-    switch (string) {
-    | "false" => Some(false)
-    | "true" => Some(true)
-    | _ => None
-    };
-
-  let toString = fun 
-    | true => "true"
-    | false => "false"
-    ;
-
-  let toInt = t => t ? 1 : 0;
 };
 
 module Tuple = {
@@ -463,7 +512,6 @@ module List = {
   let sort = Base.List.sort;
 
   let join = (t, ~sep) => String.concat(sep, t);
-
     
   let rec equal = (equalElement, a, b) =>
     switch (a, b) {
@@ -496,8 +544,6 @@ module Option = {
   let and_ = (ta, tb) => isSome(ta) ? tb : None;
 
   let or_ = (ta, tb) => isSome(ta) ? ta : tb;
-
-  let orElse = (t, ~f) => isSome(t) ? t : f();
 
   let bind = (t, ~f) =>
     switch (t) {
@@ -533,8 +579,6 @@ module Option = {
     | None => raise(exn)
     };
 
-  
-
   let getUnsafe = x =>
     switch (x) {
     | None => raise(Invalid_argument("Option.getUnsafe called with None"))
@@ -561,12 +605,6 @@ module Option = {
     | Some(value) => [value]
     };
 
-  let toResult = (t, ~or_) =>
-    switch (t) {
-    | Some(value) => Ok(value)
-    | None => Error(or_)
-    };
-
   module Infix = {
     let (|?) = (t, default) => get(t, ~default);
     let (>>=) = (t, f) => bind(t, ~f);
@@ -588,7 +626,7 @@ module Option = {
 };
 
 module Result = {
-  type t('err, 'ok) = Result.t('ok, 'err);
+  type t('ok, 'error) = Result.t('ok, 'error);
 
   let ok = Result.ok;
 
@@ -641,8 +679,6 @@ module Result = {
     | Error(error) => error
     };
 
-
-
   let map = (t, ~f) => Result.map(f, t);
 
   let map2 = (a, b, ~f) =>
@@ -693,15 +729,19 @@ module Result = {
     | Ok(a) => f(a)
     | _ => ()
     };
-
   
-  let equal = (equalError, equalOk, a, b) => switch (a, b) {
+  let equal = (equalOk, equalError, a, b) => switch (a, b) {
     | (Error(a'), Error(b')) => equalError(a',b')
     | (Ok(a'), Ok(b')) => equalOk(a',b')
     | _ => false
   };
 
-  let compare = (compareError, compareOk, a, b) => switch (a, b) {
+  let compare = (
+    compareOk: ('ok, 'ok) => int, 
+    compareError: ('error, 'error) => int, 
+    a: t('ok, 'error), 
+    b: t('ok, 'error)
+  ): int => switch (a, b) {
     | (Error(a'), Error(b')) => compareError(a', b')
     | (Ok(a'), Ok(b')) => compareOk(a',b')
     | (Error(_), Ok(_)) => -1
@@ -713,55 +753,6 @@ module Result = {
     let (>>=) = (t, f) => bind(t, ~f);
     let (>>|) = (t, f) => map(t, ~f);
   };
-};
-
-module Char = {
-  type t = char;
-
-  let toCode = (c: char): int => Base.Char.to_int(c);
-
-  let ofCode = (i: int): option(char) =>
-    if (0 <= i && i <= 255) {
-      Some(Char.chr(i));
-    } else {
-      None;
-    };
-
-  let toString = Base.Char.to_string;
-
-  let ofString = (str: string): option(char) =>
-    switch (String.length(str)) {
-    | 1 => Some(str.[0])
-    | _ => None
-    };
-
-  let toDigit = char =>
-    switch (char) {
-    | '0'..'9' => Some(toCode(char) - toCode('0'))
-    | _ => None
-    };
-
-  let toLowercase = Base.Char.lowercase;
-
-  let toUppercase = Base.Char.uppercase;
-
-  let isLowercase = Base.Char.is_lowercase;
-
-  let isUppercase = Base.Char.is_uppercase;
-
-  let isLetter = Base.Char.is_alpha;
-
-  let isDigit = Base.Char.is_digit;
-
-  let isAlphanumeric = Base.Char.is_alphanum;
-
-  let isPrintable = Base.Char.is_print;
-
-  let isWhitespace = Base.Char.is_whitespace;
-
-  let equal = (==);
-
-  let compare = compare;
 };
 
 module Float = {
@@ -996,7 +987,7 @@ module Int = {
 
   let (/) = (/);
 
-  let (/\/) = Base.Int.(/\/);
+  let (%) = Base.Int.(/\/);
 
   let power = (~base, ~exponent) => Base.Int.(base ** exponent);
 
@@ -1118,7 +1109,11 @@ module Integer = {
 
   let ( ** ) = Z.( ** );
 
-  let power = (~base, ~exponent, ~modulo) => Z.powm(base, exponent, modulo);
+  let power = (~modulo=?, ~base: t, ~exponent: int) => 
+    switch (modulo) {
+    | Some(modulus) => Z.powm(base, ofInt(exponent), modulus)
+    | None => Z.pow(base, exponent)
+    };
 
   let maximum = (a, b) =>
     if (a < b) {
@@ -1251,11 +1246,11 @@ module String = {
 
   let toList = Base.String.to_list;
 
-  let trim = Base.String.strip;
+  let trim = string => Base.String.strip(string);
 
-  let trimLeft = Base.String.lstrip;
+  let trimLeft = string => Base.String.lstrip(string);
 
-  let trimRight = Base.String.rstrip;
+  let trimRight = string => Base.String.rstrip(string);
 
   let forEach = Base.String.iter;
 
@@ -1468,15 +1463,13 @@ module Map = {
 module Array = {
   type t('a) = array('a);
 
-  let empty = [||];
-
   let singleton = (a: 'a): array('a) => [|a|];
 
   let clone = Base.Array.copy;
 
   let initialize = (length: int, ~f: int => 'a) =>
     if (length <= 0) {
-      empty;
+      [||];
     } else {
       Base.Array.init(length, ~f);
     };
@@ -1641,7 +1634,7 @@ module Array = {
       };
 
     if (sliceFrom >= sliceTo) {
-      empty;
+      [||];
     } else {
       Base.Array.init(sliceTo - sliceFrom, ~f=i => array[i + sliceFrom]);
     };
@@ -1650,7 +1643,7 @@ module Array = {
   let sliding = (~step=1, a, ~size) => {
     let n = Array.length(a);
     if (size > n) {
-      empty;
+      [||];
     } else {
       initialize(1 + (n - size) / step, ~f=i =>
         initialize(size, ~f=j => a[i * step + j])
@@ -1659,12 +1652,6 @@ module Array = {
   };
 
   let chunksOf = (t, ~size) => sliding(t, ~step=size, ~size);
-
-  // let group = (t, ~break) =>
-  //   Base.Array.to_list(t)
-  //   |> Base.List.group(~break)
-  //   |> Base.List.map(~f=Base.List.to_array)
-  //   |> Base.List.to_array;
 
   let maximum = Base.Array.max_elt;
 
@@ -1682,17 +1669,9 @@ module Array = {
       }
     });
 
-  let sort = t => Base.Array.sort(t);
-
-  // let unique = (a, ~compare) => Base.Array.sorted_copy(a, ~compare); /* TODO */
+  let sort = t => Base.Array.sort(t);  
 
   let reverse = Base.Array.rev_inplace;
-
-  let shuffle = t => {
-    for (i in length(t) downto 2) {
-      swap(t, i - 1, Base.Random.State.int(Base.Random.State.default, i));
-    };
-  };
 
   let forEach = (a, ~f) => Base.Array.iter(a, ~f);
 

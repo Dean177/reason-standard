@@ -1,3 +1,124 @@
+module Bool = {
+  type t = bool;
+
+  let ofInt = i =>
+    switch (i) {
+    | 0 => Some(false)
+    | 1 => Some(true)
+    | _ => None
+    };
+
+  let ofString = string =>
+    switch (string) {
+    | "false" => Some(false)
+    | "true" => Some(true)
+    | _ => None
+    };
+
+  external (&&): (bool, bool) => bool = "%sequand";
+
+  external (||): (bool, bool) => bool = "%sequor";
+
+  let xor = (a, b) => a && !b || !a && b;
+
+  let (!) = (!);
+
+  let negate = (f, t) => !f(t);
+
+  [@bs.send] external toString: bool => string = "toString";
+
+  let toInt = t => t ? 1 : 0;
+
+  let compare = compare;
+
+  let equal = (==)
+};
+
+module Char = {
+  type t = char;
+
+  let toCode = (c: char) => Char.code(c);
+
+  let ofCode = (i): option(char) =>
+    if (0 <= i && i <= 255) {
+      Some(Char.chr(i));
+    } else {
+      None;
+    };
+
+  let toString = c => String.make(1, c);
+
+  let ofString = (str): option(char) =>
+    switch (String.length(str)) {
+    | 1 => Some(str.[0])
+    | _ => None
+    };
+
+  let toDigit = char =>
+    switch (char) {
+    | '0'..'9' => Some(toCode(char) - toCode('0'))
+    | _ => None
+    };
+
+  let toLowercase = char =>
+    switch (char) {
+    | 'A'..'Z' => Char.chr(toCode('a') + (toCode(char) - toCode('A')))
+    | _ => char
+    };
+
+  let toUppercase = char =>
+    switch (char) {
+    | 'a'..'z' => Char.chr(toCode('A') + (toCode(char) - toCode('a')))
+    | _ => char
+    };
+
+  let isLowercase =
+    fun
+    | 'a'..'z' => true
+    | _ => false;
+
+  let isUppercase =
+    fun
+    | 'A'..'Z' => true
+    | _ => false;
+
+  let isLetter =
+    fun
+    | 'a'..'z'
+    | 'A'..'Z' => true
+    | _ => false;
+
+  let isDigit =
+    fun
+    | '0'..'9' => true
+    | _ => false;
+
+  let isAlphanumeric =
+    fun
+    | 'a'..'z'
+    | 'A'..'Z'
+    | '0'..'9' => true
+    | _ => false;
+
+  let isPrintable =
+    fun
+    | ' '..'~' => true
+    | _ => false;
+
+  let isWhitespace =
+    fun
+    | '\t'
+    | '\n'
+    | '\011' /* vertical tab */
+    | '\012' /* form feed */
+    | '\r'
+    | ' ' => true
+    | _ => false;
+
+  let equal = (==);
+  let compare = compare
+};
+
 module Fun = {
   external identity: 'a => 'a = "%identity";
 
@@ -55,56 +176,6 @@ module Container = {
   };
 };
 
-module type Comparable = {
-  type t;
-  let compare: (t, t) => int;
-};
-
-module type Comparator = {
-  type t;
-  type identity;
-  let compare: (t, t) => int;
-};
-
-type comparator('k, 'id) = (module Comparator with
-                               type identity = 'id and type t = 'k);
-
-module Bool = {
-  type t = bool;
-
-  external (&&): (bool, bool) => bool = "%sequand";
-
-  external (||): (bool, bool) => bool = "%sequor";
-
-  let xor = (a, b) => a && !b || !a && b;
-
-  let (!) = (!);
-
-  let negate = (f, t) => !f(t);
-
-  let equal = (==);
-
-  let compare = compare;
-
-  let fromInt = i =>
-    switch (i) {
-    | 0 => Some(false)
-    | 1 => Some(true)
-    | _ => None
-    };
-
-  let fromString = string =>
-    switch (string) {
-    | "false" => Some(false)
-    | "true" => Some(true)
-    | _ => None
-    };
-
-  [@bs.send] external toString: bool => string = "toString";
-
-  let toInt = t => t ? 1 : 0;
-};
-
 module List = {
   type t('a) = list('a);
 
@@ -112,7 +183,7 @@ module List = {
 
   let singleton = x => [x];
 
-  let fromArray = array => {
+  let ofArray = array => {
     List.init(Array.length(array), i => array[i]);
   };
 
@@ -239,14 +310,14 @@ module List = {
 
   let length = l => Belt.List.length(l);
 
-  let rec dropWhile = (~f, l) =>
-    switch (l) {
+  let rec dropWhile = (t, ~f) =>
+    switch (t) {
     | [] => []
     | [x, ...rest] =>
       if (f(x)) {
-        dropWhile(~f, rest);
+        dropWhile(rest, ~f);
       } else {
-        l;
+        t;
       }
     };
 
@@ -349,7 +420,6 @@ module List = {
       [[x, ...ys], ...groupWhile(zs, ~f)];
     };
 
-  /* TODO: what about index > length t??? */
   let insertAt = (t, ~index, ~value) => {
     let (front, back) = splitAt(t, ~index);
     append(front, [value, ...back]);
@@ -380,14 +450,38 @@ module List = {
   let toArray = Array.of_list;
 
   let join = (strings, ~sep) => Js.Array.joinWith(sep, toArray(strings));
+
+  let rec equal = (equalElement, a, b) =>
+    switch (a, b) {
+      | ([], []) => true
+      | ([x,...xs], [y, ...ys]) => equalElement(x, y) && equal(equalElement, xs, ys)
+      | _ => false
+    }
+
+  let rec compare = (compareElement, a, b) => 
+    switch (a, b) {
+      | ([], []) => 0
+      | ([], _) => -1
+      | (_, []) => 1
+      | ([x, ...xs], [y, ...ys]) => switch (compareElement(x, y)) {
+        | 0 => compare(compareElement, xs, ys)
+        | result => result
+      } 
+    };
 };
 
 module Result = {
-  type t('error, 'ok) = Belt.Result.t('ok, 'error);
+  type t('ok, 'error) = Belt.Result.t('ok, 'error);
 
   let ok = a => Belt.Result.Ok(a);
 
   let error = e => Belt.Result.Error(e);
+
+  let ofOption = (ma, ~error) =>
+    switch (ma) {
+    | None => Belt.Result.Error(error)
+    | Some(right) => Belt.Result.Ok(right)
+    };
 
   let isError = Belt.Result.isError;
 
@@ -451,13 +545,7 @@ module Result = {
     | Error(error) => Error(f(error))
     | Ok(value) => Ok(value)
     };
-
-  let fromOption = (ma, ~error) =>
-    switch (ma) {
-    | None => Belt.Result.Error(error)
-    | Some(right) => Belt.Result.Ok(right)
-    };
-
+  
   let toOption = r =>
     switch (r) {
     | Ok(v) => Some(v)
@@ -491,19 +579,22 @@ module Result = {
     | _ => ()
     };
 
-  let pp = (errf, okf, fmt, t) =>
-    switch (t) {
-    | Ok(ok) =>
-      Format.pp_print_string(fmt, "<ok: ");
-      okf(fmt, ok);
-      Format.pp_print_string(fmt, ">");
-    | Error(err) =>
-      Format.pp_print_string(fmt, "<error: ");
-      errf(fmt, err);
-      Format.pp_print_string(fmt, ">");
-    };
+  let equal = (equalError, equalOk, a, b) => switch (a, b) {
+    | (Error(a'), Error(b')) => equalError(a',b')
+    | (Ok(a'), Ok(b')) => equalOk(a',b')
+    | _ => false
+  };
+
+  let compare = (compareError, compareOk, a, b) => switch (a, b) {
+    | (Error(a'), Error(b')) => compareError(a', b')
+    | (Ok(a'), Ok(b')) => compareOk(a',b')
+    | (Error(_), Ok(_)) => -1
+    | (Ok(_), Error(_)) => 1
+  };
+
 
   module Infix = {
+    let (|?) = (t, default) => get(t, ~default);
     let (>>=) = (t, f) => bind(t, ~f);
     let (>>|) = (t, f) => map(t, ~f);
   };
@@ -519,6 +610,8 @@ module Option = {
   let isNone = Belt.Option.isNone;
 
   let or_ = (ta, tb) => isSome(ta) ? ta : tb;
+
+  let and_ = (ta, tb) => isSome(ta) ? tb : ta;
 
   let bind = (t, ~f) =>
     switch (t) {
@@ -538,6 +631,12 @@ module Option = {
     };
 
   let map = (t, ~f) => Belt.Option.map(t, f);
+
+  let map2 = (a, b, ~f) => 
+    switch (a, b) {
+    | (Some(a), Some(b)) => Some(f(a, b))
+    | _ => None
+    };
 
   let get = (t, ~default) => Belt.Option.getWithDefault(t, default);
 
@@ -575,103 +674,33 @@ module Option = {
     | None => ()
     | Some(x) => f(x)
     };
+    
+  let equal = (equal, a, b) => switch (a, b) {
+    | (None, None) => true
+    | (Some(a'), Some(b')) => equal(a',b')
+    | _ => false
+  };
 
-  let toResult = (t, ~or_) =>
-    switch (t) {
-    | Some(value) => Ok(value)
-    | None => Error(or_)
-    };
+  let compare = (compare, a, b) => switch (a, b) {
+    | (None, None) => 0
+    | (Some(a'), Some(b')) => compare(a',b')
+    | (None, Some(_)) => -1
+    | (Some(_), None) => 1
+  };
 
   module Infix = {
+    let (|?) = (t, default) => get(t, ~default);
     let (>>=) = (t, f) => bind(t, ~f);
     let (>>|) = (t, f) => map(t, ~f);
   };
 };
 
-module Char = {
-  type t = char;
-
-  let toCode = (c: char) => Char.code(c);
-
-  let fromCode = (i): option(char) =>
-    if (0 <= i && i <= 255) {
-      Some(Char.chr(i));
-    } else {
-      None;
-    };
-
-  let toString = c => String.make(1, c);
-
-  let fromString = (str): option(char) =>
-    switch (String.length(str)) {
-    | 1 => Some(str.[0])
-    | _ => None
-    };
-
-  let toDigit = char =>
-    switch (char) {
-    | '0'..'9' => Some(toCode(char) - toCode('0'))
-    | _ => None
-    };
-
-  let toLowercase = char =>
-    switch (char) {
-    | 'A'..'Z' => Char.chr(toCode('a') + (toCode(char) - toCode('A')))
-    | _ => char
-    };
-
-  let toUppercase = char =>
-    switch (char) {
-    | 'a'..'z' => Char.chr(toCode('A') + (toCode(char) - toCode('a')))
-    | _ => char
-    };
-
-  let isLowercase =
-    fun
-    | 'a'..'z' => true
-    | _ => false;
-
-  let isUppercase =
-    fun
-    | 'A'..'Z' => true
-    | _ => false;
-
-  let isLetter =
-    fun
-    | 'a'..'z'
-    | 'A'..'Z' => true
-    | _ => false;
-
-  let isDigit =
-    fun
-    | '0'..'9' => true
-    | _ => false;
-
-  let isAlphanumeric =
-    fun
-    | 'a'..'z'
-    | 'A'..'Z'
-    | '0'..'9' => true
-    | _ => false;
-
-  let isPrintable =
-    fun
-    | ' '..'~' => true
-    | _ => false;
-
-  let isWhitespace =
-    fun
-    | '\t'
-    | '\n'
-    | '\011' /* vertical tab */
-    | '\012' /* form feed */
-    | '\r'
-    | ' ' => true
-    | _ => false;
-};
-
 module Float = {
   type t = float;
+
+  let ofInt = Js.Int.toFloat;
+
+  let ofString = (string) => Some(Js.Float.fromString(string));
 
   let add = (+.);
 
@@ -892,13 +921,9 @@ module Float = {
 
   let truncate = Js.Math.trunc;
 
-  let fromPolar = ((r, theta)) => (r * cos(theta), r * sin(theta));
+  let ofPolar = ((r, theta)) => (r * cos(theta), r * sin(theta));
 
   let toPolar = ((x, y)) => (hypotenuse(x, y), atan2(~x, ~y));
-
-  let fromInt = Js.Int.toFloat;
-
-  let fromString = Js.Float.fromString;
 
   let toInt = f =>
     if (Js.Float.isFinite(f)) {
@@ -908,6 +933,10 @@ module Float = {
     };
 
   let toString = Js.Float.toString;
+
+  let equal = (==);
+
+  let compare = compare;
 };
 
 module Int = {
@@ -939,7 +968,7 @@ module Int = {
 
   let (/) = (/);
 
-  let (/\/) = (n, by) => Js.Int.toFloat(n) /. Js.Int.toFloat(by);
+  let (%) = (n, by) => Js.Int.toFloat(n) /. Js.Int.toFloat(by);
 
   let power = (~base, ~exponent) => Js.Math.pow_int(~base, ~exp=exponent);
 
@@ -948,6 +977,8 @@ module Int = {
   let negate = (~-);
 
   let (~-) = (~-);
+
+  let (mod) = (mod);
 
   let modulo = (n, ~by) => n mod by;
 
@@ -986,27 +1017,33 @@ module Int = {
 
   let toString = Js.Int.toString;
 
-  let fromString = s =>
+  let ofString = s =>
     switch (int_of_string(s)) {
     | i => Some(i)
     | exception (Failure(_)) => None
     };
+
+  let equal = (==);
+
+  let compare = compare;
 };
 
 module Integer = {
   type t;
 
-  [@bs.val] external fromInt: int => t = "BigInt";
+  [@bs.val] external ofInt: int => t = "BigInt";
 
-  [@bs.val] external fromInt64: Int64.t => t = "BigInt";
+  [@bs.val] external ofInt64: Int64.t => t = "BigInt";
 
-  [@bs.val] external fromFloat: float => t = "BigInt";
+  [@bs.val] external ofFloatUnsafe: float => t = "BigInt";
+  
+  let ofFloat = (float) => Some(ofFloatUnsafe(float));
 
-  [@bs.val] external fromStringUnsafe: string => t = "BigInt";
+  [@bs.val] external ofStringUnsafe: string => t = "BigInt";
 
-  let fromString = string => {
+  let ofString = string => {
     // TODO "" should parse as None
-    switch (fromStringUnsafe(string)) {
+    switch (ofStringUnsafe(string)) {
     | value => Some(value)
     | exception _ => None
     };
@@ -1050,34 +1087,30 @@ module Integer = {
 
   let remainder = (n: t, ~by: t): t => modulo(n, ~by);
 
-  let power: (t, t) => t = [%raw a => "{return a ** b}"];
+  let power: (t, t) => t = [%raw (a, b) => "{return a ** b}"];
 
-  let ( ** ) = power;
+  let ( ** ) = (base, exponent) => power(base, ofInt(exponent));
 
-  let power = (~modulo as modulus=?, ~base: t, ~exponent: t) =>
+  let power = (~base: t, ~exponent: t, ~modulo as modulus) =>
     if (exponent < zero) {
       zero;
     } else {
-      switch (modulus) {
-      | None => power(base, exponent)
-      | Some(modulus) =>
-        let rec loop = (b: t, e: t, result: t) =>
-          if (e == zero) {
-            result;
-          } else {
-            loop(
-              modulo(b * b, ~by=modulus),
-              e,
-              // (e / [@raw "2n"]),
-              if (isEven(e)) {
-                result;
-              } else {
-                modulo(result * b, ~by=modulus);
-              },
-            );
-          };
-        loop(base, exponent, one);
-      };
+      let rec loop = (b: t, e: t, result: t) =>
+        if (e == zero) {
+          result;
+        } else {
+          loop(
+            modulo(b * b, ~by=modulus),
+            e,
+            // (e / [@raw "2n"]),
+            if (isEven(e)) {
+              result;
+            } else {
+              modulo(result * b, ~by=modulus);
+            },
+          );
+        };
+      loop(base, exponent, one);
     };
 
   let maximum = (a, b) =>
@@ -1118,14 +1151,14 @@ module Integer = {
   [@bs.val] [@bs.scope "BigInt"] external asIntN: (int, t) => 'a = "asIntN";
 
   let toInt = t =>
-    if (t > fromInt(Int.maximumValue)) {
+    if (t > ofInt(Int.maximumValue)) {
       None;
     } else {
       Some(asIntN(53, t));
     };
 
   let toInt64 = t =>
-    if (t > fromInt64(Int64.max_int)) {
+    if (t > ofInt64(Int64.max_int)) {
       None;
     } else {
       Some(asIntN(63, t));
@@ -1138,7 +1171,8 @@ module Integer = {
   // } else {
   // Some(asIntN(53, t));
   // };
-  let toFloat = _ => None;
+  // TODOs
+  let toFloat = _ => 0.;
 
   [@bs.send] external toString: t => string = "toString";
 };
@@ -1148,7 +1182,7 @@ module Tuple = {
 
   let make = (a, b) => (a, b);
 
-  let fromArray = array => {
+  let ofArray = array => {
     switch (array) {
     | [||]
     | [|_|] => None
@@ -1157,7 +1191,7 @@ module Tuple = {
     };
   };
 
-  let fromList = list => {
+  let ofList = list => {
     switch (list) {
     | []
     | [_] => None
@@ -1186,6 +1220,14 @@ module Tuple = {
   let toArray = ((a, b)) => [|a, b|];
 
   let toList = ((a, b)) => [a, b];
+
+  let equal = (equalFirst, equalSecond, (a, b), (a', b')) => equalFirst(a, a') && equalSecond(b, b');
+
+  let compare = (compareFirst, compareSecond, (a, b), (a', b')) => 
+    switch (compareFirst(a,a')) {
+    | 0 => compareSecond(b, b')
+    | result => result
+    };
 };
 
 module Tuple3 = {
@@ -1193,7 +1235,7 @@ module Tuple3 = {
 
   let make = (a, b, c) => (a, b, c);
 
-  let fromArray = array => {
+  let ofArray = array => {
     switch (array) {
     | [||]
     | [|_|]
@@ -1203,7 +1245,7 @@ module Tuple3 = {
     };
   };
 
-  let fromList = list => {
+  let ofList = list => {
     switch (list) {
     | []
     | [_]
@@ -1243,6 +1285,18 @@ module Tuple3 = {
   let toArray = ((a, b, c)) => [|a, b, c|];
 
   let toList = ((a, b, c)) => [a, b, c];
+
+  let equal = (equalFirst, equalSecond, equalThird, (a, b, c), (a', b', c')) =>
+    equalFirst(a, a') && equalSecond(b, b') && equalThird(c, c');
+
+  let compare = (compareFirst, compareSecond, compareThird, (a, b, c), (a', b', c')) => 
+    switch (compareFirst(a,a')) {
+    | 0 => switch(compareSecond(b, b')) {
+      | 0 => compareThird(c,c')
+      | result => result
+    }
+    | result => result
+    };
 };
 
 module String = {
@@ -1252,6 +1306,28 @@ module String = {
 
   let initialize = (length, ~f) =>
     Js.Array.joinWith("", Array.init(length, f));
+
+  // TODO why the trip to code?
+  let ofArray = characters =>
+    Js.Array.joinWith(
+      "",
+      Array.map(
+        character => Char.toCode(character)->Js.String.fromCharCode,
+        characters,
+      ),
+    );
+
+  // TODO why the trip to code
+  let ofList = t =>
+    Js.Array.joinWith(
+      "",
+      Array.map(
+        character => Char.toCode(character)->Js.String.fromCharCode,
+        Array.of_list(t),
+      ),
+    );
+
+  let ofChar = c => Char.toCode(c)->Js.String.fromCharCode;
 
   let isEmpty = t => t == "";
 
@@ -1272,15 +1348,21 @@ module String = {
       Js.String.slice(~from=0, ~to_=- count, s);
     };
 
-  let split = (t, ~on) => Js.String.split(on, t);
-
-  let lines = split(~on="\n");
-
-  let words = split(~on=" ");
+  let split = (t, ~on) => {
+    Js.String.split(on, t) |> List.ofArray
+  };
 
   let endsWith = (t, ~suffix) => Js.String.endsWith(suffix, t);
 
   let startsWith = (t, ~prefix) => Js.String.startsWith(prefix, t);
+
+  let trim = Js.String.trim;
+
+  [@bs.send]
+  external trimLeft: string => string = "trimStart";
+
+  [@bs.send]
+  external trimRight: string => string = "trimEnd";
 
   let toLowercase = s => String.lowercase_ascii(s);
 
@@ -1299,44 +1381,26 @@ module String = {
   let reverse = s =>
     Js.Array.joinWith("", Js.Array.reverseInPlace(Js.String.split("", s)));
 
-  // TODO why the trip to code?
-  let fromArray = characters =>
-    Js.Array.joinWith(
-      "",
-      Array.map(
-        character => Char.toCode(character)->Js.String.fromCharCode,
-        characters,
-      ),
-    );
-
-  // TODO why the trip to code
-  let fromList = t =>
-    Js.Array.joinWith(
-      "",
-      Array.map(
-        character => Char.toCode(character)->Js.String.fromCharCode,
-        Array.of_list(t),
-      ),
-    );
-
   let toArray = t => Js.String.castToArrayLike(t)->Js.Array.from;
 
   let toList = (s): list(char) =>
     Js.String.castToArrayLike(s)->Js.Array.from->Belt.List.fromArray;
 
-  let fromInt = i => Printf.sprintf("%d", i);
-
-  let fromChar = c => Char.toCode(c)->Js.String.fromCharCode;
-
   let slice = (~to_=?, t: string, ~from): string =>
     Js.String.slice(~from, ~to_=Option.get(to_, ~default=length(t)), t);
-
-  let trim = Js.String.trim;
 
   let insertAt = (t, ~index, ~value) =>
     Js.String.slice(~from=0, ~to_=index, t)
     ++ value
     ++ Js.String.sliceToEnd(~from=index, t);
+
+  let forEach = (t, ~f) => Array.iter(f, toArray(t))
+
+  let fold = (t, ~initial, ~f) => Belt.Array.reduce(toArray(t), initial, f)
+
+  let equal = (==)
+
+  let compare = compare;
 };
 
 module Set = {
@@ -1381,7 +1445,7 @@ module Set = {
 
     type nonrec t('a) = t('a, identity);
 
-    let fromArray = (type a, a: array(a)): t(a) =>
+    let ofArray = (type a, a: array(a)): t(a) =>
       Belt.Set.fromArray(
         a,
         ~id=
@@ -1393,55 +1457,40 @@ module Set = {
            }),
       );
 
-    let fromList = l => Array.of_list(l)->fromArray;
+    let ofList = l => Array.of_list(l)->ofArray;
 
-    let empty = () => fromArray([||]);
+    let empty = () => ofArray([||]);
 
-    let singleton = a => fromArray([|a|]);
+    let singleton = a => ofArray([|a|]);
   };
 
   module Int = {
     type nonrec t = t(Int.t, Int.identity);
 
-    let fromArray = a => Poly.fromArray(a)->Obj.magic;
+    let ofArray = a => Poly.ofArray(a)->Obj.magic;
 
-    let empty = fromArray([||]);
+    let empty = ofArray([||]);
 
-    let singleton = a => fromArray([|a|]);
+    let singleton = a => ofArray([|a|]);
 
-    let fromList = l => Array.of_list(l)->fromArray;
+    let ofList = l => Array.of_list(l)->ofArray;
   };
 
   module String = {
     type nonrec t = t(String.t, String.identity);
 
-    let fromArray = a => Poly.fromArray(a)->Obj.magic;
+    let ofArray = a => Poly.ofArray(a)->Obj.magic;
 
-    let empty = fromArray([||]);
+    let empty = ofArray([||]);
 
-    let singleton = a => fromArray([|a|]);
+    let singleton = a => ofArray([|a|]);
 
-    let fromList = l => Array.of_list(l)->fromArray;
+    let ofList = l => Array.of_list(l)->ofArray;
   };
 };
 
 module Map = {
   type t('key, 'value, 'cmp) = Belt.Map.t('key, 'value, 'cmp);
-
-  let empty =
-      (
-        type k,
-        type id,
-        module Cmp: Comparator with type t = k and type identity = id,
-      ) =>
-    Belt.Map.make(
-      ~id=(module
-           {
-             type t = Cmp.t;
-             type identity = Cmp.identity;
-             let cmp = Cmp.compare->Obj.magic;
-           }): Belt.Map.id(Cmp.t, Cmp.identity),
-    );
 
   let isEmpty = Belt.Map.isEmpty;
 
@@ -1501,7 +1550,7 @@ module Map = {
 
     type nonrec t('k, 'v) = t('k, 'v, identity);
 
-    let fromArray = (type k, type v, a: array((k, v))): t(k, v) =>
+    let ofArray = (type k, type v, a: array((k, v))): t(k, v) =>
       Belt.Map.fromArray(
         a,
         ~id=
@@ -1513,42 +1562,40 @@ module Map = {
            }),
       );
 
-    let empty = () => fromArray([||]);
+    let empty = () => ofArray([||]);
 
-    let fromList = l => fromArray(Array.of_list(l));
+    let ofList = l => ofArray(Array.of_list(l));
 
-    let singleton = (~key, ~value) => fromArray([|(key, value)|]);
+    let singleton = (~key, ~value) => ofArray([|(key, value)|]);
   };
 
   module Int = {
     type nonrec t('v) = t(Int.t, 'v, Int.identity);
 
-    let fromArray = a => Poly.fromArray(a)->Obj.magic;
+    let ofArray = a => Poly.ofArray(a)->Obj.magic;
 
-    let empty = fromArray([||]);
+    let empty = ofArray([||]);
 
-    let singleton = (~key, ~value) => fromArray([|(key, value)|]);
+    let singleton = (~key, ~value) => ofArray([|(key, value)|]);
 
-    let fromList = l => fromArray(Array.of_list(l));
+    let ofList = l => ofArray(Array.of_list(l));
   };
 
   module String = {
     type nonrec t('v) = t(String.t, 'v, String.identity);
 
-    let fromArray = a => Poly.fromArray(a)->Obj.magic;
+    let ofArray = a => Poly.ofArray(a)->Obj.magic;
 
-    let empty = fromArray([||]);
+    let empty = ofArray([||]);
 
-    let singleton = (~key, ~value) => fromArray([|(key, value)|]);
+    let singleton = (~key, ~value) => ofArray([|(key, value)|]);
 
-    let fromList = l => fromArray(Array.of_list(l));
+    let ofList = l => ofArray(Array.of_list(l));
   };
 };
 
 module Array = {
   type t('a) = array('a);
-
-  let empty = [||];
 
   let singleton = a => [|a|];
 
@@ -1562,7 +1609,7 @@ module Array = {
 
   let range = (~from=0, to_) => Belt.Array.makeBy(to_ - from, i => i + from);
 
-  let fromList = Belt.List.toArray;
+  let ofList = Belt.List.toArray;
 
   let toList = Belt.List.fromArray;
 
@@ -1650,7 +1697,7 @@ module Array = {
   let sliding = (~step=1, a, ~size) => {
     let n = Array.length(a);
     if (size > n) {
-      empty;
+      [||];
     } else {
       initialize(1 + (n - size) / step, ~f=i =>
         initialize(size, ~f=j => a[i * step + j])
@@ -1724,7 +1771,7 @@ module Array = {
       };
 
     if (sliceFrom >= sliceTo) {
-      empty;
+      [||];
     } else {
       Belt.Array.makeBy(sliceTo - sliceFrom, i => array[i + sliceFrom]);
     };
@@ -1736,8 +1783,6 @@ module Array = {
   let chunksOf = (t, ~size) => sliding(t, ~step=size, ~size);
 
   let reverse = Belt.Array.reverseInPlace;
-
-  let shuffle = t => Belt.Array.shuffle(t);
 
   let forEach = (t, ~f): unit => Belt.Array.forEach(t, f);
 
@@ -1760,7 +1805,7 @@ module Array = {
         update(result, ~f=result => List.cons(result, element));
       },
     )
-    ->Tuple.mapAll(~f=list => List.reverse(list)->fromList);
+    ->Tuple.mapAll(~f=list => List.reverse(list)->ofList);
 
   // TODO what about negative indicies?
   let splitAt = (t, ~index) => {
@@ -1795,7 +1840,7 @@ module Array = {
       | Some(value) => [value, ...results]
       }
     })
-    ->fromList;
+    ->ofList;
 
   let sort = (a, ~compare) => Array.sort(compare, a);
 
@@ -1806,24 +1851,46 @@ module Array = {
       | Some(value) => [value, ...results]
       }
     )
-    ->fromList;
+    ->ofList;
 
   let join = (t, ~sep) => Js.Array.joinWith(sep, t);
 
-  let groupBy = (t, comparator, ~f) =>
-    fold(
-      t,
-      ~initial=Map.empty(comparator),
-      ~f=(map, element) => {
-        let key = f(element);
-        Map.update(
-          map,
-          ~key,
-          ~f=
-            fun
-            | None => Some([element])
-            | Some(elements) => Some([element, ...elements]),
-        );
-      },
-    );
+  let equal = (equal, a, b) =>
+    if (length(a) != length(b)) {
+      false
+    } else if  (length(a) == 0) {
+      true
+    } else {
+      let rec loop = (index) => {
+        if (index == length(a)) {
+          true
+        } else {
+          equal(a[index], b[index]) && loop(index + 1)
+        }
+      }
+      loop(0)
+    };
+
+  let compare = (compare, a, b) => {
+    switch (Int.compare(length(a), length(b))) {
+    | 0 => {
+      if (length(a) === 0) {
+        0
+      } else {
+        let rec loop = (index) => {
+          if (index == length(a)) {
+            0
+          } else {
+            switch(compare(a[index], b[index])) {
+              | 0 => loop(index + 1)
+              | result => result
+            }
+          }
+        }
+        loop(0)
+      }
+    }
+    | result => result
+    };
+  };
 };

@@ -1,15 +1,20 @@
 open Standard;
 open AlcoJest;
 
+let suite =
+  suite("Option", () => {
+    Option.(
+      describe("getUnsafe", () => {
+        test("returns the wrapped value for a Some", () => {
+          expect(getUnsafe(Some(1))) |> toEqual(Eq.int, 1)
+        });
 
-suite("Option", () => {
-  test("getUnsafe Some(1)", () => {
-    expect(Option.getUnsafe(Some(1))) |> toEqual(1)
+        test("raises for a None", () => {
+          expect(() =>
+            ignore(getUnsafe(None))
+          )
+          |> toRaise(Invalid_argument("Option.getUnsafe called with None"))
+        });
+      })
+    )
   });
-
-  test("getUnsafe None", () => {
-    expect(() =>
-      Option.getUnsafe(None)
-    ) |> toThrow
-  });
-});

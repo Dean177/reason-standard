@@ -2,6 +2,21 @@
 title: "Roadmap"
 ---
 
+#### Future
+
+| Module     | Interface | Implement | Tests | Documentation |
+| ---------- | --------- | --------- | ----- | ------------- |
+| Comparable |           |           |       |               |
+| Comparator |           |           |       |               |
+| Int32      |           |           |       |               |
+| Int64      |           |           |       |               |
+| Order      |           |           |       |               |
+| Poly       |           |           |       |               |
+| Ref        | ✓         | ✓         |       |               |
+| Map.make   |           |           |       |               |
+| Set.make   |           |           |       |               |
+| Re         |           |           |       |               |
+
 ## Future
 
 - [ ] Bool
@@ -26,7 +41,7 @@ title: "Roadmap"
   - http://caml.inria.fr/pub/docs/manual-ocaml-4.07/core.html#sec553
   - file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Exn/index.html
 
-#### Maybe
+## Maybe
 
 - Unicode
 - Range
@@ -57,6 +72,16 @@ title: "Roadmap"
 ### Out of scope
 
 - Graph?
+
+#### Maybe 
+
+- Console
+  - https://reason-native.com/docs/console/quickstart
+  - https://github.com/facebookexperimental/reason-native/issues/216
+- Staged
+- Parser
+- Json
+- Http
 
 ## JS environments?
 

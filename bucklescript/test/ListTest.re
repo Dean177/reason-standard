@@ -1,7 +1,7 @@
 open Standard;
 open AlcoJest;
 
-suite("List", () => {
+let suite = suite("List", () => {
   open List;
 
   describe("drop", () => {
@@ -54,13 +54,13 @@ suite("List", () => {
   });
 
   describe("reverse", () => {
-    test("reverse empty list", () => {
+    test("empty list", () => {
       expect(reverse([])) |> toEqual(Eq.(list(int)), [])
     });
-    test("reverse one element", () => {
+    test("one element", () => {
       expect(reverse([0])) |> toEqual(Eq.(list(int)), [0])
     });
-    test("reverse two elements", () => {
+    test("two elements", () => {
       expect(reverse([0, 1])) |> toEqual(Eq.(list(int)), [1, 0])
     });
   });
@@ -127,66 +127,66 @@ suite("List", () => {
 
   describe("partition", () => {
     test("empty list", () => {
-      expect(partition(~f=Int.isEven, [])) |> toEqual(Eq.(option(pair(list(int), list(int)))), ([], []))
+      expect(partition(~f=Int.isEven, [])) |> toEqual(Eq.((pair(list(int), list(int)))), ([], []))
     });
     test("one element", () => {
-      expect(partition(~f=Int.isEven, [1])) |> toEqual(Eq.(option(pair(list(int), list(int)))), ([], [1]))
+      expect(partition(~f=Int.isEven, [1])) |> toEqual(Eq.((pair(list(int), list(int)))), ([], [1]))
     });
     test("four elements", () => {
       expect(partition(~f=Int.isEven, [1, 2, 3, 4]))
-      |> toEqual(Eq.(option(pair(list(int), list(int)))), ([2, 4], [1, 3]))
+      |> toEqual(Eq.((pair(list(int), list(int)))), ([2, 4], [1, 3]))
     });
   });
 
   describe("minimum", () => {
     test("minimum non-empty list", () => {
-      expect(minimum([7, 9, 15, 10, 3], ~compare)) |> toEqual(Eq.(option(string)), Some(3))
+      expect(minimum([7, 9, 15, 10, 3], ~compare=Int.compare)) |> toEqual(Eq.(option(int)), Some(3))
     });
     test("minimum empty list", () => {
-      expect(minimum([], ~compare)) |> toEqual(Eq.(option(int)), None)
+      expect(minimum([], ~compare=Int.compare)) |> toEqual(Eq.(option(int)), None)
     });
   });
 
   describe("maximum", () => {
     test("maximum non-empty list", () => {
-      expect(maximum([7, 9, 15, 10, 3], ~compare)) |> toEqual(Eq.(option(string)), Some(15))
+      expect(maximum([7, 9, 15, 10, 3], ~compare=Int.compare)) |> toEqual(Eq.(option(int)), Some(15))
     });
     test("maximum empty list", () => {
-      expect(maximum([], ~compare)) |> toEqual(Eq.(option(int)), None)
+      expect(maximum([], ~compare=Int.compare)) |> toEqual(Eq.(option(int)), None)
     });
   });
 
   describe("splitAt", () => {
     test("empty list", () => {
-      expect(splitAt([], ~index=1)) |> toEqual(([], []))
+      expect(splitAt([], ~index=1)) |> toEqual(Eq.(pair(list(int), list(int))), ([], []))
     });
     test("at evens", () => {
-      expect(splitAt(~index=0, [2, 4, 6])) |> toEqual(([], [2, 4, 6]))
+      expect(splitAt(~index=0, [2, 4, 6])) |> toEqual(Eq.(pair(list(int), list(int))), ([], [2, 4, 6]))
     });
     test("four elements", () => {
       expect(splitAt(~index=2, [1, 3, 2, 4]))
-      |> toEqual(([1, 3], [2, 4]))
+      |> toEqual(Eq.(pair(list(int), list(int))), ([1, 3], [2, 4]))
     });
     test("at end", () => {
-      expect(splitAt(~index=3, [1, 3, 5])) |> toEqual(([1, 3, 5], []))
+      expect(splitAt(~index=3, [1, 3, 5])) |> toEqual(Eq.(pair(list(int), list(int))), ([1, 3, 5], []))
     });
   });
 
   describe("splitWhen", () => {
     test("empty list", () => {
-      expect(splitWhen(~f=Int.isEven, [])) |> toEqual(([], []))
+      expect(splitWhen(~f=Int.isEven, [])) |> toEqual(Eq.(pair(list(int), list(int))), ([], []))
     });
     test("the first element satisfies f", () => {
       expect(splitWhen(~f=Int.isEven, [2, 4, 6]))
-      |> toEqual(([], [2, 4, 6]))
+      |> toEqual(Eq.(pair(list(int), list(int))), ([], [2, 4, 6]))
     });
     test("the last element satisfies f", () => {
       expect(splitWhen(~f=Int.isEven, [1, 3, 2, 4]))
-      |> toEqual(([1, 3], [2, 4]))
+      |> toEqual(Eq.(pair(list(int), list(int))), ([1, 3], [2, 4]))
     });
     test("no element satisfies f", () => {
       expect(splitWhen(~f=Int.isEven, [1, 3, 5]))
-      |> toEqual(([1, 3, 5], []))
+      |> toEqual(Eq.(pair(list(int), list(int))), ([1, 3, 5], []))
     });
   });
 
@@ -205,7 +205,7 @@ suite("List", () => {
 
   describe("initial", () => {
     test("empty list", () => {
-      expect(initial([])) |> toEqual(Eq.(option(int)), None)
+      expect(initial([])) |> toEqual(Eq.(option(list(int))), None)
     });
     test("one element", () => {
       expect(initial(['a'])) |> toEqual(Eq.(option(list(char))), Some([]))
@@ -251,27 +251,26 @@ suite("List", () => {
       |> toEqual(Eq.(list(int)), [1, 2, 3])
     });
     test("-", () => {
-      expect(fold(~f=(-), ~initial=0, [1, 2, 3])) |> toEqual(-6)
+      expect(fold(~f=(-), ~initial=0, [1, 2, 3])) |> toEqual(Eq.int, -6)
     });
     test("- foldRight", () => {
-      expect(foldRight(~f=(-), ~initial=0, [1, 2, 3])) |> toEqual(-6)
+      expect(foldRight(~f=(-), ~initial=0, [1, 2, 3])) |> toEqual(Eq.int, -6)
     });
   });
 
   describe("insertAt", () => {
-    test("insertAt empty list", () => {
+    test("empty list", () => {
       expect(insertAt(~index=0, ~value=1, [])) |> toEqual(Eq.(list(int)), [1])
     });
-    test("insertAt in the middle", () => {
+    test("in the middle", () => {
       expect(insertAt(~index=1, ~value=2, [1, 3])) |> toEqual(Eq.(list(int)), [1, 2, 3])
     });
-    test("insertAt in the front", () => {
+    test("in the front", () => {
       expect(insertAt(~index=0, ~value=2, [1, 3])) |> toEqual(Eq.(list(int)), [2, 1, 3])
     });
 
-    /*      the test below fails on native, both should show the same behaviour  */
-    test("insertAt after end of list", () => {
-      expect(insertAt(~index=4, ~value=2, [1, 3])) |> toEqual(Eq.(list(int)), [2])
+    test("after end of list", () => {
+      expect(insertAt(~index=4, ~value=2, [1, 3])) |> toEqual(Eq.(list(int)), [1, 3, 2])
     });
   });
 

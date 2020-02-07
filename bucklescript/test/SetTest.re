@@ -2,24 +2,24 @@ open Standard;
 open AlcoJest;
 
 suite("Set", () => {
-  describe("Poly", () => {
-    test("Can be used other Set functions", () => {
-      let set = Set.Poly.fromList([`Ant, `Bat]);
-      expect(Set.includes(set, `Ant)) |> toBeTrue();
+  describe("Poly.ofList", () => {
+    test("creates a set from a list", () => {
+      let set = Set.Poly.ofList([`Ant, `Bat]);
+      expect(Set.includes(set, `Ant)) |> toEqual(Eq.bool, true);
     })
   });
 
-  describe("Int", () => {
-    test("Can be used other Set functions", () => {
-      let set = Set.Int.fromList([1, 2]);
-      expect(Set.includes(set, 1)) |> toBeTrue();
+  describe("Map.Int", () => {
+    test("creates a set from a list", () => {
+      let set = Set.Int.ofList([1, 2]);
+      expect(Set.includes(set, 1)) |> toEqual(Eq.bool, true);
     })
   });
 
-  describe("String", () => {
-    test("Can be used other Set functions", () => {
-      let set = Set.String.fromList(["Ant", "Bat"]);
-      expect(Set.includes(set, "Ant")) |> toBeTrue();
+  describe("Map.String", () => {
+    test("creates a set from a list", () => {
+      let set = Set.String.ofList(["Ant", "Bat"]);
+      expect(Set.includes(set, "Ant")) |> toEqual(Eq.bool, true);
     })
   });
 });

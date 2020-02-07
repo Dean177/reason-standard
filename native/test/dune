@@ -1,8 +1,68 @@
 (executable
-  (name tests)
+  (name runtest)
   (flags (-warn-error +A))
   (libraries reason-standard alcotest junit junit_alcotest)
 )
+
+(rule
+  (target ArrayTest.re)
+  (action (copy ../../bucklescript/test/ArrayTest.re ./ArrayTest.re)))
+
+(rule
+  (target BoolTest.re)
+  (action (copy ../../bucklescript/test/BoolTest.re ./BoolTest.re)))
+
+(rule
+  (target CharTest.re)
+  (action (copy ../../bucklescript/test/CharTest.re ./CharTest.re)))
+
+(rule
+  (target FloatTest.re)
+  (action (copy ../../bucklescript/test/FloatTest.re ./FloatTest.re)))
+
+(rule
+  (target FunTest.re)
+  (action (copy ../../bucklescript/test/FunTest.re ./FunTest.re)))
+
+(rule
+  (target IntegerTest.re)
+  (action (copy ../../bucklescript/test/IntTest.re ./IntegerTest.re)))
+
+(rule
+  (target IntTest.re)
+  (action (copy ../../bucklescript/test/IntTest.re ./IntTest.re)))
+
+(rule
+  (target ListTest.re)
+  (action (copy ../../bucklescript/test/ListTest.re ./ListTest.re)))
+
+(rule
+  (target MapTest.re)
+  (action (copy ../../bucklescript/test/MapTest.re ./MapTest.re)))
+
+(rule
+  (target OptionTest.re)
+  (action (copy ../../bucklescript/test/OptionTest.re ./OptionTest.re)))
+
+(rule
+  (target ResultTest.re)
+  (action (copy ../../bucklescript/test/ResultTest.re ./ResultTest.re)))
+
+(rule
+  (target SetTest.re)
+  (action (copy ../../bucklescript/test/SetTest.re ./SetTest.re)))
+
+(rule
+  (target StringTest.re)
+  (action (copy ../../bucklescript/test/StringTest.re ./StringTest.re)))
+
+(rule
+  (target Tuple3Test.re)
+  (action (copy ../../bucklescript/test/Tuple3Test.re ./Tuple3Test.re)))
+
+(rule
+  (target TupleTest.re)
+  (action (copy ../../bucklescript/test/TupleTest.re ./TupleTest.re)))
 
 (alias
  (name runtest)
