@@ -1,0 +1,6 @@
+(lang dune 2.1)
+(name reason-standard)
+(source (github dean177/reason-standard))
+(license MIT)
+(authors "Dean Merchant")
+(maintainers "deanmerchant@gmail.com")

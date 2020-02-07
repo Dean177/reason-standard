@@ -64,6 +64,6 @@
   (target TupleTest.re)
   (action (copy ../../bucklescript/test/TupleTest.re ./TupleTest.re)))
 
-(alias
- (name runtest)
+(rule
+ (alias runtest)
  (action (run ./runtest.exe)))
