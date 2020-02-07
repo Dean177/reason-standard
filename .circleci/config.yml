@@ -38,12 +38,19 @@ jobs:
           path: ~/repo
       # m4 is a system dependency required by conf-m4 -> ocamlfind -> fmt -> alcotest
       - run: sudo apt-get install -y m4
-      - run: npm install -g esy
+      
+      # Installing without setting a prefix leads to permission errors
+      - run: 
+          name: "Install esy"
+          command: |
+            mkdir -p ~/.npm-global
+            npm config set prefix ~/.npm-global
+            npm install -g esy
 
-      - run: esy install
-      - run: esy build
-      - run: esy test
-      - run: esy doc
+      - run: ~/.npm-global/bin/esy install
+      - run: ~/.npm-global/bin/esy build
+      - run: ~/.npm-global/bin/esy test
+      - run: ~/.npm-global/bin/esy doc
 
 workflows:
   version: 2
