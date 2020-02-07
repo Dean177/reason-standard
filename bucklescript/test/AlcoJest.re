@@ -18,15 +18,15 @@ module Eq: {
   let float: t(float);
   let string: t(string);
   let unit: t(unit);
-  let array: (t('a)) => t(array('a));
-  let list: (t('a)) => t(list('a));
-  let option: (t('a)) => t(option('a));
+  let array: t('a) => t(array('a));
+  let list: t('a) => t(list('a));
+  let option: t('a) => t(option('a));
   let result: (t('ok), t('error)) => t(Standard.Result.t('ok, 'error));
   let pair: (t('a), t('b)) => t(('a, 'b));
   let trio: (t('a), t('b), t('c)) => t(('a, 'b, 'c));
 } = {
-  type t('a) = ('a, 'a) => unit
-  let ignore = (_) => Standard.Fun.ignore;
+  type t('a) = ('a, 'a) => unit;
+  let ignore = _ => Standard.Fun.ignore;
   let bool = ignore;
   let char = ignore;
   let int = ignore;
@@ -34,12 +34,12 @@ module Eq: {
   let float = ignore;
   let string = ignore;
   let unit = ignore;
-  let array = (_) => ignore;
-  let list = (_) => ignore;
-  let option = (_) => ignore;
+  let array = _ => ignore;
+  let list = _ => ignore;
+  let option = _ => ignore;
   let result = (_, _) => ignore;
-  let pair = (_,_) => ignore;
-  let trio = (_,_, _) => ignore;
+  let pair = (_, _) => ignore;
+  let trio = (_, _, _) => ignore;
 };
 
 let suite = describe;
@@ -56,6 +56,6 @@ let toEqual = (_: Eq.t('a), value: 'a) => toEqual(value);
 
 let toBeCloseTo = toBeCloseTo;
 
-let toRaise = (_exn) => toThrow;
+let toRaise = _exn => toThrow;
 
 let toThrow = toThrow;

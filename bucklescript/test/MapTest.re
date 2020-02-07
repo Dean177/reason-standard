@@ -1,11 +1,12 @@
 open Standard;
 open AlcoJest;
 
-suite("Map", () => {  
+suite("Map", () => {
   describe("Poly.ofList", () => {
     test("creates a map from a list", () => {
       let map = Map.Poly.ofList([(`Ant, "Ant"), (`Bat, "Bat")]);
-      expect(Map.get(map, `Ant)) |> toEqual(Eq.(option(string)), Some("Ant"));
+      expect(Map.get(map, `Ant))
+      |> toEqual(Eq.(option(string)), Some("Ant"));
     })
   });
 

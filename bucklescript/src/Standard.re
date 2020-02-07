@@ -31,7 +31,7 @@ module Bool = {
 
   let compare = compare;
 
-  let equal = (==)
+  let equal = (==);
 };
 
 module Char = {
@@ -116,7 +116,7 @@ module Char = {
     | _ => false;
 
   let equal = (==);
-  let compare = compare
+  let compare = compare;
 };
 
 module Fun = {
@@ -253,8 +253,7 @@ module List = {
   let drop = (t, ~count) =>
     Belt.List.drop(t, count)->(Belt.Option.getWithDefault([]));
 
-  let take = (t, ~count) =>
-    Belt.List.take(t, count);
+  let take = (t, ~count) => Belt.List.take(t, count);
 
   let initial = l =>
     switch (reverse(l)) {
@@ -295,20 +294,20 @@ module List = {
 
   let splitAt = (t, ~index) => {
     if (index < 0) {
-      raise(Invalid_argument("List.splitAt called with negative index"))
+      raise(Invalid_argument("List.splitAt called with negative index"));
     };
 
     let rec loop = (front, back, i) => {
-      switch(back) {
+      switch (back) {
       | [] => (t, [])
-      | [element, ...rest] => 
+      | [element, ...rest] =>
         if (i == 0) {
-          (reverse(front), back)
+          (reverse(front), back);
         } else {
           loop([element, ...front], rest, i - 1);
         }
-      }
-    }
+      };
+    };
 
     loop([], t, index);
   };
@@ -437,20 +436,20 @@ module List = {
 
   let insertAt = (t, ~index, ~value) => {
     if (index < 0) {
-      raise(Invalid_argument("List.splitAt called with negative index"))
+      raise(Invalid_argument("List.splitAt called with negative index"));
     };
 
     let rec loop = (front, back, i) => {
-      switch(back) {
+      switch (back) {
       | [] => reverse([value, ...front])
-      | [element, ...rest] => 
+      | [element, ...rest] =>
         if (i == 0) {
-          append(reverse(front), [value, element, ...rest])
+          append(reverse(front), [value, element, ...rest]);
         } else {
           loop([element, ...front], rest, index - 1);
         }
-      }
-    }
+      };
+    };
 
     loop([], t, index);
   };
@@ -459,16 +458,15 @@ module List = {
     let rec loop = (front, back) => {
       switch (back) {
       | [] => (t, [])
-      | [element, ...rest] => {
+      | [element, ...rest] =>
         if (f(element)) {
-          (reverse(front), back)
+          (reverse(front), back);
         } else {
-          loop([element, ...front], rest)
+          loop([element, ...front], rest);
         }
-      }
-      }
-    }
-    loop([], t)
+      };
+    };
+    loop([], t);
   };
 
   let intersperse = (t, ~sep) =>
@@ -493,20 +491,22 @@ module List = {
 
   let rec equal = (equalElement, a, b) =>
     switch (a, b) {
-      | ([], []) => true
-      | ([x,...xs], [y, ...ys]) => equalElement(x, y) && equal(equalElement, xs, ys)
-      | _ => false
-    }
+    | ([], []) => true
+    | ([x, ...xs], [y, ...ys]) =>
+      equalElement(x, y) && equal(equalElement, xs, ys)
+    | _ => false
+    };
 
-  let rec compare = (compareElement, a, b) => 
+  let rec compare = (compareElement, a, b) =>
     switch (a, b) {
-      | ([], []) => 0
-      | ([], _) => -1
-      | (_, []) => 1
-      | ([x, ...xs], [y, ...ys]) => switch (compareElement(x, y)) {
-        | 0 => compare(compareElement, xs, ys)
-        | result => result
-      } 
+    | ([], []) => 0
+    | ([], _) => (-1)
+    | (_, []) => 1
+    | ([x, ...xs], [y, ...ys]) =>
+      switch (compareElement(x, y)) {
+      | 0 => compare(compareElement, xs, ys)
+      | result => result
+      }
     };
 };
 
@@ -585,7 +585,7 @@ module Result = {
     | Error(error) => Error(f(error))
     | Ok(value) => Ok(value)
     };
-  
+
   let toOption = r =>
     switch (r) {
     | Ok(v) => Some(v)
@@ -619,19 +619,20 @@ module Result = {
     | _ => ()
     };
 
-  let equal = (equalError, equalOk, a, b) => switch (a, b) {
-    | (Error(a'), Error(b')) => equalError(a',b')
-    | (Ok(a'), Ok(b')) => equalOk(a',b')
+  let equal = (equalError, equalOk, a, b) =>
+    switch (a, b) {
+    | (Error(a'), Error(b')) => equalError(a', b')
+    | (Ok(a'), Ok(b')) => equalOk(a', b')
     | _ => false
-  };
+    };
 
-  let compare = (compareError, compareOk, a, b) => switch (a, b) {
+  let compare = (compareError, compareOk, a, b) =>
+    switch (a, b) {
     | (Error(a'), Error(b')) => compareError(a', b')
-    | (Ok(a'), Ok(b')) => compareOk(a',b')
-    | (Error(_), Ok(_)) => -1
+    | (Ok(a'), Ok(b')) => compareOk(a', b')
+    | (Error(_), Ok(_)) => (-1)
     | (Ok(_), Error(_)) => 1
-  };
-
+    };
 
   module Infix = {
     let (|?) = (t, default) => get(t, ~default);
@@ -672,7 +673,7 @@ module Option = {
 
   let map = (t, ~f) => Belt.Option.map(t, f);
 
-  let map2 = (a, b, ~f) => 
+  let map2 = (a, b, ~f) =>
     switch (a, b) {
     | (Some(a), Some(b)) => Some(f(a, b))
     | _ => None
@@ -714,19 +715,21 @@ module Option = {
     | None => ()
     | Some(x) => f(x)
     };
-    
-  let equal = (equal, a, b) => switch (a, b) {
-    | (None, None) => true
-    | (Some(a'), Some(b')) => equal(a',b')
-    | _ => false
-  };
 
-  let compare = (compare, a, b) => switch (a, b) {
+  let equal = (equal, a, b) =>
+    switch (a, b) {
+    | (None, None) => true
+    | (Some(a'), Some(b')) => equal(a', b')
+    | _ => false
+    };
+
+  let compare = (compare, a, b) =>
+    switch (a, b) {
     | (None, None) => 0
-    | (Some(a'), Some(b')) => compare(a',b')
-    | (None, Some(_)) => -1
+    | (Some(a'), Some(b')) => compare(a', b')
+    | (None, Some(_)) => (-1)
     | (Some(_), None) => 1
-  };
+    };
 
   module Infix = {
     let (|?) = (t, default) => get(t, ~default);
@@ -740,7 +743,7 @@ module Float = {
 
   let ofInt = Js.Int.toFloat;
 
-  let ofString = (string) => Some(Js.Float.fromString(string));
+  let ofString = string => Some(Js.Float.fromString(string));
 
   let add = (+.);
 
@@ -1076,8 +1079,8 @@ module Integer = {
   [@bs.val] external ofInt64: Int64.t => t = "BigInt";
 
   [@bs.val] external ofFloatUnsafe: float => t = "BigInt";
-  
-  let ofFloat = (float) => Some(ofFloatUnsafe(float));
+
+  let ofFloat = float => Some(ofFloatUnsafe(float));
 
   [@bs.val] external ofStringUnsafe: string => Js.Nullable.t(t) = "BigInt";
 
@@ -1258,10 +1261,11 @@ module Tuple = {
 
   let toList = ((a, b)) => [a, b];
 
-  let equal = (equalFirst, equalSecond, (a, b), (a', b')) => equalFirst(a, a') && equalSecond(b, b');
+  let equal = (equalFirst, equalSecond, (a, b), (a', b')) =>
+    equalFirst(a, a') && equalSecond(b, b');
 
-  let compare = (compareFirst, compareSecond, (a, b), (a', b')) => 
-    switch (compareFirst(a,a')) {
+  let compare = (compareFirst, compareSecond, (a, b), (a', b')) =>
+    switch (compareFirst(a, a')) {
     | 0 => compareSecond(b, b')
     | result => result
     };
@@ -1326,12 +1330,14 @@ module Tuple3 = {
   let equal = (equalFirst, equalSecond, equalThird, (a, b, c), (a', b', c')) =>
     equalFirst(a, a') && equalSecond(b, b') && equalThird(c, c');
 
-  let compare = (compareFirst, compareSecond, compareThird, (a, b, c), (a', b', c')) => 
-    switch (compareFirst(a,a')) {
-    | 0 => switch(compareSecond(b, b')) {
-      | 0 => compareThird(c,c')
+  let compare =
+      (compareFirst, compareSecond, compareThird, (a, b, c), (a', b', c')) =>
+    switch (compareFirst(a, a')) {
+    | 0 =>
+      switch (compareSecond(b, b')) {
+      | 0 => compareThird(c, c')
       | result => result
-    }
+      }
     | result => result
     };
 };
@@ -1386,7 +1392,7 @@ module String = {
     };
 
   let split = (t, ~on) => {
-    Js.String.split(on, t) |> List.ofArray
+    Js.String.split(on, t) |> List.ofArray;
   };
 
   let endsWith = (t, ~suffix) => Js.String.endsWith(suffix, t);
@@ -1395,11 +1401,9 @@ module String = {
 
   let trim = Js.String.trim;
 
-  [@bs.send]
-  external trimLeft: string => string = "trimStart";
+  [@bs.send] external trimLeft: string => string = "trimStart";
 
-  [@bs.send]
-  external trimRight: string => string = "trimEnd";
+  [@bs.send] external trimRight: string => string = "trimEnd";
 
   let toLowercase = s => String.lowercase_ascii(s);
 
@@ -1431,11 +1435,11 @@ module String = {
     ++ value
     ++ Js.String.sliceToEnd(~from=index, t);
 
-  let forEach = (t, ~f) => Array.iter(f, toArray(t))
+  let forEach = (t, ~f) => Array.iter(f, toArray(t));
 
-  let fold = (t, ~initial, ~f) => Belt.Array.reduce(toArray(t), initial, f)
+  let fold = (t, ~initial, ~f) => Belt.Array.reduce(toArray(t), initial, f);
 
-  let equal = (==)
+  let equal = (==);
 
   let compare = compare;
 };
@@ -1894,39 +1898,36 @@ module Array = {
 
   let equal = (equal, a, b) =>
     if (length(a) != length(b)) {
-      false
-    } else if  (length(a) == 0) {
-      true
+      false;
+    } else if (length(a) == 0) {
+      true;
     } else {
-      let rec loop = (index) => {
+      let rec loop = index =>
         if (index == length(a)) {
-          true
+          true;
         } else {
-          equal(a[index], b[index]) && loop(index + 1)
-        }
-      }
-      loop(0)
+          equal(a[index], b[index]) && loop(index + 1);
+        };
+      loop(0);
     };
 
   let compare = (compare, a, b) => {
     switch (Int.compare(length(a), length(b))) {
-    | 0 => {
+    | 0 =>
       if (length(a) === 0) {
-        0
+        0;
       } else {
-        let rec loop = (index) => {
+        let rec loop = index =>
           if (index == length(a)) {
-            0
+            0;
           } else {
-            switch(compare(a[index], b[index])) {
-              | 0 => loop(index + 1)
-              | result => result
-            }
-          }
-        }
-        loop(0)
+            switch (compare(a[index], b[index])) {
+            | 0 => loop(index + 1)
+            | result => result
+            };
+          };
+        loop(0);
       }
-    }
     | result => result
     };
   };

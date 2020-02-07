@@ -2,7 +2,7 @@ module AT = Alcotest;
 
 module Eq = {
   include AT;
-  
+
   let trio = (a, b, c) => {
     let eq = ((a1, b1, c1), (a2, b2, c2)) =>
       AT.equal(a, a1, a2) && AT.equal(b, b1, b2) && AT.equal(c, c1, c2);
@@ -30,58 +30,61 @@ module Eq = {
     AT.testable(pp, eq);
   };
 
-  let float = AT.float(0.0)
-}
+  let float = AT.float(0.0);
+};
 
-type expectation('a) = Expectation(string, 'a);
+type expectation('a) =
+  | Expectation(string, 'a);
 
 let currentFunction = ref("");
 let currentDescription = ref("");
 
 let suite = (moduleName, callback) => {
-  (moduleName, `Quick, callback)  ;
+  (moduleName, `Quick, callback);
 };
 
-let describe = (functionName, callback)  => {
+let describe = (functionName, callback) => {
   currentFunction := functionName;
   callback();
   currentFunction := "";
 };
-  
-let test = (description, callback) => {  
+
+let test = (description, callback) => {
   currentDescription := description;
   callback();
   currentDescription := "";
 };
 
-let testAll = (description: string, values: list('a), callback: ('a => unit)): unit => {
-  Standard.List.forEachI(values, ~f=(index, value) => 
+let testAll =
+    (description: string, values: list('a), callback: 'a => unit): unit => {
+  Standard.List.forEachI(values, ~f=(index, value) =>
     test(
-      description ++ ", [values][" ++ Standard.Int.toString(index) ++"]", 
-      () => callback(value)
+      description ++ ", [values][" ++ Standard.Int.toString(index) ++ "]", () =>
+      callback(value)
     )
   );
-}
-
-let expect = (actual: 'a): expectation('a) => {
-  Expectation(currentFunction^ ++ " - " ++ currentDescription^, actual)
 };
 
-let toEqual = (matcher, expected, Expectation(description, actual)) => 
+let expect = (actual: 'a): expectation('a) => {
+  Expectation(currentFunction^ ++ " - " ++ currentDescription^, actual);
+};
+
+let toEqual = (matcher, expected, Expectation(description, actual)) =>
   AT.check(matcher, description, expected, actual);
 
 let toBeCloseTo = toEqual(AT.float(0.005));
 
-let toRaise = (expected: exn, Expectation(description, run): expectation(unit => 'a)): unit => {
+let toRaise =
+    (expected: exn, Expectation(description, run): expectation(unit => 'a))
+    : unit => {
   AT.check_raises(description, expected, run);
 };
 
 exception Throws;
 let toThrow = (Expectation(description, run): expectation(unit => 'a)): unit => {
-  AT.check_raises(description, Throws, () => {
+  AT.check_raises(description, Throws, () =>
     try(run() |> ignore) {
     | _ => raise(Throws)
     }
-  });
+  );
 };
-

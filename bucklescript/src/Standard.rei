@@ -1,21 +1,21 @@
 /** Functions for working with boolean ([true] or [false]) values. */
-module Bool: ({
+module Bool: {
   /** Functions for working with boolean values.
 
       Booleans in OCaml / Reason are represented by the [true] and [false] literals.
 
-      Whilst a bool isnt a variant, you will get warnings if you haven't 
+      Whilst a bool isnt a variant, you will get warnings if you haven't
       exhaustively pattern match on them:
 
       {[
         switch (false) {
         | false => "false"
-        }        
+        }
         // Warning 8: this pattern-matching is not exhaustive.
         // Here is an example of a case that is not matched:
         // false
       ]}
-  */  
+  */
 
   type t = bool;
 
@@ -159,7 +159,6 @@ module Bool: ({
 
   /** {2 Comparison} */
 
-  
   /** Test for the equality of two [bool] values.
 
       {e Examples}
@@ -185,7 +184,7 @@ module Bool: ({
       {[Bool.compare false false = 0]}
   */
   let compare: (t, t) => int;
-});
+};
 
 /** Functions for working with single characters. */
 module Char: {
@@ -195,18 +194,18 @@ module Char: {
 
       {[let digit = '7']}
 
-      The functions in this module work on ASCII characters (range 0-255) only, 
+      The functions in this module work on ASCII characters (range 0-255) only,
       {b not Unicode}.
 
-      Since character 128 through 255 have varying values depending on what 
-      standard you are using (ISO 8859-1 or Windows 1252), you are advised to 
+      Since character 128 through 255 have varying values depending on what
+      standard you are using (ISO 8859-1 or Windows 1252), you are advised to
       stick to the 0-127 range.
   */
 
   type t = char;
 
-  /** {2 Create} 
-      
+  /** {2 Create}
+
       You can also create a {!Char} using single quotes:
 
       {[let char = 'c']}
@@ -226,7 +225,7 @@ module Char: {
 
       {[Char.ofCode (-1) = None]}
 
-      The full range of extended ASCII is from [0] to [255]. For numbers outside that range, you get [None].      
+      The full range of extended ASCII is from [0] to [255]. For numbers outside that range, you get [None].
   */
   let ofCode: int => option(char);
 
@@ -258,7 +257,7 @@ module Char: {
   let toLowercase: char => char;
 
   /** Convert an ASCII character to upper case, preserving non alphabetic ASCII characters.
-    
+
       {e Examples}
 
       {[toUppercase 'a' = 'A']}
@@ -271,7 +270,7 @@ module Char: {
   /** Detect lower case ASCII characters.
 
     {e Examples}
-    
+
     {[isLowercase 'a' = true]}
 
     {[isLowercase 'b' = true]}
@@ -332,7 +331,7 @@ module Char: {
       {[isDigit '0' = true]}
 
       {[isDigit '1' = true]}
-      
+
       {[isDigit '9' = true]}
 
       {[isDigit 'a' = false]}
@@ -364,7 +363,7 @@ module Char: {
   let isAlphanumeric: char => bool;
 
   /** Detect if a character is a {{: https://en.wikipedia.org/wiki/ASCII#Printable_characters } printable } character
-   
+
       A Printable character has a {!code} in the range 32 to 127, inclusive ([' '] to ['~']).
 
       {e Examples}
@@ -391,8 +390,8 @@ module Char: {
 
       {e Examples}
 
-      {[Char.isWhitespace '\t' = true]} 
-      
+      {[Char.isWhitespace '\t' = true]}
+
       {[Char.isWhitespace ' ' = true]}
 
       {[Char.isWhitespace '?' = false]}
@@ -508,7 +507,7 @@ module Float: {
 
   /** Positive {{: https://en.wikipedia.org/wiki/IEEE_754-1985#Positive_and_negative_infinity } infinity }
 
-      {[Float.log ~base:10.0 0.0 = Float.infinity]} 
+      {[Float.log ~base:10.0 0.0 = Float.infinity]}
   */
   let infinity: t;
 
@@ -572,11 +571,11 @@ module Float: {
   let (+): (t, t) => t;
 
   /** Subtract numbers
-    
+
       Alternatively the [-] operator can be used
-      
+
       {e Examples}
- 
+
       {[Float.subtract 4.0 3.0 = 1.0]}
 
       {[Float.(4.0 - 3.0) = 1.0]}
@@ -589,7 +588,7 @@ module Float: {
   /** Multiply numbers like
 
       Alternatively the [*] operator can be used
-        
+
       {e Examples}
 
       {[Float.multiply 2.0 7.0 = 14.0]}
@@ -604,7 +603,7 @@ module Float: {
   /** Floating-point division:
 
       Alternatively the [/] operator can be used
-            
+
       {e Examples}
 
       {[Float.divide 3.14 ~by:2.0 = 1.57]}
@@ -619,7 +618,7 @@ module Float: {
   /** Exponentiation, takes the base first, then the exponent.
 
       Alternatively the [**] operator can be used
-        
+
       {e Examples}
 
       {[Float.power ~base:7.0 ~exponent:3.0 = 343.0]}
@@ -634,7 +633,7 @@ module Float: {
   /** Flips the 'sign' of a [float] so that positive floats become negative and negative integers become positive. Zero stays as it is.
 
       Alternatively an operator is available
-            
+
       {e Examples}
 
       {[Float.(~- 4.0) = (-4.0)]}
@@ -651,7 +650,7 @@ module Float: {
   let (~-): t => t;
 
   /** Get the {{: https://en.wikipedia.org/wiki/Absolute_value } absolute value} of a number.
-      
+
       {e Examples}
 
       {[
@@ -703,7 +702,7 @@ module Float: {
       {[Float.clamp ~lower:0. ~upper:8. 9. = 8.]}
 
       {[Float.clamp ~lower:(-10.) ~upper:(-5.) 5. = -5.]}
-  */  
+  */
   let clamp: (t, ~lower: t, ~upper: t) => t;
 
   /** {2 Fancier math} */
@@ -717,7 +716,7 @@ module Float: {
       {[Float.squareRoot 4.0 = 2.0]}
 
       {[Float.squareRoot 9.0 = 3.0]}
-  */  
+  */
   let squareRoot: t => t;
 
   /** Calculate the logarithm of a number with a given base.
@@ -727,7 +726,7 @@ module Float: {
       {[Float.log ~base:10. 100. = 2.]}
 
       {[Float.log ~base:2. 256. = 8.]}
-  */  
+  */
   let log: (t, ~base: t) => t;
 
   /** {1 Checks} */
@@ -784,8 +783,8 @@ module Float: {
   */
   let isInfinite: t => bool;
 
-  /** Determine whether the passed value is an integer. 
-  
+  /** Determine whether the passed value is an integer.
+
       {e Examples}
 
       {[Float.isInteger 4.0 = true]}
@@ -794,12 +793,12 @@ module Float: {
   */
   let isInteger: t => bool;
 
-  /** Determine whether the passed value is a safe integer (number between -(2**53 - 1) and 2**53 - 1). 
-   
+  /** Determine whether the passed value is a safe integer (number between -(2**53 - 1) and 2**53 - 1).
+
       {e Examples}
 
       {[Float.isSafeInteger 4.0 = true]}
-      
+
       {[Float.isSafeInteger Float.pi = false]}
 
       {[Float.(isSafeInteger (maximumSafeInteger + 1.)) = false]}
@@ -827,9 +826,9 @@ module Float: {
   /** {1 Angles} */
 
   type radians = float;
-  
+
   /** [hypotenuse x y] returns the length of the hypotenuse of a right-angled triangle with sides of length [x] and [y], or, equivalently, the distance of the point [(x, y)] to [(0, 0)].
-    
+
       {e Examples}
 
       {[Float.hypotenuse 3. 4. = 5.]}
@@ -875,7 +874,7 @@ module Float: {
   /** Convert {{: https://en.wikipedia.org/wiki/Polar_coordinate_system } polar coordinates } (r, θ) to {{: https://en.wikipedia.org/wiki/Cartesian_coordinate_system } Cartesian coordinates } (x,y).
 
       {e Examples}
-      
+
       {[Float.(ofPolar (squareRoot 2., degrees 45.)) = (1., 1.)]}
   */
   let ofPolar: ((float, radians)) => (float, float);
@@ -893,11 +892,11 @@ module Float: {
   let toPolar: ((float, float)) => (float, radians);
 
   /** Figure out the cosine given an angle in {{: https://en.wikipedia.org/wiki/Radian } radians }.
-    
+
       {e Examples}
 
       {[Float.(cos (degrees 60.)) = 0.5000000000000001]}
-      
+
       {[Float.(cos (radians (pi / 3.))) = 0.5000000000000001]}
   */
   let cos: radians => t;
@@ -905,7 +904,7 @@ module Float: {
   /** Figure out the arccosine for [adjacent / hypotenuse] in {{: https://en.wikipedia.org/wiki/Radian } radians }:
 
       {e Examples}
-      
+
       {[Float.(acos (radians 1.0 / 2.0)) = Float.radians 1.0471975511965979 (* 60° or pi/3 radians *)]}
   */
   let acos: radians => t;
@@ -913,9 +912,9 @@ module Float: {
   /** Figure out the sine given an angle in {{: https://en.wikipedia.org/wiki/Radian } radians }.
 
       {e Examples}
-      
+
       {[Float.(sin (degrees 30.)) = 0.49999999999999994]}
-      
+
       {[Float.(sin (radians (pi / 6.))) = 0.49999999999999994]}
   */
   let sin: radians => t;
@@ -966,8 +965,8 @@ module Float: {
   */
   let atan: t => radians;
 
-  /** This helps you find the angle (in radians) to an [(x, y)] coordinate. 
-    
+  /** This helps you find the angle (in radians) to an [(x, y)] coordinate.
+
       So rather than [Float.(atan (y / x))] you can [Float.atan2 ~y ~x] and you can get a full range of angles:
 
       {e Examples}
@@ -993,9 +992,9 @@ module Float: {
   ];
 
   /** Round a number, by default to the to the closest [int] with halves rounded [`Up] (towards positive infinity)
-    
+
       Other rounding strategies are available by using the optional [~direction] labelelled.
-      
+
       {e Examples}
 
       {[
@@ -1050,7 +1049,7 @@ module Float: {
 
       {2 To the closest integer}
 
-      Rounding a number [x] to the closest integer requires some tie-breaking for when the [fraction] part of [x] is exactly [0.5].      
+      Rounding a number [x] to the closest integer requires some tie-breaking for when the [fraction] part of [x] is exactly [0.5].
 
       {3 Halves rounded towards zero}
 
@@ -1082,7 +1081,7 @@ module Float: {
   let round: (~direction: direction=?, t) => t;
 
   /** Floor function, equivalent to [Float.round ~direction:`Down].
-      
+
       {e Examples}
 
       {[
@@ -1112,7 +1111,7 @@ module Float: {
   let ceiling: t => t;
 
   /** Ceiling function, equivalent to [Float.round ~direction:`Zero].
-      
+
       {e Examples}
 
       {[
@@ -1128,7 +1127,7 @@ module Float: {
   let truncate: t => t;
 
   /** Convert an {!Int} to a [float]
-      
+
       {e Examples}
 
       {[
@@ -1140,9 +1139,9 @@ module Float: {
   let ofInt: int => t;
 
   /** Convert a {!String} to a [float].
-    
+
       Parses [nan] and [infinity] case-insensitive.
-         
+
       {e Examples}
 
       {[Float.ofString "4.667" = Some 4.667]}
@@ -1182,9 +1181,9 @@ module Float: {
       {[Float.(round 1.6 |> toInt) = Some 2]}
   */
   let toInt: t => option(int);
-  
+
   /** Convert a [float] to a {!String}
-    
+
       {e Examples}
 
       TODO
@@ -1227,7 +1226,7 @@ module Int: {
       which means that [int] math is well-defined in the range [-2 ** 30] to [2 ** 30 - 1] for 32bit platforms [-2 ** 62] to [2 ** 62 - 1] for 64bit platforms.
 
       You can read about the reasons for OCamls unusual integer sizes {{: https://v1.realworldocaml.org/v1/en/html/memory-representation-of-values.html} here }.
-      
+
       When targeting Bucklescript {{: [ints] are 32 bits} https://bucklescript.github.io/docs/en/common-data-types.html#int }.
 
       Outside of that range, the behavior is determined by the compilation target.
@@ -1248,7 +1247,7 @@ module Int: {
   /** Attempt to parse a [string] into a [int].
 
       {e Examples}
-      
+
       {[
         Int.ofString "0" = Some 0.
         Int.of_string "42" = Some 42.
@@ -1277,9 +1276,9 @@ module Int: {
   let minimumValue: t;
 
   /** {1 Operators }
-    
-      {b Note } You do not need to open the {!Int} module to use the 
-      {!( + )}, {!( - )}, {!( * )}, {!( ** )}, {! (mod)} or {!( / )} operators, these are 
+
+      {b Note } You do not need to open the {!Int} module to use the
+      {!( + )}, {!( - )}, {!( * )}, {!( ** )}, {! (mod)} or {!( / )} operators, these are
       available as soon as you [open Standard]
   */
 
@@ -1301,7 +1300,7 @@ module Int: {
   let (+): (t, t) => t;
 
   /** Subtract numbers
-    
+
       {[Int.subtract 4 3 = 1]}
 
       Alternatively the operator can be used:
@@ -1327,11 +1326,11 @@ module Int: {
   let ( * ): (t, t) => t;
 
   /** Integer division
-     
+
       Notice that the remainder is discarded.
 
       {2 Exceptions}
-      
+
       Throws [Division_by_zero] when the divisor is [0].
 
       {e Examples}
@@ -1346,7 +1345,7 @@ module Int: {
   let (/): (t, t) => t;
 
   /** Floating point division
-      
+
       {e Examples}
 
       {[
@@ -1358,7 +1357,7 @@ module Int: {
   let (%): (t, t) => float;
 
   /** Exponentiation, takes the base first, then the exponent.
-      
+
       {e Examples}
 
       {[Int.power ~base:7 ~exponent:3 = 343]}
@@ -1374,7 +1373,7 @@ module Int: {
 
   /** Flips the 'sign' of an integer so that positive integers become negative and negative integers become positive. Zero stays as it is.
 
-      {e Examples} 
+      {e Examples}
 
       {[
         Int.negate 8 = (-8)
@@ -1393,7 +1392,7 @@ module Int: {
 
   /** Get the {{: https://en.wikipedia.org/wiki/Absolute_value } absolute value } of a number.
 
-      {e Examples} 
+      {e Examples}
 
       {[
         Int.absolute 8 = 8
@@ -1411,11 +1410,11 @@ module Int: {
 
       Use {!Int.remainder} for a different treatment of negative numbers.
 
-      {e Examples} 
+      {e Examples}
 
       {[
-        Int.modulo ~by:3 -4 = 1 
-        Int.modulo ~by:3 -3 = 0 
+        Int.modulo ~by:3 -4 = 1
+        Int.modulo ~by:3 -3 = 0
         Int.modulo ~by:3 -2 = 2
         Int.modulo ~by:3 -1 = 1
         Int.modulo ~by:3 0 = 0
@@ -1428,13 +1427,13 @@ module Int: {
   let modulo: (t, ~by: t) => t;
 
   /** See {!Int.modulo} */
-  let ( mod ): (t, t) => t;
+  let (mod): (t, t) => t;
 
   /** Get the remainder after division. Here are bunch of examples of dividing by four:
 
       Use {!Int.modulo} for a different treatment of negative numbers.
 
-      {e Examples} 
+      {e Examples}
 
       {[
         List.map
@@ -1446,7 +1445,7 @@ module Int: {
   let remainder: (t, ~by: t) => t;
 
   /** Returns the larger of two [int]s
-      
+
       {e Examples}
 
       {[
@@ -1457,8 +1456,8 @@ module Int: {
   let maximum: (t, t) => t;
 
   /** Returns the smaller of two [int]s
-    
-      {e Examples} 
+
+      {e Examples}
 
       {[
         Int.minimum 7 9 = 7
@@ -1471,7 +1470,7 @@ module Int: {
 
   /** Check if an [int] is even
 
-      {e Examples} 
+      {e Examples}
 
       {[
         Int.isEven 8 = true
@@ -1483,7 +1482,7 @@ module Int: {
 
   /** Check if an [int] is odd
 
-    {e Examples} 
+    {e Examples}
 
     {[
       Int.idOdd 7 = true
@@ -1499,7 +1498,7 @@ module Int: {
 
     Throws an [Invalid_argument] exception if [lower > upper]
 
-    {e Examples} 
+    {e Examples}
 
     {[
       Int.clamp ~lower:0 ~upper:8 5 = 5
@@ -1511,11 +1510,11 @@ module Int: {
   let clamp: (t, ~lower: t, ~upper: t) => t;
 
   /** Checks if [n] is between [lower] and up to, but not including, [upper].
-      
+
       {2 Exceptions}
-      
+
       Throws an [Invalid_argument] exception if [lower > upper]
-      
+
       {e Examples}
 
       {[
@@ -1530,7 +1529,7 @@ module Int: {
   /** {1 Conversion } */
 
   /** Convert an integer into a float. Useful when mixing {!Int} and {!Float} values like this:
-      
+
       {e Examples}
 
       {[
@@ -1586,7 +1585,7 @@ module Integer: {
   /** Create an {!Integer} from an Int64 */
   let ofInt64: Int64.t => t;
 
-  /** Create an {!Integer} from an Int64. 
+  /** Create an {!Integer} from an Int64.
 
       Returns [None] when called with {!Float.nan}, {!Float.infinity} or {!Float.negativeInfinity}
 
@@ -1597,9 +1596,9 @@ module Integer: {
   let ofFloat: float => option(t);
 
   /** Attempt to parse a {!String} into a {!Integer}.
-      
+
       {e Examples}
-      
+
       {[
         Integer.ofString "0" = Some (ofInt 0)
         Integer.ofString "42" = Some (ofInt 42)
@@ -1626,7 +1625,7 @@ module Integer: {
   /** Add two {!Integer}s.
 
       {e Examples}
-      
+
       {[
         open Integer;
         add(ofInt(3002), ofInt(4004)) == ofInt(7006)]}
@@ -1644,9 +1643,9 @@ module Integer: {
   let (+): (t, t) => t;
 
   /** Subtract numbers
-    
+
       {e Examples}
-      
+
       {[Integer.(subtract one one = zero)]}
 
       Alternatively the operator can be used:
@@ -1662,9 +1661,9 @@ module Integer: {
   let (-): (t, t) => t;
 
   /** Multiply two integers
-      
+
       {e Examples}
-     
+
       {[
         open Integer
         multiply ofInt(2) ofInt(7) = ofInt(14)
@@ -1708,7 +1707,7 @@ module Integer: {
   let (/): (t, t) => t;
 
   /** Exponentiation, takes the base first, then the exponent.
-    
+
       Alternatively the [**] operator can be used, but comes with some drawbacks:
       - You must use an {!Int} for the exponent
       - You cant supply a [modulo]
@@ -1731,9 +1730,9 @@ module Integer: {
   let ( ** ): (t, int) => t;
 
   /** Flips the 'sign' of an integer so that positive integers become negative and negative integers become positive. Zero stays as it is.
-    
+
       {e Examples}
-            
+
       {[
         open Integer
 
@@ -1747,7 +1746,7 @@ module Integer: {
   /** Get the {{: https://en.wikipedia.org/wiki/Absolute_value } absolute value } of a number.
 
       {e Examples}
-      
+
       {[
         open Integer
 
@@ -1767,7 +1766,7 @@ module Integer: {
       Use {!Integer.remainder} for a different treatment of negative numbers.
 
       {e Examples}
-      
+
       {[
         open Integer
 
@@ -1790,7 +1789,7 @@ module Integer: {
       Use {!Integer.modulo} for a different treatment of negative numbers.
 
       {e Examples}
-      
+
       {[
         open Integer
         let three = ofInt 3 in
@@ -1810,7 +1809,7 @@ module Integer: {
   /** Returns the larger of two [Integers]s
 
       {e Examples}
-      
+
       {[
         open Integer
 
@@ -1823,7 +1822,7 @@ module Integer: {
   /** Returns the smaller of two [Integers]s
 
       {e Examples}
-      
+
       {[
         minimum (ofInt 7) (ofInt 9) = (ofInt 7)
         minimum (ofInt -4) (ofInt -1) = (ofInt -4)
@@ -1836,7 +1835,7 @@ module Integer: {
   /** Check if an [int] is even
 
       {e Examples}
-      
+
       {[
         Integer.isEven (ofInt 8) = true
         Integer.isEven (ofInt 7) = false
@@ -1860,29 +1859,29 @@ module Integer: {
   /** Clamps an integer within the inclusive [lower] and [upper] bounds.
 
       {2 Exceptions}
-      
+
       Throws an [Invalid_argument] exception if [lower > upper]
 
       {e Examples}
 
       {[
         open Integer
-        
+
         clamp ~lower:zero ~upper:(ofInt 8) (ofInt 5) = (ofInt 5)
         clamp ~lower:zero ~upper:(ofInt 8) (ofInt 9) = (ofInt 8)
         clamp ~lower:(ofInt -10) ~upper:(ofInt -5) (ofInt 5) = (ofInt -5)
       ]}
   */
-  let clamp: (t, ~lower: t, ~upper: t) => t;  
+  let clamp: (t, ~lower: t, ~upper: t) => t;
 
   /** Checks if an integer is between [lower] and up to, but not including, [upper].
 
       {2 Exceptions}
-      
+
       Throws an [Invalid_argument] exception if [lower > upper]
 
       {e Examples}
-      
+
       {[
         open Integer
 
@@ -1895,10 +1894,10 @@ module Integer: {
 
   /** {1 Conversion } */
 
-  /** Convert an {!Integer} to an {!Int} 
-    
+  /** Convert an {!Integer} to an {!Int}
+
       Returns [None] when greater than [Int.maximumValue]
-     
+
       {e Examples}
 
       {[Integer.ofString "4" |> Integer.toString = Some 4]}
@@ -1907,34 +1906,34 @@ module Integer: {
   */
   let toInt: t => option(int);
 
-  /** Convert an {!Integer} to an [Int64.t] 
-    
+  /** Convert an {!Integer} to an [Int64.t]
+
       Returns [None] when greater than [Int64.max_int] or less than [Int64.min_int]
-     
+
       {e Examples}
 
       {[Integer.ofString "1" |> Integer.toInt64 = Some Int64.one]}
 
       {[String.repeat "9" ~times:10_000 |> Integer.ofString |> Integer.toInt64 = None]}
   */
-  let toInt64: t => option(Int64.t);  
+  let toInt64: t => option(Int64.t);
 
-  /** Convert an {!Integer} to an [Int64.t] 
-    
+  /** Convert an {!Integer} to an [Int64.t]
+
       Returns {!Float.infinity} when greater than {!Float.largestValue}.
-     
+
       {e Examples}
 
       {[Integer.ofString "8" |> Integer.toFloat = 8.0]}
 
       {[
-        String.initialize 1000 ~f:(Fun.constant '9') 
-        |> Integer.ofString 
-        |> Integer.toFloat 
+        String.initialize 1000 ~f:(Fun.constant '9')
+        |> Integer.ofString
+        |> Integer.toFloat
           = Float.infinity
       ]}
   */
-  let toFloat: t => float;  
+  let toFloat: t => float;
 
   /** Gives a human-readable, decimal string representation */
   let toString: t => string;
@@ -1966,7 +1965,7 @@ module String: {
       {e Examples}
 
       {[String.ofList [] = ""]}
-      
+
       {[String.ofList ['a'; 'b'; 'c'] = "abc"]}
   */
   let ofArray: array(char) => t;
@@ -1983,10 +1982,10 @@ module String: {
   */
   let ofList: list(char) => t;
 
-  /** Create a string by repeating a string [count] time. 
+  /** Create a string by repeating a string [count] time.
 
       {3 Exceptions}
-      
+
       If [count] is negative, [String.repeat] throws a [RangeError] exception.
 
       {e Examples}
@@ -1999,8 +1998,8 @@ module String: {
   */
   let repeat: (string, ~count: int) => string;
 
-  /** Create a string by providing a length and a function to choose characters. 
-     
+  /** Create a string by providing a length and a function to choose characters.
+
       Returns an empty string if the length is negative.
 
       {e Examples}
@@ -2014,7 +2013,7 @@ module String: {
 
   /** Returns the length of the given string.
 
-      {b Warning} if the string contains non-ASCII characters then {!length} will 
+      {b Warning} if the string contains non-ASCII characters then {!length} will
       not equal the number of characters
 
       {e Examples}
@@ -2026,7 +2025,7 @@ module String: {
   let length: string => int;
 
   /** Returns, as an {!Option}, a tuple containing the first {!Char} and the remaining String.
-      
+
       If given an empty string, returns [None].
 
       {e Examples}
@@ -2056,7 +2055,7 @@ module String: {
   /** Drop [count] characters from the right side of a string.
 
       {e Examples}
-      
+
       {[
         String.dropRight ~count:3 "abcdefg" = "abcd"
         String.dropRight ~count:0 "abcdefg" = "abcdefg"
@@ -2068,7 +2067,7 @@ module String: {
   let dropRight: (~count: int, string) => string;
 
   /** Divide a string into a list of strings, splitting whenever [on] is encountered.
-   
+
       {e Examples}
 
       {[
@@ -2081,8 +2080,8 @@ module String: {
   */
   let split: (t, ~on: t) => list(t);
 
-  /** See if the second string starts with [prefix] 
-     
+  /** See if the second string starts with [prefix]
+
       {e Examples}
 
       {[String.startsWith ~prefix:"the" "theory" = true]}
@@ -2097,22 +2096,22 @@ module String: {
 
       {[String.endsWith ~suffix:"the" "theory" = false]}
 
-      {[String.endsWith ~suffix:"ory" "theory" = true]} 
+      {[String.endsWith ~suffix:"ory" "theory" = true]}
   */
   let endsWith: (t, ~suffix: string) => bool;
 
-  /** Converts all upper case letters to lower case. 
-    
+  /** Converts all upper case letters to lower case.
+
       {b Note} This function works only with ASCII characters, not Unicode.
 
       {e Examples}
-      
+
       {[String.toLowercase "AaBbCc123" = "aabbcc123"]}
   */
   let toLowercase: string => string;
 
-  /** Converts all lower case letters to upper case.  
-      
+  /** Converts all lower case letters to upper case.
+
       {b Note} This function works only with ASCII characters, not Unicode.
 
       {e Examples}
@@ -2122,7 +2121,7 @@ module String: {
   let toUppercase: string => string;
 
   /** Converts the first letter to lower case if it is upper case.
-    
+
       {b Note} This function works only with ASCII characters, not Unicode.
 
       {e Examples}
@@ -2132,7 +2131,7 @@ module String: {
   let uncapitalize: string => string;
 
   /** Converts the first letter of [s] to upper case if it is lower case.
-   
+
       This function works only with ASCII characters, not Unicode.
 
       {e Examples}
@@ -2141,12 +2140,12 @@ module String: {
   */
   let capitalize: string => string;
 
-  /** Test if the first letter of a string is upper case. 
-    
+  /** Test if the first letter of a string is upper case.
+
       This function works only with ASCII characters, not Unicode.
 
       {e Examples}
-      
+
       {[String.isCapitalized "Anastasia" = true]}
 
       {[String.isCapitalized "" = false]}
@@ -2154,7 +2153,7 @@ module String: {
   let isCapitalized: string => bool;
 
   /** Check if one string appears within another
-    
+
       {e Examples}
 
       {[String.includes "team" ~substring:"tea" = true]}
@@ -2166,7 +2165,7 @@ module String: {
   let includes: (t, ~substring: string) => bool;
 
   /** Reverse a string
-    
+
       {b Note} This function does not work with Unicode characters.
 
       {e Examples}
@@ -2181,25 +2180,25 @@ module String: {
   /** Removes leading and trailing {! Char.isWhitespace whitespace} from a string
 
       {e Examples}
-      
+
       {[String.trim "  abc  " = "abc"]}
 
       {[String.trim "  abc def  " = "abc def"]}
 
       {[String.trim "\r\n\t abc \n\n" = "abc"]}
   */
-  let trim: (t) => t;
+  let trim: t => t;
 
   /** Like {!trim} but only drops characters from the beginning of the string. */
-  let trimLeft: (t) => t;
+  let trimLeft: t => t;
 
   /** Like {!trim} but only drops characters from the end of the string. */
-  let trimRight: (t) => t;
+  let trimRight: t => t;
 
   /** Insert a string at [index]
-    
+
       {e Examples}
-      
+
       {[
         String.insertAt ~insert:"**" ~index:2 "abcde" = "ab**cde"
         String.insertAt ~insert:"**" ~index:0 "abcde" = "**abcde"
@@ -2219,8 +2218,8 @@ module String: {
 
   /** {2 Conversion} */
 
-  /** Returns an {!Array} of the individual characters in the given string. 
-      
+  /** Returns an {!Array} of the individual characters in the given string.
+
       {e Examples}
 
       {[
@@ -2230,8 +2229,8 @@ module String: {
   */
   let toArray: string => array(char);
 
-  /** Returns a {!List} of the individual characters in the given string. 
-      
+  /** Returns a {!List} of the individual characters in the given string.
+
       {e Examples}
 
       {[
@@ -2248,7 +2247,7 @@ module String: {
 
   /** Test two string for equality */
   let equal: (t, t) => bool;
-  
+
   /** Test two string for equality */
   let compare: (t, t) => int;
 };
@@ -2275,7 +2274,7 @@ module Container: {
 /** Functions for working with optional values. */
 module Option: {
   /** {!Option} represents a value which may not be present.
-     
+
       It is a variant containing the [Some('a)] and [None] constructors
 
       {[
@@ -2283,7 +2282,7 @@ module Option: {
           | Some('a)
           | None
       ]}
-     
+
       Many other languages use [null] or [nil] to represent something similar.
 
       {!Option} values are very common and they are used in a number of ways:
@@ -2293,12 +2292,12 @@ module Option: {
       - Return values for functions that are not defined over their entire input range (partial functions).
       - Return value for otherwise reporting simple errors, where None is returned on error.
 
-      Lots of functions in [Standard] return options, one you have one you can 
+      Lots of functions in [Standard] return options, one you have one you can
       work with the value it might contain by:
 
       - Pattern matching
       - Using {!map} or {!bind} (or their operators in {!Infix})
-      - Unwrapping it using {!get}, or its operator {!Infix.(|?)}      
+      - Unwrapping it using {!get}, or its operator {!Infix.(|?)}
       - Converting a [None] into an exception using{!getOrFailWith}
 
       If the function you are writing can fail in a variety of ways, use a {!Result} instead to
@@ -2316,10 +2315,10 @@ module Option: {
       However OCaml doesn't support piping to variant constructors.
 
       Note that when using the Reason syntax you {b can} use fast pipe ([->]) with variant constructors, so you don't need this function.
-      
+
       See the {{: https://reasonml.github.io/docs/en/pipe-first#pipe-into-variants} Reason docs } for more.
 
-      {e Examples} 
+      {e Examples}
 
       {[String.reverse("desserts") |> Option.some = Some "desserts" ]}
    */
@@ -2405,10 +2404,10 @@ module Option: {
   let map: (t('a), ~f: 'a => 'b) => t('b);
 
   /** Combine two {!Option}s
-      
+
       If both options are [Some] returns, as [Some] the result of running [f] on both values.
-   
-      If either value is [None], returns [None]  
+
+      If either value is [None], returns [None]
 
       {e Examples}
 
@@ -2484,7 +2483,7 @@ module Option: {
   let get: (t('a), ~default: 'a) => 'a;
 
   /** Unwrap an [option('a)] returning the enclosed ['a].
-      
+
       {b Note} in most situations it is encouraged to use pattern matching, {!get}, {!map} or {!bind}.
       Can you structure your code slightly differently to avoid potentially raising an exception?
 
@@ -2502,7 +2501,7 @@ module Option: {
         Option.getOrFailWith (Error "Dog") ~exn:(Invalid_argument "Thats no wolf")
         Raises [Invalid_argument "Thats no wolf")]
       ]}
-        
+
       {[
         exception FelineEncounterd
         Option.getOrFailWith (Error "Kitten") ~exn:FelineEncountered
@@ -2556,7 +2555,7 @@ module Option: {
   let forEach: (t('a), ~f: 'a => unit) => unit;
 
   /** TODO */
-  let fold: (t('a), ~initial: 'b, ~f: ('b, 'a) => 'b) => 'b;  
+  let fold: (t('a), ~initial: 'b, ~f: ('b, 'a) => 'b) => 'b;
 
   /** Convert an option to a {!Array}.
 
@@ -2567,7 +2566,7 @@ module Option: {
       {[Option.toArray (Some 3004) = [|3004|]]}
 
       {[Option.toArray (None) = [||]]}
-  */  
+  */
   let toArray: t('a) => array('a);
 
   /** Convert an option to a {!List}.
@@ -2585,7 +2584,7 @@ module Option: {
   /** {2 Comparison} */
 
   /** Test two optional values for equality using the provided function
-      
+
       {e Examples}
 
       {[Option.equal Int.equal (Some 1) (Some 1) = true]}
@@ -2598,8 +2597,8 @@ module Option: {
    */
   let equal: (('a, 'a) => bool, t('a), t('a)) => bool;
 
-  /** Compare two optional values using the provided function. 
-      
+  /** Compare two optional values using the provided function.
+
       A [None] is "less" than a [Some]
 
       {e Examples}
@@ -2669,15 +2668,15 @@ module Option: {
         {[Some [1, 2, 3] >>= List.head = Some 1]}
 
         {[Some [] >>= List.head = None]}
-    */
+    */;
   };
 };
 
 /** Functions for working with computations which may fail. */
 module Result: {
   /** A {!Result} is used to represent a computation which may fail.
-      
-      A [Result] is a variant, which has a constructor for successful results ([Ok('ok)]), 
+
+      A [Result] is a variant, which has a constructor for successful results ([Ok('ok)]),
       and one for unsuccessful results ([Error('error)]).
 
       {[
@@ -2696,7 +2695,7 @@ module Result: {
 
       {b Note} The ['error] case can be of {b any} type and while [string] is very common you could also use:
       - [string List.t] to allow errors to be accumulated
-      - [exn], in which case the result type just makes exceptions explicit in the return type          
+      - [exn], in which case the result type just makes exceptions explicit in the return type
       - A variant or polymorphic variant, with one case per possible error. This is means each error can be dealt with explicitly. See {{: https://keleshev.com/composable-error-handling-in-ocaml } this excellent article} for mnore information on this approach.
 
       If the function you are writing can only fail in a single obvious way, maybe you want an {!Option} instead.
@@ -2767,12 +2766,12 @@ module Result: {
 
   /** Check if a {!Result} is an [Ok].
 
-      Useful when you want to perform some side affect based on the presence of 
+      Useful when you want to perform some side affect based on the presence of
       an [Ok] like logging.
 
-      {b Note} if you need access to the contained value rather than doing 
-      [Result.isOk] followed by {!Result.getUnsafe} its safer and just as 
-      convenient to use pattern matching directly or use one of {!Result.bind} 
+      {b Note} if you need access to the contained value rather than doing
+      [Result.isOk] followed by {!Result.getUnsafe} its safer and just as
+      convenient to use pattern matching directly or use one of {!Result.bind}
       or {!Result.map}
 
       {e Examples}
@@ -2785,12 +2784,12 @@ module Result: {
 
   /** Check if a {!Result} is an [Error].
 
-      Useful when you want to perform some side affect based on the presence of 
+      Useful when you want to perform some side affect based on the presence of
       an [Error] like logging.
-      
-      {b Note} if you need access to the contained value rather than doing 
-      [Result.isOk] followed by {!Result.getUnsafe} its safer and just as 
-      convenient to use pattern matching directly or use one of {!Result.bind} 
+
+      {b Note} if you need access to the contained value rather than doing
+      [Result.isOk] followed by {!Result.getUnsafe} its safer and just as
+      convenient to use pattern matching directly or use one of {!Result.bind}
       or {!Result.map}
 
       {e Examples}
@@ -2833,10 +2832,10 @@ module Result: {
 
     {[Result.or_ Error(`UnexpectedInvertabrate("Periwinkle")) Error(`UnexpectedBird("Robin")) = Error(`UnexpectedBird("Robin"))]}
   */
-  let or_: (t('ok, 'error), t('ok, 'error)) => t('ok, 'error);  
+  let or_: (t('ok, 'error), t('ok, 'error)) => t('ok, 'error);
 
   /** Combine two results, if both are [Ok] returns an [Ok] containing a {!Tuple} of the values.
-    
+
       If either is an [Error], returns the [Error].
 
       The same as writing [Result.map2 ~f:Tuple.make]
@@ -2878,15 +2877,15 @@ module Result: {
   /** Unwrap a Result, raising the provided [~exn] in case of an [Error]
 
       {e Exmples}
-      
+
       {[
         exception UnexpectedAnimal
 
         Result.getOrFailWith (Ok 12) ~exn:UnexpectedAnimal  = 12
       ]}
-      
+
       {[
-        Result.getOrFailWith (Error(`UnexpectedBird("Chicken"))) ~exn:UnexpectedAnimal 
+        Result.getOrFailWith (Error(`UnexpectedBird("Chicken"))) ~exn:UnexpectedAnimal
         // Raises an [UnexpectedAnimal] exception.
       ]}
   */
@@ -2917,7 +2916,7 @@ module Result: {
   let getError: (t('ok, 'error), ~default: 'error) => 'error;
 
   /** Combine two results
-          
+
       If one of the results is an [Error], that becomes the return result.
 
       If both are [Error] values, returns its first.
@@ -2980,9 +2979,9 @@ module Result: {
   let transpose: t(option('ok), 'error) => option(t('ok, 'error));
 
   /** Run a function which may fail on a result.
-   
+
       Short-circuits of called with an [Error].
-      
+
       {e Examples}
 
       {[
@@ -3051,7 +3050,7 @@ module Result: {
 
   /** Test two results for equality using the provided functions.
 
-      {e Examples} 
+      {e Examples}
 
       {[Result.equal String.equal Int.equal (Ok 3) (Ok 3) = true]}
 
@@ -3063,13 +3062,20 @@ module Result: {
 
       {[Result.equal String.equal Int.equal (Error "Fail") (Ok 4) = false]}
   */
-  let equal: (('error, 'error) => bool, ('ok, 'ok) => bool, t('ok, 'error), t('ok, 'error)) => bool;
+  let equal:
+    (
+      ('error, 'error) => bool,
+      ('ok, 'ok) => bool,
+      t('ok, 'error),
+      t('ok, 'error)
+    ) =>
+    bool;
 
   /** Compare results for using the provided functions.
-    
+
       In the case when one of the results is an [Error] and one is [Ok], [Error]s  are considered 'less' then [Ok]s
 
-      {e Examples} 
+      {e Examples}
 
       {[Result.compare String.compare Int.compare (Ok 3) (Ok 3) = 0]}
 
@@ -3083,7 +3089,14 @@ module Result: {
 
       {[Result.compare String.compare Int.compare (Error "Expected error") (Error "Unexpected error") = -1]}
   */
-  let compare: (('error, 'error) => int, ('ok, 'ok) => int, t('ok, 'error), t('ok, 'error)) => int;
+  let compare:
+    (
+      ('error, 'error) => int,
+      ('ok, 'ok) => int,
+      t('ok, 'error),
+      t('ok, 'error)
+    ) =>
+    int;
 
   /** In functions that make heavy use of {!Result}s placing a
 
@@ -3152,19 +3165,19 @@ module Array: {
 
       Has constant time (O(1)) {!get}, {!set} and {!length} operations.
 
-      Arrays have a fixed length, if you want to be able to add an arbitrary number of elements maybe you want a {!List}. 
+      Arrays have a fixed length, if you want to be able to add an arbitrary number of elements maybe you want a {!List}.
   */
 
   type t('a) = array('a);
 
   /** {2 Create}
 
-      You can create an [array] in OCaml with the [[|1; 2; 3|]] syntax. 
-  */  
+      You can create an [array] in OCaml with the [[|1; 2; 3|]] syntax.
+  */
 
   /** Create an array with only one element.
 
-      {e Examples} 
+      {e Examples}
 
       {[Array.singleton 1234 = [|1234|]]}
 
@@ -3174,7 +3187,7 @@ module Array: {
   /** Initialize an array. [Array.initialize n ~f] creates an array of length [n] with
       the element at index [i] initialized to the result of [(f i)].
 
-      {e Examples} 
+      {e Examples}
 
       {[Array.initialize 4 ~f:identity = [|0; 1; 2; 3|]]}
 
@@ -3183,7 +3196,7 @@ module Array: {
 
   /** Creates an array of length [length] with the value [x] populated at each index.
 
-      {e Examples} 
+      {e Examples}
 
       {[Array.repeat ~length:5 'a' = [|'a'; 'a'; 'a'; 'a'; 'a'|]]}
 
@@ -3194,26 +3207,26 @@ module Array: {
 
   /** Creates an array containing all of the integers from [from] if it is provided or [0] if not, up to but not including [to]
 
-      {e Examples} 
+      {e Examples}
 
       {[Array.range 5 = [|0; 1; 2; 3; 4|] ]}
 
       {[Array.range ~from:2 5 = [|2; 3; 4|] ]}
 
-      {[Array.range ~from:(-2) 3 = [|-2; -1; 0; 1; 2|] ]} 
-  */  
+      {[Array.range ~from:(-2) 3 = [|-2; -1; 0; 1; 2|] ]}
+  */
   let range: (~from: int=?, int) => t(int);
 
   /** Create an array from a {!List}.
 
-      {e Examples} 
+      {e Examples}
 
       {[Array.ofList [1;2;3] = [|1;2;3|]]} */
   let ofList: list('a) => t('a);
 
-  /** Create a shallow copy of an array.          
+  /** Create a shallow copy of an array.
 
-      {e Examples} 
+      {e Examples}
 
       {[
         let numbers = [|1;2;3|] in
@@ -3221,7 +3234,7 @@ module Array: {
         numbers.(1) <- 9;
         numbers = [|1;9;3|];
         otherNumbers = [|1;2;3|];
-      ]} 
+      ]}
 
       {[
         let numberGrid = [|
@@ -3231,11 +3244,11 @@ module Array: {
         |] in
 
         let numberGridCopy = Array.copy numberGrid in
-        
+
         numberGrid.(1).(1) <- 0;
 
         numberGridCopy.(1).(1) = 9;
-      ]} 
+      ]}
   */
   let clone: t('a) => t('a);
 
@@ -3243,7 +3256,7 @@ module Array: {
 
   /** Return the length of an array.
 
-      {e Examples} 
+      {e Examples}
 
       {[Array.length [|1; 2, 3|] = 3]}
 
@@ -3251,8 +3264,8 @@ module Array: {
   let length: t('a) => int;
 
   /** Check if an array is empty
-    
-      {e Examples} 
+
+      {e Examples}
 
       {[Array.isEmpty [|1; 2, 3|] = false]}
 
@@ -3269,8 +3282,8 @@ module Array: {
 
       You should prefer using the dedicated literal syntax;
 
-      {[array.(n)]} 
-      
+      {[array.(n)]}
+
       Or using the safer {!Array.getAt} function.
 
       {3 Exceptions}
@@ -3293,7 +3306,7 @@ module Array: {
       Returns [None] if [n] is outside the range [0] to [(Array.length a - 1)].
 
       {e Examples}
-      
+
       {[Array.getAt([|0; 1; 2|], ~index=5) == None]}
 
       {[Array.getAt([||], ~index=0) == None]}
@@ -3303,7 +3316,7 @@ module Array: {
   /** Get the first element of an array.
 
       Returns [None] if the array is empty.
-      
+
       {e Examples}
 
       {[Array.first [1;2;3] = Some 1]}
@@ -3317,7 +3330,7 @@ module Array: {
   /** Get the last element of an array.
 
       Returns [None] if the array is empty.
-      
+
       {e Examples}
 
       {[Array.last [1;2;3] = Some 3]}
@@ -3332,16 +3345,16 @@ module Array: {
 
   /** Modifies an array in place, replacing the element at [index] with [value].
 
-      You should prefer either to write 
-      
+      You should prefer either to write
+
       {[array.(index) <- value] }
-      
+
       Or use the {!setAt} function instead.
 
       {3 Exceptions}
 
       Raises [Invalid_argument "index out of bounds"] if [n] is outside the range [0] to [Array.length a - 1].
-    
+
       {e Examples}
 
       {[
@@ -3359,7 +3372,7 @@ module Array: {
   let setAt: (t('a), ~index: int, ~value: 'a) => unit;
 
   /** Calculate the sum of a list using the provided modules [zero] value and [add] function.
-    
+
       {e Examples}
 
       {[Array.sum [|1;2;3|] (module Int) = 6]}
@@ -3377,7 +3390,7 @@ module Array: {
   let sum: (t('a), (module Container.Sum with type t = 'a)) => 'a;
 
   /** Count the number of elements which [f] returns [true] for
-    
+
       {e Examples}
 
       {[Array.count [|7;5;8;6|] ~f:Int.isEven = 2]}
@@ -3389,7 +3402,7 @@ module Array: {
       Returns [None] if called on an empty array.
 
       {e Examples}
-      
+
       {[Array.minimum [|7;5;8;6|] ~compare:Int.compare = Some 5]}
 
       {[Array.minimum [||] ~compare:Int.compare = None]}
@@ -3408,8 +3421,8 @@ module Array: {
   */
   let maximum: (t('a), ~compare: ('a, 'a) => int) => option('a);
 
-  /** Find a {!Tuple} of the {!minimum} and {!maximum} in a single pass 
-   
+  /** Find a {!Tuple} of the {!minimum} and {!maximum} in a single pass
+
       Returns [None] if called on an empty array.
 
       {e Examples}
@@ -3425,10 +3438,10 @@ module Array: {
   /** {1 Transform} */
 
   /** Combine two arrays by merging each pair of elements into a {!Tuple}
-    
+
       If one array is longer, the extra elements are dropped.
-      
-      The same as [Array.map2 ~f=Tuple.make] 
+
+      The same as [Array.map2 ~f=Tuple.make]
 
       {e Examples}
 
@@ -3450,7 +3463,7 @@ module Array: {
 
       Why [filterMap] and not just {!filter} then {!map}?
 
-      {!filterMap} removes the {!Option} layer automatically. 
+      {!filterMap} removes the {!Option} layer automatically.
 
       If your mapping is already returning an {!Option} and you want to skip over [None]s, then [filterMap] is much nicer to use.
 
@@ -3473,14 +3486,14 @@ module Array: {
   let filterMap: (t('a), ~f: 'a => option('b)) => t('b);
 
   /** Swaps the values at the provided indicies.
-    
+
       {3 Exceptions}
 
       Raises an [Invalid_argument] exception of either index is out of bounds for the array.
 
       {e Examples}
-      
-      {[Array.swap([|1;2;3|], 1, 2) == [|1;3;2|]]} 
+
+      {[Array.swap([|1;2;3|], 1, 2) == [|1;3;2|]]}
   */
   let swap: (t('a), int, int) => unit;
 
@@ -3489,25 +3502,25 @@ module Array: {
   /** Create a new array which is the result of applying a function [f] to every element.
 
       {e Examples}
-      
-      {[Array.map ~f:Float.squareRoot [|1.0; 4.0; 9.0|] = [|1.0; 2.0; 3.0|]]} 
+
+      {[Array.map ~f:Float.squareRoot [|1.0; 4.0; 9.0|] = [|1.0; 2.0; 3.0|]]}
   */
   let map: (t('a), ~f: 'a => 'b) => t('b);
 
   /** Apply a function [f] to every element with its index as the first argument.
 
       {e Examples}
-      
-      {[Array.mapWithIndex ~f:( * ) [|5; 5; 5|] = [|0; 5; 10|]]} 
+
+      {[Array.mapWithIndex ~f:( * ) [|5; 5; 5|] = [|0; 5; 10|]]}
   */
   let mapI: (t('a), ~f: (int, 'a) => 'b) => t('b);
 
   /** Combine two arrays, using [f] to combine each pair of elements.
-    
+
       If one array is longer, the extra elements are dropped.
 
       {e Examples}
-      
+
       {[
         let totals (xs : int array) (ys : int array) : int array =
           Array.map2 ~f:(+) xs ys in
@@ -3526,11 +3539,11 @@ module Array: {
   let map2: (t('a), t('b), ~f: ('a, 'b) => 'c) => t('c);
 
   /** Combine three arrays, using [f] to combine each trio of elements.
-      
+
       If one array is longer, the extra elements are dropped.
 
       {e Examples}
-      
+
       {[
         Array.map3
           ~f:Tuple3.create
@@ -3543,19 +3556,19 @@ module Array: {
   let map3: (t('a), t('b), t('c), ~f: ('a, 'b, 'c) => 'd) => t('d);
 
   /** {!map} [f] onto an array and {!concatenate} the resulting arrays
-    
+
       {e Examples}
 
-      {[Array.bind ~f:(fun n -> [|n; n|]) [|1; 2; 3|] = [|1; 1; 2; 2; 3; 3|]]} 
+      {[Array.bind ~f:(fun n -> [|n; n|]) [|1; 2; 3|] = [|1; 1; 2; 2; 3; 3|]]}
   */
   let bind: (t('a), ~f: 'a => t('b)) => t('b);
 
   /** Split an array into equally sized chunks.
-    
+
       If there aren't enough elements to make the last 'chunk', those elements are ignored.
 
       {e Examples}
-      
+
       {[
         Array.chunksOf ~size:2 [|"#FFBA49"; "#9984D4"; "#20A39E"; "#EF5B5B"; "#23001E"|] =  [|
           [|"#FFBA49"; "#9984D4"|];
@@ -3574,7 +3587,7 @@ module Array: {
       The sub-arrays are guaranteed to always be of length [size] and iteration stops once a sub-array would extend beyond the end of the array.
 
       {e Examples}
-        
+
       {[Array.sliding [|1;2;3;4;5|] ~size:1 = [|[|1|]; [|2|]; [|3|]; [|4|]; [|5|]|] ]}
 
       {[Array.sliding [|1;2;3;4;5|] ~size:2 = [|[|1;2|]; [|2;3|]; [|3;4|]; [|4;5|]|] ]}
@@ -3592,29 +3605,29 @@ module Array: {
       If [f] doesn't return [true] for any of the elements [find] will return [None]
 
       {e Examples}
-        
+
       {[Array.find ~f:Int.isEven [|1; 3; 4; 8;|] = Some 4]}
 
       {[Array.find ~f:Int.isOdd [|0; 2; 4; 8;|] = None]}
 
-      {[Array.find ~f:Int.isEven [||] = None]} 
+      {[Array.find ~f:Int.isEven [||] = None]}
   */
   let find: (t('a), ~f: 'a => bool) => option('a);
 
   /** Similar to {!Array.find} but [f] is also called with the current index, and the return value will be a tuple of the index the passing value was found at and the passing value.
 
       {e Examples}
-      
+
       {[Array.findIndex [|1; 3; 4; 8;|] ~f:(fun index number -> index > 2 && Int.isEven number) = Some (3, 8)]}
   */
   let findIndex: (t('a), ~f: (int, 'a) => bool) => option((int, 'a));
 
   /** Determine if [f] returns true for [any] values in an array.
-    
-      Iteration is stopped as soon as [f] returns [true] 
+
+      Iteration is stopped as soon as [f] returns [true]
 
       {e Examples}
-      
+
       {[Array.any ~f:Int.isEven [|1;2;3;5|] = true]}
 
       {[Array.any ~f:Int.isEven [|1;3;5;7|] = false]}
@@ -3625,8 +3638,8 @@ module Array: {
 
   /** Determine if [f] returns true for [all] values in an array.
 
-      Iteration is stopped as soon as [f] returns [false] 
-      
+      Iteration is stopped as soon as [f] returns [false]
+
       {e Examples}
 
       {[Array.all ~f:Int.isEven [|2;4|] = true]}
@@ -3650,7 +3663,7 @@ module Array: {
   /** Creates a new array which is the result of appending the second array onto the end of the first.
 
       {e Examples}
-      
+
       {[
         let fortyTwos = Array.repeat ~length:2 42 in
         let eightyOnes = Array.repeat ~length:3 81 in
@@ -3672,7 +3685,7 @@ module Array: {
   /** Split an array into a {!Tuple} of arrays. Values which [f] returns true for will end up in {!Tuple.first}.
 
       {e Examples}
-  
+
       {[Array.partition [|1;2;3;4;5;6|] ~f:Int.isOdd = ([|1;3;5|], [|2;4;6|])]}
   */
   let partition: (t('a), ~f: 'a => bool) => (t('a), t('a));
@@ -3697,22 +3710,22 @@ module Array: {
   */
   let splitAt: (t('a), ~index: int) => (t('a), t('a));
 
-  /** Divides an array at the first element [f] returns [true] for. 
-    
-      Returns a {!Tuple}, the first component contains the elements [f] returned false for, 
+  /** Divides an array at the first element [f] returns [true] for.
+
+      Returns a {!Tuple}, the first component contains the elements [f] returned false for,
       the second component includes the element that [f] retutned [true] for an all the remaining elements.
-   
+
       {e Examples}
 
       {[Array.splitWhen [|5; 7; 8; 6; 4;|] ~f:Int.isEven = ([|5; 7|], ([|8; 6; 4|]))]}
 
       {[
-        Array.splitWhen [|"Ant"; "Bat"; "Cat"|] ~f:(fun animal -> String.length animal > 3) = 
+        Array.splitWhen [|"Ant"; "Bat"; "Cat"|] ~f:(fun animal -> String.length animal > 3) =
           ([|"Ant"; "Bat"; "Cat"|], [||])
       ]}
 
       {[
-        Array.splitWhen [|2.; Float.pi; 1.111|] ~f:Float.isInteger = 
+        Array.splitWhen [|2.; Float.pi; 1.111|] ~f:Float.isInteger =
           ([||], [|2.; Float.pi; 1.111|])
       ]}
   */
@@ -3739,7 +3752,7 @@ module Array: {
       {e Examples}
 
       {[
-        Array.intersperse ~sep:"on" [|"turtles"; "turtles"; "turtles"|] = 
+        Array.intersperse ~sep:"on" [|"turtles"; "turtles"; "turtles"|] =
         [|"turtles"; "on"; "turtles"; "on"; "turtles"|]
       ]}
 
@@ -3748,7 +3761,7 @@ module Array: {
   let intersperse: (t('a), ~sep: 'a) => t('a);
 
   /** Get a sub-section of a list. [from] is a zero-based index where we will start our slice.
-    
+
       The [to_] is a zero-based index that indicates the end of the slice.
 
       The slice extracts up to but not including [to_].
@@ -3772,7 +3785,7 @@ module Array: {
   let slice: (~to_: int=?, t('a), ~from: int) => t('a);
 
   /** Produce a new value from an array.
-    
+
       [fold] takes two arguments, an [initial] 'accumulator' value and a function [f].
 
       For each element of the array [f] will be called with two arguments; the current accumulator and an element.
@@ -3828,7 +3841,7 @@ module Array: {
   let fold: (t('a), ~initial: 'b, ~f: ('b, 'a) => 'b) => 'b;
 
   /** This method is like {!fold} except that it iterates over the elements of the array from last to first.
-      
+
       {e Examples}
 
       {[Array.foldRight ~f:(+) ~initial:0 (Array.repeat ~length:3 5) = 15]}
@@ -3838,7 +3851,7 @@ module Array: {
   let foldRight: (t('a), ~initial: 'b, ~f: ('b, 'a) => 'b) => 'b;
 
   /** Reverses an array {b in place}, mutating the existing array.
-      
+
       {e Examples}
 
       {[
@@ -3857,7 +3870,7 @@ module Array: {
       When targeting javascript the time and space complexity of the sort cannot be guaranteed as it depends on the implementation.
 
       {e Examples}
-      
+
       {[Array.sortInPlace [|5;6;8;3;6|] ~compare:compare = [|3;5;6;6;8|]]}
   */
   let sort: (t('a), ~compare: ('a, 'a) => int) => unit;
@@ -3865,15 +3878,15 @@ module Array: {
   /** {1 Iterate} */
 
   /** Iterates over the elements of invokes [f] for each element.
-      
+
       {e Examples}
 
-      {[Array.forEach [|1; 2; 3|] ~f:(fun int -> print (Int.toString int))]} 
+      {[Array.forEach [|1; 2; 3|] ~f:(fun int -> print (Int.toString int))]}
   */
   let forEach: (t('a), ~f: 'a => unit) => unit;
 
   /** Iterates over the elements of invokes [f] for each element.
-      
+
       {e Examples}
 
       {[
@@ -3887,22 +3900,22 @@ module Array: {
   */
   let forEachI: (t('a), ~f: (int, 'a) => unit) => unit;
 
-  /** Return all of the [Some] values from an array of options 
-      
+  /** Return all of the [Some] values from an array of options
+
       {e Examples}
 
-      {[Array.values [|(Some "Ant"); None; (Some "Cat")|] = [|"Ant"; "Cat"|]]} 
+      {[Array.values [|(Some "Ant"); None; (Some "Cat")|] = [|"Ant"; "Cat"|]]}
 
-      {[Array.values [|None; None; None|] = [||]]} 
+      {[Array.values [|None; None; None|] = [||]]}
   */
   let values: t(option('a)) => t('a);
 
   /** {1 Convert} */
 
   /** Converts a list of strings into a {!String}, placing [sep] between each string in the result.
-     
+
       {e Examples}
-    
+
       {[Array.join [|"Ant", "Bat", "Cat"|] ~sep:", " = "Ant, Bat, Cat"]}
    */
   let join: (t(string), ~sep: string) => string;
@@ -3910,54 +3923,54 @@ module Array: {
   /** Create a {!List} of elements from an array.
 
       {e Examples}
-      
+
       {[Array.toList [|1;2;3|] = [1;2;3]]}
 
-      {[Array.toList (Array.ofList [3; 5; 8]) = [3; 5; 8]]} 
+      {[Array.toList (Array.ofList [3; 5; 8]) = [3; 5; 8]]}
   */
   let toList: t('a) => list('a);
 
   /** Create an indexed {!List} from an array. Each element of the array will be paired with its index as a {!Tuple}.
 
       {e Examples}
-      
-      {[Array.toIndexedList [|"cat"; "dog"|] = [(0, "cat"); (1, "dog")]]} 
+
+      {[Array.toIndexedList [|"cat"; "dog"|] = [(0, "cat"); (1, "dog")]]}
     */
   let toIndexedList: t('a) => list((int, 'a));
 
-  /** {2 Comparison} */  
+  /** {2 Comparison} */
 
   /** Test two arrays for equality using the provided function to test pairs of elements. */
-  let equal: (('a, 'a) => bool, t('a), t('a)) => bool;  
+  let equal: (('a, 'a) => bool, t('a), t('a)) => bool;
 
-  /** Compare two arrays using the provided function to compare pairs of elements. 
+  /** Compare two arrays using the provided function to compare pairs of elements.
 
       A shorter array is 'less' than a longer one.
 
       {e Examples}
 
-      {[Array.compare Int.compare [|1;2;3|] [|1;2;3;4|] = -1]} 
+      {[Array.compare Int.compare [|1;2;3|] [|1;2;3;4|] = -1]}
 
-      {[Array.compare Int.compare [|1;2;3|] [|1;2;3|] = 0]} 
+      {[Array.compare Int.compare [|1;2;3|] [|1;2;3|] = 0]}
 
-      {[Array.compare Int.compare [|1;2;5|] [|1;2;3|] = 1]} 
+      {[Array.compare Int.compare [|1;2;5|] [|1;2;3|] = 1]}
   */
   let compare: (('a, 'a) => int, t('a), t('a)) => int;
 };
 
 /** Arbitrary length, singly linked lists */
-module List: {  
+module List: {
   /** Immutable singly-linked list of elements which must have the same type.
-    
+
       Lists can have any number of elements.
-      
+
       They are fast (O(1)) when:
-      - Getting the first element using {!head} 
+      - Getting the first element using {!head}
       - Getting the {!tail}
-      - Creating a new list by adding an element to the front using {!cons} 
+      - Creating a new list by adding an element to the front using {!cons}
 
       They also support exhaustive pattern matching
-      
+
       {[
         switch(aList) {
         | [] => "Empty"
@@ -3968,7 +3981,7 @@ module List: {
       ]}
 
       Lists are slow when:
-      - You need to access an element that isn't at the front of the list      
+      - You need to access an element that isn't at the front of the list
       - Counting how many elements are in the list
 
       As they have inefficent ([O(n)]) {!getAt} and {!length} operations.
@@ -3984,19 +3997,19 @@ module List: {
   */
 
   /** An empty list.
-      
+
       {e Examples}
-      
+
       {[List.empty = []]}
 
-      {[List.length List.empty = 0]} 
+      {[List.length List.empty = 0]}
   */
   let empty: t('a);
 
   /** Create a list with only one element.
-      
+
       {e Examples}
-      
+
       {[List.singleton 1234 = [1234]]}
 
       {[List.singleton "hi" = ["hi"]]}
@@ -4004,9 +4017,9 @@ module List: {
   let singleton: 'a => t('a);
 
   /** Creates a list of length [times] with the value [x] populated at each index.
-      
+
       {e Examples}
-      
+
       {[List.repeat ~times:5 'a' = ['a'; 'a'; 'a'; 'a'; 'a']]}
 
       {[List.repeat ~times:0 7 = []]}
@@ -4016,9 +4029,9 @@ module List: {
   let repeat: ('a, ~times: int) => t('a);
 
   /** Creates a list containing all of the integers from [from] if it is provided or [0] if not, up to but not including [to]
-      
+
       {e Examples}
-      
+
       {[List.range 5 = [0; 1; 2; 3; 4] ]}
 
       {[List.range ~from:2 5 = [2; 3; 4] ]}
@@ -4030,9 +4043,9 @@ module List: {
   /** Initialize a list.
 
       [List.initialize n ~f] creates a list of length [n] by setting the element at position [index] to be [f(index)].
-      
+
       {e Examples}
-      
+
       {[List.initialize 4 ~f:identity = [0; 1; 2; 3]]}
 
       {[List.initialize 4 ~f:(fun index -> index * index) = [0; 1; 4; 9]]}
@@ -4054,7 +4067,7 @@ module List: {
       If the list is empty, returns [None]
 
       {e Examples}
-      
+
       {[List.head [1;2;3] = Some 1]}
 
       {[List.head [] = None]}
@@ -4066,7 +4079,7 @@ module List: {
       If the list is empty, returns [None]
 
       {e Examples}
-      
+
       {[List.tail [1;2;3] = Some [2;3]]}
 
       {[List.tail [1] = Some []]}
@@ -4080,7 +4093,7 @@ module List: {
   /** Creates a new list which is the result of appending the second list onto the end of the first.
 
       {e Examples}
-          
+
       {[
         let fortyTwos = List.repeat ~length:2 42 in
         let eightyOnes = List.repeat ~length:3 81 in
@@ -4092,13 +4105,13 @@ module List: {
   /** Concatenate a list of lists into a single list:
 
       {e Examples}
-      
-      {[List.concatenate [[1; 2]; [3]; [4; 5]] = [1; 2; 3; 4; 5]]} 
+
+      {[List.concatenate [[1; 2]; [3]; [4; 5]] = [1; 2; 3; 4; 5]]}
   */
   let concatenate: t(t('a)) => t('a);
 
   /** Calculate the sum of a list using the provided modules [zero] value and [add] function.
-    
+
       {e Examples}
 
       {[List.sum [1;2;3] (module Int) = 6]}
@@ -4128,19 +4141,19 @@ module List: {
   /** Apply a function [f] onto a list and concatenate the resulting list of lists.
 
       {e Examples}
-      
+
       {[List.bind ~f xs = List.map ~f xs |> List.concatenate]}
 
-      {[List.bind ~f:(fun n -> [|n; n|]) [|1; 2; 3|] = [|1; 1; 2; 2; 3; 3|]]} 
+      {[List.bind ~f:(fun n -> [|n; n|]) [|1; 2; 3|] = [|1; 1; 2; 2; 3; 3|]]}
   */
   let bind: (t('a), ~f: 'a => t('b)) => t('b);
 
   /** Apply a function [f] to every element and its index.
 
       {e Examples}
-      
+
       {[
-        List.mapI(["zero", "one", "two"], ~f=(index,  element) => 
+        List.mapI(["zero", "one", "two"], ~f=(index,  element) =>
           (Int.toString(index)) ++ ": " ++ element
         ) = ["0: zero"; "1: one"; "2: two"]
       ]}
@@ -4148,7 +4161,7 @@ module List: {
   let mapI: (t('a), ~f: (int, 'a) => 'b) => t('b);
 
   /** Combine two lists, using [f] to combine each pair of elements.
-    
+
       If one list is longer, the extra elements are dropped.
 
       {e Examples}
@@ -4166,11 +4179,11 @@ module List: {
   let map2: (t('a), t('b), ~f: ('a, 'b) => 'c) => t('c);
 
   /** Combine three lists, using [f] to combine each trio of elements.
-      
+
       If one list is longer, the extra elements are dropped.
 
       {e Examples}
-      
+
       {[
         List.map3
           ~f:Tuple3.create
@@ -4191,7 +4204,7 @@ module List: {
       The sub-lists are guaranteed to always be of length [size] and iteration stops once a sub-list would extend beyond the end of the list.
 
       {e Examples}
-      
+
       {[List.sliding [1;2;3;4;5] ~size:1 = [[1]; [2]; [3]; [4]; [5]] ]}
 
       {[List.sliding [1;2;3;4;5] ~size:2 = [[1;2]; [2;3]; [3;4]; [4;5]] ]}
@@ -4212,7 +4225,7 @@ module List: {
 
       Returns [None] if the list is empty.
 
-      {b Warning} This will iterate through the entire list. 
+      {b Warning} This will iterate through the entire list.
 
       {e Examples}
 
@@ -4225,8 +4238,8 @@ module List: {
   let last: t('a) => option('a);
 
   /** Test if a list contains the specified element using the provided [equal] to test for equality.
-   
-      This function may iterate the entire list, so if your code needs to 
+
+      This function may iterate the entire list, so if your code needs to
       repeatedly perform this check, maybe you want a {!Set} instead.
 
       {e Examples}
@@ -4242,7 +4255,7 @@ module List: {
   let includes: (t('a), 'a, ~equal: ('a, 'a) => bool) => bool;
 
   /** Count the number of elements which [f] returns [true] for
-    
+
       {e Examples}
 
       {[List.count [7;5;8;6] ~f:Int.isEven = 2]}
@@ -4305,7 +4318,7 @@ module List: {
   /** Keep elements that [f] returns [true] for.
 
       {e Examples}
-      
+
       {[List.filter ~f:Int.isEven [1; 2; 3; 4; 5; 6] = [2; 4; 6]]}
   */
   let filter: (t('a), ~f: 'a => bool) => t('a);
@@ -4316,9 +4329,9 @@ module List: {
   /** {1 Deconstruct} */
 
   /** Split a list into a {!Tuple} of lists. Values which [f] returns true for will end up in {!Tuple.first}.
-      
+
       {e Examples}
-    
+
       {[List.partition [1;2;3;4;5;6] ~f:Int.isOdd = ([1;3;5], [2;4;6])]}
   */
   let partition: (t('a), ~f: 'a => bool) => (t('a), t('a));
@@ -4326,13 +4339,13 @@ module List: {
   /** Decompose a list of {!Tuple} into a {!Tuple} of lists.
 
       {e Examples}
-      
+
       {[List.unzip [(0, true); (17, false); (1337, true)] = ([0;17;1337], [true; false; true])]}
   */
   let unzip: t(('a, 'b)) => (t('a), t('b));
 
   /** Decompose a list of {!Tuple3} into a {!Tuple3} of lists.
-      
+
       {e Examples}
 
       {[List.unzip [(0, true); (17, false); (1337, true)] = ([0;17;1337], [true; false; true])]}
@@ -4340,10 +4353,10 @@ module List: {
   let unzip3: t(('a, 'b, 'c)) => (t('a), t('b), t('c));
 
   /** Transform a list into a value
-   
+
       After applying [f] to every element of the list, [fold] returns the accumulator.
 
-      [fold] iterates over the elements of the list from first to last.      
+      [fold] iterates over the elements of the list from first to last.
 
       For examples if we have:
 
@@ -4396,7 +4409,7 @@ module List: {
     If [f] doesn't return [true] for any of the elements [find] will return [None]
 
     {e Example}
-    
+
     {[List.find ~f:Int.isEven [|1; 3; 4; 8;|] = Some 4]}
 
     {[List.find ~f:Int.isOdd [|0; 2; 4; 8;|] = None]}
@@ -4410,13 +4423,13 @@ module List: {
       If [f] doesnt return [true] for any [(index, element)] pair, returns [None].
 
       {e Example}
-      
+
       {[List.findIndex ~f:(fun index number -> index > 2 && Int.isEven number) [|1; 3; 4; 8;|] = Some (3, 8)]}
   */
   let findIndex: (t('a), ~f: (int, 'a) => bool) => option((int, 'a));
 
   /** Attempt to take the first [count] elements of a list.
-    
+
      If the list has fewer than [count] elements, returns [None].
 
      {e Example}
@@ -4430,9 +4443,9 @@ module List: {
   let take: (t('a), ~count: int) => option(t('a));
 
   /** Take elements from a list until [f] returns [false]
-    
+
       {e Examples}
-      
+
       {[
         List.takeWhile ~f:Int.isEven [2; 4; 6; 7; 8; 9] = [2; 4; 6]
         List.takeWhile ~f:Int.isEven [2; 4; 6] = [2; 4; 6]
@@ -4442,11 +4455,11 @@ module List: {
   let takeWhile: (t('a), ~f: 'a => bool) => t('a);
 
   /** Drop the first [count] elements from the front of a list.
-    
+
       If count is greater than the length of the list, returns an empty list.
-      
+
       {e Examples}
-      
+
       {[List.drop [1;2;3;4] ~count:2 = [3;4]}
 
       {[List.drop [1;2;3;4] ~count:6 = []]}
@@ -4454,7 +4467,7 @@ module List: {
   let drop: (t('a), ~count: int) => t('a);
 
   /** Drop elements from a list until [f] returns [false]
-   
+
       {e Examples}
 
       {[
@@ -4478,19 +4491,18 @@ module List: {
       {[List.splitAt [1;2;3;4;5] ~index:2 = ([1;2], [3;4;5])]}
   */
   let splitAt: (t('a), ~index: int) => (t('a), t('a));
-  
-  
-  /** Divides a list into a {!Tuple} at the first element [f] returns [true] for.        
+
+  /** Divides a list into a {!Tuple} at the first element [f] returns [true] for.
 
       Elements up to (but not including) the first element [f] returns [true] for
       will be in the first component of the tuple, the remaining elements will be
       in the second
-    
+
       {e Examples}
 
-      {[List.splitWhen [2; 4; 5; 6; 7] ~f:Int.isEven = ([2; 4], [5; 6; 7])]} 
+      {[List.splitWhen [2; 4; 5; 6; 7] ~f:Int.isEven = ([2; 4], [5; 6; 7])]}
 
-      {[List.splitWhen [2; 4; 5; 6; 7] ~f:(Fun.constant false) = ([2; 4; 5; 6; 7], [])]} 
+      {[List.splitWhen [2; 4; 5; 6; 7] ~f:(Fun.constant false) = ([2; 4; 5; 6; 7], [])]}
   */
   let splitWhen: (t('a), ~f: 'a => bool) => (t('a), t('a));
 
@@ -4510,7 +4522,7 @@ module List: {
   let updateAt: (t('a), ~index: int, ~f: 'a => 'a) => t('a);
 
   /** Creates a new list without the element at [index].
-    
+
       If [index] is outside of the bounds of the list, returns the list as-is.
 
       {e Examples}
@@ -4567,18 +4579,18 @@ module List: {
     */
   let length: t('a) => int;
 
-  /** Reverse the elements in a list 
-   
+  /** Reverse the elements in a list
+
       {e Examples}
 
       {[List.reverse [1;2;3] = [3;2;1]]}
-   */  
+   */
   let reverse: t('a) => t('a);
 
   /** {1 Query} */
 
   /** Determine if a list is empty.
-   
+
       {e Examples}
 
       {[List.isEmpty List.empty = true]}
@@ -4597,7 +4609,7 @@ module List: {
       {[
         [1, ...[1,2,3]]
       ]}
-         
+
       {e Examples}
 
       {[List.cons [2;3;4] 1 = [1;2;3;4]]}
@@ -4607,9 +4619,9 @@ module List: {
   let cons: (t('a), 'a) => t('a);
 
   /** Determine if [f] returns true for [any] values in a list.
-    
+
       Stops iteration as soon as [f] returns true.
-   
+
       {e Examples}
 
       {[List.any ~f:isEven [|2;3|] = true]}
@@ -4623,7 +4635,7 @@ module List: {
   /** Determine if [f] returns true for [all] values in a list.
 
       Stops iteration as soon as [f] returns false.
-         
+
       {e Examples}
 
       {[List.all ~f:Int.isEven [|2;4|] = true]}
@@ -4637,7 +4649,7 @@ module List: {
   /** Find the smallest element using the provided [compare] function.
 
       Returns [None] if called on an empty array.
-   
+
       {e Examples}
 
       {[List.minimum [|7;5;8;6|] ~compare:Int.compare = Some 5]}
@@ -4647,7 +4659,7 @@ module List: {
   /** Find the largest element using the provided [compare] function.
 
       Returns [None] if called on an empty array.
-   
+
       {e Examples}
 
       {[List.maximum [|7;5;8;6|] ~compare:compare = Some 8]}
@@ -4657,7 +4669,7 @@ module List: {
   /** Find a {!Tuple} of the [(minimum, maximum)] elements using the provided [compare] function.
 
       Returns [None] if called on an empty array.
-   
+
       {e Examples}
 
       {[List.extent [|7;5;8;6|] ~compare:compare = Some (5, 8)]}
@@ -4689,10 +4701,9 @@ module List: {
       ]}
   */
   let groupWhile: (t('a), ~f: ('a, 'a) => bool) => t(t('a));
-  
-  
+
   /** Insert a new element at the specified index.
-    
+
       The element previously occupying [index] will now be at [index + 1]
 
       If [index] is greater than then length of the list, it will be appended:
@@ -4710,13 +4721,13 @@ module List: {
       {[List.insertAt ~index:4 ~value:999 [100; 101; 102; 103] = [100; 101; 102; 103; 999]]}
 
       {[List.insertAt ~index:5 ~value:999 [100; 101; 102; 103] = [100; 101; 102; 103; 999]]}
-  */  
+  */
   let insertAt: (t('a), ~index: int, ~value: 'a) => t('a);
 
   /** Places [sep] between all the elements of the given list.
 
       {e Examples}
-      
+
       {[List.intersperse ~sep:"on" [|"turtles"; "turtles"; "turtles"|] = [|"turtles"; "on"; "turtles"; "on"; "turtles"|]]}
 
       {[List.intersperse ~sep:0 [||] = [||]]}
@@ -4731,7 +4742,7 @@ module List: {
       When targeting javascript the time and space complexity of the sort cannot be guaranteed as it depends on the implementation.
 
       {e Examples}
-      
+
       {[List.sort [5;6;8;3;6] ~compare:Int.compare = [3;5;6;6;8]]}
   */
   let sort: (t('a), ~compare: ('a, 'a) => int) => t('a);
@@ -4740,30 +4751,30 @@ module List: {
 
   /** Iterates over the elements of invokes [f] for each element.
 
-      The function you provide must return [unit], and the [forEach] call itself also returns [unit]. 
-      
+      The function you provide must return [unit], and the [forEach] call itself also returns [unit].
+
       You use [List.forEach] when you want to process a list only for side effects.
 
 
       {e Examples}
-      
+
       {[
         List.forEach [|1; 2; 3|] ~f:(fun int -> print (Int.toString int))
         // Prints
         // 1
         // 2
         // 3
-      ]} 
+      ]}
   */
   let forEach: (t('a), ~f: 'a => unit) => unit;
 
   /** Like {!forEach} but [f] is also called with the elements index.
 
       {e Examples}
-      
+
       {[
         List.forEachI [1; 2; 3] ~f:(fun index int -> printf "%d: %d" index int)
-        (* 
+        (*
           Prints
           0: 1
           1: 2
@@ -4776,9 +4787,9 @@ module List: {
   /** {1 Convert} */
 
   /** Converts a list of strings into a {!String}, placing [sep] between each string in the result.
-     
+
       {e Examples}
-    
+
       {[List.join ["Ant", "Bat", "Cat"] ~sep:", " = "Ant, Bat, Cat"]}
    */
   let join: (t(string), ~sep: string) => string;
@@ -4789,19 +4800,19 @@ module List: {
   /** {2 Comparison} */
 
   /** Test two lists for equality using the provided function to test elements. */
-  let equal: (('a, 'a) => bool, t('a), t('a)) => bool;  
+  let equal: (('a, 'a) => bool, t('a), t('a)) => bool;
 
-  /** Compare two lists using the provided function to compare elements. 
+  /** Compare two lists using the provided function to compare elements.
 
       A shorter list is 'less' than a longer one.
 
       {e Examples}
 
-      {[List.compare Int.compare [1;2;3] [1;2;3;4] = -1]} 
+      {[List.compare Int.compare [1;2;3] [1;2;3;4] = -1]}
 
-      {[List.compare Int.compare [1;2;3] [1;2;3] = 0]} 
+      {[List.compare Int.compare [1;2;3] [1;2;3] = 0]}
 
-      {[List.compare Int.compare [1;2;5] [1;2;3] = 1]} 
+      {[List.compare Int.compare [1;2;5] [1;2;3] = 1]}
   */
   let compare: (('a, 'a) => int, t('a), t('a)) => int;
 };
@@ -4864,7 +4875,7 @@ module Tuple: {
   /** Extract the first value from a tuple.
 
       {e Examples}
-      
+
       {[Tuple.first (3, 4) = 3]}
 
       {[Tuple.first ("john", "doe") = "john"]}
@@ -4874,7 +4885,7 @@ module Tuple: {
   /** Extract the second value from a tuple.
 
       {e Examples}
-      
+
       {[Tuple.second (3, 4) = 4]}
 
       {[Tuple.second ("john", "doe") = "doe"]}
@@ -4886,7 +4897,7 @@ module Tuple: {
   /** Transform the {!first} value in a tuple.
 
       {e Examples}
-      
+
       {[Tuple.mapFirst ~f:String.reverse ("stressed", 16) = ("desserts", 16)]}
 
       {[Tuple.mapFirst ~f:String.length ("stressed", 16) = (8, 16)]}
@@ -4896,7 +4907,7 @@ module Tuple: {
   /** Transform the second value in a tuple.
 
       {e Examples}
-      
+
       {[Tuple.mapSecond ~f:Float.squareRoot ("stressed", 16.) = ("stressed", 4.)]}
 
       {[Tuple.mapSecond ~f:(~-) ("stressed", 16) = ("stressed", -16)]}
@@ -4906,7 +4917,7 @@ module Tuple: {
   /** Transform both values of a tuple, using [f] for the first value and [g] for the second.
 
       {e Examples}
-      
+
       {[Tuple.mapEach ~f:String.reverse ~g:Float.squareRoot ("stressed", 16.) = ("desserts", 4.)]}
 
       {[Tuple.mapEach ~f:String.length ~g:(~-) ("stressed", 16) = (8, -16)]}
@@ -4918,7 +4929,7 @@ module Tuple: {
       [mapAll] can only be used on tuples which have the same type for each value.
 
       {e Examples}
-      
+
       {[Tuple.mapAll ~f:(Int.add 1) (3, 4, 5) = (4, 5, 6)]}
 
       {[Tuple.mapAll ~f:String.length ("was", "stressed") = (3, 8)]}
@@ -4928,7 +4939,7 @@ module Tuple: {
   /** Switches the first and second values of a tuple.
 
       {e Examples}
-      
+
       {[Tuple.swap (3, 4) = (4, 3)]}
 
       {[Tuple.swap ("stressed", 16) = (16, "stressed")]}
@@ -4938,7 +4949,7 @@ module Tuple: {
   /** Takes a function [f] which takes a single argument of a tuple ['a * 'b] and returns a function which takes two arguments that can be partially applied.
 
       {e Examples}
-      
+
       {[
         let squareArea (width, height) = width * height
         let curriedArea : float -> float -> float = curry squareArea
@@ -4952,7 +4963,7 @@ module Tuple: {
   /** Takes a function which takes two arguments and returns a function which takes a single argument of a tuple.
 
       {e Examples}
-      
+
       {[
         let sum (a : int) (b: int) : int = a + b
         let uncurriedSum : (int * int) -> int = uncurry add
@@ -4968,7 +4979,7 @@ module Tuple: {
       This function can only be used on tuples which have the same type for each value.
 
       {e Examples}
-      
+
       {[Tuple.toArray (3, 4) = [|3; 4|]]}
 
       {[Tuple.toArray ("was", "stressed") = [|"was"; "stressed"|]]}
@@ -4978,7 +4989,7 @@ module Tuple: {
   /** Turns a tuple into a list of length two. This function can only be used on tuples which have the same type for each value.
 
       {e Examples}
-      
+
       {[Tuple.toList (3, 4) = [3; 4]]}
 
       {[Tuple.toList ("was", "stressed") = ["was"; "stressed"]]}
@@ -4987,7 +4998,7 @@ module Tuple: {
 
   /** {2 Comparison} */
 
-  /** Test two {!Tuple}s for equality, using the provided functions to test the 
+  /** Test two {!Tuple}s for equality, using the provided functions to test the
       first and second components.
 
       {e Examples}
@@ -4996,7 +5007,8 @@ module Tuple: {
 
       {[Tuple.equal Int.equal String.equal (1, "Fox") (2, "Hen") = false]}
    */
-  let equal: (('a, 'a) => bool, ('b, 'b) => bool, t('a, 'b), t('a, 'b)) => bool;
+  let equal:
+    (('a, 'a) => bool, ('b, 'b) => bool, t('a, 'b), t('a, 'b)) => bool;
 
   /** Compare two {!Tuple}s, using the provided functions to compare the first
       components then, if the first components are equal, the second components.
@@ -5009,7 +5021,8 @@ module Tuple: {
 
       {[Tuple.compare Int.compare String.compare (1, "Fox") (2, "Hen") = -1]}
    */
-  let compare: (('a, 'a) => int, ('b, 'b) => int, t('a, 'b), t('a, 'b)) => int;
+  let compare:
+    (('a, 'a) => int, ('b, 'b) => int, t('a, 'b), t('a, 'b)) => int;
 };
 
 /** Functions for manipulating trios of values */
@@ -5021,13 +5034,13 @@ module Tuple3: {
   /** {2 Create} */
 
   /** Create a {!Tuple3}.
-    
-      {e Examples} 
-      
+
+      {e Examples}
+
       {[Tuple3.create 3 "cat" false = (3, "cat", false)]}
 
       {[
-        List.map3 ~f:Tuple3.create [1;2;3] ['a'; 'b'; 'c'] [4.; 5.; 6.] = 
+        List.map3 ~f:Tuple3.create [1;2;3] ['a'; 'b'; 'c'] [4.; 5.; 6.] =
           [(1, 'a', 4.), (2, 'b', 5.), (3, 'c', 6.)]
       ]}
   */
@@ -5049,7 +5062,7 @@ module Tuple3: {
   */
   let ofArray: array('a) => option(('a, 'a, 'a));
 
-   /** Create a tuple from the first two elements of a {!List}.
+  /** Create a tuple from the first two elements of a {!List}.
 
       If the list is longer than two elements, the extra elements are ignored.
 
@@ -5068,7 +5081,7 @@ module Tuple3: {
   /** Extract the first value from a tuple.
 
       {e Examples}
-      
+
       {[Tuple3.first (3, 4, 5) = 3]}
 
       {[Tuple3.first ("john", "danger", "doe") = "john"]}
@@ -5078,7 +5091,7 @@ module Tuple3: {
   /** Extract the second value from a tuple.
 
       {e Examples}
-      
+
       {[Tuple.second (3, 4, 5) = 4]}
 
       {[Tuple.second ("john", "danger", "doe") = "danger"]}
@@ -5088,7 +5101,7 @@ module Tuple3: {
   /** Extract the third value from a tuple.
 
       {e Examples}
-      
+
       {[Tuple.third (3, 4, 5) = 5]}
 
       {[Tuple.third ("john", "danger", "doe") = "doe"]}
@@ -5098,7 +5111,7 @@ module Tuple3: {
   /** Extract the first and second values of a {!Tuple3} as a {!Tuple}.
 
       {e Examples}
-      
+
       {[Tuple3.initial (3, "stressed", false) = (3, "stressed")]}
 
       {[Tuple3.initial ("john", 16, true) = ("john", 16)]}
@@ -5108,7 +5121,7 @@ module Tuple3: {
   /** Extract the second and third values of a {!Tuple3} as a {!Tuple}.
 
       {e Examples}
-      
+
       {[Tuple3.tail (3, "stressed", false) = ("stressed", false)]}
 
       {[Tuple3.tail ("john", 16, true) = (16, true)]}
@@ -5118,7 +5131,7 @@ module Tuple3: {
   /** Transform the first value in a tuple.
 
       {e Examples}
-      
+
       {[Tuple3.mapFirst ~f:String.reverse ("stressed", 16, false) = ("desserts", 16, false)]}
 
       {[Tuple3.mapFirst ~f:String.length ("stressed", 16, false) = (8, 16, false)]}
@@ -5128,7 +5141,7 @@ module Tuple3: {
   /** Transform the second value in a tuple.
 
       {e Examples}
-      
+
       {[Tuple3.mapSecond ~f:Float.squareRoot ("stressed", 16., false) = ("stressed", 4., false)]}
 
       {[Tuple3.mapSecond ~f:(~-) ("stressed", 16, false) = ("stressed", -16, false)]}
@@ -5138,7 +5151,7 @@ module Tuple3: {
   /** Transform the third value in a tuple.
 
       {e Examples}
-      
+
       {[Tuple3.mapThird ~f:not ("stressed", 16, false) ("stressed", 16, true)]}
   */
   let mapThird: (('a, 'b, 'c), ~f: 'c => 'z) => ('a, 'b, 'z);
@@ -5146,7 +5159,7 @@ module Tuple3: {
   /** Transform each value in a tuple by applying [f] to the {!first} value, [g] to the {!second} value and [h] to the {!third} value.
 
       {e Examples}
-      
+
       {[
         Tuple3.mapEach
           ~f:String.reverse
@@ -5161,7 +5174,7 @@ module Tuple3: {
   /** Transform all the values of a tuple using the same function.
 
       [mapAll] can only be used on tuples which have the same type for each value.
-      
+
       {e Examples}
 
       {[Tuple.mapAll ~f:Float.squareRoot (9., 16., 25.) = (3., 4., 5.)]}
@@ -5173,7 +5186,7 @@ module Tuple3: {
   /** Move each value in the tuple one position to the left, moving the value in the first position into the last position.
 
       {e Examples}
-      
+
       {[Tuple.rotateLeft (3, 4, 5) = (4, 5, 3)]}
 
       {[Tuple.rotateLeft ("was", "stressed", "then") = ("stressed", "then", "was")]}
@@ -5183,7 +5196,7 @@ module Tuple3: {
   /** Move each value in the tuple one position to the right, moving the value in the last position into the first position.
 
       {e Examples}
-      
+
       {[Tuple.rotateRight (3, 4, 5) = (5, 3, 4)]}
 
       {[Tuple.rotateRight ("was", "stressed", "then") = ("then", "was", "stressed")]}
@@ -5193,7 +5206,7 @@ module Tuple3: {
   /** Takes a function which takes a single argument of a {!Tuple3} and returns a function which takes three arguments that can be partially applied.
 
       {e Examples}
-    
+
       {[
         let cubeVolume (width, height, depth) = width * height * depth in
         let curriedVolume : float -> float -> float = curry squareArea in
@@ -5203,8 +5216,8 @@ module Tuple3: {
   */
   let curry: ((('a, 'b, 'c)) => 'd, 'a, 'b, 'c) => 'd;
 
-  /** [uncurry f] takes a function [f] which takes three arguments and returns a function which takes a single argument of a {!Tuple3}  
-      
+  /** [uncurry f] takes a function [f] which takes three arguments and returns a function which takes a single argument of a {!Tuple3}
+
       {e Examples}
 
       TODO
@@ -5218,7 +5231,7 @@ module Tuple3: {
       This function can only be used on tuples which have the same type for each value.
 
       {e Examples}
-      
+
       {[Tuple3.toArray (3, 4, 5) = [3; 4; 5]]}
 
       {[Tuple3.toArray ("was", "stressed", "then") = ["was"; "stressed"; "then"]]}
@@ -5230,7 +5243,7 @@ module Tuple3: {
       This function can only be used on tuples which have the same type for each value.
 
       {e Examples}
-      
+
       {[Tuple3.toList (3, 4, 5) = [3; 4; 5]]}
 
       {[Tuple3.toList ("was", "stressed", "then") = ["was"; "stressed"; "then"]]}
@@ -5239,7 +5252,7 @@ module Tuple3: {
 
   /** {2 Comparison} */
 
-  /** Test two {!Tuple3}s for equality, using the provided functions to test the 
+  /** Test two {!Tuple3}s for equality, using the provided functions to test the
       first, second and third components.
 
       {e Examples}
@@ -5248,10 +5261,18 @@ module Tuple3: {
 
       {[Tuple.equal Int.equal String.equal Char.equal (1, "Fox", 'j') (2, "Hen", 'j') = false]}
    */
-  let equal: (('a, 'a) => bool, ('b, 'b) => bool, ('c,'c) => bool, t('a, 'b,'c), t('a, 'b,'c)) => bool;
+  let equal:
+    (
+      ('a, 'a) => bool,
+      ('b, 'b) => bool,
+      ('c, 'c) => bool,
+      t('a, 'b, 'c),
+      t('a, 'b, 'c)
+    ) =>
+    bool;
 
   /** Compare two {!Tuple3}s, using the provided functions to compare the first
-      components then, if the first components are equal, the second components, 
+      components then, if the first components are equal, the second components,
       then the third components
 
       {e Examples}
@@ -5262,7 +5283,15 @@ module Tuple3: {
 
       {[Tuple.compare Int.compare String.compare Char.compare (1, "Fox", 'j') (2, "Fox", 'm') = -1]}
    */
-  let compare: (('a, 'a) => int, ('b, 'b) => int, ('c,'c) => int, t('a, 'b,'c), t('a, 'b,'c)) => int;
+  let compare:
+    (
+      ('a, 'a) => int,
+      ('b, 'b) => int,
+      ('c, 'c) => int,
+      t('a, 'b, 'c),
+      t('a, 'b, 'c)
+    ) =>
+    int;
 };
 
 module Set: {
@@ -5517,9 +5546,9 @@ module Map: {
   type t('key, 'value, 'cmp);
 
   /** {1 Construction}
-      
-      A [Map] can be constructed using one of the functions available in {!Map.Int}, {!Map.String} or {!Map.Poly}. 
-  */
+
+      A [Map] can be constructed using one of the functions available in {!Map.Int}, {!Map.String} or {!Map.Poly}.
+  */;
 
   /** {1 Basic operations} */;
 
@@ -5701,13 +5730,11 @@ module Map: {
 
 /** Functions for working with functions. */
 module Fun: {
-  /** Functions for working with functions. 
-   
-      While the functions in this module can often make code more concise, this 
-      often imposes a readability burden on future readers.
-  */
+  /** Functions for working with functions.
 
-  /** Given a value, returns exactly the same value. This may seem pointless at first glance but it can often be useful when an api offers you more control than you actually need.
+      While the functions in this module can often make code more concise, this
+      often imposes a readability burden on future readers.
+  */ /** Given a value, returns exactly the same value. This may seem pointless at first glance but it can often be useful when an api offers you more control than you actually need.
 
       Perhaps you want to create an array of integers
 
@@ -5729,7 +5756,7 @@ module Fun: {
   /** Discards the value it is given and returns [()]
 
       This is primarily useful when working with imperative side-effecting code
-      or to avoid [unused value] compiler warnings when you really meant it, 
+      or to avoid [unused value] compiler warnings when you really meant it,
       and haven't just made a mistake.
 
       {e Examples}
@@ -5761,15 +5788,15 @@ module Fun: {
       {[Array.initialize 6 ~f:(Fun.constant 0) = [|0;0;0;0;0;0|]]}
   */
   let constant: ('a, 'b) => 'a;
-  
+
   /** A function which always returns its second argument. */
   let sequence: ('a, 'b) => 'b;
 
   /** Reverses the argument order of a function.
-    
+
       For any arguments [x] and [y], [(flip f) x y] is the same as [f y x].
 
-      Perhaps you want to [fold] something, but the arguments of a function you 
+      Perhaps you want to [fold] something, but the arguments of a function you
       already have access to are in the wrong order.
 
       {e Examples}
@@ -5782,21 +5809,20 @@ module Fun: {
   let apply: ('a => 'b, 'a) => 'b;
 
   /** Like {!(|>)} but in the opposite direction.
-    
+
       [f <| x] is exactly the same as [f x].
-    
+
       It can help you avoid parentheses, which can be nice sometimes.
 
       Maybe you want to apply a function to a [match] expression? That sort of thing.
 
       {e Examples}
-      
+
       TODO
   */
   let (<|): ('a => 'b, 'a) => 'b;
 
-  /** See {!Fun.(|>)} */ 
-  external pipe: ('a, 'a => 'b) => 'b = "%revapply";
+  /** See {!Fun.(|>)} */ external pipe: ('a, 'a => 'b) => 'b = "%revapply";
 
   /** Saying [x |> f] is exactly the same as [f x], just a bit longer.
 
@@ -5821,7 +5847,7 @@ module Fun: {
           input
           |> String.trim
           |> Int.ofString
-      ]}      
+      ]}
 
       This can be overused! When you have three or four steps, the code often gets clearer if you break things out into
       some smaller piplines assigned to variables. Now the transformation has a name, maybe it could have a type annotation.
@@ -5831,7 +5857,7 @@ module Fun: {
   external (|>): ('a, 'a => 'b) => 'b = "%revapply";
 
   /** Function composition, passing results along in the suggested direction.
-      
+
       For example, the following code (in a very roundabout way) checks if a number divided by two is odd:
 
       {[let isHalfOdd = Fun.(not << Int.isEven << Int.divide ~by:2)]}
@@ -5850,7 +5876,7 @@ module Fun: {
   let (<<): ('b => 'c, 'a => 'b, 'a) => 'c;
 
   /** Function composition, passing results along in the suggested direction.
-      
+
       For example, the following code checks if the square root of a number is odd:
 
       {[Int.squareRoot >> Int.isEven >> not]}
@@ -5891,15 +5917,15 @@ module Fun: {
   /** Runs the provided function, forever. */
   let forever: (unit => unit) => unit;
 
-  /** Runs a function repeatedly.  
-    
+  /** Runs a function repeatedly.
+
       {e Examples}
 
       {[
         let count = ref 0
         times(10, fun () -> (count <- !count + 1))
         !count = 10
-      ]} 
+      ]}
   */
   let times: (int, ~f: unit => unit) => unit;
 };

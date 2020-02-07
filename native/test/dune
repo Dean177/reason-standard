@@ -1,69 +1,85 @@
 (executable
-  (name runtest)
-  (flags (-warn-error +A))
-  (libraries reason-standard alcotest)
-)
+ (name runtest)
+ (flags
+  (-warn-error +A))
+ (libraries reason-standard alcotest))
 
 (rule
-  (target ArrayTest.re)
-  (action (copy ../../bucklescript/test/ArrayTest.re ./ArrayTest.re)))
+ (target ArrayTest.re)
+ (action
+  (copy ../../bucklescript/test/ArrayTest.re ./ArrayTest.re)))
 
 (rule
-  (target BoolTest.re)
-  (action (copy ../../bucklescript/test/BoolTest.re ./BoolTest.re)))
+ (target BoolTest.re)
+ (action
+  (copy ../../bucklescript/test/BoolTest.re ./BoolTest.re)))
 
 (rule
-  (target CharTest.re)
-  (action (copy ../../bucklescript/test/CharTest.re ./CharTest.re)))
+ (target CharTest.re)
+ (action
+  (copy ../../bucklescript/test/CharTest.re ./CharTest.re)))
 
 (rule
-  (target FloatTest.re)
-  (action (copy ../../bucklescript/test/FloatTest.re ./FloatTest.re)))
+ (target FloatTest.re)
+ (action
+  (copy ../../bucklescript/test/FloatTest.re ./FloatTest.re)))
 
 (rule
-  (target FunTest.re)
-  (action (copy ../../bucklescript/test/FunTest.re ./FunTest.re)))
+ (target FunTest.re)
+ (action
+  (copy ../../bucklescript/test/FunTest.re ./FunTest.re)))
 
 (rule
-  (target IntegerTest.re)
-  (action (copy ../../bucklescript/test/IntegerTest.re ./IntegerTest.re)))
+ (target IntegerTest.re)
+ (action
+  (copy ../../bucklescript/test/IntegerTest.re ./IntegerTest.re)))
 
 (rule
-  (target IntTest.re)
-  (action (copy ../../bucklescript/test/IntTest.re ./IntTest.re)))
+ (target IntTest.re)
+ (action
+  (copy ../../bucklescript/test/IntTest.re ./IntTest.re)))
 
 (rule
-  (target ListTest.re)
-  (action (copy ../../bucklescript/test/ListTest.re ./ListTest.re)))
+ (target ListTest.re)
+ (action
+  (copy ../../bucklescript/test/ListTest.re ./ListTest.re)))
 
 (rule
-  (target MapTest.re)
-  (action (copy ../../bucklescript/test/MapTest.re ./MapTest.re)))
+ (target MapTest.re)
+ (action
+  (copy ../../bucklescript/test/MapTest.re ./MapTest.re)))
 
 (rule
-  (target OptionTest.re)
-  (action (copy ../../bucklescript/test/OptionTest.re ./OptionTest.re)))
+ (target OptionTest.re)
+ (action
+  (copy ../../bucklescript/test/OptionTest.re ./OptionTest.re)))
 
 (rule
-  (target ResultTest.re)
-  (action (copy ../../bucklescript/test/ResultTest.re ./ResultTest.re)))
+ (target ResultTest.re)
+ (action
+  (copy ../../bucklescript/test/ResultTest.re ./ResultTest.re)))
 
 (rule
-  (target SetTest.re)
-  (action (copy ../../bucklescript/test/SetTest.re ./SetTest.re)))
+ (target SetTest.re)
+ (action
+  (copy ../../bucklescript/test/SetTest.re ./SetTest.re)))
 
 (rule
-  (target StringTest.re)
-  (action (copy ../../bucklescript/test/StringTest.re ./StringTest.re)))
+ (target StringTest.re)
+ (action
+  (copy ../../bucklescript/test/StringTest.re ./StringTest.re)))
 
 (rule
-  (target Tuple3Test.re)
-  (action (copy ../../bucklescript/test/Tuple3Test.re ./Tuple3Test.re)))
+ (target Tuple3Test.re)
+ (action
+  (copy ../../bucklescript/test/Tuple3Test.re ./Tuple3Test.re)))
 
 (rule
-  (target TupleTest.re)
-  (action (copy ../../bucklescript/test/TupleTest.re ./TupleTest.re)))
+ (target TupleTest.re)
+ (action
+  (copy ../../bucklescript/test/TupleTest.re ./TupleTest.re)))
 
 (rule
  (alias runtest)
- (action (run ./runtest.exe)))
+ (action
+  (run ./runtest.exe)))

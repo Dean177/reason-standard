@@ -29,10 +29,10 @@ module Bool = {
     | _ => None
     };
 
-  let toString = fun 
+  let toString =
+    fun
     | true => "true"
-    | false => "false"
-    ;
+    | false => "false";
 
   let toInt = t => t ? 1 : 0;
 };
@@ -183,10 +183,11 @@ module Tuple = {
 
   let toList = ((a, b)) => [a, b];
 
-  let equal = (equalFirst, equalSecond, (a, b), (a', b')) => equalFirst(a, a') && equalSecond(b, b');
+  let equal = (equalFirst, equalSecond, (a, b), (a', b')) =>
+    equalFirst(a, a') && equalSecond(b, b');
 
-  let compare = (compareFirst, compareSecond, (a, b), (a', b')) => 
-    switch (compareFirst(a,a')) {
+  let compare = (compareFirst, compareSecond, (a, b), (a', b')) =>
+    switch (compareFirst(a, a')) {
     | 0 => compareSecond(b, b')
     | result => result
     };
@@ -244,12 +245,14 @@ module Tuple3 = {
   let equal = (equalFirst, equalSecond, equalThird, (a, b, c), (a', b', c')) =>
     equalFirst(a, a') && equalSecond(b, b') && equalThird(c, c');
 
-  let compare = (compareFirst, compareSecond, compareThird, (a, b, c), (a', b', c')) => 
-    switch (compareFirst(a,a')) {
-    | 0 => switch(compareSecond(b, b')) {
-      | 0 => compareThird(c,c')
+  let compare =
+      (compareFirst, compareSecond, compareThird, (a, b, c), (a', b', c')) =>
+    switch (compareFirst(a, a')) {
+    | 0 =>
+      switch (compareSecond(b, b')) {
+      | 0 => compareThird(c, c')
       | result => result
-    }
+      }
     | result => result
     };
 };
@@ -512,23 +515,25 @@ module List = {
   let sort = Base.List.sort;
 
   let join = (t, ~sep) => String.concat(sep, t);
-    
+
   let rec equal = (equalElement, a, b) =>
     switch (a, b) {
-      | ([], []) => true
-      | ([x,...xs], [y, ...ys]) => equalElement(x, y) && equal(equalElement, xs, ys)
-      | _ => false
-    }
+    | ([], []) => true
+    | ([x, ...xs], [y, ...ys]) =>
+      equalElement(x, y) && equal(equalElement, xs, ys)
+    | _ => false
+    };
 
-  let rec compare = (compareElement, a, b) => 
+  let rec compare = (compareElement, a, b) =>
     switch (a, b) {
-      | ([], []) => 0
-      | ([], _) => -1
-      | (_, []) => 1
-      | ([x, ...xs], [y, ...ys]) => switch (compareElement(x, y)) {
-        | 0 => compare(compareElement, xs, ys)
-        | result => result
-      } 
+    | ([], []) => 0
+    | ([], _) => (-1)
+    | (_, []) => 1
+    | ([x, ...xs], [y, ...ys]) =>
+      switch (compareElement(x, y)) {
+      | 0 => compare(compareElement, xs, ys)
+      | result => result
+      }
     };
 };
 
@@ -561,12 +566,12 @@ module Option = {
 
   let map = (t, ~f) => Option.map(f, t);
 
-  let map2 = (ta: t('a), tb: t('b), ~f: ('a, 'b) => 'c): t('c) => 
-    switch(ta, tb) {
+  let map2 = (ta: t('a), tb: t('b), ~f: ('a, 'b) => 'c): t('c) =>
+    switch (ta, tb) {
     | (Some(a), Some(b)) => Some(f(a, b))
     | _ => None
     };
-  
+
   let get = (t, ~default) =>
     switch (t) {
     | None => default
@@ -611,18 +616,20 @@ module Option = {
     let (>>|) = (t, f) => map(t, ~f);
   };
 
-  let equal = (equal, a, b) => switch (a, b) {
+  let equal = (equal, a, b) =>
+    switch (a, b) {
     | (None, None) => true
-    | (Some(a'), Some(b')) => equal(a',b')
+    | (Some(a'), Some(b')) => equal(a', b')
     | _ => false
-  };
+    };
 
-  let compare = (compare, a, b) => switch (a, b) {
+  let compare = (compare, a, b) =>
+    switch (a, b) {
     | (None, None) => 0
-    | (Some(a'), Some(b')) => compare(a',b')
-    | (None, Some(_)) => -1
+    | (Some(a'), Some(b')) => compare(a', b')
+    | (None, Some(_)) => (-1)
     | (Some(_), None) => 1
-  };
+    };
 };
 
 module Result = {
@@ -729,24 +736,28 @@ module Result = {
     | Ok(a) => f(a)
     | _ => ()
     };
-  
-  let equal = (equalOk, equalError, a, b) => switch (a, b) {
-    | (Error(a'), Error(b')) => equalError(a',b')
-    | (Ok(a'), Ok(b')) => equalOk(a',b')
-    | _ => false
-  };
 
-  let compare = (
-    compareOk: ('ok, 'ok) => int, 
-    compareError: ('error, 'error) => int, 
-    a: t('ok, 'error), 
-    b: t('ok, 'error)
-  ): int => switch (a, b) {
+  let equal = (equalOk, equalError, a, b) =>
+    switch (a, b) {
+    | (Error(a'), Error(b')) => equalError(a', b')
+    | (Ok(a'), Ok(b')) => equalOk(a', b')
+    | _ => false
+    };
+
+  let compare =
+      (
+        compareOk: ('ok, 'ok) => int,
+        compareError: ('error, 'error) => int,
+        a: t('ok, 'error),
+        b: t('ok, 'error),
+      )
+      : int =>
+    switch (a, b) {
     | (Error(a'), Error(b')) => compareError(a', b')
-    | (Ok(a'), Ok(b')) => compareOk(a',b')
-    | (Error(_), Ok(_)) => -1
+    | (Ok(a'), Ok(b')) => compareOk(a', b')
+    | (Error(_), Ok(_)) => (-1)
     | (Ok(_), Error(_)) => 1
-  };
+    };
 
   module Infix = {
     let (|?) = (t, default) => get(t, ~default);
@@ -762,7 +773,7 @@ module Float = {
 
   let ofInt = Base.Float.of_int;
 
-  let ofString = string => 
+  let ofString = string =>
     try(Some(Base.Float.of_string(string))) {
     | Invalid_argument(_) => None
     };
@@ -1062,11 +1073,11 @@ module Integer = {
 
   let ofInt64 = Z.of_int64;
 
-  let ofFloat = (float) => 
+  let ofFloat = float =>
     switch (Z.of_float(float)) {
     | integer => Some(integer)
-    | exception Z.Overflow => None;
-    }
+    | exception Z.Overflow => None
+    };
 
   let ofString = string => {
     switch (Z.of_string(string)) {
@@ -1109,7 +1120,7 @@ module Integer = {
 
   let ( ** ) = Z.( ** );
 
-  let power = (~modulo=?, ~base: t, ~exponent: int) => 
+  let power = (~modulo=?, ~base: t, ~exponent: int) =>
     switch (modulo) {
     | Some(modulus) => Z.powm(base, ofInt(exponent), modulus)
     | None => Z.pow(base, exponent)
@@ -1425,8 +1436,7 @@ module Map = {
 
     let singleton = (~key, ~value) => Base.Map.Poly.singleton(key, value);
 
-    let ofList = l =>
-      Base.Map.Poly.of_alist_reduce(l, ~f=(_, curr) => curr);
+    let ofList = l => Base.Map.Poly.of_alist_reduce(l, ~f=(_, curr) => curr);
 
     let ofArray = a => Base.Array.to_list(a) |> ofList;
   };
@@ -1669,7 +1679,7 @@ module Array = {
       }
     });
 
-  let sort = t => Base.Array.sort(t);  
+  let sort = t => Base.Array.sort(t);
 
   let reverse = Base.Array.rev_inplace;
 
@@ -1684,42 +1694,39 @@ module Array = {
       (i - 1, [(i, x), ...acc])
     )
     |> Base.snd;
-  
+
   let equal = (equal, a, b) =>
     if (length(a) != length(b)) {
-      false
-    } else if  (length(a) == 0) {
-      true
+      false;
+    } else if (length(a) == 0) {
+      true;
     } else {
-      let rec loop = (index) => {
+      let rec loop = index =>
         if (index == length(a)) {
-          true
+          true;
         } else {
-          equal(a[index], b[index]) && loop(index + 1)
-        }
-      }
-      loop(0)
+          equal(a[index], b[index]) && loop(index + 1);
+        };
+      loop(0);
     };
 
   let compare = (compare, a, b) => {
     switch (Int.compare(length(a), length(b))) {
-    | 0 => {
+    | 0 =>
       if (length(a) === 0) {
-        0
+        0;
       } else {
-        let rec loop = (index) => {
+        let rec loop = index =>
           if (index == length(a)) {
-            0
+            0;
           } else {
-            switch(compare(a[index], b[index])) {
-              | 0 => loop(index + 1)
-              | result => result
-            }
-          }
-        }
-        loop(0)
+            switch (compare(a[index], b[index])) {
+            | 0 => loop(index + 1)
+            | result => result
+            };
+          };
+        loop(0);
       }
-    }
     | result => result
     };
   };
