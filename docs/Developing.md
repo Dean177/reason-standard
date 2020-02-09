@@ -1,3 +1,8 @@
+---
+title: "Developing"
+order: "99"
+---
+
 ## Developing
 
 There are a few prerequisites you will need to get started:

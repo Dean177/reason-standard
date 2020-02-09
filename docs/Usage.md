@@ -1,5 +1,6 @@
 ---
 title: "Usage"
+order: "1"
 ---
 
 The recommended way to use Standard is with a top level open at the beginning of a file. 

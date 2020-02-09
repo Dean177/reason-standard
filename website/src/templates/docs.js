@@ -1,16 +1,56 @@
-import React from "react";
-import Helmet from "react-helmet";
-import { graphql } from "gatsby";
-import MDXRenderer from "gatsby-plugin-mdx/mdx-renderer";
+import React from 'react';
+import Helmet from 'react-helmet';
+import { graphql } from 'gatsby';
+import MDXRenderer from 'gatsby-plugin-mdx/mdx-renderer';
 import { MDXProvider } from '@mdx-js/react';
-import { css} from 'styled-components'
-import { LeftSidebar } from "../components/sidebar";
-import { RightSidebar } from "../components/RightSideBar";
+import { css } from 'styled-components';
+import { LeftSidebar } from '../components/sidebar';
+import { RightSidebar } from '../components/RightSideBar';
 import { NextPrevious } from '../components/NextPrevious';
-import mdxComponents from '../components/mdx';
 import { GithubEditButton } from '../components/GithubEditButton';
 import { breakpoints, colors, GlobalStyles, ThemeProvider } from '../theme';
-import { NavBar, ContentContainer, AppContainer, MenuButton, PageTitle } from '../components/Layout'; 
+import {
+  NavBar,
+  ContentContainer,
+  AppContainer,
+  MenuButton,
+  PageTitle,
+} from '../components/Layout';
+import CodeBlock from '../components/CodeBlock';
+import { formatTitleToId } from '../id';
+
+let mdxComponents = {
+  h1: props => (
+    <h1 className="heading1" id={formatTitleToId(props.children)} {...props} />
+  ),
+  h2: props => (
+    <h2 className="heading2" id={formatTitleToId(props.children)} {...props} />
+  ),
+  h3: props => (
+    <h3 className="heading3" id={formatTitleToId(props.children)} {...props} />
+  ),
+  h4: props => (
+    <h4 className="heading4" id={formatTitleToId(props.children)} {...props} />
+  ),
+  h5: props => (
+    <h5 className="heading5" id={formatTitleToId(props.children)} {...props} />
+  ),
+  h6: props => (
+    <h6 className="heading6" id={formatTitleToId(props.children)} {...props} />
+  ),
+  p: props => <p className="paragraph" {...props} />,
+  pre: props => <pre className="pre" {...props} />,
+  code: CodeBlock,
+  a: ({ children: link, ...props }) => {
+    return (
+      <a href={props.href} target="_blank" rel="noopener" {...props}>
+        {link}
+      </a>
+    );
+  },
+  img: props => <img className="img" {...props} />,
+  blockquote: props => <blockquote className="blockquote" {...props} />,
+};
 
 export const pageQuery = graphql`
   query($id: String!) {
@@ -25,7 +65,7 @@ export const pageQuery = graphql`
       fields {
         id
         title
-        slug
+        url
       }
       body
       tableOfContents
@@ -37,14 +77,18 @@ export const pageQuery = graphql`
       frontmatter {
         metaTitle
         metaDescription
+        order
       }
     }
     allMdx {
       edges {
         node {
           fields {
-            slug
+            url
             title
+          }
+          frontmatter {
+            order
           }
         }
       }
@@ -62,49 +106,42 @@ export default ({ data }) => {
     },
   } = data;
 
-  const navItems = allMdx.edges
-    .map(({ node }) => node.fields.slug)
-    .filter(slug => slug !== "/")
-    .sort();
+  const nav = allMdx.edges
+    .filter(({ node }) => node.fields.url !== '/')
+    .map(({ node }) => ({
+      title: node.fields.title,
+      url: node.fields.url,
+      order: Number(node.frontmatter.order || '999'),
+    }))
+    .sort((fieldsA, fieldsB) => fieldsA.order - fieldsB.order);
 
-  const nav = navItems.map(slug => {
-    const { node } = allMdx.edges.find(({ node }) => node.fields.slug === slug);
-    return { title: node.fields.title, url: node.fields.slug };
-  });
-
-  const title = mdx.frontmatter.metaTitle;
-  const description = mdx.frontmatter.metaDescription;
-  // TODO static query for site url      
-  // let canonicalUrl = `${config.gatsby.pathPrefix}${config.gatsby.siteUrl}${mdx.fields.slug}`;
+  const { title } = mdx.fields;
+  const { metaTitle, metaDescription } = mdx.frontmatter;  
+  // TODO static query for site url
+  // let canonicalUrl = `${config.gatsby.pathPrefix}${config.gatsby.siteUrl}${mdx.fields.url}`;
 
   return (
     <ThemeProvider>
       <GlobalStyles />
       <AppContainer>
-        <Helmet>
+        {/* <Helmet>
           {title ? (
             <>
               <title>{title}</title>
-              <meta name="title" content={title} />
-              <meta property="og:title" content={title} />
-              <meta property="twitter:title" content={title} />
+              <meta name="title" content={metaTitle} />
+              <meta property="og:title" content={metaTitle} />
+              <meta property="twitter:title" content={metaTitle} />
             </>
           ) : null}
-          {description ? (
+          {metaDescription ? (
             <>
-              <meta name="description" content={description} />
-              <meta property="og:description" content={description} />
-              <meta property="twitter:description" content={description} />
+              <meta name="description" content={metaDescription} />
+              <meta property="og:description" content={metaDescription} />
+              <meta property="twitter:description" content={metaDescription} />
             </>
           ) : null}
-          {/* TODO Static query */}
-          {/* <link
-            rel="shortcut icon"
-            type="image/svg"
-            href={config.siteMetadata.favicon}
-          />  */}
-          {/* <link rel="canonical" href={canonicalUrl} /> */}
-        </Helmet>
+        </Helmet> */}
+       
         <ContentContainer>
           <NavBar githubUrl={githubUrl} />
           <div
@@ -136,9 +173,10 @@ export default ({ data }) => {
               display: flex;
               flex: 1;
               flex-direction: column;
-              max-width: 970px;
               padding: 0px 22px;
               padding-top: 3rem;
+              width: 100%;
+              max-width: 970px;
             `}
           >
             <PageTitle>{mdx.fields.title}</PageTitle>
@@ -172,7 +210,7 @@ export default ({ data }) => {
                 padding: 50px 0;
               `}
             >
-              <NextPrevious mdx={mdx} nav={nav} />
+              <NextPrevious currentUrl={mdx.fields.url} nav={nav} />
             </div>
           </main>
           {/* <RightSidebar location={location} /> */}
@@ -198,4 +236,4 @@ export default ({ data }) => {
       </AppContainer>
     </ThemeProvider>
   );
-}
+};

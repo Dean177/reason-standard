@@ -1,5 +1,8 @@
 ---
 title: "Installation"
+metaTitle: "Installation"
+metaDescription: "Installing Standard"
+order: "0"
 ---
 
 ## Bucklescript

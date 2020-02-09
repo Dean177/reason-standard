@@ -1,12 +1,11 @@
 import React from 'react';
 import {Link} from "./Link";
 
-export const NextPrevious = (props) => {
-  const { nav, mdx } = props;
-  const currentIndex = nav.findIndex(({url}) => url === mdx.fields.slug);
+export const NextPrevious = ({ nav, currentUrl }) => {
+  const currentIndex = nav.findIndex(({ url }) => url === currentUrl);
+  
   let next;
   let previous;
-  
   if (currentIndex === undefined) {
     // We are on the index page
     next = nav[0];
@@ -21,7 +20,7 @@ export const NextPrevious = (props) => {
     next = nav[currentIndex+1];
     previous = nav[currentIndex-1];
   }
-  console.log({ currentIndex, next, previous }, nav, mdx);
+
   return (
     <div
       css={css`

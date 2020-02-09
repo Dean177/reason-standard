@@ -97,7 +97,7 @@ export const RightSidebar = ({ location }) => (
           edges {
             node {
               fields {
-                slug
+                url
               }
               tableOfContents
             }

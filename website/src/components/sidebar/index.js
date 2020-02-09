@@ -130,8 +130,11 @@ export const LeftSidebar = ({location}) => (
           edges {
             node {
               fields {
-                slug
+                url
                 title
+              }
+              frontmatter {
+                order
               }
             }
           }

@@ -1,7 +1,13 @@
 const path = require("path");
 
 exports.createPages = ({ graphql, actions }) => {
-  const { createPage } = actions;
+  const { createPage, createRedirect } = actions;
+
+  createRedirect({
+    fromPath: '/docs',
+    toPath: '/docs/installation',
+    redirectInBrowser:true,
+  })
 
   createPage({
     path: '/api',
@@ -22,7 +28,7 @@ exports.createPages = ({ graphql, actions }) => {
                   }
                   tableOfContents
                   fields {
-                    slug
+                    url
                   }
                 }
               }
@@ -38,7 +44,7 @@ exports.createPages = ({ graphql, actions }) => {
         // Create documentation pages.
         result.data.allMdx.edges.forEach(({ node }) => {
           createPage({
-            path: node.fields.slug ? node.fields.slug : "/",
+            path: node.fields.url,
             component: path.resolve("./src/templates/docs.js"),
             context: {
               id: node.fields.id
@@ -55,16 +61,10 @@ exports.onCreateNode = ({ node, getNode, actions }) => {
 
   if (node.internal.type === `Mdx`) {
     const parent = getNode(node.parent);
-    let value = parent.relativePath.replace(parent.ext, "");
-
-    if (value === "index") {
-      value = "";
-    }
-
     createNodeField({
-      name: `slug`,
+      name: `url`,
       node,
-      value: `/${value}`
+      value: `/docs/${parent.relativePath.replace(parent.ext, "")}`
     });
 
     createNodeField({
@@ -77,6 +77,12 @@ exports.onCreateNode = ({ node, getNode, actions }) => {
       name: "title",
       node,
       value: node.frontmatter.title || (parent.name)
+    });
+
+    createNodeField({
+      name: 'order',
+      node,
+      value: node.frontmatter.order || 999,
     });
   }
 };

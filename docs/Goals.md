@@ -1,5 +1,6 @@
 ---
 title: "Goals"
+order: "3"
 ---
 
 - Amazing documentation & examples

@@ -1,3 +1,8 @@
+---
+title: "Conventions"
+order: "2"
+---
+
 {1 Conventions}
 
 {2 [t] is the main type of an module}

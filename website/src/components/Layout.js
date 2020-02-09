@@ -93,7 +93,7 @@ export const NavBar = ({ githubUrl }) => {
             <ThemeToggle theme={themeName} toggleTheme={toggleTheme} />
           </li>
           <li>
-            <Link to="/">docs</Link>
+            <Link to="/docs">docs</Link>
           </li>
           <li>
             <Link to="/api">api</Link>

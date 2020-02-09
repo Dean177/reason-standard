@@ -1,5 +1,6 @@
 ---
 title: "Contributing"
+order: "9"
 ---
 
 ## Contributing

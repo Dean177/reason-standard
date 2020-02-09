@@ -98,8 +98,8 @@ const TreeNode = ({
 
 const calculateTreeData = edges => {
   const originalData = edges;
-  const tree = originalData.reduce((accu, {node: {fields: {slug, title}}}) => {
-    const parts = slug.split('/');
+  const tree = originalData.reduce((accu, {node: {frontMatter, fields: {url, title}}}) => {
+    const parts = url.split('/');
     let {items: prevItems} = accu;
     for (const part of parts.slice(1, -1)) {
       let tmp = prevItems.find(({label}) => label == part);
@@ -115,20 +115,20 @@ const calculateTreeData = edges => {
     }
     const existingItem = prevItems.find(({label}) => label === parts[parts.length - 1]);
     if (existingItem) {
-      existingItem.url = slug;
+      existingItem.url = url;
       existingItem.title = title;
     } else {
       prevItems.push({
         label: parts[parts.length - 1],
-        url: slug,
+        url: url,
         items: [],
         title
       });
     }
     return accu;
   }, {items: []});
-  return [].reduce((accu, slug) => {
-    const parts = slug.split('/');
+  return [].reduce((accu, url) => {
+    const parts = url.split('/');
     let {items: prevItems} = accu;
     for (const part of parts.slice(1, -1)) {
       let tmp = prevItems.find(({label}) => label == part);
@@ -143,7 +143,7 @@ const calculateTreeData = edges => {
       prevItems = tmp.items;
     }
 
-    // sort items alphabetically.
+    // TODO sort by order frontmatter then alphabetically.
     prevItems.map((item) => {
       item.items = item.items
         .sort(function (a, b) {
