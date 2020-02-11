@@ -1,12 +1,18 @@
-(** Module doc for core
+ type 'a t = 'a list
 
-    This shows how it works
+ type 'a undocumented = 'a list
 
-    {[
-      open Standard
-      let coreExample = List.map [] ~f:(fun element -> element + 1) in
-      coreExample = []
-    ]}
 
-    Here is a link to {!Fourier.}
- *)
+let bind list f =  List.map f list |> List.concat
+
+let constant = 9.344
+
+let another_constant = 5.6
+
+
+module Sub = struct
+   type nonrec t = int t
+
+   let ofList _ = [2]
+end
+

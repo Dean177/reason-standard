@@ -1,4 +1,4 @@
-let print_DEBUG s = print_string s ; print_newline ()
+
 
 open Odoc_info
 open Value
@@ -103,226 +103,215 @@ end
 
 module String = Misc.Stdlib.String
 
-let with_parameter_list = ref false
-let html_short_functors = ref false
+module Naming = struct
+  (** The prefix for modules marks. *)
+  let mark_module = "MODULE"
 
-module Naming =
-  struct
-    (** The prefix for modules marks. *)
-    let mark_module = "MODULE"
+  (** The prefix for module type marks. *)
+  let mark_module_type = "MODULETYPE"
 
-    (** The prefix for module type marks. *)
-    let mark_module_type = "MODULETYPE"
+  (** The prefix for types marks. *)
+  let mark_type = "TYPE"
 
-    (** The prefix for types marks. *)
-    let mark_type = "TYPE"
+  (** The prefix for types elements (record fields or constructors). *)
+  let mark_type_elt = "TYPEELT"
 
-    (** The prefix for types elements (record fields or constructors). *)
-    let mark_type_elt = "TYPEELT"
+  (** The prefix for functions marks. *)
+  let mark_function = "FUN"
 
-    (** The prefix for functions marks. *)
-    let mark_function = "FUN"
+  (** The prefix for extensions marks. *)
+  let mark_extension = "EXTENSION"
 
-    (** The prefix for extensions marks. *)
-    let mark_extension = "EXTENSION"
+  (** The prefix for exceptions marks. *)
+  let mark_exception = "EXCEPTION"
 
-    (** The prefix for exceptions marks. *)
-    let mark_exception = "EXCEPTION"
+  (** The prefix for values marks. *)
+  let mark_value = "VAL"
 
-    (** The prefix for values marks. *)
-    let mark_value = "VAL"
+  (** The prefix for attributes marks. *)
+  let mark_attribute = "ATT"
 
-    (** The prefix for attributes marks. *)
-    let mark_attribute = "ATT"
+  (** The prefix for methods marks. *)
+  let mark_method = "METHOD"
 
-    (** The prefix for methods marks. *)
-    let mark_method = "METHOD"
+  (** The prefix for code files. *)
+  let code_prefix = "code_"
 
-    (** The prefix for code files. *)
-    let code_prefix = "code_"
+  (** The prefix for type files. *)
+  let type_prefix = "type_"
 
-    (** The prefix for type files. *)
-    let type_prefix = "type_"
+  (** Return the two html files names for the given module or class name.*)
+  let html_files name =
+    let qual =
+      try
+        let i = String.rindex name '.' in
+        match name.[i + 1] with
+        | 'A'..'Z' -> ""
+        | _ -> "-c"
+      with Not_found -> ""
+    in
+    let prefix = name^qual in
+    let html_file = prefix^".html" in
+    let html_frame_file = prefix^"-frame.html" in
+    (html_file, html_frame_file)
 
-    (** Return the two html files names for the given module or class name.*)
-    let html_files name =
-      let qual =
-        try
-          let i = String.rindex name '.' in
-          match name.[i + 1] with
-          | 'A'..'Z' -> ""
-          | _ -> "-c"
-        with Not_found -> ""
-      in
-      let prefix = name^qual in
-      let html_file = prefix^".html" in
-      let html_frame_file = prefix^"-frame.html" in
-      (html_file, html_frame_file)
+  (** Return the target for the given prefix and simple name. *)
+  let target pref simple_name = pref^simple_name
 
-    (** Return the target for the given prefix and simple name. *)
-    let target pref simple_name = pref^simple_name
+  (** Return the complete link target (file#target) for the given prefix string and complete name.*)
+  let complete_target pref complete_name =
+    let simple_name = Name.simple complete_name in
+    let module_name =
+      let s = Name.father complete_name in
+      if s = "" then simple_name else s
+    in
+    let (html_file, _) = html_files module_name in
+    html_file^"#"^(target pref simple_name)
 
-    (** Return the complete link target (file#target) for the given prefix string and complete name.*)
-    let complete_target pref complete_name =
-      let simple_name = Name.simple complete_name in
-      let module_name =
-        let s = Name.father complete_name in
-        if s = "" then simple_name else s
-      in
-      let (html_file, _) = html_files module_name in
-      html_file^"#"^(target pref simple_name)
+  (**return the link target for the given module. *)
+  let module_target m = target mark_module (Name.simple m.m_name)
 
-    (**return the link target for the given module. *)
-    let module_target m = target mark_module (Name.simple m.m_name)
+  (**return the link target for the given module type. *)
+  let module_type_target mt = target mark_module_type (Name.simple mt.mt_name)
 
-    (**return the link target for the given module type. *)
-    let module_type_target mt = target mark_module_type (Name.simple mt.mt_name)
+  (** Return the link target for the given type. *)
+  let type_target t = target mark_type (Name.simple t.ty_name)
 
-    (** Return the link target for the given type. *)
-    let type_target t = target mark_type (Name.simple t.ty_name)
+  (** Return the link target for the given variant constructor. *)
+  let const_target t f =
+    let name = Printf.sprintf "%s.%s" (Name.simple t.ty_name) f.vc_name in
+    target mark_type_elt name
 
-    (** Return the link target for the given variant constructor. *)
-    let const_target t f =
-      let name = Printf.sprintf "%s.%s" (Name.simple t.ty_name) f.vc_name in
-      target mark_type_elt name
+  (** Return the link target for the given record field. *)
+  let recfield_target t f = target mark_type_elt
+    (Printf.sprintf "%s.%s" (Name.simple t.ty_name) f.rf_name)
 
-    (** Return the link target for the given record field. *)
-    let recfield_target t f = target mark_type_elt
-      (Printf.sprintf "%s.%s" (Name.simple t.ty_name) f.rf_name)
+  (** Return the link target for the given inline record field. *)
+  let inline_recfield_target t c f = target mark_type_elt
+    (Printf.sprintf "%s.%s.%s" t c f.rf_name)
 
-    (** Return the link target for the given inline record field. *)
-    let inline_recfield_target t c f = target mark_type_elt
-      (Printf.sprintf "%s.%s.%s" t c f.rf_name)
+  (** Return the link target for the given object field. *)
+  let objfield_target t f = target mark_type_elt
+    (Printf.sprintf "%s.%s" (Name.simple t.ty_name) f.of_name)
 
-    (** Return the link target for the given object field. *)
-    let objfield_target t f = target mark_type_elt
-      (Printf.sprintf "%s.%s" (Name.simple t.ty_name) f.of_name)
+  (** Return the complete link target for the given type. *)
+  let complete_type_target t = complete_target mark_type t.ty_name
 
-    (** Return the complete link target for the given type. *)
-    let complete_type_target t = complete_target mark_type t.ty_name
+  let complete_recfield_target name =
+    let typ = Name.father name in
+    let field = Name.simple name in
+    Printf.sprintf "%s.%s" (complete_target mark_type_elt typ) field
 
-    let complete_recfield_target name =
-      let typ = Name.father name in
-      let field = Name.simple name in
-      Printf.sprintf "%s.%s" (complete_target mark_type_elt typ) field
+  let complete_const_target = complete_recfield_target
 
-    let complete_const_target = complete_recfield_target
+  (** Return the link target for the given extension. *)
+  let extension_target x = target mark_extension (Name.simple x.xt_name)
 
-    (** Return the link target for the given extension. *)
-    let extension_target x = target mark_extension (Name.simple x.xt_name)
+  (** Return the complete link target for the given extension. *)
+  let complete_extension_target x = complete_target mark_extension x.xt_name
 
-    (** Return the complete link target for the given extension. *)
-    let complete_extension_target x = complete_target mark_extension x.xt_name
+  (** Return the link target for the given exception. *)
+  let exception_target e = target mark_exception (Name.simple e.ex_name)
 
-    (** Return the link target for the given exception. *)
-    let exception_target e = target mark_exception (Name.simple e.ex_name)
+  (** Return the complete link target for the given exception. *)
+  let complete_exception_target e = complete_target mark_exception e.ex_name
 
-    (** Return the complete link target for the given exception. *)
-    let complete_exception_target e = complete_target mark_exception e.ex_name
+  (** Return the link target for the given value. *)
+  let value_target v = target mark_value (Name.simple v.val_name)
 
-    (** Return the link target for the given value. *)
-    let value_target v = target mark_value (Name.simple v.val_name)
+  (** Return the given value name where symbols accepted in infix values
+      are replaced by strings, to avoid clashes with the filesystem.*)
+  let subst_infix_symbols name =
+    let len = String.length name in
+    let buf = Buffer.create len in
+    let ch c = Buffer.add_char buf c in
+    let st s = Buffer.add_string buf s in
+    for i = 0 to len - 1 do
+      match name.[i] with
+      | '|' -> st "_pipe_"
+      | '<' -> st "_lt_"
+      | '>' -> st "_gt_"
+      | '@' -> st "_at_"
+      | '^' -> st "_exp_"
+      | '&' -> st "_amp_"
+      | '+' -> st "_plus_"
+      | '-' -> st "_minus_"
+      | '*' -> st "_star_"
+      | '/' -> st "_slash_"
+      | '$' -> st "_dollar_"
+      | '%' -> st "_percent_"
+      | '=' -> st "_equal_"
+      | ':' -> st "_column_"
+      | '~' -> st "_tilde_"
+      | '!' -> st "_bang_"
+      | '?' -> st "_questionmark_"
+      | c -> ch c
+    done;
+    Buffer.contents buf
 
-    (** Return the given value name where symbols accepted in infix values
-       are replaced by strings, to avoid clashes with the filesystem.*)
-    let subst_infix_symbols name =
-      let len = String.length name in
-      let buf = Buffer.create len in
-      let ch c = Buffer.add_char buf c in
-      let st s = Buffer.add_string buf s in
-      for i = 0 to len - 1 do
-        match name.[i] with
-        | '|' -> st "_pipe_"
-        | '<' -> st "_lt_"
-        | '>' -> st "_gt_"
-        | '@' -> st "_at_"
-        | '^' -> st "_exp_"
-        | '&' -> st "_amp_"
-        | '+' -> st "_plus_"
-        | '-' -> st "_minus_"
-        | '*' -> st "_star_"
-        | '/' -> st "_slash_"
-        | '$' -> st "_dollar_"
-        | '%' -> st "_percent_"
-        | '=' -> st "_equal_"
-        | ':' -> st "_column_"
-        | '~' -> st "_tilde_"
-        | '!' -> st "_bang_"
-        | '?' -> st "_questionmark_"
-        | c -> ch c
-      done;
-      Buffer.contents buf
+  (** Return the complete link target for the given value. *)
+  let complete_value_target v = complete_target mark_value v.val_name
 
-    (** Return the complete link target for the given value. *)
-    let complete_value_target v = complete_target mark_value v.val_name
+  (** Return the complete filename for the code of the given value. *)
+  let file_code_value_complete_target v =
+    code_prefix^mark_value^(subst_infix_symbols v.val_name)^".html"
 
-    (** Return the complete filename for the code of the given value. *)
-    let file_code_value_complete_target v =
-      code_prefix^mark_value^(subst_infix_symbols v.val_name)^".html"
+  (** Return the link target for the given attribute. *)
+  let attribute_target a = target mark_attribute (Name.simple a.att_value.val_name)
 
-    (** Return the link target for the given attribute. *)
-    let attribute_target a = target mark_attribute (Name.simple a.att_value.val_name)
+  (** Return the complete link target for the given attribute. *)
+  let complete_attribute_target a = complete_target mark_attribute a.att_value.val_name
 
-    (** Return the complete link target for the given attribute. *)
-    let complete_attribute_target a = complete_target mark_attribute a.att_value.val_name
+  (** Return the complete filename for the code of the given attribute. *)
+  let file_code_attribute_complete_target a =
+    code_prefix^mark_attribute^a.att_value.val_name^".html"
 
-    (** Return the complete filename for the code of the given attribute. *)
-    let file_code_attribute_complete_target a =
-      code_prefix^mark_attribute^a.att_value.val_name^".html"
+  (** Return the link target for the given method. *)
+  let method_target m = target mark_method (Name.simple m.met_value.val_name)
 
-    (** Return the link target for the given method. *)
-    let method_target m = target mark_method (Name.simple m.met_value.val_name)
+  (** Return the complete link target for the given method. *)
+  let complete_method_target m = complete_target mark_method m.met_value.val_name
 
-    (** Return the complete link target for the given method. *)
-    let complete_method_target m = complete_target mark_method m.met_value.val_name
+  (** Return the complete filename for the code of the given method. *)
+  let file_code_method_complete_target m =
+    code_prefix^mark_method^m.met_value.val_name^".html"
 
-    (** Return the complete filename for the code of the given method. *)
-    let file_code_method_complete_target m =
-      code_prefix^mark_method^m.met_value.val_name^".html"
+  (** Return the link target for the given label section. *)
+  let label_target l = target "" l
 
-    (** Return the link target for the given label section. *)
-    let label_target l = target "" l
+  (** Return the complete link target for the given section label. *)
+  let complete_label_target l = complete_target "" l
 
-    (** Return the complete link target for the given section label. *)
-    let complete_label_target l = complete_target "" l
+  (** Return the complete filename for the code of the type of the
+      given module or module type name. *)
+  let file_type_module_complete_target name =
+    type_prefix^name^".html"
 
-    (** Return the complete filename for the code of the type of the
-       given module or module type name. *)
-    let file_type_module_complete_target name =
-      type_prefix^name^".html"
+  (** Return the complete filename for the code of the
+      given module name. *)
+  let file_code_module_complete_target name =
+    code_prefix^name^".html"
 
-    (** Return the complete filename for the code of the
-       given module name. *)
-    let file_code_module_complete_target name =
-      code_prefix^name^".html"
+  (** Return the complete filename for the code of the type of the
+      given class or class type name. *)
+  let file_type_class_complete_target name =
+    type_prefix^name^".html"
+end
 
-    (** Return the complete filename for the code of the type of the
-       given class or class type name. *)
-    let file_type_class_complete_target name =
-      type_prefix^name^".html"
-  end
-
-(** A class with a method to colorize a string which represents OCaml code. *)
-class ocaml_code =
-  object
-    method html_of_code b ?(with_pre=true) (code: string) =
-      Odoc_ocamlhtml.html_of_code b ~with_pre code
-  end
+let print_DEBUG s = 
+  print_string s; 
+  print_newline ()
 
 let new_buf () = Buffer.create 1024
 
 let bp = Printf.printf
 
 let bs s = 
-  print_DEBUG "bs encounterd";
-  print_DEBUG s;
-
+  print_string "bs encounterd: ";
+  print_endline s;
 
 (** Generation of html code from text structures. *)
 class virtual text = object (self)
-    (** We want to display colorized code. *)
-    inherit ocaml_code
-
     (** Escape the strings which would clash with html syntax, and
        make some replacements (double newlines replaced by <br>). *)
     method escape s = Odoc_ocamlhtml.escape_base s
@@ -851,7 +840,7 @@ class html = object (self)
       | Cstr_record l ->
           print_DEBUG "json_of_cstr_args: 1 bis";
           bs "<code>";
-          self#json_of_record ~father:m_name ~close_env: "</code>"
+          self#json_of_record ~father:m_name
             (Naming.inline_recfield_target m_name constructor_name)
             l
 
@@ -1103,7 +1092,7 @@ class html = object (self)
       
       
 
-    method json_of_record ~father ~close_env gen_name l : Json.t = 
+    method json_of_record ~father gen_name l : Json.t = 
       print_DEBUG "json_of_record";
       Json.null
       (* bs "{";
@@ -1121,142 +1110,52 @@ class html = object (self)
 
 
     (** Json for a type. *)
-    method json_of_type t =
-      print_DEBUG "json_of_type";
-      Json.null
-      (* Odoc_info.reset_type_names ();
+    method json_of_type (t : t_type) : Json.t =
+      let open Json in
+      Odoc_info.reset_type_names ();
       let father = Name.father t.ty_name in
-      let print_field_prefix () =
-        bs "<tr>\n<td align=\"left\" valign=\"top\" >\n";
-        bs "<code>&nbsp;&nbsp;</code>";
-        bs "</td>\n<td align=\"left\" valign=\"top\" >\n";
-        bs "<code>";
-      in
-      let print_field_comment = function
-        | None -> ()
-        | Some t ->
-            bs "<td class=\"typefieldcomment\" align=\"left\" valign=\"top\" >";
-            self#json_of_info (Some t);
-      in
-      (match t.ty_manifest, t.ty_kind with
-      | (None, Type_abstract)
-      | (None, Type_open) -> "\n<pre>"
-      | (None, Type_variant _)
-      | (None, Type_record _) -> "\n<pre><code>"
-      | (Some _, Type_abstract)
-      | (Some _, Type_open) -> "\n<pre>"
-      | (Some _, Type_variant _)
-      | (Some _, Type_record _) -> "\n<pre>"
-      );
-      bp "<span id=\"%s\">" (Naming.type_target t);
-      bs ((self#keyword "type")^" ");
-      self#json_of_type_expr_param_list father t;
-      (match t.ty_parameters with [] -> () | _ -> bs " ");
-      bs (Name.simple t.ty_name);
-      
-      let priv = t.ty_private = Asttypes.Private in
-      (
-       match t.ty_manifest with
-       | None -> ()
-       | Some (Object_type fields) ->
-           bs "= ";
-           if priv then bs "private ";
-           bs "&lt;</pre>";
-           bs "<table class=\"typetable\">\n" ;
-           let print_one f =
-             print_field_prefix () ;
-             bp "<span id=\"%s\">%s</span>&nbsp;: "
-               (Naming.objfield_target t f)
-               f.of_name;
-             self#json_of_type_expr father f.of_type;
-             bs ";</code></td>\n";
-             print_field_comment f.of_text ;
-             bs "\n</tr>"
-           in
-           Json.array "\n" print_one fields;
-           bs "</table>\n>\n";
-           bs " "
-       | Some (Other typ) ->
-           bs "= ";
-           if priv then bs "private ";
-           self#json_of_type_expr father typ;
-           bs " "
-      );
-      (match t.ty_kind with
-        Type_abstract -> bs "</pre>"
-      | Type_variant l ->
-          bs "= ";
-          if priv then bs "private ";
-          bs b
-            (
-             match t.ty_manifest with
-             | None -> "</code></pre>"
-             | Some _ -> "</pre>"
-            );
-          bs "<table class=\"typetable\">\n";
-          let print_bar () =
-            bs "<tr>\n<td align=\"left\" valign=\"top\" >\n";
-            bs "<code>";
-            bs (self#keyword "|");
-            bs "</code></td>\n<td align=\"left\" valign=\"top\" >\n";
-            bs "<code>" in
-          let print_one constr =
-            print_bar ();
-            bp "<span id=\"%s\">%s</span>"
-              (Naming.const_target t constr)
-              (self#constructor constr.vc_name);
-            (
-             match constr.vc_args, constr.vc_ret with
-               Cstr_tuple [], None -> ()
-             | l,None ->
-                 bs (" " ^ (self#keyword "of") ^ " ");
-                 self#json_of_cstr_args ~par:false father constr.vc_name " * " l;
-             | Cstr_tuple [],Some r ->
-                 bs (" " ^ (self#keyword ":") ^ " ");
-                 self#json_of_type_expr father r;
-             | l,Some r ->
-                 bs (" " ^ (self#keyword ":") ^ " ");
-                 self#json_of_cstr_args ~par: false father constr.vc_name " * " l;
-                 bs (" " ^ (self#keyword "->") ^ " ");
-                 self#json_of_type_expr father r;
-            );
-            bs "</code></td>\n";
-            (
-             match constr.vc_text with
-             | None -> ()
-             | Some t ->
-                 bs "<td class=\"typefieldcomment\" align=\"left\" valign=\"top\" >";
-                 bs "<code>";
-                 bs "(*";
-                 bs "</code></td>";
-                 bs "<td class=\"typefieldcomment\" align=\"left\" valign=\"top\" >";
-                 self#json_of_info (Some t);
-                 bs "</td>";
-                 bs "<td class=\"typefieldcomment\" align=\"left\" valign=\"bottom\" >";
-                 bs "<code>";
-                 bs "*)";
-                 bs "</code></td>";
-            );
-            bs "\n</tr>"
-          in
-          if l = [] then print_bar () else
-            Json.array "\n" print_one l;
-          bs "</table>\n"
-
-      | Type_record l ->
-          bs "= ";
-          if priv then bs "private " ;
-          let close_env = match t.ty_manifest with
-            | None -> "</code></pre>"
-            | Some _ -> "</pre>" in
-          self#json_of_record ~father ~close_env (Naming.recfield_target t) l
-      | Type_open ->
-          bs "= ..";
-          bs "</pre>"
-      );
-      bs "\n";
-      self#json_of_info t.ty_info;
-      bs "\n" *)
+      (tagged "Type" (obj [
+        ("name", string (Name.simple t.ty_name));
+        ("parameters", self#json_of_type_expr_param_list father t);
+        ("is_private", bool (t.ty_private = Asttypes.Private));
+        ("father", string (Name.father t.ty_name));
+        ("field_comment", self#json_of_info t.ty_info);
+        ("kind", (
+          match t.ty_kind with
+          | Type_abstract -> (tagged "TypeAbstract" null)
+          | Type_open -> (tagged "TypeOpen" null)
+          | Type_record l ->
+            (tagged "TypeRecord" (self#json_of_record ~father (Naming.recfield_target t) l))
+          | Type_variant constructors -> (
+            let constructor_to_json constr = (obj [
+                ("name", (self#constructor constr.vc_name));
+                ("arguments", (self#json_of_cstr_args ~par:false father constr.vc_name " * ") constr.vc_args);
+                ("return", nullable (self#json_of_type_expr father) constr.vc_ret);
+                ("info", nullable (fun t -> self#json_of_info (Some t)) constr.vc_text);
+              ])
+            in
+            (tagged "TypeVariant" (array constructor_to_json constructors))
+          )
+        ));
+        ("manifest", (
+          match t.ty_manifest with
+          | None -> null
+          | Some (Object_type fields) ->
+            let json_of_field f = (obj [
+              ("name", string f.of_name);
+              ("type", self#json_of_type_expr father f.of_type);
+              ("comment", self#json_of_info f.of_text )
+            ]) in
+            (tagged "ObjectType" (
+              array json_of_field fields
+            ))
+          | Some (Other typ) ->
+            (tagged "Other" (
+              self#json_of_type_expr father typ
+            ))
+        ));
+        ("info", self#json_of_info t.ty_info);
+      ]))
 
     (** Json for a class attribute. *)
     method json_of_attribute (a: t_attribute) : Json.t =
@@ -1315,11 +1214,7 @@ class html = object (self)
       bs "</pre>";
       self#json_of_info m.met_value.val_info;
       (
-       if !with_parameter_list then
          self#json_of_parameter_list b
-           module_name m.met_value.val_parameters
-       else
-         self#json_of_described_parameter_list b
            module_name m.met_value.val_parameters
       ) *)
 
@@ -2119,7 +2014,7 @@ class html = object (self)
           raise (Failure s)
 
     (** Generate the values index in the file [index_values.html]. *)
-    method generate_values_index _module_list =
+    method generate_values_index (_module_list : t_module list) =
       self#generate_elements_index
         self#list_values
         (fun v -> v.val_name)
@@ -2128,7 +2023,7 @@ class html = object (self)
         self#index_values
 
     (** Generate the extensions index in the file [index_extensions.html]. *)
-    method generate_extensions_index _module_list =
+    method generate_extensions_index (_module_list : t_module list) =
       self#generate_elements_index
         self#list_extensions
         (fun x -> x.xt_name)
@@ -2137,7 +2032,7 @@ class html = object (self)
         self#index_extensions
 
     (** Generate the exceptions index in the file [index_exceptions.html]. *)
-    method generate_exceptions_index _module_list =
+    method generate_exceptions_index (_module_list : t_module list) =
       self#generate_elements_index
         self#list_exceptions
         (fun e -> e.ex_name)
@@ -2146,7 +2041,7 @@ class html = object (self)
         self#index_exceptions
 
     (** Generate the types index in the file [index_types.html]. *)
-    method generate_types_index _module_list =
+    method generate_types_index (_module_list : t_module list) =
       self#generate_elements_index
         self#list_types
         (fun t -> t.ty_name)
@@ -2155,7 +2050,7 @@ class html = object (self)
         self#index_types
 
     (** Generate the attributes index in the file [index_attributes.html]. *)
-    method generate_attributes_index _module_list =
+    method generate_attributes_index (_module_list : t_module list) =
       self#generate_elements_index
         self#list_attributes
         (fun a -> a.att_value.val_name)
@@ -2164,7 +2059,7 @@ class html = object (self)
         self#index_attributes
 
     (** Generate the methods index in the file [index_methods.html]. *)
-    method generate_methods_index _module_list =
+    method generate_methods_index (_module_list : t_module list) =
       self#generate_elements_index
         self#list_methods
         (fun m -> m.met_value.val_name)
@@ -2173,7 +2068,7 @@ class html = object (self)
         self#index_methods
 
     (** Generate the classes index in the file [index_classes.html]. *)
-    method generate_classes_index _module_list =
+    method generate_classes_index (_module_list : t_module list) =
       self#generate_elements_index
         self#list_classes
         (fun c -> c.cl_name)
@@ -2182,7 +2077,7 @@ class html = object (self)
         self#index_classes
 
     (** Generate the class types index in the file [index_class_types.html]. *)
-    method generate_class_types_index _module_list =
+    method generate_class_types_index (_module_list : t_module list) =
       self#generate_elements_index
         self#list_class_types
         (fun ct -> ct.clt_name)
@@ -2191,7 +2086,7 @@ class html = object (self)
         self#index_class_types
 
     (** Generate the modules index in the file [index_modules.html]. *)
-    method generate_modules_index _module_list =
+    method generate_modules_index (_module_list : t_module list) =
       self#generate_elements_index
         self#list_modules
         (fun m -> m.m_name)
@@ -2200,7 +2095,7 @@ class html = object (self)
         self#index_modules
 
     (** Generate the module types index in the file [index_module_types.html]. *)
-    method generate_module_types_index _module_list =
+    method generate_module_types_index (_module_list : t_module list) =
       self#generate_elements_index
         self#list_module_types
         (fun mt -> mt.mt_name)
@@ -2262,27 +2157,32 @@ class html = object (self)
           known_modules_names
           module_types ;
 
+      module_list
+      |> List.iter (fun (modu : t_module) -> 
+        print_endline modu.m_name
+      );
+      
       (* generate html for each module *)
       self#generate_elements 
         self#generate_for_module 
         module_list ;
 
-      try
-        self#generate_index module_list;
-        self#generate_values_index module_list ;
-        self#generate_extensions_index module_list ;
-        self#generate_exceptions_index module_list ;
-        self#generate_types_index module_list ;
-        self#generate_attributes_index module_list ;
-        self#generate_methods_index module_list ;
-        self#generate_classes_index module_list ;
-        self#generate_class_types_index module_list ;
-        self#generate_modules_index module_list ;
-        self#generate_module_types_index module_list ;
-      with
-        Failure s ->
-          prerr_endline s ;
-          incr Odoc_info.errors
+      (* try *)
+        (* self#generate_index module_list; *)
+        (* self#generate_values_index module_list ; *)
+        (* self#generate_extensions_index module_list ; *)
+        (* self#generate_exceptions_index module_list ; *)
+        (* self#generate_types_index module_list ; *)
+        (* self#generate_attributes_index module_list ; *)
+        (* self#generate_methods_index module_list ; *)
+        (* self#generate_classes_index module_list ; *)
+        (* self#generate_class_types_index module_list ; *)
+        (* self#generate_modules_index module_list ; *)
+        (* self#generate_module_types_index module_list ; *)
+      (* with *)
+        (* Failure s -> *)
+          (* prerr_endline s ; *)
+          (* incr Odoc_info.errors *)
   end
 
 class generator = object

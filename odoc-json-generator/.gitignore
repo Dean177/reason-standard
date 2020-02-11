@@ -1,0 +1,5 @@
+doc
+example/*.cmi
+example/*.cmx
+example/*.o
+example/*.exe

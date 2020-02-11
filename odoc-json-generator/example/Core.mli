@@ -29,7 +29,7 @@
 
     @alias flatMap, andThen, concatMap
 *)
-val bind: 'a list -> ~f:('a -> 'b list) -> 'b list
+val bind: 'a list -> ('a -> 'b list) -> 'b list
 
 (** {1 Section Heading} *)
 
@@ -37,13 +37,13 @@ val bind: 'a list -> ~f:('a -> 'b list) -> 'b list
 
     It refers to a value in another module {!Fourier.pi}
 *)
-val constant: float;
+val constant: float
 
 (** Documentation for a another constant 
 
     It refers to another module {!Fourier}
 *)
-val another_constant: float;
+val another_constant: float
 
 (** {1 Section Heading two} *)
 
@@ -65,4 +65,3 @@ module Sub : sig
   (** Doc for a submodule function *)
    val ofList: 'a list -> t
 end
-
