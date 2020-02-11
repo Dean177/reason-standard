@@ -19,7 +19,8 @@ Draw inspiration from
 - [ImmutableJS](https://immutable-js.github.io/immutable-js/)
 - [Lodash](https://lodash.com/docs)
 - [Base](https://ocaml.janestreet.com/ocaml-core/latest/doc/base/index.html)
-- [Batteries](http://ocaml-batteries-team.github.io/batteries-included/hdoc2/)- [Containers](https://c-cube.github.io/ocaml-containers/),
+- [Batteries](http://ocaml-batteries-team.github.io/batteries-included/hdoc2/)
+- [Containers](https://c-cube.github.io/ocaml-containers/),
 - [Go](https://golang.org/pkg/#stdlib)
 - [Rust](https://doc.rust-lang.org/std/)
 - [Elm](https://package.elm-lang.org/packages/elm/core/latest/)

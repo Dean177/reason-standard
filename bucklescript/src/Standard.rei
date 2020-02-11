@@ -2024,6 +2024,12 @@ module String: {
   */
   let length: string => int;
 
+  /** TODO */
+  let get: (string, int) => char;
+
+  /** TODO */
+  let getAt: (string, ~index:int) => option(char);
+
   /** Returns, as an {!Option}, a tuple containing the first {!Char} and the remaining String.
 
       If given an empty string, returns [None].

@@ -1,2 +1,7 @@
-(dirs :standard \ bucklescript/node_modules docs gatsby-source-odoc
-  integration-tests website)
+(dirs :standard \ 
+  bs-experimental
+  bucklescript/node_modules 
+  docs 
+  gatsby-source-odoc
+  integration-tests website
+  native-experimental)

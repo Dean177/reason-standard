@@ -1,7 +1,7 @@
 open Standard;
 open AlcoJest;
 
-suite("Map", () => {
+let suite = suite("Map", () => {
   describe("Poly.ofList", () => {
     test("creates a map from a list", () => {
       let map = Map.Poly.ofList([(`Ant, "Ant"), (`Bat, "Bat")]);

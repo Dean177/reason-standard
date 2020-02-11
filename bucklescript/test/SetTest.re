@@ -1,7 +1,7 @@
 open Standard;
 open AlcoJest;
 
-suite("Set", () => {
+let suite = suite("Set", () => {
   describe("Poly.ofList", () => {
     test("creates a set from a list", () => {
       let set = Set.Poly.ofList([`Ant, `Bat]);
