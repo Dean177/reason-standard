@@ -1,9 +1,9 @@
 import React from 'react';
-import {Link} from "./Link";
+import { Link } from './Link';
 
 export const NextPrevious = ({ nav, currentUrl }) => {
   const currentIndex = nav.findIndex(({ url }) => url === currentUrl);
-  
+
   let next;
   let previous;
   if (currentIndex === undefined) {
@@ -11,14 +11,17 @@ export const NextPrevious = ({ nav, currentUrl }) => {
     next = nav[0];
     previous = null;
   } else if (currentIndex === 0) {
-    next = nav[currentIndex+1]
+    next = nav[currentIndex + 1];
     previous = null;
-  } else if (currentIndex === (nav.length-1)) {
-    next = null;
-    previous = nav[currentIndex-1]
+  } else if (currentIndex === nav.length - 1) {
+    next = {
+      title: 'API',
+      url: '/api',
+    };
+    previous = nav[currentIndex - 1];
   } else if (currentIndex) {
-    next = nav[currentIndex+1];
-    previous = nav[currentIndex-1];
+    next = nav[currentIndex + 1];
+    previous = nav[currentIndex - 1];
   }
 
   return (
@@ -213,5 +216,4 @@ export const NextPrevious = ({ nav, currentUrl }) => {
       ) : null}
     </div>
   );
-}
-
+};

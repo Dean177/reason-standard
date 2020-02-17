@@ -1204,6 +1204,15 @@ module String = {
 
   let isEmpty = t => length(t) == 0;
 
+  let get = Base.String.get;
+
+  let getAt = (a, ~index) =>
+    if (index >= 0 && index < length(a)) {
+      Some(Base.String.get(a, index));
+    } else {
+      None;
+    };
+
   let uncons = (s: string): option((char, string)) =>
     switch (s) {
     | "" => None

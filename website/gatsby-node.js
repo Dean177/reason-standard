@@ -6,14 +6,8 @@ exports.createPages = ({ graphql, actions }) => {
   createRedirect({
     fromPath: '/docs',
     toPath: '/docs/installation',
-    redirectInBrowser:true,
+    redirectInBrowser: true,
   })
-
-  createPage({
-    path: '/api',
-    component: path.resolve('./src/templates/api.js'),
-    context: {},
-  });
 
   return new Promise((resolve, reject) => {
     resolve(
@@ -82,7 +76,63 @@ exports.onCreateNode = ({ node, getNode, actions }) => {
     createNodeField({
       name: 'order',
       node,
-      value: node.frontmatter.order || 999,
+      value: node.frontmatter.order || '999',
     });
   }
+};
+
+// TODO make this into a plugin?
+const chokidar = require('chokidar');
+const crypto = require('crypto');
+const fs = require('fs');
+
+let log = {
+  info: (...rest) => console.info('[odoc]', ...rest),
+};
+
+let id = 'odoc-model';
+
+let createNodeFromModel = model => ({
+  id,
+  internal: {
+    type: 'OdocModel',
+    contentDigest: crypto
+      .createHash(`md5`)
+      .update((model))
+      .digest(`hex`),
+    mediaType: `application/json`,
+    content: (model),
+  },
+});
+
+const inDevelopMode = process.env.gatsby_executing_command === 'develop';
+
+exports.sourceNodes = ({ actions }, config) => {
+  // let modelPath = config.path;
+  let modelPath = path.resolve(__dirname, `../odoc-json-generator/doc/model.json`);
+  log.info('path', modelPath);
+  if (modelPath == null) {
+    throw new Error(`Invalid model path`);
+  }
+  const { createNode, deleteNode } = actions;
+  let node = createNodeFromModel(fs.readFileSync(modelPath).toString());
+  createNode(node);
+
+  if (inDevelopMode) {
+    log.info('watch mode enabled, listening for changes');
+    chokidar.watch(modelPath).on('all', (event, path) => {
+      log.info(event);
+      if (event == 'unlink') {
+        return
+      }
+      fs.readFile(modelPath, (error, data) => {
+        if (error) {
+          return log.error(error);
+        }
+        createNode(createNodeFromModel(data.toString()));
+      });
+    });
+  }
+
+  return Promise.resolve();
 };

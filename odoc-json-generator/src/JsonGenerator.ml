@@ -1,5 +1,3 @@
-
-
 open Odoc_info
 open Value
 open Type
@@ -302,18 +300,15 @@ let print_DEBUG s =
   print_string s; 
   print_newline ()
 
-let new_buf () = Buffer.create 1024
-
 let bp = Printf.printf
 
 let bs s = 
   print_string "bs encounterd: ";
   print_endline s;
 
-(** Generation of html code from text structures. *)
+(* TODO surely everything in this class is going to be deleted soon *)
 class virtual text = object (self)
-    (** Escape the strings which would clash with html syntax, and
-       make some replacements (double newlines replaced by <br>). *)
+    (** Escape the strings which would clash with html syntax, and make some replacements (double newlines replaced by <br>). *)
     method escape s = Odoc_ocamlhtml.escape_base s
 
     method keep_alpha_num s =
@@ -400,24 +395,27 @@ class virtual text = object (self)
             )
             | Some kind ->
               let hidden name = Odoc_info.Code (Odoc_info.use_hidden_modules name) in
-              let (target, text) =
+              let (mark_value, target, text) =
                 match kind with
-                | Odoc_info.RK_module
-                | Odoc_info.RK_module_type
+                | Odoc_info.RK_module ->
+                    (Naming.mark_module, name, hidden name)
+                | Odoc_info.RK_module_type ->
+                    (Naming.mark_module_type, name, hidden name)
                 | Odoc_info.RK_class
                 | Odoc_info.RK_class_type ->
-                    let (html_file, _) = Naming.html_files name in
-                    (html_file, hidden name)
-                | Odoc_info.RK_value -> (Naming.complete_target Naming.mark_value name, hidden name)
-                | Odoc_info.RK_type -> (Naming.complete_target Naming.mark_type name, hidden name)
-                | Odoc_info.RK_extension -> (Naming.complete_target Naming.mark_extension name, hidden name)
-                | Odoc_info.RK_exception -> (Naming.complete_target Naming.mark_exception name, hidden name)
-                | Odoc_info.RK_attribute -> (Naming.complete_target Naming.mark_attribute name, hidden name)
-                | Odoc_info.RK_method -> (Naming.complete_target Naming.mark_method name, hidden name)
-                | Odoc_info.RK_section t -> (Naming.complete_label_target name,
+                    ("", name, hidden name)
+                | Odoc_info.RK_value -> 
+                  (Naming.mark_value, name, hidden name)
+                | Odoc_info.RK_type -> 
+                  (Naming.mark_type, name, hidden name)
+                | Odoc_info.RK_extension -> (Naming.mark_extension, name, hidden name)
+                | Odoc_info.RK_exception -> (Naming.mark_exception, name, hidden name)
+                | Odoc_info.RK_attribute -> (Naming.mark_attribute, name, hidden name)
+                | Odoc_info.RK_method -> (Naming.mark_method, name, hidden name)
+                | Odoc_info.RK_section t -> ("Section", name,
                                             Odoc_info.Italic [Raw (Odoc_info.string_of_text t)])
-                | Odoc_info.RK_recfield -> (Naming.complete_recfield_target name, hidden name)
-                | Odoc_info.RK_const -> (Naming.complete_const_target name, hidden name)
+                | Odoc_info.RK_recfield -> ("Reffield", name, hidden name)
+                | Odoc_info.RK_const -> ("Const", name, hidden name)
               in
               let text =
                 match text_opt with
@@ -425,6 +423,7 @@ class virtual text = object (self)
                 | Some text -> text
               in
               (obj [
+                ("kind", string mark_value);
                 ("target", string target);
                 ("content", array self#json_of_text_element text)
               ])
@@ -468,137 +467,87 @@ class virtual text = object (self)
       index_if_not_empty self#list_modules self#index_modules Odoc_messages.index_of_modules;
       index_if_not_empty self#list_module_types self#index_module_types Odoc_messages.index_of_module_types;
 
-    method virtual list_types : Odoc_info.Type.t_type list
-    method virtual index_types : string
-    method virtual list_extensions : Odoc_info.Extension.t_extension_constructor list
-    method virtual index_extensions : string
-    method virtual list_exceptions : Odoc_info.Exception.t_exception list
-    method virtual index_exceptions : string
-    method virtual list_values : Odoc_info.Value.t_value list
-    method virtual index_values : string
-    method virtual list_attributes : Odoc_info.Value.t_attribute list
-    method virtual index_attributes : string
-    method virtual list_methods : Odoc_info.Value.t_method list
-    method virtual index_methods : string
-    method virtual list_classes : Odoc_info.Class.t_class list
-    method virtual index_classes : string
-    method virtual list_class_types : Odoc_info.Class.t_class_type list
-    method virtual index_class_types : string
-    method virtual list_modules : Odoc_info.Module.t_module list
-    method virtual index_modules : string
-    method virtual list_module_types : Odoc_info.Module.t_module_type list
-    method virtual index_module_types : string
 
   end
-
-let opt = Odoc_info.apply_opt
 
 let newline_to_indented_br s =
   let len = String.length s in
   let b = Buffer.create len in
   for i = 0 to len - 1 do
     match s.[i] with
-      '\n' -> Buffer.add_string b "<br>     "
+    | '\n' -> Buffer.add_string b "<br>     "
     | c -> Buffer.add_char b c
   done;
   Buffer.contents b
 
-module JsonGenerator =
-  struct
-(** This class is used to create objects which can generate a simple html documentation. *)
-class html = object (self)
+class json = object (self)
   inherit text
-  
-  (** The list of pairs [(tag, f)] where [f] is a function taking
-       the [text] associated to [tag] and returning html code.
-       Add a pair here to handle a tag.*)
-    val mutable tag_functions = ([] : (string * (Odoc_info.text -> Json.t)) list)
 
-    (** Json for optional version information.*)
-    method json_of_version_opt v_opt =
-      Json.(nullable (fun v -> string v) v_opt)
+  method json_of_version_opt v_opt = Json.(nullable string v_opt)
 
-    (** Json for optional since information.*)
-    method json_of_since_opt s_opt =
-      (* TODO replace `self#json_of_text [Raw _]` with `string _` *)
-      Json.(nullable string s_opt)
+  method json_of_since_opt s_opt = Json.(nullable string s_opt)
 
-    (** Json for "before" information.*)
-    method json_of_before l =
-      let open Json in
-      let f (v, text) = obj [
-        ("version", string v);
-        ("text", self#json_of_text text)
-      ]
-      in
-      Json.(array f l)
+  method json_of_before l =
+    let open Json in
+    let f (v, text) = obj [
+      ("version", string v);
+      ("text", self#json_of_text text)
+    ]
+    in
+    (array f l)
 
-    (** Json for list of raised exceptions.*)
-    method json_of_raised_exceptions l =
-      let open Json in
-      let f (ex, desc) = obj [
-          ("exception", ex);
-          ("description", self#json_of_text desc);
-        ]
-      in
-      (array f l)
+  (** TODO Json for "see also" reference. *)
+  method json_of_see ((see_ref: see_ref), (t : text_element list))  =
+    let t_ref =
+      match see_ref with
+      | Odoc_info.See_url s -> [Odoc_info.Link (s, t)]
+      | Odoc_info.See_file s -> (Odoc_info.Code s) :: (Odoc_info.Raw " ") :: t
+      | Odoc_info.See_doc s -> (Odoc_info.Italic [Odoc_info.Raw s]) :: (Odoc_info.Raw " ") :: t
+    in
+    self#json_of_text t_ref
 
-    (** Json for "see also" reference. *)
-    method json_of_see ((see_ref: see_ref), (t))  =
-      let t_ref =
-        match see_ref with
-        | Odoc_info.See_url s -> [Odoc_info.Link (s, t)]
-        | Odoc_info.See_file s -> (Odoc_info.Code s) :: (Odoc_info.Raw " ") :: t
-        | Odoc_info.See_doc s -> (Odoc_info.Italic [Odoc_info.Raw s]) :: (Odoc_info.Raw " ") :: t
-      in
-      self#json_of_text t_ref
+  method json_of_sees (l : (see_ref * text_element list) list) =
+    Json.array self#json_of_see l
 
-    (** Json for the list of "see also" references.*)
-    method json_of_sees l =
-      let open Json in
-      let f see = self#json_of_see see in
-      (array f l)
+  method json_of_return_opt return_opt =
+    let open Json in
+    (nullable self#json_of_text return_opt)
 
-    (** Json for optional return information.*)
-    method json_of_return_opt return_opt =
-      let open Json in
-      (nullable self#json_of_text return_opt)
+  method json_of_custom (custom_tags: (string * (text_element list)) list) = 
+    let open Json in
+    let json_of_custom_tag (tag, text) = 
+      tagged tag (self#json_of_text text)
+    in
+    array json_of_custom_tag custom_tags
+      
 
-    (** Json for list of custom tagged texts. *)
-    method json_of_custom l = 
-      Json.array 
-        (fun (tag, text) ->
-          try
-            let f = List.assoc tag tag_functions in
-            (f text)
-          with
-            Not_found ->
-              Odoc_info.warning (Odoc_messages.tag_not_handled tag);
-              Json.null
-        )
-        l
-
-    (** Json for a description, except for the [i_params] field. *)
-    method json_of_info ?(cls="") (info_opt: Odoc_info.info option) : Json.t =
-      let open Json in
-      match info_opt with
-      | None -> null
-      | Some info ->
-          let module M = Odoc_info in
-          (obj [
-            ("deprecated", (nullable self#json_of_text) info.i_deprecated);
-            ("description", (nullable self#json_of_text) info.M.i_desc);
-            (* ("authors", self#json_of_author_list info.M.i_authors); *)
-            ("version", self#json_of_version_opt info.M.i_version);
-            ("before", self#json_of_before info.M.i_before);
-            ("since", self#json_of_since_opt info.M.i_since);
-            (* ("exceptions", self#json_of_raised_exceptions info.M.i_raised_exceptions); *)
-            ("return", self#json_of_return_opt info.M.i_return_value);
-            ("see", self#json_of_sees info.M.i_sees);
-            ("custom", self#json_of_custom info.M.i_custom);
-          ])          
-          
-  method character_encoding (_b: Buffer.t) = ()
+  (** Json for a description, except for the [i_params] field. *)
+  method json_of_info (info_opt: Odoc_info.info option) : Json.t =
+    let open Json in
+    let module M = Odoc_info in
+    match info_opt with
+    | None -> null
+    | Some info ->
+        (obj [
+          ("deprecated", (nullable self#json_of_text) info.i_deprecated);
+          ("description", (nullable self#json_of_text) info.M.i_desc);
+          (* TODO *)
+          (* ("authors", self#json_of_author_list info.M.i_authors); *)
+          ("version", self#json_of_version_opt info.M.i_version);
+          ("before", self#json_of_before info.M.i_before);
+          ("since", self#json_of_since_opt info.M.i_since);
+          ("exceptions", (
+            let json_of_exception ((name, description) : raised_exception) = obj [
+              ("name", string name);
+              ("description", self#json_of_text description);
+            ] in
+            (array json_of_exception info.M.i_raised_exceptions)
+          ));
+          ("return", self#json_of_return_opt info.M.i_return_value);
+          ("see", self#json_of_sees info.M.i_sees);
+          ("custom", self#json_of_custom info.M.i_custom);
+        ])          
+        
 
   (** The known types names.
       Used to know if we must create a link to a type
@@ -626,59 +575,59 @@ class html = object (self)
     let p = self#index_prefix in
     Printf.sprintf "%s.html" p
 
-    (** The file for the index of values. *)
-    method index_values = Printf.sprintf "%s_values.html" self#index_prefix
+  (** The file for the index of values. *)
+  method index_values = Printf.sprintf "%s_values.html" self#index_prefix
 
-    (** The file for the index of types. *)
-    method index_types = Printf.sprintf "%s_types.html" self#index_prefix
+  (** The file for the index of types. *)
+  method index_types = Printf.sprintf "%s_types.html" self#index_prefix
 
-    (** The file for the index of extensions. *)
-    method index_extensions = Printf.sprintf "%s_extensions.html" self#index_prefix
+  (** The file for the index of extensions. *)
+  method index_extensions = Printf.sprintf "%s_extensions.html" self#index_prefix
 
-    (** The file for the index of exceptions. *)
-    method index_exceptions = Printf.sprintf "%s_exceptions.html" self#index_prefix
+  (** The file for the index of exceptions. *)
+  method index_exceptions = Printf.sprintf "%s_exceptions.html" self#index_prefix
 
-    (** The file for the index of attributes. *)
-    method index_attributes = Printf.sprintf "%s_attributes.html" self#index_prefix
+  (** The file for the index of attributes. *)
+  method index_attributes = Printf.sprintf "%s_attributes.html" self#index_prefix
 
-    (** The file for the index of methods. *)
-    method index_methods = Printf.sprintf "%s_methods.html" self#index_prefix
+  (** The file for the index of methods. *)
+  method index_methods = Printf.sprintf "%s_methods.html" self#index_prefix
 
-    (** The file for the index of classes. *)
-    method index_classes = Printf.sprintf "%s_classes.html" self#index_prefix
+  (** The file for the index of classes. *)
+  method index_classes = Printf.sprintf "%s_classes.html" self#index_prefix
 
-    (** The file for the index of class types. *)
-    method index_class_types = Printf.sprintf "%s_class_types.html" self#index_prefix
+  (** The file for the index of class types. *)
+  method index_class_types = Printf.sprintf "%s_class_types.html" self#index_prefix
 
-    (** The file for the index of modules. *)
-    method index_modules = Printf.sprintf "%s_modules.html" self#index_prefix
+  (** The file for the index of modules. *)
+  method index_modules = Printf.sprintf "%s_modules.html" self#index_prefix
 
-    (** The file for the index of module types. *)
-    method index_module_types = Printf.sprintf "%s_module_types.html" self#index_prefix
+  (** The file for the index of module types. *)
+  method index_module_types = Printf.sprintf "%s_module_types.html" self#index_prefix
 
-    (** The list of attributes. Filled in the [generate] method. *)
-    val mutable list_attributes = []
-    method list_attributes = list_attributes
+  (** The list of attributes. Filled in the [generate] method. *)
+  val mutable list_attributes = []
+  method list_attributes = list_attributes
 
-    (** The list of methods. Filled in the [generate] method. *)
-    val mutable list_methods = []
-    method list_methods = list_methods
+  (** The list of methods. Filled in the [generate] method. *)
+  val mutable list_methods = []
+  method list_methods = list_methods
 
-    (** The list of values. Filled in the [generate] method. *)
-    val mutable list_values = []
-    method list_values = list_values
+  (** The list of values. Filled in the [generate] method. *)
+  val mutable list_values = []
+  method list_values = list_values
 
-    (** The list of extensions. Filled in the [generate] method. *)
-    val mutable list_extensions = []
-    method list_extensions = list_extensions
+  (** The list of extensions. Filled in the [generate] method. *)
+  val mutable list_extensions = []
+  method list_extensions = list_extensions
 
-    (** The list of exceptions. Filled in the [generate] method. *)
-    val mutable list_exceptions = []
-    method list_exceptions = list_exceptions
+  (** The list of exceptions. Filled in the [generate] method. *)
+  val mutable list_exceptions = []
+  method list_exceptions = list_exceptions
 
-    (** The list of types. Filled in the [generate] method. *)
-    val mutable list_types = []
-    method list_types = list_types
+  (** The list of types. Filled in the [generate] method. *)
+  val mutable list_types = []
+  method list_types = list_types
 
     (** The list of modules. Filled in the [generate] method. *)
     val mutable list_modules = []
@@ -741,25 +690,19 @@ class html = object (self)
       in
       print_lines "Section" section_titles ;
       print_lines "Subsection" subsection_titles
-
     
-    method keyword s : Json.t =
-      Json.tagged "keyword" (Json.string s)      
-
-    method constructor (s: string) : Json.t = 
-      Json.tagged "constructor" (Json.string s)
-
     (** Take a string and return the string where fully qualified
        type (or class or class type) idents
        have been replaced by links to the type referenced by the ident.*)
     method create_fully_qualified_idents_links m_name s : string =
       let ln = !Odoc_global.library_namespace in
-      let f str_t =
+      let f (str_t: string) =
         let match_s = Str.matched_string str_t in
         let known_type = String.Set.mem match_s known_types_names in
         let known_class = String.Set.mem match_s known_classes_names in
-        let retry, match_s = if not (known_type || known_class) && ln <> "" then
-            true, Name.get_relative_opt ln match_s
+        let (retry, match_s) = 
+          if not (known_type || known_class) && ln <> "" then
+            true, (Name.get_relative_opt ln match_s)
           else
             false, match_s
         in
@@ -768,17 +711,13 @@ class html = object (self)
             Odoc_info.use_hidden_modules
             match_s
             rel
-        in
-        if known_type ||
-           (retry && String.Set.mem match_s known_types_names) then
-           "<a href=\""^(Naming.complete_target Naming.mark_type match_s)^"\">"^
+        in if known_type || (retry && String.Set.mem match_s known_types_names) then
+          "<a href=\""^(Naming.complete_target Naming.mark_type match_s)^"\">"^
            s_final^
            "</a>"
-        else
-        if known_class ||
-           (retry && String.Set.mem match_s known_classes_names) then
-            let (html_file, _) = Naming.html_files match_s in
-            "<a href=\""^html_file^"\">"^s_final^"</a>"
+        else if known_class || (retry && String.Set.mem match_s known_classes_names) then
+          let (html_file, _) = Naming.html_files match_s in
+          "<a href=\""^html_file^"\">"^s_final^"</a>"
           else
             s_final
       in
@@ -817,14 +756,89 @@ class html = object (self)
         f
         s
 
-    (** Json to display a [Types.type_expr]. *)
-    method json_of_type_expr m_name t : Json.t =
-      (Odoc_info.string_of_type_expr t)
-      |> Odoc_info.remove_ending_newline 
-      |> newline_to_indented_br 
-      |> (self#create_fully_qualified_idents_links m_name)
-      |> Json.string
+    method json_of_ident (ident : Ident.t) : Json.t = 
+      Json.string (Ident.name ident)
+
+    method json_of_path (path : Path.t) : Json.t = 
+      let open Json in
+      match path with
+      | Pident(ident : Ident.t) -> 
+          tagged "Ident" (self#json_of_ident ident)
+      | Pdot(t, s) -> 
+          tagged "Dot" (obj [
+            ("t", self#json_of_path t);
+            ("s", string s);
+          ])
+      | Papply(left, right) -> 
+          tagged "Apply" (obj [
+            ("left", self#json_of_path left);
+            ("right", self#json_of_path right);
+          ])
       
+    method json_of_type_expr (t: Types.type_expr) : Json.t =
+      let open Json in
+      let desc = t.desc in
+      let rendered = 
+        (Odoc_info.string_of_type_expr t)
+        |> Odoc_info.remove_ending_newline 
+        |> newline_to_indented_br 
+        |> (self#create_fully_qualified_idents_links "ModuleName")
+      in
+      let raw = 
+        match (desc) with 
+        | Tvar tvar -> (tagged "Var" (nullable string tvar))
+        | Tnil -> (tagged "Nil" null)
+        | Ttuple components -> (tagged "Tuple" (array self#json_of_type_expr components))
+        | Tarrow (label, from, to_, _commutable) -> 
+          (tagged "Arrow" (obj [
+            ("label", 
+              match label with
+              | Nolabel -> (tagged "Nolabel" null)
+              | Labelled label -> (tagged "Labelled" (string label))
+              | Optional label -> (tagged "Optional" (string label))            
+            );
+            ("from", self#json_of_type_expr from);
+            ("to", self#json_of_type_expr to_);
+            (* ("commutable", 
+              match commutable with 
+              | Cok -> tagged "Ok" null
+              | Cunknown -> tagged "Unknown" null
+              | Clink (link : Types.commutable ref) -> tagged "Link" null
+            ) *)
+          ]))
+        | Tconstr ((path : Path.t), (ts : Types.type_expr list), (_am : Types.abbrev_memo ref)) -> 
+            tagged "Constr" (obj [
+              ("path", self#json_of_path path);
+              ("expressions", array self#json_of_type_expr ts);
+            ])
+        | Tobject((expression : Types.type_expr), ((b) : (Path.t * Types.type_expr list) option ref )) -> 
+          tagged "Object" (obj [
+
+          ]) 
+        | Tfield(string, field_kind, (a : Types.type_expr), (b : Types.type_expr)) -> tagged "Field" null
+        | Tlink(type_expr) -> tagged "Link" (self#json_of_type_expr type_expr)
+        | Tsubst(type_expr) -> tagged "Subst" (self#json_of_type_expr type_expr)
+        | Tvariant(row_desc) -> tagged "Variant" (obj [
+          ("fields", null);
+          ("more", self#json_of_type_expr row_desc.row_more);
+          ("bound", null);
+          ("closed", bool row_desc.row_closed);
+          ("fixed", bool row_desc.row_fixed);
+          ("name", 
+            nullable 
+            (fun ((path : Path.t), expressions) -> 
+              obj [("expressions", array self#json_of_type_expr expressions)])
+            row_desc.row_name
+          );
+        ])
+        | Tunivar(univar : string option) -> tagged "Univar" (nullable string univar)
+        | Tpoly((ex : Types.type_expr), (expressions : Types.type_expr list)) -> tagged "Poly" null
+        | Tpackage((path : Path.t), (idents : Longident.t list), (expressions : Types.type_expr list)) -> tagged "Package" null
+      in
+      (obj [
+        ("rendered", string rendered);
+        ("raw", raw)
+      ])
 
     (** Json to display a [Types.type_expr list]. *)
     method json_of_cstr_args ?(par : bool option) (m_name : string) (constructor_name : string) (sep ) (l : constructor_args) : Json.t =
@@ -876,7 +890,10 @@ class html = object (self)
         (tagged "ModuleStruct" 
           (array (self#json_of_module_element father) eles))          
       | Module_alias (a: module_alias) -> 
-        (tagged "ModuleAlias" (string (self#create_fully_qualified_module_idents_links father a.ma_name)))
+        (tagged "ModuleAlias" (obj [
+          ("father", string father);
+          ("name", string a.ma_name);
+        ]))
       | Module_functor ((p: module_parameter), (k: module_kind)) ->
           (tagged "ModuleFunctor" (obj [
             ("parameter", self#json_of_module_parameter father p);
@@ -910,20 +927,15 @@ class html = object (self)
     method json_of_module_element (m_name: string) (ele: module_element) : Json.t =
       match ele with
       | Element_module m ->
-          self#json_of_module ~complete: false m
-          (* let father = Name.father m.m_name in
-          (tagged "Module" (obj [
-            ("name", string m.m_name);
-            ("kind", self#json_of_module_kind father ~modu:m m.m_kind);
-          ])) *)
+          self#json_of_module m          
       | Element_module_type mt ->
-          self#json_of_modtype ~complete: false mt
+          self#json_of_modtype ~complete:false mt
       | Element_included_module im ->
           self#json_of_included_module im
       | Element_class c ->
-          self#json_of_class ~complete: false c
+          self#json_of_class ~complete:false c
       | Element_class_type ct ->
-          self#json_of_class_type ~complete: false ct
+          self#json_of_class_type ~complete:false ct
       | Element_value v ->
           self#json_of_value v
       | Element_type_extension te ->
@@ -933,7 +945,6 @@ class html = object (self)
       | Element_type t ->
           self#json_of_type t
       | Element_module_comment text ->
-          (* (tagged "ModuleComment" (Json.array self#json_of_text_element text_elements)) *)
           self#json_of_module_comment text
 
     method json_of_module_type_kind father ?modu ?(mt: t_module_type option) (kind: module_type_kind) : Json.t =
@@ -965,10 +976,7 @@ class html = object (self)
 
     (** Json to display the type of a module parameter.. *)
     method json_of_module_parameter_type m_name p : Json.t =
-      match p.mp_type with 
-      | None -> Json.null
-      | Some mty -> 
-          self#json_of_module_type m_name ~code: p.mp_type_code mty
+      Json.nullable (self#json_of_module_type m_name ~code: p.mp_type_code) p.mp_type
 
     (** Generate a file containing the module type in the given file name. *)
     (* method output_module_type in_title file mtyp : unit =
@@ -984,9 +992,11 @@ class html = object (self)
 
     method json_of_value v : Json.t =
       let open Json in
+      Odoc_info.reset_type_names ();
       tagged "Value" (obj [
-        ("name", string v.val_name);
-        ("type", self#json_of_type_expr (Name.father v.val_name) v.val_type);
+        ("name", string (Name.simple v.val_name));
+        ("qualified_name", string v.val_name);
+        ("type", self#json_of_type_expr v.val_type);
         ("info", self#json_of_info v.val_info);
         ("parameters", self#json_of_described_parameter_list (Name.father v.val_name) v.val_parameters)
       ])
@@ -1051,7 +1061,6 @@ class html = object (self)
         ); *)
       ]) 
 
-    (** Json for an exception. *)
     method json_of_exception e : Json.t =  
       let open Json in
       let constructor_name = Name.simple e.ex_name in
@@ -1097,7 +1106,7 @@ class html = object (self)
       Json.null
       (* bs "{";
       let print_one r = 
-        if r.rf_mutable then bs (self#keyword "mutable&nbsp;") ;
+        if r.rf_mutable then bs ( "mutable&nbsp;") ;
         self#json_of_type_expr father r.rf_type;
         (
           match r.rf_text with
@@ -1128,9 +1137,9 @@ class html = object (self)
             (tagged "TypeRecord" (self#json_of_record ~father (Naming.recfield_target t) l))
           | Type_variant constructors -> (
             let constructor_to_json constr = (obj [
-                ("name", (self#constructor constr.vc_name));
+                ("name", (string constr.vc_name));
                 ("arguments", (self#json_of_cstr_args ~par:false father constr.vc_name " * ") constr.vc_args);
-                ("return", nullable (self#json_of_type_expr father) constr.vc_ret);
+                ("return", nullable self#json_of_type_expr constr.vc_ret);
                 ("info", nullable (fun t -> self#json_of_info (Some t)) constr.vc_text);
               ])
             in
@@ -1143,7 +1152,7 @@ class html = object (self)
           | Some (Object_type fields) ->
             let json_of_field f = (obj [
               ("name", string f.of_name);
-              ("type", self#json_of_type_expr father f.of_type);
+              ("type", self#json_of_type_expr f.of_type);
               ("comment", self#json_of_info f.of_text )
             ]) in
             (tagged "ObjectType" (
@@ -1151,7 +1160,7 @@ class html = object (self)
             ))
           | Some (Other typ) ->
             (tagged "Other" (
-              self#json_of_type_expr father typ
+              self#json_of_type_expr typ
             ))
         ));
         ("info", self#json_of_info t.ty_info);
@@ -1163,16 +1172,16 @@ class html = object (self)
       Json.null
       (* let module_name = Name.father (Name.father a.att_value.val_name) in
       bp "<span id=\"%s\">" (Naming.attribute_target a);
-      bs (self#keyword "val");
+      bs ( "val");
       (
        if a.att_virtual then
-         bs ((self#keyword "virtual")^ " ")
+         bs (( "virtual")^ " ")
        else
          ()
       );
       (
        if a.att_mutable then
-         bs ((self#keyword Odoc_messages.mutab)^ " ")
+         bs (( Odoc_messages.mutab)^ " ")
        else
          ()
       );(
@@ -1197,9 +1206,9 @@ class html = object (self)
       bs "\n<pre>";
       (* html mark *)
       bp "<span id=\"%s\">" (Naming.method_target m);
-      bs ((self#keyword "method")^" ");
-       if m.met_private then bs ((self#keyword "private")^" ");
-      if m.met_virtual then bs ((self#keyword "virtual")^" ");
+      bs (( "method")^" ");
+       if m.met_private then bs (( "private")^" ");
+      if m.met_virtual then bs (( "virtual")^" ");
       (
        match m.met_value.val_code with
        | None -> bs  (Name.simple m.met_value.val_name)
@@ -1218,67 +1227,45 @@ class html = object (self)
            module_name m.met_value.val_parameters
       ) *)
 
-    (** Json for the description of a function parameter. *)
-    method json_of_parameter_description (p) : Json.t =
-      print_DEBUG "json_of_parameter_description";
-      match Parameter.names p with
-      | [] -> Json.null
-      | name :: [] -> (
-          (* Only one name, no need for label for the description. *)
-          match Parameter.desc_by_name p name with
-          | None -> Json.null
-          | Some t -> self#json_of_text t
-        )
-      | l ->
-          (*  A list of names, we display those with a description. *)
-          let l2 = List.filter (fun n -> (Parameter.desc_by_name p n) <> None) l in
-          let print_one n =
-            match Parameter.desc_by_name p n with
-            | None -> Json.null
-            | Some t ->
-                self#json_of_text t
-          in
-          Json.array print_one l2
+    method json_of_parameter_description (p: Parameter.parameter) : Json.t =
+      let open Json in
+      let json_of_parameter_name name =
+        match Parameter.desc_by_name p name with
+        | None -> Json.null
+        | Some t -> obj [
+            ("name", string name);
+            ("description", self#json_of_text t)
+          ]
+      in
+      Json.array json_of_parameter_name (Parameter.names p)
 
     (** Json for a list of parameters. *)
-    method json_of_parameter_list (m_name : string) (l) =
-      print_DEBUG "json_of_parameter_list";
-      match l with
-      | [] -> Json.null
-      | _ ->
-          bs Odoc_messages.parameters;
-          let print_one p = Json.(obj [
-            "name", string (
-              match Parameter.complete_name p with
-              | "" -> "?"
-              | s -> s
-            );
-            "type", self#json_of_type_expr m_name (Parameter.typ p);
-            "descr", self#json_of_parameter_description p;
-          ])
-          in
-          Json.array print_one l;
+    method json_of_parameter_list (m_name : string) (l: Parameter.parameter list) =
+      let json_of_parameter p = Json.(obj [
+        "name", string (
+          match Parameter.complete_name p with
+          | "" -> "?"
+          | s -> s
+        );
+        "type", self#json_of_type_expr (Parameter.typ p);
+        "description", self#json_of_parameter_description p;
+      ])
+      in
+      Json.array json_of_parameter l
 
     (** Json for the parameters which have a name and description. *)
-    method json_of_described_parameter_list _m_name l =
-      print_DEBUG "json_of_described_parameter_list";
-      Json.null
+    method json_of_described_parameter_list (m_name : string) l =
+      let open Json in
       (* get the params which have a name, and at least one name described. *)
-      (* let l2 = List.filter
+      let l2 = 
+        List.filter
           (fun p ->
             List.exists
               (fun n -> (Parameter.desc_by_name p n) <> None)
               (Parameter.names p))
           l
       in
-      let f p =
-        bs "<div class=\"param_info\"><code class=\"code\">";
-        bs (Parameter.complete_name p);
-        bs "</code> : " ;
-        self#json_of_parameter_description p;
-        bs "</div>\n"
-      in
-      Json.array f l2 *)
+      tagged "DescribedParameterList" (array self#json_of_parameter_description l2)
 
     (** Json for a list of module parameters. *)
     method json_of_module_parameter_list (m_name : string) (l : module_parameter list) : Json.t =
@@ -1316,89 +1303,45 @@ class html = object (self)
             )
             l; *)
 
-    (** Json for a module. *)
-    method json_of_module ?(info=true) ?(complete=true) ?(with_link=true) (m:t_module) : Json.t =
+    method json_of_module (m:t_module) : Json.t =
       let open Json in
-      print_DEBUG "json_of_module";
-      ignore info;
-      ignore complete;
-      ignore with_link;
-      ignore m;
       let (html_file, _) = Naming.html_files m.m_name in
       let father = Name.father m.m_name in
-      bp "<span id=\"%s\">" (Naming.module_target m);
       (tagged "Module" (obj [
         ("name", string (Name.simple m.m_name));
-        ("kind", self#json_of_module_kind father ~modu: m m.m_kind);
-        ("info", self#json_of_info ~cls:"module top" m.m_info)
+        ("kind", self#json_of_module_kind father ~modu:m m.m_kind);
+        ("info", self#json_of_info m.m_info)
       ]))
 
-    (** Json for a module type. *)
     method json_of_modtype ?(info=true) ?(complete=true) ?(with_link=true) mt =
-      print_DEBUG "json_of_modtype";
-      ignore info;
-      ignore complete;
-      ignore with_link;
-      ignore mt;
-      Json.null
-      (* let (html_file, _) = Naming.html_files mt.mt_name in
       let father = Name.father mt.mt_name in
-      bs "\n<pre>";
-      bp "<span id=\"%s\">" (Naming.module_type_target mt);
-      bs (self#keyword "module type" ^ " ");
-      (
-       if with_link then
-         bp "<a href=\"%s\">%s</a>" html_file (Name.simple mt.mt_name)
-         else
-         bs (Name.simple mt.mt_name)
-      );
+      let open Json in
+      (tagged "ModuleType" (obj [
+        ("name", string (Name.simple mt.mt_name));
+        ("target", string (Naming.module_type_target mt););
+        ("kind", nullable (self#json_of_module_type_kind father ~mt) mt.mt_kind);
+        ("info", self#json_of_info mt.mt_info)
+      ]))
       
-      (match mt.mt_kind with
-      | None -> ()
-      | Some k ->
-          bs " = ";
-          self#json_of_module_type_kind father ~mt k
-      );
-      bs "</pre>";
-      if info then
-        (
-         if complete then
-           self#json_of_info ~cls: "modtype top" ~indent: true
-         else
-           self#json_of_info_first_sentence
-        ) mt.mt_info
-      else
-        () *)
 
     (** Json for an included module. *)
-    method json_of_included_module (im) =
-      print_DEBUG "json_of_included_module";
-      ignore im;
-      Json.null
-      (* bs "\n<pre>";
-      bs ((self#keyword "include")^" ");
-      (
-       match im.im_module with
-       | None ->
-           bs im.im_name
-       | Some mmt ->
-           let (file, name) =
-             match mmt with
-               Mod m ->
-                 let (html_file, _) = Naming.html_files m.m_name in
-                 (html_file, m.m_name)
-             | Modtype mt ->
-                 let (html_file, _) = Naming.html_files mt.mt_name in
-                 (html_file, mt.mt_name)
-           in
-           bp "<a href=\"%s\">%s</a>" file name
-      );
-      bs "</pre>\n";
-      self#json_of_info im.im_info *)
+    method json_of_included_module (im: included_module) : Json.t =
+      let open Json in        
+      tagged "IncludedModule" (obj [
+        ("name", string im.im_name);
+        ("info", self#json_of_info im.im_info);
+        ("module", (
+          match im.im_module with
+          | None -> string im.im_name
+          | Some (Mod m) -> tagged "Module" (string m.m_name)
+          | Some (Modtype mt) -> tagged "ModuleType" (string mt.mt_name)
+        ))
+      ])
+      
 
     method json_of_class_element element =
       match element with
-        Class_attribute a ->
+      | Class_attribute a ->
           self#json_of_attribute a
       | Class_method m ->
           self#json_of_method m
@@ -1506,8 +1449,8 @@ class html = object (self)
              ty_code = None ;
            }
         );
-      bs ((self#keyword "class")^" ");
-      if c.cl_virtual then bs ((self#keyword "virtual")^" ");
+      bs (( "class")^" ");
+      if c.cl_virtual then bs (( "virtual")^" ");
       (
        match c.cl_type_parameters with
          [] -> ()
@@ -1530,7 +1473,7 @@ class html = object (self)
       print_DEBUG "json_of_class : info" ;
       (
        if complete then
-         self#json_of_info ~cls: "class top" ~indent: true
+         self#json_of_info ~indent: true
        else
          self#json_of_info_first_sentence
       ) c.cl_info *)
@@ -1556,8 +1499,8 @@ class html = object (self)
              ty_code = None ;
            }
         );
-      bs ((self#keyword "class type")^" ");
-      if ct.clt_virtual then bs ((self#keyword "virtual")^" ");
+      bs (( "class type")^" ");
+      if ct.clt_virtual then bs (( "virtual")^" ");
       (
        match ct.clt_type_parameters with
         [] -> ()
@@ -1571,12 +1514,10 @@ class html = object (self)
       else
         bs (Name.simple ct.clt_name);
       
-      bs " = ";
       self#json_of_class_type_kind father ~ct ct.clt_kind;
-      bs "</pre>";
       (
        if complete then
-         self#json_of_info ~cls: "classtype top" ~indent: true
+         self#json_of_info
        else
          self#json_of_info_first_sentence
       ) ct.clt_info *)
@@ -1691,7 +1632,7 @@ class html = object (self)
     fun elements name _info target simple_file ->
       try
         let chanout = open_out (Filename.concat !Global.target_dir simple_file) in
-        let b = new_buf () in
+        let b = Buffer.create 1024 in
         bs "<html>\n";        
         bs "<body>\n";
 
@@ -1758,7 +1699,7 @@ class html = object (self)
       let type_file = Naming.file_type_class_complete_target cl.cl_name in
       try
         let chanout = open_out (Filename.concat !Global.target_dir html_file) in
-        let b = new_buf () in
+        let b = Buffer.create 1024 in
         bs doctype ;
         bs "<html>\n";
         bs "<body>\n";
@@ -1798,7 +1739,7 @@ class html = object (self)
       let type_file = Naming.file_type_class_complete_target clt.clt_name in
       try
         let chanout = open_out (Filename.concat !Global.target_dir html_file) in
-        let b = new_buf () in
+        let b = Buffer.create 1024 in
         bs doctype ;
         bs "<html>\n";        
         bs "<body>\n";
@@ -1836,7 +1777,7 @@ class html = object (self)
         let (html_file, _) = Naming.html_files mt.mt_name in
         let type_file = Naming.file_type_module_complete_target mt.mt_name in
         let chanout = open_out (Filename.concat !Global.target_dir html_file) in
-        let b = new_buf () in
+        let b = Buffer.create 1024 in
         bs doctype ;
         bs "<html>\n";        
         bs "<body>\n";
@@ -1896,42 +1837,8 @@ class html = object (self)
 
     (** Generate the html file for the given module.
        @raise Failure if an error occurs.*)
-    method generate_for_module _pre _post (modu: t_module) =
-      let open Json in
-      let bs b s = Buffer.add_string b s in
-      try
-        Odoc_info.verbose ("Generate for module "^modu.m_name);
-        let (html_file, _) = Naming.html_files modu.m_name in
-        (* let type_file = Naming.file_type_module_complete_target modu.m_name in *)
-        (* let code_file = Naming.file_code_module_complete_target modu.m_name in *)
-        let chanout = open_out (Filename.concat !Global.target_dir html_file) in
-        let b = new_buf () in        
-        bs b "<html>\n";        
-        bs b "<body>\n" ;
-
-        let json = 
-          if modu.m_text_only 
-          then self#json_of_info modu.m_info
-          else self#json_of_module modu
-        in
-        bs b {|<pre id="root">|} ;
-        toBuffer b json;
-        bs b {|</pre>|} ;
-        bs b {|
-          <script>
-            console.info('isValid:');
-            let isValid = false;
-            try {
-              let root = document.getElementById('root');
-              JSON.parse(root.innerHTML);
-              isValid = true
-            } catch {
-              isValid = false
-            }
-            console.info(isValid);
-          </script>
-        |};
-
+    (* method generate_for_module (modu: t_module) =
+      try         *)
         (* parameters for functors *)
         (* self#json_of_module_parameter_list
           (Name.father modu.m_name)
@@ -1941,10 +1848,6 @@ class html = object (self)
         (* List.iter
           (self#json_of_module_element modu.m_name)
           (Module.module_elements modu); *)
-
-        bs b "</body></html>\n";
-        Buffer.output_buffer chanout b;
-        close_out chanout;
 
         (* generate html files for submodules *)
         (* self#generate_elements  self#generate_for_module (Module.module_modules modu); *)
@@ -1971,8 +1874,8 @@ class html = object (self)
               modu.m_name
               (Filename.concat !Global.target_dir code_file)
               code *)
-      with
-        Sys_error s -> raise (Failure s)
+      (* with
+        Sys_error s -> raise (Failure s) *)
 
     (** Generate the [<index_prefix>.html] file corresponding to the given module list.
        
@@ -1980,16 +1883,12 @@ class html = object (self)
     method generate_index module_list =
       try
         let chanout = open_out (Filename.concat !Global.target_dir self#index) in
-        let b = new_buf () in
-        bs "<html>\n";
-        bs "<body>\n";
+        let b = Buffer.create 1024 in
         (
         match !Global.title with
         | None -> ()
         | Some t ->
-            bs "<h1>";
             bs (self#escape t);
-            bs "</h1>\n"
         );
 
         let info = Odoc_info.apply_opt
@@ -2006,7 +1905,6 @@ class html = object (self)
         )
         |> Json.toBuffer b;
 
-        bs "</body>\n</html>\n";
         Buffer.output_buffer chanout b;
         close_out chanout
       with
@@ -2157,15 +2055,28 @@ class html = object (self)
           known_modules_names
           module_types ;
 
-      module_list
-      |> List.iter (fun (modu : t_module) -> 
-        print_endline modu.m_name
-      );
+      let chanout = open_out (Filename.concat !Global.target_dir "model.json") in
+      let buffer = Buffer.create 1024 in        
       
-      (* generate html for each module *)
-      self#generate_elements 
-        self#generate_for_module 
-        module_list ;
+
+      module_list
+      |> List.rev
+      |> function 
+         | [] -> raise (Failure "No modules to generate from")
+         | entrypoint :: linkedModules ->
+            print_string "Entry point: ";
+            print_endline entrypoint.m_name;
+            print_DEBUG "Linked modules:";
+            List.iter (fun modu -> print_endline modu.m_name) linkedModules;
+            let open Json in
+            toBuffer buffer (obj [
+              ("entry_point", self#json_of_module entrypoint);
+              ("modules", obj (List.map (fun modu -> (modu.m_name, self#json_of_module modu)) linkedModules));
+            ])
+      ;
+      
+      Buffer.output_buffer chanout buffer;
+      close_out chanout;
 
       (* try *)
         (* self#generate_index module_list; *)
@@ -2185,11 +2096,12 @@ class html = object (self)
           (* incr Odoc_info.errors *)
   end
 
-class generator = object
-  method generate = 
-    let htmlGenerator = new html in
-    htmlGenerator#generate
-end
+module JsonGenerator = struct
+  class generator = object
+    method generate = 
+      let jsonGenerator = new json in
+      jsonGenerator#generate
+  end
 end
 
 let _ = Odoc_args.set_generator (Base (module JsonGenerator))

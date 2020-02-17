@@ -6,3 +6,4 @@
  (name JsonGenerator)
  (public_name JsonGenerator)
  (libraries ocamldoc))
+

@@ -1,44 +1,45 @@
-import styled, { createGlobalStyle, ThemeProvider as StyledThemeProvider } from 'styled-components';
-import React, {useEffect,useState} from 'react';
+import styled, {
+  createGlobalStyle,
+  ThemeProvider as StyledThemeProvider,
+} from 'styled-components';
+import React, { useEffect, useState } from 'react';
 
 export let colors = {
-         purple: {
-           base: '#372476',
-           dark: '#3b173b',
-         },
-         red: {
-           lightest: 'rgb(245,221,218)',
-           light: 'rgba(224, 96, 80, 0.694118)',
-           base: 'rgb(194, 52, 38)',
-           dark: 'rgb(219, 77, 63)',
-           darkest: 'rgb(162,70,57)',
-         },
-         black: 'rgb(0,0,0)',
-         grey: {
-           lighter: 'rgb(230, 236, 241)',
-           light: 'rgb(246,244,244)',
-           base: 'rgb(113,113,113)',
-           dark: 'rgb(55,55,55)',
-         },
-         white: 'rgb(255,255,255)',
-         yellow: {
-           base: 'rgb(251,230,121)',
-           light: 'rbg(254,247,215)',
-         },
-       };
+  purple: {
+    base: '#372476',
+    dark: '#3b173b',
+  },
+  red: {
+    lightest: 'rgb(245,221,218)',
+    light: 'rgba(224, 96, 80, 0.694118)',
+    base: 'rgb(194, 52, 38)',
+    dark: 'rgb(219, 77, 63)',
+    darkest: 'rgb(162,70,57)',
+  },
+  black: 'rgb(0,0,0)',
+  grey: {
+    lighter: 'rgb(230, 236, 241)',
+    light: 'rgb(246,244,244)',
+    base: 'rgb(113,113,113)',
+    dark: 'rgb(55,55,55)',
+  },
+  white: 'rgb(255,255,255)',
+  yellow: {
+    base: 'rgb(251,230,121)',
+    light: 'rbg(254,247,215)',
+  },
+};
 
 export let fonts = {
-  body: 'BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-  mono: '"SF Mono", "Roboto Mono", Menlo, monospace'
-}
+  body: 'Roboto, Helvetica, Arial, sans-serif',
+  monospace: `'Roboto Mono', monospace`,
+};
 
-export let spacing = {
-  
-}
+export let spacing = {};
 
 export let breakpoints = {
-  desktop: 768
-}
+  desktop: 768,
+};
 
 export let dimensions = {
   maxContentWidth: 970,
@@ -47,25 +48,25 @@ export let dimensions = {
 };
 
 export let themes = {
-         light: {
-           body: colors.grey.light,
-           text: colors.black,
-           toggle: {
-             background: colors.grey.lightest,
-             border: colors.white,
-           },
-         },
-         dark: {
-           body: colors.grey.dark,
-           text: colors.white,
-           toggle: {
-             background: colors.grey.darkest,
-             border: colors.black,
-           },
-         },
+  light: {
+    body: colors.grey.light,
+    text: colors.black,
+    toggle: {
+      background: colors.grey.lightest,
+      border: colors.white,
+    },
+  },
+  dark: {
+    body: colors.grey.dark,
+    text: colors.white,
+    toggle: {
+      background: colors.grey.darkest,
+      border: colors.black,
+    },
+  },
 };
-       
-let ThemeContext = React.createContext(['light', () => { }]);
+
+let ThemeContext = React.createContext(['light', () => {}]);
 
 export const ThemeProvider = ({ children }) => {
   let [themeName, setTheme] = useState(() => {
@@ -97,10 +98,10 @@ export const ThemeProvider = ({ children }) => {
       </ThemeContext.Provider>
     </StyledThemeProvider>
   );
-  }
+};
 
 export let useTheme = () => {
-  return React.useContext(ThemeContext)
+  return React.useContext(ThemeContext);
 };
 
 const ToggleContainer = styled.button`
@@ -139,7 +140,7 @@ const ToggleContainer = styled.button`
 `;
 
 export const ThemeToggle = ({ theme, toggleTheme }) => {
-  let isLight = theme === 'light'
+  let isLight = theme === 'light';
   return (
     <ToggleContainer onClick={toggleTheme} isLight={isLight}>
       <span>🌞</span>
@@ -152,6 +153,7 @@ export const ThemeToggle = ({ theme, toggleTheme }) => {
 export const GlobalStyles = createGlobalStyle`
 
 @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap');
+@import url('https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css');
 
 *,
 *::after,
@@ -253,6 +255,10 @@ a:hover {
   border-radius: 4px;
   padding: 2px 6px;
   font-size: 0.9375em;
+}
+
+code, .code { 
+  font-family: 'Roboto Mono', monospace; 
 }
 
 .blockquote {

@@ -1,4 +1,5 @@
 doc
+gen
 example/*.cmi
 example/*.cmx
 example/*.o
