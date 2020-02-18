@@ -1,5 +1,6 @@
-doc
-gen
+_build/**/* 
+doc/**
+test/**
 example/*.cmi
 example/*.cmx
 example/*.o
