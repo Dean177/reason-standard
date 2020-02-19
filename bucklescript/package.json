@@ -1,7 +1,7 @@
 {
   "name": "reason-standard",
   "description": "A standard library for use with OCaml and ReasonML",
-  "version": "0.0.1",
+  "version": "0.0.1-alpha.1",
   "repository": "https://github.com/Dean177/reason-standard",
   "author": "Dean Merchant <deanmerchant@gmail.com>",
   "license": "MIT",
