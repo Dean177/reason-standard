@@ -1,6 +1,6 @@
 import React from 'react';
 import Helmet from 'react-helmet';
-import { graphql } from 'gatsby';
+import { graphql, navigate } from 'gatsby';
 import styled, { css } from 'styled-components';
 import _ from 'lodash';
 import {
@@ -18,6 +18,9 @@ import {
   PageTitle,
 } from '../components/Layout';
 import { SyntaxProvider, SyntaxToggle } from '../components/Syntax';
+import * as lzString from 'lz-string';
+const compress = lzString.compressToEncodedURIComponent;
+const decompress = lzString.decompressFromEncodedURIComponent;
 
 let SearchInput = styled.input`
   background-color: #fff;
@@ -161,6 +164,8 @@ let renderElements = (elements = []) => {
         );
       case 'Newline':
         return <pre key={index}>{'\n'}</pre>;
+      case 'Emphasize':
+        return <em key={index}>{renderElements(value)}</em>;
       case 'Bold':
         return <b key={index}>{renderElements(value)}</b>;
       case 'Code':
@@ -169,12 +174,22 @@ let renderElements = (elements = []) => {
             key={index}
             css={css`
               background-color: lightgoldenrodyellow;
-              padding: 3px;
+              border-radius: 3px;
+              padding: 0px 3px;
               border: 1px solid lightyellow;
             `}
           >
             {value}
           </code>
+        );
+
+      case 'List':
+        return (
+          <ul key={index}>
+            {value.map((listElement, subIndex) => (
+              <li key={subIndex}>{renderElements(listElement)}</li>
+            ))}
+          </ul>
         );
       case 'Ref':
         return (
@@ -203,8 +218,22 @@ let renderElements = (elements = []) => {
         // TODO syntax higlighting
         // TODO make it live
         return (
-          <pre key={index}>
+          <pre
+            key={index}
+            css={css`
+              background-color: lightyellow;
+              border-radius: 3px;
+              padding: 5px 8px;
+              border: 1px solid lightgoldenrodyellow;
+              width: 100%;
+              overflow: auto;
+            `}
+          >
             <code>{value}</code>
+            <button onClick={() => { 
+              navigate(`/try?ocaml=${compress(value)}`)
+            }}
+            >Try</button>
           </pre>
         );
 
@@ -228,7 +257,6 @@ let TextElement = ({ elements }) => {
     <div
       css={css`
         padding: 12px;
-        background-color: lightsteelblue;
       `}
     >
       {renderElements(elements)}
@@ -284,7 +312,16 @@ let Value = ({ name, qualified_name, type, info, parameters, ...value }) => {
           <TypeSignature signature={type} />
         </div>
       </PageAnchor>
-      {info && <TextElement elements={info.description.value} />}
+      {info &&
+        <div
+          css={css`
+            border-left: 5px solid lightblue;
+          `}
+      >
+        
+        <TextElement elements={info.description.value} />
+        </div>
+        }
       {parameters.value.length > 0 && (
         <pre
           css={css`
@@ -454,7 +491,6 @@ export const pageQuery = graphql`
   query {
     site {
       siteMetadata {
-        githubUrl
         docsLocation
       }
     }
@@ -482,12 +518,7 @@ let moduleIndex = (module_elements, parent_path = []) => {
 
 export default ({ data }) => {
   let [isOpen, setIsOpen] = React.useState(false);
-  const {
-    site: {
-      siteMetadata: { githubUrl },
-    },
-    odocModel,
-  } = data;
+  const { odocModel } = data;
 
   let model = JSON.parse(odocModel.internal.content);
   let moduleByModulePath = _.fromPairs(
@@ -509,7 +540,7 @@ export default ({ data }) => {
         <GlobalStyles />
         <AppContainer>
           <ContentContainer>
-            <NavBar githubUrl={githubUrl} />
+            <NavBar />
             <div
               css={css`
                 bottom: 0;

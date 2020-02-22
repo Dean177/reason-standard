@@ -78,7 +78,6 @@ export const pageQuery = graphql`
   query {
     site {
       siteMetadata {
-        githubUrl
         docsLocation
       }
     }
@@ -100,9 +99,6 @@ export const pageQuery = graphql`
 
 export default props => {
   const {
-    site: {
-      siteMetadata: { githubUrl },
-    },
     allMdx,
   } = props.data;
   let [logo, setLogo] = React.useState('reason');
@@ -138,7 +134,7 @@ export default props => {
       <GlobalStyles />
       <AppContainer>
         <ContentContainer>
-          <NavBar githubUrl={githubUrl} />
+          <NavBar />
           <main
             css={css`
               align-items: center;

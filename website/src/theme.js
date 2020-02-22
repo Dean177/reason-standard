@@ -152,9 +152,6 @@ export const ThemeToggle = ({ theme, toggleTheme }) => {
 // TODO get rid of all the crap in here
 export const GlobalStyles = createGlobalStyle`
 
-@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap');
-@import url('https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css');
-
 *,
 *::after,
 *::before {

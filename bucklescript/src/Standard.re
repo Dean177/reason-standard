@@ -1350,6 +1350,16 @@ module String = {
   let initialize = (length, ~f) =>
     Js.Array.joinWith("", Array.init(length, (index) => f(index) |> Char.toString));
 
+  let get = (string: string, index: int) =>
+    string.[index]
+
+  let getAt = (string: string, ~index: int) =>
+    if (index < 0 || index >= String.length(string)) {
+      None
+    } else {
+      Some(string.[index])
+    }
+
   // TODO why the trip to code?
   let ofArray = characters =>
     Js.Array.joinWith(

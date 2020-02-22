@@ -81,6 +81,17 @@ exports.onCreateNode = ({ node, getNode, actions }) => {
   }
 };
 
+// refmt does a `require('fs')` but doesn't actually use the module
+// Prevent this from causing an error by mocking the module
+// https://www.npmjs.com/package/reason#javascript-api
+exports.onCreateWebpackConfig = ({ actions }) => {
+  actions.setWebpackConfig({
+    node: {
+      fs: 'empty',
+    },
+  });
+};
+
 // TODO make this into a plugin?
 const chokidar = require('chokidar');
 const crypto = require('crypto');
@@ -107,14 +118,13 @@ let createNodeFromModel = model => ({
 
 const inDevelopMode = process.env.gatsby_executing_command === 'develop';
 
-exports.sourceNodes = ({ actions }, config) => {
-  // let modelPath = config.path;
-  let modelPath = path.resolve(__dirname, `../odoc-json-generator/doc/model.json`);
+exports.sourceNodes = ({ actions }) => {
+  let modelPath = path.resolve(__dirname, `../ocamldoc-json-generator/doc/model.json`);
   log.info('path', modelPath);
   if (modelPath == null) {
     throw new Error(`Invalid model path`);
   }
-  const { createNode, deleteNode } = actions;
+  const { createNode } = actions;
   let node = createNodeFromModel(fs.readFileSync(modelPath).toString());
   createNode(node);
 

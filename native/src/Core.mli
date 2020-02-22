@@ -15,7 +15,7 @@ module Bool : sig
         }
         // Warning 8: this pattern-matching is not exhaustive.
         // Here is an example of a case that is not matched:
-        // false
+        // true
       ]}
   *)
 
@@ -25,7 +25,7 @@ module Bool : sig
 
   (** Convert an {!Int} into a {!Bool}.
 
-      {e Examples}
+      {3 Examples}
 
       {[Bool.ofInt 0 = Some false]}
 
@@ -39,7 +39,7 @@ module Bool : sig
 
   (** Convert a {!String} into a {!Bool}.
 
-      {e Examples}
+      {3 Examples}
 
       {[Bool.ofString "true" = Some true]}
 
@@ -63,7 +63,7 @@ module Bool : sig
 
       If the 'left' operand evaluates to [false], the 'right' operand is not evaluated.
 
-      {e Examples}
+      {3 Examples}
 
       {[Bool.(true && true) = true]}
 
@@ -81,7 +81,7 @@ module Bool : sig
 
       If the 'left' operand evaluates to [true], the 'right' operand is not evaluated.
 
-      {e Examples}
+      {3 Examples}
 
       {[Bool.(true || true) = true]}
 
@@ -97,7 +97,7 @@ module Bool : sig
 
       Returns [true] if {b exactly one} of its operands is [true].
 
-      {e Examples}
+      {3 Examples}
 
       {[Bool.xor true true  = false]}
 
@@ -111,7 +111,7 @@ module Bool : sig
 
   (** Negate a [bool].
 
-      {e Examples}
+      {3 Examples}
 
       {[Bool.not false = true]}
 
@@ -123,7 +123,7 @@ module Bool : sig
 
       This can be useful in combination with {!List.filter} / {!Array.filter} or {!List.find} / {!Array.find}
 
-      {e Examples}
+      {3 Examples}
 
       {[
         let isOdd = Bool.negate Int.isEven in
@@ -141,7 +141,7 @@ module Bool : sig
 
   (** Convert a [bool] to a {!String}
 
-      {e Examples}
+      {3 Examples}
 
       {[Bool.toString true = "true"]}
 
@@ -151,7 +151,7 @@ module Bool : sig
   
   (** Convert a [bool] to an {!Int}.
 
-      {e Examples}
+      {3 Examples}
 
       {[Bool.toInt true = 1]}
 
@@ -163,7 +163,7 @@ module Bool : sig
 
   (** Test for the equality of two [bool] values.
 
-      {e Examples}
+      {3 Examples}
 
       {[Bool.equal true true = true]}
 
@@ -175,7 +175,7 @@ module Bool : sig
 
   (** Compare two boolean values
 
-      {e Examples}
+      {3 Examples}
 
       {[Bool.compare true false = 1]}
 
@@ -218,7 +218,7 @@ module Char : sig
 
       Returns [None] if the codepoint is outside the range of 0 to 255 inclusive.
 
-      {e Examples}
+      {3 Examples}
 
       {[Char.ofCode 65 = Some 'A']}
 
@@ -234,7 +234,7 @@ module Char : sig
   
   (** Converts a string to character. Returns None when the string isn't of length one.
 
-      {e Examples}
+      {3 Examples}
 
       {[Char.ofString "A" = Some 'A']}
 
@@ -250,7 +250,7 @@ module Char : sig
   
   (** Converts an ASCII character to lower case, preserving non alphabetic ASCII characters.
 
-      {e Examples}
+      {3 Examples}
 
       {[Char.toLowercase 'A' = 'a']}
 
@@ -261,7 +261,7 @@ module Char : sig
   
   (** Convert an ASCII character to upper case, preserving non alphabetic ASCII characters.
 
-      {e Examples}
+      {3 Examples}
 
       {[toUppercase 'a' = 'A']}
 
@@ -273,7 +273,7 @@ module Char : sig
   
   (** Detect lower case ASCII characters.
 
-      {e Examples}
+      {3 Examples}
 
       {[isLowercase 'a' = true]}
 
@@ -286,14 +286,12 @@ module Char : sig
       {[isLowercase 'A' = false]}
 
       {[isLowercase '-' = false]}
-
-      {[isLowercase 'ã' = false]} 
   *)
   val isLowercase : char -> bool
 
   (** Detect upper case ASCII characters.
 
-      {e Examples}
+      {3 Examples}
 
       {[isUppercase 'A' = true]}
 
@@ -305,15 +303,13 @@ module Char : sig
 
       {[isUppercase '0' = false]}
 
-      {[isUppercase 'Ý' = false]}
-
       {[isUppercase '-' = false]} 
   *)
   val isUppercase : char -> bool
 
   (** Detect upper and lower case ASCII alphabetic characters.
 
-      {e Examples}
+      {3 Examples}
 
       {[isLetter 'a' = true]}
 
@@ -325,15 +321,13 @@ module Char : sig
 
       {[isLetter '0' = false]}
 
-      {[isLetter 'ý' = false]}
-
       {[isLetter '-' = false]} 
   *)
   val isLetter : char -> bool
 
   (** Detect when a character is a number
 
-      {e Examples}
+      {3 Examples}
 
       {[isDigit '0' = true]}
 
@@ -344,15 +338,13 @@ module Char : sig
       {[isDigit 'a' = false]}
 
       {[isDigit 'b' = false]}
-
-      {[isDigit 'ý' = false]}
   *)
   val isDigit : char -> bool
 
 
   (** Detect upper case, lower case and digit ASCII characters.
 
-      {e Examples}
+      {3 Examples}
 
       {[isAlphanumeric 'a' = true]}
 
@@ -374,7 +366,7 @@ module Char : sig
 
       A Printable character has a {!Char.toCode} in the range 32 to 127, inclusive ([' '] to ['~']).
 
-      {e Examples}
+      {3 Examples}
 
       {[Char.isPrintable 'G' = true]}
 
@@ -396,7 +388,7 @@ module Char : sig
       - ['\r'] (carriage return)
       - [' '] (space)
 
-      {e Examples}
+      {3 Examples}
 
       {[Char.isWhitespace '\t' = true]}
 
@@ -414,19 +406,17 @@ module Char : sig
 
       [cp]: https://en.wikipedia.org/wiki/Code_point
 
-      {e Examples}
+      {3 Examples}
 
       {[Char.toCode 'A' = 65]}
 
       {[Char.toCode 'B' = 66]}
-
-      {[Char.toCode 'þ' = 254]}
   *)
   val toCode : char -> int
 
   (** Convert a character into a string.
 
-      {e Examples}
+      {3 Examples}
 
       {[Char.toString 'A' = "A"]}
 
@@ -440,7 +430,7 @@ module Char : sig
 
       Returns [None] when the character isn't a digit.
 
-      {e Examples}
+      {3 Examples}
 
       {[Char.toDigit "7" = Some 7]}
 
@@ -573,7 +563,7 @@ module Float : sig
 
       OCaml has opted for a design that makes all conversions explicit.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Float.add 3.14 3.14 = 6.28
@@ -589,7 +579,7 @@ module Float : sig
 
       Alternatively the [-] operator can be used
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.subtract 4.0 3.0 = 1.0]}
 
@@ -604,7 +594,7 @@ module Float : sig
 
       Alternatively the [*] operator can be used
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.multiply 2.0 7.0 = 14.0]}
 
@@ -619,7 +609,7 @@ module Float : sig
 
       Alternatively the [/] operator can be used
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.divide 3.14 ~by:2.0 = 1.57]}
 
@@ -634,7 +624,7 @@ module Float : sig
 
       Alternatively the [**] operator can be used
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.power ~base:7.0 ~exponent:3.0 = 343.0]}
 
@@ -649,7 +639,7 @@ module Float : sig
 
       Alternatively an operator is available
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.(~- 4.0) = (-4.0)]}
 
@@ -666,7 +656,7 @@ module Float : sig
   
   (** Get the {{: https://en.wikipedia.org/wiki/Absolute_value } absolute value} of a number.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Float.absolute 8. = 8.
@@ -680,7 +670,7 @@ module Float : sig
 
       If either (or both) of the arguments are [NaN], returns [NaN]
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.maximum 7. 9. = 9.]}
 
@@ -694,7 +684,7 @@ module Float : sig
 
       If either (or both) of the arguments are [NaN], returns [NaN]
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.minimum 7.0 9.0 = 7.0]}
 
@@ -710,7 +700,7 @@ module Float : sig
 
       Throws an [Invalid_argument] exception if [lower > upper]
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.clamp ~lower:0. ~upper:8. 5. = 5.]}
 
@@ -726,7 +716,7 @@ module Float : sig
 
       [squareRoot] returns [NaN] when its argument is negative. See {!Float.nan} for more.
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.squareRoot 4.0 = 2.0]}
 
@@ -736,7 +726,7 @@ module Float : sig
   
   (** Calculate the logarithm of a number with a given base.
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.log ~base:10. 100. = 2.]}
 
@@ -752,7 +742,7 @@ module Float : sig
 
       {[Float.(nan = nan) = false]}
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.is_nan (0.0 / 0.0) = true]}
 
@@ -768,7 +758,7 @@ module Float : sig
 
       Notice that [NaN] is not finite!
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.isFinite (0. / 0.) = false]}
 
@@ -784,7 +774,7 @@ module Float : sig
   
   (** Determine whether a float is positive or negative infinity.
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.isInfinite (0. / 0.) = false]}
 
@@ -800,7 +790,7 @@ module Float : sig
   
   (** Determine whether the passed value is an integer.
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.isInteger 4.0 = true]}
 
@@ -810,7 +800,7 @@ module Float : sig
   
   (** Determine whether the passed value is a safe integer (number between -(2**53 - 1) and 2**53 - 1).
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.isSafeInteger 4.0 = true]}
 
@@ -829,7 +819,7 @@ module Float : sig
 
       Throws an [Invalid_argument] exception if [lower > upper]
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.inRange ~lower:2. ~upper:4. 3. = true]}
 
@@ -850,7 +840,7 @@ module Float : sig
 
   (** [hypotenuse x y] returns the length of the hypotenuse of a right-angled triangle with sides of length [x] and [y], or, equivalently, the distance of the point [(x, y)] to [(0, 0)].
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.hypotenuse 3. 4. = 5.]}
   *)
@@ -858,7 +848,7 @@ module Float : sig
   
   (** Converts an angle in {{: https://en.wikipedia.org/wiki/Degree_(angle) } degrees} to {!Float.radians}.
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.degrees 180. = Float.pi]}
 
@@ -872,7 +862,7 @@ module Float : sig
 
       {b Note } This function doesn't actually do anything to its argument, but can be useful to indicate intent when inter-mixing angles of different units within the same function.
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.(radians pi) = 3.141592653589793]}
   *)
@@ -882,7 +872,7 @@ module Float : sig
 
       One turn is equal to 360 degrees.
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.(turns (1. / 2.)) = pi]}
 
@@ -892,17 +882,17 @@ module Float : sig
   
   (** {2 Polar coordinates} *)
 
-  (** Convert {{: https://en.wikipedia.org/wiki/Polar_coordinate_system } polar coordinates } (r, θ) to {{: https://en.wikipedia.org/wiki/Cartesian_coordinate_system } Cartesian coordinates } (x,y).
+  (** Convert {{: https://en.wikipedia.org/wiki/Polar_coordinate_system } polar coordinates } (radius, radians) to {{: https://en.wikipedia.org/wiki/Cartesian_coordinate_system } Cartesian coordinates } (x,y).
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.(ofPolar (squareRoot 2., degrees 45.)) = (1., 1.)]}
   *)
   val ofPolar : (float * radians) -> (float * float)
 
-  (** Convert {{: https://en.wikipedia.org/wiki/Cartesian_coordinate_system } Cartesian coordinates } [(x, y)] to {{: https://en.wikipedia.org/wiki/Polar_coordinate_system } polar coordinates } [(r, θ)].
+  (** Convert {{: https://en.wikipedia.org/wiki/Cartesian_coordinate_system } Cartesian coordinates } [(x, y)] to {{: https://en.wikipedia.org/wiki/Polar_coordinate_system } polar coordinates } [(radius, radians)].
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.toPolar (-1.0, 0.0) = (1.0, Float.pi)]}
 
@@ -914,7 +904,7 @@ module Float : sig
   
   (** Figure out the cosine given an angle in {{: https://en.wikipedia.org/wiki/Radian } radians }.
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.(cos (degrees 60.)) = 0.5000000000000001]}
 
@@ -924,15 +914,15 @@ module Float : sig
   
   (** Figure out the arccosine for [adjacent / hypotenuse] in {{: https://en.wikipedia.org/wiki/Radian } radians }:
 
-      {e Examples}
+      {3 Examples}
 
-      {[Float.(acos (radians 1.0 / 2.0)) = Float.radians 1.0471975511965979 (* 60° or pi/3 radians *)]}
+      {[Float.(acos (radians 1.0 / 2.0)) = Float.radians 1.0471975511965979 (* 60 degrees or pi/3 radians *)]}
   *)
   val acos : radians -> t
   
   (** Figure out the sine given an angle in {{: https://en.wikipedia.org/wiki/Radian } radians }.
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.(sin (degrees 30.)) = 0.49999999999999994]}
 
@@ -942,15 +932,15 @@ module Float : sig
   
   (** Figure out the arcsine for [opposite / hypotenuse] in {{: https://en.wikipedia.org/wiki/Radian } radians }:
 
-      {e Examples}
+      {3 Examples}
 
-      {[Float.(asin (1.0 / 2.0)) = 0.5235987755982989 (* 30° or pi / 6 radians *)]}
+      {[Float.(asin (1.0 / 2.0)) = 0.5235987755982989 (* 30 degrees or pi / 6 radians *)]}
   *)
   val asin : radians -> t
   
   (** Figure out the tangent given an angle in radians.
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.(tan (degrees 45.)) = 0.9999999999999999]}
 
@@ -974,15 +964,15 @@ module Float : sig
       for figuring out angles in any sort of visualization, so again, check out
       {!Float.atan2} instead!
 
-      {e Examples}
+      {3 Examples}
 
-      {[Float.atan (1. /. 1.) = 0.7853981633974483  (* 45° or pi/4 radians *)]}
+      {[Float.atan (1. /. 1.) = 0.7853981633974483  (* 45 degrees or pi/4 radians *)]}
 
-      {[Float.atan (1. /. -1.) = -0.7853981633974483  (* 315° or 7 * pi / 4 radians *)]}
+      {[Float.atan (1. /. -1.) = -0.7853981633974483  (* 315 degrees or 7 * pi / 4 radians *)]}
 
-      {[Float.atan (-1. /. -1.) = 0.7853981633974483 (* 45° or pi/4 radians *)]}
+      {[Float.atan (-1. /. -1.) = 0.7853981633974483 (* 45 degrees or pi/4 radians *)]}
 
-      {[Float.atan (-1. /.  1.) = -0.7853981633974483 (* 315° or 7 * pi/4 radians *)]}
+      {[Float.atan (-1. /.  1.) = -0.7853981633974483 (* 315 degrees or 7 * pi/4 radians *)]}
   *)
   val atan : t -> radians
   
@@ -990,15 +980,15 @@ module Float : sig
 
       So rather than [Float.(atan (y / x))] you can [Float.atan2 ~y ~x] and you can get a full range of angles:
 
-      {e Examples}
+      {3 Examples}
 
-      {[Float.atan2 ~y:1. ~x:1. = 0.7853981633974483  (* 45° or pi/4 radians *)]}
+      {[Float.atan2 ~y:1. ~x:1. = 0.7853981633974483  (* 45 degrees or pi/4 radians *)]}
 
-      {[Float.atan2 ~y:1. ~x:(-1.) = 2.3561944901923449  (* 135° or 3 * pi/4 radians *)]}
+      {[Float.atan2 ~y:1. ~x:(-1.) = 2.3561944901923449  (* 135 degrees or 3 * pi/4 radians *)]}
 
-      {[Float.atan2 ~y:(-1.) ~x:(-1.) = -(2.3561944901923449) (* 225° or 5 * pi/4 radians *)]}
+      {[Float.atan2 ~y:(-1.) ~x:(-1.) = -(2.3561944901923449) (* 225 degrees or 5 * pi/4 radians *)]}
 
-      {[Float.atan2 ~y:(-1.) ~x:1. = -(0.7853981633974483) (* 315° or 7 * pi/4 radians *)]}
+      {[Float.atan2 ~y:(-1.) ~x:1. = -(0.7853981633974483) (* 315 degrees or 7 * pi/4 radians *)]}
   *)
   val atan2 : y:t -> x:t -> radians
 
@@ -1020,7 +1010,7 @@ module Float : sig
 
       Other rounding strategies are available by using the optional [~direction] labelelled.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Float.round 1.2 = 1.0
@@ -1107,7 +1097,7 @@ module Float : sig
   
   (** Floor function, equivalent to [Float.round ~direction:`Down].
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Float.floor 1.2 = 1.0
@@ -1122,7 +1112,7 @@ module Float : sig
   
   (** Ceiling function, equivalent to [Float.round ~direction:`Up].
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Float.ceiling 1.2 = 2.0
@@ -1138,7 +1128,7 @@ module Float : sig
   
   (** Ceiling function, equivalent to [Float.round ~direction:`Zero].
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Float.truncate 1.0 = 1.
@@ -1155,7 +1145,7 @@ module Float : sig
   
   (** Convert an {!Int} to a [float]
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Float.ofInt 5 = 5.0
@@ -1169,7 +1159,7 @@ module Float : sig
 
       Parses [nan] and [infinity] case-insensitive.
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.ofString "4.667" = Some 4.667]}
 
@@ -1193,7 +1183,7 @@ module Float : sig
 
       You probably want to use some form of {!Float.round} prior to using this function.
 
-      {e Examples}
+      {3 Examples}
 
       {[Float.(toInt 1.6) = Some(1)]}
 
@@ -1211,7 +1201,7 @@ module Float : sig
   
   (** Convert a [float] to a {!String}
 
-      {e Examples}
+      {3 Examples}
 
       TODO
   *)
@@ -1272,7 +1262,7 @@ module Int : sig
 
   (** Attempt to parse a [string] into a [int].
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Int.ofString "0" = Some 0.
@@ -1355,11 +1345,11 @@ module Int : sig
 
       Notice that the remainder is discarded.
 
-      {2 Exceptions}
+      {3 Exceptions}
 
       Throws [Division_by_zero] when the divisor is [0].
 
-      {e Examples}
+      {3 Examples}
 
       {[Int.divide 3 ~by:2 = 1]}
 
@@ -1372,7 +1362,7 @@ module Int : sig
   
   (** Floating point division
 
-      {e Examples}
+      {3 Examples}
 
       {[
         3 % 2 = 1.5
@@ -1384,7 +1374,7 @@ module Int : sig
   
   (** Exponentiation, takes the base first, then the exponent.
 
-      {e Examples}
+      {3 Examples}
 
       {[Int.power ~base:7 ~exponent:3 = 343]}
 
@@ -1399,7 +1389,7 @@ module Int : sig
   
   (** Flips the 'sign' of an integer so that positive integers become negative and negative integers become positive. Zero stays as it is.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Int.negate 8 = (-8)
@@ -1418,7 +1408,7 @@ module Int : sig
   
   (** Get the {{: https://en.wikipedia.org/wiki/Absolute_value } absolute value } of a number.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Int.absolute 8 = 8
@@ -1436,7 +1426,7 @@ module Int : sig
 
       Use {!Int.remainder} for a different treatment of negative numbers.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Int.modulo ~by:3 -4 = 1
@@ -1459,7 +1449,7 @@ module Int : sig
 
       Use {!Int.modulo} for a different treatment of negative numbers.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         List.map
@@ -1472,7 +1462,7 @@ module Int : sig
   
   (** Returns the larger of two [int]s
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Int.maximum 7 9 = 9
@@ -1483,7 +1473,7 @@ module Int : sig
   
   (** Returns the smaller of two [int]s
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Int.minimum 7 9 = 7
@@ -1496,7 +1486,7 @@ module Int : sig
 
   (** Check if an [int] is even
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Int.isEven 8 = true
@@ -1508,7 +1498,7 @@ module Int : sig
   
   (** Check if an [int] is odd
 
-    {e Examples}
+    {3 Examples}
 
     {[
       Int.isOdd 7 = true
@@ -1524,7 +1514,7 @@ module Int : sig
 
     Throws an [Invalid_argument] exception if [lower > upper]
 
-    {e Examples}
+    {3 Examples}
 
     {[
       Int.clamp ~lower:0 ~upper:8 5 = 5
@@ -1536,11 +1526,11 @@ module Int : sig
   
   (** Checks if [n] is between [lower] and up to, but not including, [upper].
 
-      {2 Exceptions}
+      {3 Exceptions}
 
       Throws an [Invalid_argument] exception if [lower > upper]
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Int.inRange ~lower:2 ~upper:4 3 = true
@@ -1555,7 +1545,7 @@ module Int : sig
 
   (** Convert an integer into a float. Useful when mixing {!Int} and {!Float} values like this:
 
-      {e Examples}
+      {3 Examples}
 
       {[
         let halfOf (number : int) : float =
@@ -1573,7 +1563,7 @@ module Int : sig
 
       {[Int.(ofString (toString n)) = Some n ]}
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Int.to_string 3 = "3"
@@ -1614,7 +1604,7 @@ module Integer : sig
 
       Returns [None] when called with {!Float.nan}, {!Float.infinity} or {!Float.negativeInfinity}
 
-      {e Examples}
+      {3 Examples}
 
       TODO
   *)
@@ -1622,7 +1612,7 @@ module Integer : sig
   
   (** Attempt to parse a {!String} into a {!Integer}.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Integer.ofString "0" = Some (ofInt 0)
@@ -1649,7 +1639,7 @@ module Integer : sig
 
   (** Add two {!Integer}s.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         open Integer;
@@ -1669,7 +1659,7 @@ module Integer : sig
   
   (** Subtract numbers
 
-      {e Examples}
+      {3 Examples}
 
       {[Integer.(subtract one one = zero)]}
 
@@ -1687,7 +1677,7 @@ module Integer : sig
   
   (** Multiply two integers
 
-      {e Examples}
+      {3 Examples}
 
       {[
         open Integer
@@ -1714,7 +1704,7 @@ module Integer : sig
 
       Throws [Division_by_zero] when the divisor is [zero].
 
-      {e Examples}
+      {3 Examples}
 
       {[
         open Integer
@@ -1735,7 +1725,7 @@ module Integer : sig
 
       Alternatively the [**] operator can be used.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         open Integer
@@ -1754,7 +1744,7 @@ module Integer : sig
   
   (** Flips the 'sign' of an integer so that positive integers become negative and negative integers become positive. Zero stays as it is.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         open Integer
@@ -1768,7 +1758,7 @@ module Integer : sig
   
   (** Get the {{: https://en.wikipedia.org/wiki/Absolute_value } absolute value } of a number.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         open Integer
@@ -1788,7 +1778,7 @@ module Integer : sig
 
       Use {!Integer.remainder} for a different treatment of negative numbers.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         open Integer
@@ -1811,7 +1801,7 @@ module Integer : sig
 
       Use {!Integer.modulo} for a different treatment of negative numbers.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         open Integer
@@ -1831,7 +1821,7 @@ module Integer : sig
   
   (** Returns the larger of two [Integers]s
 
-      {e Examples}
+      {3 Examples}
 
       {[
         open Integer
@@ -1844,7 +1834,7 @@ module Integer : sig
   
   (** Returns the smaller of two [Integers]s
 
-      {e Examples}
+      {3 Examples}
 
       {[
         minimum (ofInt 7) (ofInt 9) = (ofInt 7)
@@ -1857,7 +1847,7 @@ module Integer : sig
 
   (** Check if an [int] is even
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Integer.isEven (ofInt 8) = true
@@ -1869,7 +1859,7 @@ module Integer : sig
   
   (** Check if an [int] is odd
 
-    {e Examples}
+    {3 Examples}
 
     {[
       open Integer
@@ -1882,11 +1872,11 @@ module Integer : sig
   
   (** Clamps an integer within the inclusive [lower] and [upper] bounds.
 
-      {2 Exceptions}
+      {3 Exceptions}
 
       Throws an [Invalid_argument] exception if [lower > upper]
 
-      {e Examples}
+      {3 Examples}
 
       {[
         open Integer
@@ -1900,11 +1890,11 @@ module Integer : sig
   
   (** Checks if an integer is between [lower] and up to, but not including, [upper].
 
-      {2 Exceptions}
+      {3 Exceptions}
 
       Throws an [Invalid_argument] exception if [lower > upper]
 
-      {e Examples}
+      {3 Examples}
 
       {[
         open Integer
@@ -1923,7 +1913,7 @@ module Integer : sig
 
       Returns [None] when greater than [Int.maximumValue]
 
-      {e Examples}
+      {3 Examples}
 
       {[Integer.ofString "4" |> Integer.toString = Some 4]}
 
@@ -1935,7 +1925,7 @@ module Integer : sig
 
       Returns [None] when greater than [Int64.max_int] or less than [Int64.min_int]
 
-      {e Examples}
+      {3 Examples}
 
       {[Integer.ofString "1" |> Integer.toInt64 = Some Int64.one]}
 
@@ -1947,7 +1937,7 @@ module Integer : sig
 
       Returns {!Float.infinity} when greater than {!Float.largestValue}.
 
-      {e Examples}
+      {3 Examples}
 
       {[Integer.ofString "8" |> Integer.toFloat = 8.0]}
 
@@ -1990,26 +1980,25 @@ module String : sig
 
       Note that these must be individual characters in single quotes, not strings of length one.
 
-      {e Examples}
+      {3 Examples}
 
       {[String.ofList [] = ""]}
 
       {[String.ofList ['a'; 'b'; 'c'] = "abc"]}
   *)
-  val ofArray : char array -> t
-  
+  val ofArray : char array -> string
   
   (** Create a string from a {!List} of characters.
 
       Note that these must be individual characters in single quotes, not strings of length one.
 
-      {e Examples}
+      {3 Examples}
 
       {[String.ofList [] = ""]}
 
       {[String.ofList ['a'; 'b'; 'c'] = "abc"]}
   *)
-  val ofList : char list -> t
+  val ofList : char list -> string
   
   (** Create a string by repeating a string [count] time.
 
@@ -2017,7 +2006,7 @@ module String : sig
 
       If [count] is negative, [String.repeat] throws a [RangeError] exception.
 
-      {e Examples}
+      {3 Examples}
 
       {[String.repeat ~count:3 "ok" = "okokok"]}
 
@@ -2031,7 +2020,7 @@ module String : sig
 
       Returns an empty string if the length is negative.
 
-      {e Examples}
+      {3 Examples}
 
       {[String.initialize 8 ~f:(Fun.constant '9') = "999999999"]}
   *)
@@ -2045,11 +2034,9 @@ module String : sig
       {b Warning} if the string contains non-ASCII characters then {!length} will
       not equal the number of characters
 
-      {e Examples}
+      {3 Examples}
 
       {[String.length "abc" = 3]}
-
-      {[String.length "你好" = 6]}
   *)
   val length : string -> int
   
@@ -2063,7 +2050,7 @@ module String : sig
 
       If given an empty string, returns [None].
 
-      {e Examples}
+      {3 Examples}
 
       {[String.uncons "abcde" = Some ('a', "bcde")]}
 
@@ -2075,7 +2062,7 @@ module String : sig
   
   (** Drop [count] characters from the left side of a string.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         String.dropLeft ~count:3 "abcdefg" = "defg"
@@ -2085,11 +2072,11 @@ module String : sig
         String.dropLeft ~count:8 "abcdefg" = ""
       ]}
   *)
-  val dropLeft : count:int -> string -> string
+  val dropLeft : string -> count:int -> string
   
   (** Drop [count] characters from the right side of a string.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         String.dropRight ~count:3 "abcdefg" = "abcd"
@@ -2099,11 +2086,11 @@ module String : sig
         String.dropRight ~count:8 "abcdefg" = ""
       ]}
   *)
-  val dropRight : count:int -> string -> string
+  val dropRight : string -> count:int -> string
   
   (** Divide a string into a list of strings, splitting whenever [on] is encountered.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         String.split ~on:"/" "a/b/c" = ["a"; "b"; "c"]
@@ -2113,45 +2100,43 @@ module String : sig
         String.split ~on:"" "abc" = ["a"; "b"; "c"]
       ]}
   *)
-  val split : t -> on:t -> t list
+  val split : string -> on:string -> string list
   
   (** See if the second string starts with [prefix]
 
-      {e Examples}
+      {3 Examples}
 
       {[String.startsWith ~prefix:"the" "theory" = true]}
 
       {[String.startsWith ~prefix:"ory" "theory" = false]}
   *)
-  val startsWith : t -> prefix:string -> bool
-  
+  val startsWith : string -> prefix:string -> bool
   
   (** See if the second string ends with [suffix].
 
-      {e Examples}
+      {3 Examples}
 
       {[String.endsWith ~suffix:"the" "theory" = false]}
 
       {[String.endsWith ~suffix:"ory" "theory" = true]}
   *)
-  val endsWith : t -> suffix:string -> bool
+  val endsWith : string -> suffix:string -> bool
   
   (** Converts all upper case letters to lower case.
 
       {b Note} This function works only with ASCII characters, not Unicode.
 
-      {e Examples}
+      {3 Examples}
 
       {[String.toLowercase "AaBbCc123" = "aabbcc123"]}
   *)
   val toLowercase : string -> string
   
-  
   (** Converts all lower case letters to upper case.
 
       {b Note} This function works only with ASCII characters, not Unicode.
 
-      {e Examples}
+      {3 Examples}
 
       {[String.toUppercase "AaBbCc123" = "AABBCC123"]}
   *)
@@ -2161,7 +2146,7 @@ module String : sig
 
       {b Note} This function works only with ASCII characters, not Unicode.
 
-      {e Examples}
+      {3 Examples}
 
       {[String.uncapitalize "Anastasia" = "anastasia"]}
   *)
@@ -2171,7 +2156,7 @@ module String : sig
 
       This function works only with ASCII characters, not Unicode.
 
-      {e Examples}
+      {3 Examples}
 
       {[String.uncapitalize "den" = "Den"]}
   *)
@@ -2181,7 +2166,7 @@ module String : sig
 
       This function works only with ASCII characters, not Unicode.
 
-      {e Examples}
+      {3 Examples}
 
       {[String.isCapitalized "Anastasia" = true]}
 
@@ -2191,7 +2176,7 @@ module String : sig
   
   (** Check if one string appears within another
 
-      {e Examples}
+      {3 Examples}
 
       {[String.includes "team" ~substring:"tea" = true]}
 
@@ -2199,24 +2184,24 @@ module String : sig
 
       {[String.includes "ABC" ~substring:"" = true]}
   *)
-  val includes : t -> substring:string -> bool
+  val includes : string -> substring:string -> bool
   
   (** Reverse a string
 
       {b Note} This function does not work with Unicode characters.
 
-      {e Examples}
+      {3 Examples}
 
       {[String.reverse "stressed" = "desserts"]}
   *)
   val reverse : string -> string
   
   (** TODO  *)
-  val slice : ?to_:int -> t -> from:int -> t
+  val slice : ?to_:int -> string -> from:int -> string
   
   (** Removes leading and trailing {{!Char.isWhitespace} whitespace} from a string
 
-      {e Examples}
+      {3 Examples}
 
       {[String.trim "  abc  " = "abc"]}
 
@@ -2224,40 +2209,43 @@ module String : sig
 
       {[String.trim "\r\n\t abc \n\n" = "abc"]}
   *)
-  val trim : t -> t
+  val trim : string -> string
   
   (** Like {!trim} but only drops characters from the beginning of the string. *)
-  val trimLeft : t -> t
+  val trimLeft : string -> string
   
   (** Like {!trim} but only drops characters from the end of the string. *)
-  val trimRight : t -> t
+  val trimRight : string -> string
   
   (** Insert a string at [index]
 
-      {e Examples}
+      {3 Examples}
 
-      {[
-        String.insertAt ~insert:"**" ~index:2 "abcde" = "ab**cde"
-        String.insertAt ~insert:"**" ~index:0 "abcde" = "**abcde"
-        String.insertAt ~insert:"**" ~index:5 "abcde" = "abcde**"
-        String.insertAt ~insert:"**" ~index:(-2) "abcde" = "abc**de"
-        String.insertAt ~insert:"**" ~index:(-9) "abcde" = "**abcde"
-        String.insertAt ~insert:"**" ~index:9 "abcde" = "abcde**"
-      ]}
+      {[String.insertAt ~insert:"**" ~index:2 "abcde" = "ab**cde"]}
+
+      {[String.insertAt ~insert:"**" ~index:0 "abcde" = "**abcde"]}
+
+      {[String.insertAt ~insert:"**" ~index:5 "abcde" = "abcde**"]}
+
+      {[String.insertAt ~insert:"**" ~index:(-2) "abcde" = "abc**de"]}
+
+      {[String.insertAt ~insert:"**" ~index:(-9) "abcde" = "**abcde"]}
+
+      {[String.insertAt ~insert:"**" ~index:9 "abcde" = "abcde**"]}
   *)
-  val insertAt : t -> index:int -> value:t -> t
+  val insertAt : string -> index:int -> value:t -> string
   
   (** Run [f] on each character in a string. *)
-  val forEach : t -> f:(char -> unit) -> unit
+  val forEach : string -> f:(char -> unit) -> unit
   
   (** Like {!Array.fold} but the elements are {!Char}s  *)
-  val fold : t -> initial:'a -> f:('a -> char -> 'a) -> 'a
+  val fold : string -> initial:'a -> f:('a -> char -> 'a) -> 'a
   
   (** {2 Conversion} *)
 
   (** Returns an {!Array} of the individual characters in the given string.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         String.toArray "" = [||]
@@ -2268,7 +2256,7 @@ module String : sig
   
   (** Returns a {!List} of the individual characters in the given string.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         String.toList "" = []
@@ -2282,10 +2270,10 @@ module String : sig
   type identity
 
   (** Test two string for equality *)
-  val equal : t -> t -> bool
+  val equal : string -> string -> bool
 
   (** Test two string for equality *)
-  val compare : t -> t -> int
+  val compare : string -> string -> int
 end
 
 (** Interfaces for use with container types like {!Array} or {!List} *)
@@ -2353,7 +2341,7 @@ module Option : sig
 
       See the {{: https://reasonml.github.io/docs/en/pipe-first#pipe-into-variants} Reason docs } for more.
 
-      {e Examples}
+      {3 Examples}
 
       {[String.reverse("desserts") |> Option.some = Some "desserts" ]}
    *)
@@ -2365,7 +2353,7 @@ module Option : sig
 
     When you call [and_], both arguments are evaluated before being passed to the function.
 
-    {e Examples}
+    {3 Examples}
 
     {[Option.and_ (Some 11) (Some 22) = Some 22]}
 
@@ -2382,7 +2370,7 @@ module Option : sig
     Unlike the built in [||] operator, the [or_] function does not short-circuit.
     When you call [or_], both arguments are evaluated before being passed to the function.
 
-    {e Examples}
+    {3 Examples}
 
     {[Option.or_ (Some 11) (Some 22) = Some 11]}
 
@@ -2398,7 +2386,7 @@ module Option : sig
 
       Returns None if either of the aguments is None.
 
-      {e Examples}
+      {3 Examples}
 
       {[Option.both (Some 3004) (Some "Ant") = Some (3004, "Ant")]}
 
@@ -2412,7 +2400,7 @@ module Option : sig
   
   (** Flatten two optional layers into a single optional layer.
 
-      {e Examples}
+      {3 Examples}
 
       {[Option.join (Some (Some 4)) = Some 4]}
 
@@ -2428,7 +2416,7 @@ module Option : sig
 
       See {!Infix.(>>|)} for an operator version of this function.
 
-      {e Examples}
+      {3 Examples}
 
       {[Option.map ~f:(fun x -> x * x) (Some 9) = Some 81]}
 
@@ -2444,7 +2432,7 @@ module Option : sig
 
       If either value is [None], returns [None]
 
-      {e Examples}
+      {3 Examples}
 
       {[Option.map2 (Some 3) (Some 4) ~f=Int.add = Some 7]}
 
@@ -2491,7 +2479,7 @@ module Option : sig
 
       See {!Infix.(>>=)} for an operator version of this function.
 
-      {e Examples}
+      {3 Examples}
 
       {[Option.bind (Some [1, 2, 3]) ~f=List.head = Some 1]}
 
@@ -2508,7 +2496,7 @@ module Option : sig
 
       {b Note} This can be overused! Many cases are better handled using pattern matching, {!map} or {!bind}.
 
-      {e Examples}
+      {3 Examples}
 
       {[Option.get ~default:99 (Some 42) = 42]}
 
@@ -2523,11 +2511,11 @@ module Option : sig
       {b Note} in most situations it is encouraged to use pattern matching, {!get}, {!map} or {!bind}.
       Can you structure your code slightly differently to avoid potentially raising an exception?
 
-      {2 Exceptions}
+      {3 Exceptions}
 
       Raises the provided [exn] if called with [None].
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Option.getOrFailWith (Ok "Wolf") ~exn:(Invalid_argument "Thats no wolf") = "Wolf"
@@ -2535,13 +2523,13 @@ module Option : sig
 
       {[
         Option.getOrFailWith (Error "Dog") ~exn:(Invalid_argument "Thats no wolf")
-        Raises [Invalid_argument "Thats no wolf")]
+        (* Raises (Invalid_argument "Thats no wolf") *)
       ]}
 
       {[
         exception FelineEncounterd
         Option.getOrFailWith (Error "Kitten") ~exn:FelineEncountered
-        // Raises [FelineEncountered]
+        (* Raises FelineEncountered *)
       ]}
   *)
   val getOrFailWith : 'a t -> exn:exn -> 'a
@@ -2555,7 +2543,7 @@ module Option : sig
 
       Raises an [Invalid_argument] exception if called with [None]
 
-      {e Examples}
+      {3 Examples}
 
       {[List.head [1;2;3] |> Option.getUnsafe = 1]}
 
@@ -2567,7 +2555,7 @@ module Option : sig
 
       In most situtations you should just use pattern matching instead.
 
-      {e Examples}
+      {3 Examples}
 
       {[Option.isSome (Some 3004) = true]}
 
@@ -2579,7 +2567,7 @@ module Option : sig
 
       In most situtations you should just use pattern matching instead.
 
-      {e Examples}
+      {3 Examples}
 
       {[Option.isNone (Some 3004) = false]}
 
@@ -2597,7 +2585,7 @@ module Option : sig
 
       [None] is represented as an empty list and [Some] is represented as a list of one element.
 
-      {e Examples}
+      {3 Examples}
 
       {[Option.toArray (Some 3004) = [|3004|]]}
 
@@ -2609,7 +2597,7 @@ module Option : sig
 
       [None] is represented as an empty list and [Some] is represented as a list of one element.
 
-      {e Examples}
+      {3 Examples}
 
       {[Option.toList (Some 3004) = [3004]]}
 
@@ -2621,7 +2609,7 @@ module Option : sig
 
   (** Test two optional values for equality using the provided function
 
-      {e Examples}
+      {3 Examples}
 
       {[Option.equal Int.equal (Some 1) (Some 1) = true]}
 
@@ -2638,7 +2626,7 @@ module Option : sig
 
       A [None] is "less" than a [Some]
 
-      {e Examples}
+      {3 Examples}
 
       {[Option.compare Int.compare (Some 1) (Some 3) = -1]}
 
@@ -2679,7 +2667,7 @@ module Option : sig
 
     (** The operator version of {!get}
 
-       {e Examples}
+       {3 Examples}
 
        {[Some 3004 |? 8 = 3004]}
 
@@ -2689,7 +2677,7 @@ module Option : sig
 
     (** The operator version of {!map}
 
-        {e Examples}
+        {3 Examples}
 
         {[Some "desserts" >>| String.reverse = Some "stressed"]}
 
@@ -2699,7 +2687,7 @@ module Option : sig
 
     (** The operator version of {!bind}
 
-        {e Examples}
+        {3 Examples}
 
         {[Some [1, 2, 3] >>= List.head = Some 1]}
 
@@ -2746,7 +2734,7 @@ module Result : sig
   (** A function alternative to the [Ok] constructor which can be used in places where
       the constructor isn't permitted such as at the of a {!Fun.(|>)} or functions like {!List.map}.
 
-      {e Examples}
+      {3 Examples}
 
       {[String.reverse "desserts" |> Result.ok = Ok "stressed"]}
 
@@ -2771,7 +2759,7 @@ module Result : sig
 
       See the {{: https://reasonml.github.io/docs/en/pipe-first#pipe-into-variants} Reason docs } for more.
 
-      {e Examples}
+      {3 Examples}
 
       {[Int.negate 3 |> Result.error 3 = Error (-3)]}
 
@@ -2781,7 +2769,7 @@ module Result : sig
   
   (** Run the provided function and wrap the returned value in a {!Result}, catching any exceptions raised.
 
-      {e Examples}
+      {3 Examples}
 
       {[Result.attempt(() => 5 / 0) = Error(Division_by_zero)]}
 
@@ -2795,7 +2783,7 @@ module Result : sig
   
   (** Convert an {!Option} to a {!Result} where a [Some(value)] becomes [Ok(value)] and a [None] becomes [Error(error)].
 
-      {e Examples}
+      {3 Examples}
 
       {[Result.ofOption(Some(84), ~error="Greater than 100") == Ok(8)]}
 
@@ -2813,7 +2801,7 @@ module Result : sig
       convenient to use pattern matching directly or use one of {!Result.bind}
       or {!Result.map}
 
-      {e Examples}
+      {3 Examples}
 
       {[Result.isOk(Ok(3)) == true]}
 
@@ -2831,7 +2819,7 @@ module Result : sig
       convenient to use pattern matching directly or use one of {!Result.bind}
       or {!Result.map}
 
-      {e Examples}
+      {3 Examples}
 
       {[Result.isError(Ok(3)) == false]}
 
@@ -2844,7 +2832,7 @@ module Result : sig
       Unlike the {!Bool.(&&)} operator, the [and_] function does not short-circuit.
       When you call [and_], both arguments are evaluated before being passed to the function.
 
-      {e Examples}
+      {3 Examples}
 
       {[Result.and_ (Ok "Antelope") (Ok "Salmon") = Ok "Salmon"]}
 
@@ -2861,7 +2849,7 @@ module Result : sig
     Unlike the built in [||] operator, the [or_] function does not short-circuit.
     When you call [or_], both arguments are evaluated before being passed to the function.
 
-    {e Examples}
+    {3 Examples}
 
     {[Result.or_ (Ok "Boar") (Ok "Gecko") = (Ok "Boar")]}
 
@@ -2879,7 +2867,7 @@ module Result : sig
 
       The same as writing [Result.map2 ~f:Tuple.make]
 
-      {e Examples}
+      {3 Examples}
 
       {[Result.both (Ok "Badger") (Ok "Rhino") = Ok ("Dog", "Rhino")]}
 
@@ -2893,7 +2881,7 @@ module Result : sig
   
   (** Collapse a nested result, removing one layer of nesting.
 
-      {e Examples}
+      {3 Examples}
 
       {[Result.join (Ok (Ok 2)) = Ok 2]}
 
@@ -2960,7 +2948,7 @@ module Result : sig
 
       If both are [Error] values, returns its first.
 
-      {e Examples}
+      {3 Examples}
 
       {[Result.map2 (Ok 7) (Ok 3) ~f:Int.add = Ok 10]
 
@@ -2978,7 +2966,7 @@ module Result : sig
       If {b any} of the elements are an [Error], the first one encountered is returned.
 
       TODO This has the same name as Map.combine, but is very different
-      {e Examples}
+      {3 Examples}
 
       {[Result.combine [Ok 1; Ok 2; Ok 3; Ok 4] = Ok [1; 2; 3; 4]]}
 
@@ -2988,7 +2976,7 @@ module Result : sig
   
   (** Transforms the ['ok] in a result using [f]. Leaves the ['error] untouched.
 
-      {e Examples}
+      {3 Examples}
 
       {[Result.map (Ok 3) ~f:(Int.add 1) = Ok 9]}
 
@@ -2998,7 +2986,7 @@ module Result : sig
   
   (** Transforms the value in an [Error] using [f]. Leaves an [Ok] untouched.
 
-      {e Examples}
+      {3 Examples}
 
       {[Result.mapError (Ok 3) ~f:String.reverse = Ok 3]}
 
@@ -3008,7 +2996,7 @@ module Result : sig
   
   (** Converts an [Result.t('error, Option.t('ok)] into a [Option.t(Result.t('ok, 'error))]
 
-      {e Examples}
+      {3 Examples}
 
       {[Result.transpose (Ok (Some 5)) = Some (Ok 5)]}
 
@@ -3022,7 +3010,7 @@ module Result : sig
 
       Short-circuits of called with an [Error].
 
-      {e Examples}
+      {3 Examples}
 
       {[
         let reciprical (x:float) : (string, float) Standard.Result.t = (
@@ -3040,7 +3028,7 @@ module Result : sig
         )
       ]}
 
-      {e Examples}
+      {3 Examples}
 
       {[Result.bind ~f:reciprical (Ok 4.0) = Ok 0.25]}
 
@@ -3061,7 +3049,7 @@ module Result : sig
   
   (** Run a function against an [Ok(value)], ignores [Error]s.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Result.forEach(Ok("Dog"), ~f:print_endline);
@@ -3078,7 +3066,7 @@ module Result : sig
 
       An [Error _] becomes [None]
 
-      {e Examples}
+      {3 Examples}
 
       {[Result.toOption (Ok 42) = Some 42]}
 
@@ -3091,7 +3079,7 @@ module Result : sig
 
   (** Test two results for equality using the provided functions.
 
-      {e Examples}
+      {3 Examples}
 
       {[Result.equal String.equal Int.equal (Ok 3) (Ok 3) = true]}
 
@@ -3112,7 +3100,7 @@ module Result : sig
 
       In the case when one of the results is an [Error] and one is [Ok], [Error]s  are considered 'less' then [Ok]s
 
-      {e Examples}
+      {3 Examples}
 
       {[Result.compare String.compare Int.compare (Ok 3) (Ok 3) = 0]}
 
@@ -3142,7 +3130,7 @@ module Result : sig
 
     (** An operator version of {!Result.get} where the [default] value goes to the right of the operator.
 
-        {e Examples}
+        {3 Examples}
 
         The following eamples assume [open Result.Infix] is in scope.
 
@@ -3155,7 +3143,7 @@ module Result : sig
 
     (** An operator version of {!bind}
 
-        {e Examples}
+        {3 Examples}
 
         The following examples assume
 
@@ -3182,7 +3170,7 @@ module Result : sig
     
     (** An operator version of {!map}
 
-        {e Examples}
+        {3 Examples}
 
         The following examples assume [open Result.Infix] is in scope.
 
@@ -3213,7 +3201,7 @@ module Array : sig
 
   (** Create an array with only one element.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.singleton 1234 = [|1234|]]}
 
@@ -3225,7 +3213,7 @@ module Array : sig
   (** Initialize an array. [Array.initialize n ~f] creates an array of length [n] with
       the element at index [i] initialized to the result of [(f i)].
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.initialize 4 ~f:identity = [|0; 1; 2; 3|]]}
 
@@ -3235,7 +3223,7 @@ module Array : sig
   
   (** Creates an array of length [length] with the value [x] populated at each index.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.repeat ~length:5 'a' = [|'a'; 'a'; 'a'; 'a'; 'a'|]]}
 
@@ -3247,7 +3235,7 @@ module Array : sig
   
   (** Creates an array containing all of the integers from [from] if it is provided or [0] if not, up to but not including [to]
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.range 5 = [|0; 1; 2; 3; 4|] ]}
 
@@ -3259,7 +3247,7 @@ module Array : sig
   
   (** Create an array from a {!List}.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.ofList [1;2;3] = [|1;2;3|]]}
   *)
@@ -3267,7 +3255,7 @@ module Array : sig
   
   (** Create a shallow copy of an array.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         let numbers = [|1;2;3|] in
@@ -3297,7 +3285,7 @@ module Array : sig
 
   (** Return the length of an array.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.length [|1; 2, 3|] = 3]}
 
@@ -3307,7 +3295,7 @@ module Array : sig
   
   (** Check if an array is empty
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.isEmpty [|1; 2, 3|] = false]}
 
@@ -3333,7 +3321,7 @@ module Array : sig
 
       Raises [Invalid_argument "index out of bounds"] for indexes outside of the range [0] to [(Array.length a - 1)].
 
-      {e Examples}
+      {3 Examples}
 
       {[[|1,2,3,2,1|][3] = 2]}
 
@@ -3348,7 +3336,7 @@ module Array : sig
 
       Returns [None] if [n] is outside the range [0] to [(Array.length a - 1)].
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.getAt([|0; 1; 2|], ~index=5) == None]}
 
@@ -3360,7 +3348,7 @@ module Array : sig
 
       Returns [None] if the array is empty.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.first [1;2;3] = Some 1]}
 
@@ -3374,7 +3362,7 @@ module Array : sig
 
       Returns [None] if the array is empty.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.last [1;2;3] = Some 3]}
 
@@ -3398,7 +3386,7 @@ module Array : sig
 
       Raises [Invalid_argument "index out of bounds"] if [n] is outside the range [0] to [Array.length a - 1].
 
-      {e Examples}
+      {3 Examples}
 
       {[
         let numbers = [|1;2;3|] in
@@ -3416,7 +3404,7 @@ module Array : sig
   
   (** Calculate the sum of a list using the provided modules [zero] value and [add] function.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.sum [|1;2;3|] (module Int) = 6]}
 
@@ -3434,7 +3422,7 @@ module Array : sig
   
   (** Count the number of elements which [f] returns [true] for
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.count [|7;5;8;6|] ~f:Int.isEven = 2]}
   *)
@@ -3444,7 +3432,7 @@ module Array : sig
 
       Returns [None] if called on an empty array.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.minimum [|7;5;8;6|] ~compare:Int.compare = Some 5]}
 
@@ -3456,7 +3444,7 @@ module Array : sig
 
       Returns [None] if called on an empty array.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.maximum [|7;5;8;6|] ~compare:Int.compare = Some 8]}
 
@@ -3468,7 +3456,7 @@ module Array : sig
 
       Returns [None] if called on an empty array.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.extent [|7;5;8;6|] ~compare:Int.compare = Some (5, 8)]}
 
@@ -3486,7 +3474,7 @@ module Array : sig
 
       The same as [Array.map2 ~f=Tuple.make]
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.zip [|1;2;3;4;5|] [|"Dog"; "Eagle"; "Ferret"|] = [|(1, "Dog"); (2, "Eagle"), (3, "Ferret")|]]}
   *)
@@ -3494,7 +3482,7 @@ module Array : sig
   
   (** Keep elements that [f] returns [true] for.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.filter ~f:Int.isEven [|1; 2; 3; 4; 5; 6|] = [|2; 4; 6|]]}
   *)
@@ -3510,7 +3498,7 @@ module Array : sig
 
       If your mapping is already returning an {!Option} and you want to skip over [None]s, then [filterMap] is much nicer to use.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         let characters = [|'a'; '9'; '6'; ' '; '2'; 'z' |]
@@ -3534,7 +3522,7 @@ module Array : sig
 
       Raises an [Invalid_argument] exception of either index is out of bounds for the array.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.swap([|1;2;3|], 1, 2) == [|1;3;2|]]}
   *)
@@ -3544,7 +3532,7 @@ module Array : sig
 
   (** Create a new array which is the result of applying a function [f] to every element.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.map ~f:Float.squareRoot [|1.0; 4.0; 9.0|] = [|1.0; 2.0; 3.0|]]}
   *)
@@ -3553,7 +3541,7 @@ module Array : sig
   
   (** Apply a function [f] to every element with its index as the first argument.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.mapWithIndex ~f:( * ) [|5; 5; 5|] = [|0; 5; 10|]]}
   *)
@@ -3563,7 +3551,7 @@ module Array : sig
 
       If one array is longer, the extra elements are dropped.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         let totals (xs : int array) (ys : int array) : int array =
@@ -3586,7 +3574,7 @@ module Array : sig
 
       If one array is longer, the extra elements are dropped.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Array.map3
@@ -3601,7 +3589,7 @@ module Array : sig
   
   (** {!map} [f] onto an array and {!concatenate} the resulting arrays
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.bind ~f:(fun n -> [|n; n|]) [|1; 2; 3|] = [|1; 1; 2; 2; 3; 3|]]}
   *)
@@ -3611,7 +3599,7 @@ module Array : sig
 
       If there aren't enough elements to make the last 'chunk', those elements are ignored.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Array.chunksOf ~size:2 [|"#FFBA49"; "#9984D4"; "#20A39E"; "#EF5B5B"; "#23001E"|] =  [|
@@ -3630,7 +3618,7 @@ module Array : sig
 
       The sub-arrays are guaranteed to always be of length [size] and iteration stops once a sub-array would extend beyond the end of the array.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.sliding [|1;2;3;4;5|] ~size:1 = [|[|1|]; [|2|]; [|3|]; [|4|]; [|5|]|] ]}
 
@@ -3648,7 +3636,7 @@ module Array : sig
 
       If [f] doesn't return [true] for any of the elements [find] will return [None]
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.find ~f:Int.isEven [|1; 3; 4; 8;|] = Some 4]}
 
@@ -3660,7 +3648,7 @@ module Array : sig
   
   (** Similar to {!Array.find} but [f] is also called with the current index, and the return value will be a tuple of the index the passing value was found at and the passing value.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.findIndex [|1; 3; 4; 8;|] ~f:(fun index number -> index > 2 && Int.isEven number) = Some (3, 8)]}
   *)
@@ -3670,7 +3658,7 @@ module Array : sig
 
       Iteration is stopped as soon as [f] returns [true]
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.any ~f:Int.isEven [|1;2;3;5|] = true]}
 
@@ -3684,7 +3672,7 @@ module Array : sig
 
       Iteration is stopped as soon as [f] returns [false]
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.all ~f:Int.isEven [|2;4|] = true]}
 
@@ -3696,7 +3684,7 @@ module Array : sig
   
   (** Test if an array contains the specified element using the provided [equal] to test for equality.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.contains([1; 2; 3], 2, ~equal:(=)) == true]}
   *)
@@ -3706,7 +3694,7 @@ module Array : sig
 
   (** Creates a new array which is the result of appending the second array onto the end of the first.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         let fortyTwos = Array.repeat ~length:2 42 in
@@ -3718,7 +3706,7 @@ module Array : sig
   
   (** Concatenate an array of arrays into a single array:
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.concatenate [|[|1; 2|]; [|3|]; [|4; 5|]|] = [|1; 2; 3; 4; 5|]]}
   *)
@@ -3728,7 +3716,7 @@ module Array : sig
 
   (** Split an array into a {!Tuple} of arrays. Values which [f] returns true for will end up in {!Tuple.first}.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.partition [|1;2;3;4;5;6|] ~f:Int.isOdd = ([|1;3;5|], [|2;4;6|])]}
   *)
@@ -3744,7 +3732,7 @@ module Array : sig
 
       Raises an [Invalid_argument] exception if [index] is less than zero
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.splitAt [|1;2;3;4;5|] ~index:2 = ([|1;2|], [|3;4;5|])]}
 
@@ -3759,7 +3747,7 @@ module Array : sig
       Returns a {!Tuple}, the first component contains the elements [f] returned false for,
       the second component includes the element that [f] retutned [true] for an all the remaining elements.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.splitWhen [|5; 7; 8; 6; 4;|] ~f:Int.isEven = ([|5; 7|], ([|8; 6; 4|]))]}
 
@@ -3777,7 +3765,7 @@ module Array : sig
   
   (** Decompose an array of {!Tuple}s into a {!Tuple} of arrays.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.unzip [(0, true); (17, false); (1337, true)] = ([0;17;1337], [true; false; true])]}
   *)
@@ -3785,7 +3773,7 @@ module Array : sig
   
   (** Decompose an array of {!Tuple3}s into a {!Tuple3} of arrays.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.unzip [(0, true); (17, false); (1337, true)] = ([0;17;1337], [true; false; true])]}
   *)
@@ -3793,7 +3781,7 @@ module Array : sig
   
   (** Places [sep] between all the elements of the given array.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Array.intersperse ~sep:"on" [|"turtles"; "turtles"; "turtles"|] =
@@ -3812,7 +3800,7 @@ module Array : sig
 
       Both the [from] and [to_] indexes can be negative, indicating an offset from the end of the list.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.slice ~from:0 ~to_:3 [0; 1; 2; 3; 4] = [0; 1; 2]]}
 
@@ -3862,7 +3850,7 @@ module Array : sig
 
       And so the final result is [6]. (Note that in reality you probably want to use {!Array.sum})
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.fold [|1; 2; 3|] ~initial:[] ~f:(List.cons) = [3; 2; 1]]}
 
@@ -3886,7 +3874,7 @@ module Array : sig
   
   (** This method is like {!fold} except that it iterates over the elements of the array from last to first.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.foldRight ~f:(+) ~initial:0 (Array.repeat ~length:3 5) = 15]}
 
@@ -3896,7 +3884,7 @@ module Array : sig
   
   (** Reverses an array {b in place}, mutating the existing array.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         let numbers = [|1; 2; 3|] in
@@ -3913,7 +3901,7 @@ module Array : sig
 
       When targeting javascript the time and space complexity of the sort cannot be guaranteed as it depends on the implementation.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.sortInPlace [|5;6;8;3;6|] ~compare:compare = [|3;5;6;6;8|]]}
   *)
@@ -3923,7 +3911,7 @@ module Array : sig
 
   (** Iterates over the elements of invokes [f] for each element.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.forEach [|1; 2; 3|] ~f:(fun int -> print (Int.toString int))]}
   *)
@@ -3931,7 +3919,7 @@ module Array : sig
   
   (** Iterates over the elements of invokes [f] for each element.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Array.forEachI [|1; 2; 3|] ~f:(fun index int -> printf "%d: %d" index int)
@@ -3946,7 +3934,7 @@ module Array : sig
   
   (** Return all of the [Some] values from an array of options
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.values [|(Some "Ant"); None; (Some "Cat")|] = [|"Ant"; "Cat"|]]}
 
@@ -3958,7 +3946,7 @@ module Array : sig
 
   (** Converts a list of strings into a {!String}, placing [sep] between each string in the result.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.join [|"Ant", "Bat", "Cat"|] ~sep:", " = "Ant, Bat, Cat"]}
    *)
@@ -3966,7 +3954,7 @@ module Array : sig
   
   (** Create a {!List} of elements from an array.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.toList [|1;2;3|] = [1;2;3]]}
 
@@ -3976,7 +3964,7 @@ module Array : sig
   
   (** Create an indexed {!List} from an array. Each element of the array will be paired with its index as a {!Tuple}.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.toIndexedList [|"cat"; "dog"|] = [(0, "cat"); (1, "dog")]]}
   *)
@@ -3991,7 +3979,7 @@ module Array : sig
 
       A shorter array is 'less' than a longer one.
 
-      {e Examples}
+      {3 Examples}
 
       {[Array.compare Int.compare [|1;2;3|] [|1;2;3;4|] = -1]}
 
@@ -4044,7 +4032,7 @@ module List : sig
 
   (** An empty list.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.empty = []]}
 
@@ -4055,7 +4043,7 @@ module List : sig
   
   (** Create a list with only one element.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.singleton 1234 = [1234]]}
 
@@ -4065,7 +4053,7 @@ module List : sig
   
   (** Creates a list of length [times] with the value [x] populated at each index.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.repeat ~times:5 'a' = ['a'; 'a'; 'a'; 'a'; 'a']]}
 
@@ -4077,7 +4065,7 @@ module List : sig
   
   (** Creates a list containing all of the integers from [from] if it is provided or [0] if not, up to but not including [to]
 
-      {e Examples}
+      {3 Examples}
 
       {[List.range 5 = [0; 1; 2; 3; 4] ]}
 
@@ -4091,7 +4079,7 @@ module List : sig
 
       [List.initialize n ~f] creates a list of length [n] by setting the element at position [index] to be [f(index)].
 
-      {e Examples}
+      {3 Examples}
 
       {[List.initialize 4 ~f:identity = [0; 1; 2; 3]]}
 
@@ -4101,7 +4089,7 @@ module List : sig
   
   (** Create a list from an {!Array}.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.ofArray [|1;2;3|] = [1;2;3]]}
   *)
@@ -4113,7 +4101,7 @@ module List : sig
 
       If the list is empty, returns [None]
 
-      {e Examples}
+      {3 Examples}
 
       {[List.head [1;2;3] = Some 1]}
 
@@ -4125,7 +4113,7 @@ module List : sig
 
       If the list is empty, returns [None]
 
-      {e Examples}
+      {3 Examples}
 
       {[List.tail [1;2;3] = Some [2;3]]}
 
@@ -4139,7 +4127,7 @@ module List : sig
 
   (** Creates a new list which is the result of appending the second list onto the end of the first.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         let fortyTwos = List.repeat ~length:2 42 in
@@ -4151,7 +4139,7 @@ module List : sig
   
   (** Concatenate a list of lists into a single list:
 
-      {e Examples}
+      {3 Examples}
 
       {[List.concatenate [[1; 2]; [3]; [4; 5]] = [1; 2; 3; 4; 5]]}
   *)
@@ -4159,7 +4147,7 @@ module List : sig
   
   (** Calculate the sum of a list using the provided modules [zero] value and [add] function.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.sum [1;2;3] (module Int) = 6]}
 
@@ -4179,7 +4167,7 @@ module List : sig
 
   (** Create a new list which is the result of applying a function [f] to every element.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.map ~f:Float.squareRoot [|1.0; 4.0; 9.0|] = [|1.0; 2.0; 3.0|]]}
   *)
@@ -4187,7 +4175,7 @@ module List : sig
   
   (** Apply a function [f] onto a list and {!concatenate} the resulting list of lists.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.bind ~f xs = List.map ~f xs |> List.concatenate]}
 
@@ -4197,7 +4185,7 @@ module List : sig
   
   (** Apply a function [f] to every element and its index.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         List.mapI(["zero", "one", "two"], ~f=(index,  element) =>
@@ -4211,7 +4199,7 @@ module List : sig
 
       If one list is longer, the extra elements are dropped.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.map2 [|1;2;3|] [|4;5;6|] ~f:(+) = [|5;7;9|]]}
 
@@ -4229,7 +4217,7 @@ module List : sig
 
       If one list is longer, the extra elements are dropped.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         List.map3
@@ -4250,7 +4238,7 @@ module List : sig
 
       The sub-lists are guaranteed to always be of length [size] and iteration stops once a sub-list would extend beyond the end of the list.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.sliding [1;2;3;4;5] ~size:1 = [[1]; [2]; [3]; [4]; [5]] ]}
 
@@ -4274,7 +4262,7 @@ module List : sig
 
       {b Warning} This will iterate through the entire list.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.last [1;2;3] = Some 3]}
 
@@ -4289,7 +4277,7 @@ module List : sig
       This function may iterate the entire list, so if your code needs to
       repeatedly perform this check, maybe you want a {!Set} instead.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.contains [1; 2; 3] 2 ~equal:Int.equal = true]}
 
@@ -4303,7 +4291,7 @@ module List : sig
   
   (** Count the number of elements which [f] returns [true] for
 
-      {e Examples}
+      {3 Examples}
 
       {[List.count [7;5;8;6] ~f:Int.isEven = 2]}
    *)
@@ -4313,7 +4301,7 @@ module List : sig
 
       Returns [None] if the list is empty.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.initial [1;2;3] = Some [1;2]]}
 
@@ -4332,7 +4320,7 @@ module List : sig
       {!filterMap} removes the {!Option} layer automatically.
       If your mapping is already returning an {!Option} and you want to skip over Nones, then [filterMap] is much nicer to use.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         let characters = ['a'; '9'; '6'; ' '; '2'; 'z' ]
@@ -4352,7 +4340,7 @@ module List : sig
 
       Returns [None] if [index] is outside of the bounds of the list.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.getAt [1;2;3] ~index:1 = Some 2]}
 
@@ -4364,7 +4352,7 @@ module List : sig
   
   (** Keep elements that [f] returns [true] for.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.filter ~f:Int.isEven [1; 2; 3; 4; 5; 6] = [2; 4; 6]]}
   *)
@@ -4377,7 +4365,7 @@ module List : sig
 
   (** Split a list into a {!Tuple} of lists. Values which [f] returns true for will end up in {!Tuple.first}.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.partition [1;2;3;4;5;6] ~f:Int.isOdd = ([1;3;5], [2;4;6])]}
   *)
@@ -4386,7 +4374,7 @@ module List : sig
   
   (** Decompose a list of {!Tuple} into a {!Tuple} of lists.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.unzip [(0, true); (17, false); (1337, true)] = ([0;17;1337], [true; false; true])]}
   *)
@@ -4394,7 +4382,7 @@ module List : sig
   
   (** Decompose a list of {!Tuple3} into a {!Tuple3} of lists.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.unzip [(0, true); (17, false); (1337, true)] = ([0;17;1337], [true; false; true])]}
   *)
@@ -4492,7 +4480,7 @@ module List : sig
 
   (** Take elements from a list until [f] returns [false]
 
-      {e Examples}
+      {3 Examples}
 
       {[
         List.takeWhile ~f:Int.isEven [2; 4; 6; 7; 8; 9] = [2; 4; 6]
@@ -4504,7 +4492,7 @@ module List : sig
   
   (** Drop the first [count] elements from the front of a list.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.drop [1;2;3;4] ~count:2 = [3;4]}
 
@@ -4514,7 +4502,7 @@ module List : sig
   
   (** Drop elements from a list until [f] returns [false]
 
-      {e Examples}
+      {3 Examples}
 
       {[
         List.dropWhile ~f:Int.isEven [2; 4; 6; 7; 8; 9] = [7; 8; 9]
@@ -4532,7 +4520,7 @@ module List : sig
 
       If [index] is outside of the bounds of the list, all elements will be in the first component of the tuple.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.splitAt [1;2;3;4;5] ~index:2 = ([1;2], [3;4;5])]}
   *)
@@ -4544,7 +4532,7 @@ module List : sig
       will be in the first component of the tuple, the remaining elements will be
       in the second
 
-      {e Examples}
+      {3 Examples}
 
       {[List.splitWhen [2; 4; 5; 6; 7] ~f:Int.isEven = ([2; 4], [5; 6; 7])]}
 
@@ -4556,7 +4544,7 @@ module List : sig
 
       If [index] is outside of the bounds of the list, returns the list as-is.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.updateAt [1; 2; 3] ~index:1 ~f:(Int.add 3) = [1; 5; 3]]}
 
@@ -4571,7 +4559,7 @@ module List : sig
 
       If [index] is outside of the bounds of the list, returns the list as-is.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.removeAt [1; 2; 3] ~index:2 = [1; 2]]}
 
@@ -4617,7 +4605,7 @@ module List : sig
       ]}
 
 
-      {e Examples}
+      {3 Examples}
 
       {[List.length([]) == 0]}
 
@@ -4627,7 +4615,7 @@ module List : sig
   
   (** Reverse the elements in a list
 
-      {e Examples}
+      {3 Examples}
 
       {[List.reverse [1;2;3] = [3;2;1]]}
    *)
@@ -4637,7 +4625,7 @@ module List : sig
 
   (** Determine if a list is empty.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.isEmpty List.empty = true]}
 
@@ -4656,7 +4644,7 @@ module List : sig
         [1, ...[1,2,3]]
       ]}
 
-      {e Examples}
+      {3 Examples}
 
       {[List.cons [2;3;4] 1 = [1;2;3;4]]}
 
@@ -4668,7 +4656,7 @@ module List : sig
 
       Stops iteration as soon as [f] returns true.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.any ~f:isEven [|2;3|] = true]}
 
@@ -4682,7 +4670,7 @@ module List : sig
 
       Stops iteration as soon as [f] returns false.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.all ~f:Int.isEven [|2;4|] = true]}
 
@@ -4696,7 +4684,7 @@ module List : sig
 
       Returns [None] if called on an empty array.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.minimum [|7;5;8;6|] ~compare:Int.compare = Some 5]}
   *)
@@ -4706,7 +4694,7 @@ module List : sig
 
       Returns [None] if called on an empty array.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.maximum [|7;5;8;6|] ~compare:compare = Some 8]}
   *)
@@ -4716,7 +4704,7 @@ module List : sig
 
       Returns [None] if called on an empty array.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.extent [|7;5;8;6|] ~compare:compare = Some (5, 8)]}
   *)
@@ -4726,7 +4714,7 @@ module List : sig
 
       [f] is called with consecutive elements, when [f] returns [false] a new group is started.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         List.groupWhile [1;2;3;] ~f:(Fun.constant false) = [[1]; [2]; [3]]
@@ -4758,7 +4746,7 @@ module List : sig
 
       Raises an [Invalid_argument] exception if [index] is negative
 
-      {e Examples}
+      {3 Examples}
 
       {[List.insertAt ~index:2 ~value:999 [100; 101; 102; 103] = [100; 101; 999; 102; 103]]}
 
@@ -4774,7 +4762,7 @@ module List : sig
   
   (** Places [sep] between all the elements of the given list.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.intersperse ~sep:"on" [|"turtles"; "turtles"; "turtles"|] = [|"turtles"; "on"; "turtles"; "on"; "turtles"|]]}
 
@@ -4789,7 +4777,7 @@ module List : sig
 
       When targeting javascript the time and space complexity of the sort cannot be guaranteed as it depends on the implementation.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.sort [5;6;8;3;6] ~compare:Int.compare = [3;5;6;6;8]]}
   *)
@@ -4804,7 +4792,7 @@ module List : sig
       You use [List.forEach] when you want to process a list only for side effects.
 
 
-      {e Examples}
+      {3 Examples}
 
       {[
         List.forEach [|1; 2; 3|] ~f:(fun int -> print (Int.toString int))
@@ -4819,7 +4807,7 @@ module List : sig
   
   (** Like {!forEach} but [f] is also called with the elements index.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         List.forEachI [1; 2; 3] ~f:(fun index int -> printf "%d: %d" index int)
@@ -4837,7 +4825,7 @@ module List : sig
 
   (** Converts a list of strings into a {!String}, placing [sep] between each string in the result.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.join ["Ant", "Bat", "Cat"] ~sep:", " = "Ant, Bat, Cat"]}
    *)
@@ -4855,7 +4843,7 @@ module List : sig
 
       A shorter list is 'less' than a longer one.
 
-      {e Examples}
+      {3 Examples}
 
       {[List.compare Int.compare [1;2;3] [1;2;3;4] = -1]}
 
@@ -4878,7 +4866,7 @@ module Tuple : sig
 
       The values do not have to be of the same type.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.make(3, 4) = (3, 4)]}
 
@@ -4895,7 +4883,7 @@ module Tuple : sig
 
       If the array is less than two elements, returns [None]
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.ofArray [|1; 2|] = Some (1, 2)]}
 
@@ -4911,7 +4899,7 @@ module Tuple : sig
 
       If the list is less than two elements, returns [None]
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.ofList [1; 2] = Some (1, 2)]}
 
@@ -4923,7 +4911,7 @@ module Tuple : sig
   
   (** Extract the first value from a tuple.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.first (3, 4) = 3]}
 
@@ -4933,7 +4921,7 @@ module Tuple : sig
   
   (** Extract the second value from a tuple.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.second (3, 4) = 4]}
 
@@ -4945,7 +4933,7 @@ module Tuple : sig
 
   (** Transform the {!first} value in a tuple.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.mapFirst ~f:String.reverse ("stressed", 16) = ("desserts", 16)]}
 
@@ -4956,7 +4944,7 @@ module Tuple : sig
   
   (** Transform the second value in a tuple.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.mapSecond ~f:Float.squareRoot ("stressed", 16.) = ("stressed", 4.)]}
 
@@ -4966,7 +4954,7 @@ module Tuple : sig
   
   (** Transform both values of a tuple, using [f] for the first value and [g] for the second.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.mapEach ~f:String.reverse ~g:Float.squareRoot ("stressed", 16.) = ("desserts", 4.)]}
 
@@ -4979,7 +4967,7 @@ module Tuple : sig
 
       [mapAll] can only be used on tuples which have the same type for each value.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.mapAll ~f:(Int.add 1) (3, 4, 5) = (4, 5, 6)]}
 
@@ -4989,7 +4977,7 @@ module Tuple : sig
   
   (** Switches the first and second values of a tuple.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.swap (3, 4) = (4, 3)]}
 
@@ -4999,7 +4987,7 @@ module Tuple : sig
 
   (** Takes a function [f] which takes a single argument of a tuple ['a * 'b] and returns a function which takes two arguments that can be partially applied.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         let squareArea (width, height) = width * height
@@ -5013,7 +5001,7 @@ module Tuple : sig
   
   (** Takes a function which takes two arguments and returns a function which takes a single argument of a tuple.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         let sum (a : int) (b: int) : int = a + b
@@ -5029,7 +5017,7 @@ module Tuple : sig
 
       This function can only be used on tuples which have the same type for each value.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.toArray (3, 4) = [|3; 4|]]}
 
@@ -5040,7 +5028,7 @@ module Tuple : sig
   
   (** Turns a tuple into a list of length two. This function can only be used on tuples which have the same type for each value.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.toList (3, 4) = [3; 4]]}
 
@@ -5053,7 +5041,7 @@ module Tuple : sig
   (** Test two {!Tuple}s for equality, using the provided functions to test the
       first and second components.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.equal Int.equal String.equal (1, "Fox") (1, "Fox") = true]}
 
@@ -5066,7 +5054,7 @@ module Tuple : sig
   (** Compare two {!Tuple}s, using the provided functions to compare the first
       components then, if the first components are equal, the second components.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.compare Int.compare String.compare (1, "Fox") (1, "Fox") = 0]}
 
@@ -5089,7 +5077,7 @@ module Tuple3 : sig
 
   (** Create a {!Tuple3}.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple3.create 3 "cat" false = (3, "cat", false)]}
 
@@ -5107,7 +5095,7 @@ module Tuple3 : sig
 
       If the array is less than two elements, returns [None]
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple3.ofArray [|1; 2;3 |] = Some (1, 2, 3)]}
 
@@ -5123,7 +5111,7 @@ module Tuple3 : sig
 
       If the list is less than two elements, returns [None]
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple3.ofList [1; 2; 3] = Some (1, 2, 3)]}
 
@@ -5135,7 +5123,7 @@ module Tuple3 : sig
   
   (** Extract the first value from a tuple.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple3.first (3, 4, 5) = 3]}
 
@@ -5145,7 +5133,7 @@ module Tuple3 : sig
   
   (** Extract the second value from a tuple.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.second (3, 4, 5) = 4]}
 
@@ -5155,7 +5143,7 @@ module Tuple3 : sig
   
   (** Extract the third value from a tuple.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.third (3, 4, 5) = 5]}
 
@@ -5165,7 +5153,7 @@ module Tuple3 : sig
   
   (** Extract the first and second values of a {!Tuple3} as a {!Tuple}.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple3.initial (3, "stressed", false) = (3, "stressed")]}
 
@@ -5175,7 +5163,7 @@ module Tuple3 : sig
   
   (** Extract the second and third values of a {!Tuple3} as a {!Tuple}.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple3.tail (3, "stressed", false) = ("stressed", false)]}
 
@@ -5185,7 +5173,7 @@ module Tuple3 : sig
   
   (** Transform the first value in a tuple.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple3.mapFirst ~f:String.reverse ("stressed", 16, false) = ("desserts", 16, false)]}
 
@@ -5195,7 +5183,7 @@ module Tuple3 : sig
   
   (** Transform the second value in a tuple.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple3.mapSecond ~f:Float.squareRoot ("stressed", 16., false) = ("stressed", 4., false)]}
 
@@ -5205,7 +5193,7 @@ module Tuple3 : sig
   
   (** Transform the third value in a tuple.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple3.mapThird ~f:not ("stressed", 16, false) ("stressed", 16, true)]}
   *)
@@ -5213,7 +5201,7 @@ module Tuple3 : sig
   
   (** Transform each value in a tuple by applying [f] to the {!first} value, [g] to the {!second} value and [h] to the {!third} value.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Tuple3.mapEach
@@ -5231,7 +5219,7 @@ module Tuple3 : sig
 
       [mapAll] can only be used on tuples which have the same type for each value.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.mapAll ~f:Float.squareRoot (9., 16., 25.) = (3., 4., 5.)]}
 
@@ -5241,7 +5229,7 @@ module Tuple3 : sig
   
   (** Move each value in the tuple one position to the left, moving the value in the first position into the last position.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.rotateLeft (3, 4, 5) = (4, 5, 3)]}
 
@@ -5251,7 +5239,7 @@ module Tuple3 : sig
   
   (** Move each value in the tuple one position to the right, moving the value in the last position into the first position.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.rotateRight (3, 4, 5) = (5, 3, 4)]}
 
@@ -5261,7 +5249,7 @@ module Tuple3 : sig
   
   (** Takes a function which takes a single argument of a {!Tuple3} and returns a function which takes three arguments that can be partially applied.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         let cubeVolume (width, height, depth) = width * height * depth in
@@ -5274,7 +5262,7 @@ module Tuple3 : sig
   
   (** [uncurry f] takes a function [f] which takes three arguments and returns a function which takes a single argument of a {!Tuple3}
 
-      {e Examples}
+      {3 Examples}
 
       TODO
   *)
@@ -5286,7 +5274,7 @@ module Tuple3 : sig
 
       This function can only be used on tuples which have the same type for each value.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple3.toArray (3, 4, 5) = [3; 4; 5]]}
 
@@ -5299,7 +5287,7 @@ module Tuple3 : sig
 
       This function can only be used on tuples which have the same type for each value.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple3.toList (3, 4, 5) = [3; 4; 5]]}
 
@@ -5312,7 +5300,7 @@ module Tuple3 : sig
   (** Test two {!Tuple3}s for equality, using the provided functions to test the
       first, second and third components.
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.equal Int.equal String.equal Char.equal (1, "Fox", 'j') (1, "Fox", 'k') = true]}
 
@@ -5327,7 +5315,7 @@ module Tuple3 : sig
       components then, if the first components are equal, the second components,
       then the third components
 
-      {e Examples}
+      {3 Examples}
 
       {[Tuple.compare Int.compare String.compare Char.compare (1, "Fox", 'j') (1, "Fox", 'j') = 0]}
 
@@ -5365,7 +5353,7 @@ module Set : sig
 
   (** Insert a value into a set.
 
-      {e Examples}
+      {3 Examples}
 
       {[Set.add (Set.Int.ofList [1; 2]) 3 |> Set.toList = [1; 2; 3]]}
 
@@ -5376,7 +5364,7 @@ module Set : sig
   
   (** Remove a value from a set, if the set doesn't contain the value anyway, returns the original set
 
-      {e Examples}
+      {3 Examples}
 
       {[Set.remove (Set.Int.ofList [1; 2]) 2 |> Set.toList = [1]]}
 
@@ -5390,7 +5378,7 @@ module Set : sig
   
   (** Determine if a value is in a set
 
-      {e Examples}
+      {3 Examples}
 
      {[Set.includes (Set.String.ofList ["Ant"; "Bat"; "Cat"]) "Bat" = true]}
   *)
@@ -5398,7 +5386,7 @@ module Set : sig
   
   (** Determine the number of elements in a set.
 
-      {e Examples}
+      {3 Examples}
 
       {[Set.length (Set.Int.ofList [1; 2; 3])) = 3]}
   *)
@@ -5406,7 +5394,7 @@ module Set : sig
   
   (** Returns, as an {!Option}, the first element for which [f] evaluates to [true]. If [f] doesn't return [true] for any of the elements [find] will return [None].
 
-      {e Examples}
+      {3 Examples}
 
       {[Set.find ~f:Int.isEven (Set.Int.ofList [1; 3; 4; 8]) = Some 4]}
 
@@ -5420,7 +5408,7 @@ module Set : sig
 
   (** Check if a set is empty.
 
-      {e Examples}
+      {3 Examples}
 
       {[Set.isEmpty (Set.Int.empty) = true]}
 
@@ -5430,7 +5418,7 @@ module Set : sig
   
   (** Determine if [f] returns true for [any] values in a set.
 
-      {e Examples}
+      {3 Examples}
 
       {[Set.any (Set.Int.ofArray [|2;3|]) ~f:Int.isEven = true]}
 
@@ -5442,7 +5430,7 @@ module Set : sig
   
   (** Determine if [f] returns true for [all] values in a set.
 
-      {e Examples}
+      {3 Examples}
 
       {[Set.all ~f:Int.isEven (Set.Int.ofArray [|2;4|]) = true]}
 
@@ -5456,7 +5444,7 @@ module Set : sig
 
   (** Returns a new set with the values from the first set which are not in the second set.
 
-      {e Examples}
+      {3 Examples}
 
       {[Set.difference (Set.Int.ofList [1;2;5]) (Set.Int.ofList [2;3;4]) |> Set.toList = [1;5]]}
 
@@ -5466,7 +5454,7 @@ module Set : sig
   
   (** Get the intersection of two sets. Keeps values that appear in both sets.
 
-      {e Examples}
+      {3 Examples}
 
       {[Set.intersection (Set.Int.ofList [1;2;5]) (Set.Int.ofList [2;3;4]) |> Set.toList= [2]]}
   *)
@@ -5474,7 +5462,7 @@ module Set : sig
   
   (** Get the union of two sets. Keep all values.
 
-      {e Examples}
+      {3 Examples}
 
       {[Set.union (Set.Int.ofList [1;2;5]) (Set.Int.ofList [2;3;4]) |> Set.toList = [1;2;3;4;5]]}
   *)
@@ -5484,7 +5472,7 @@ module Set : sig
 
   (** Keep elements that [f] returns [true] for.
 
-      {e Examples}
+      {3 Examples}
 
       {[Set.filter (Set.Int.ofList [1;2;3]) ~f:Int.isEven |> Set.toList = [2]]}
   *)
@@ -5492,7 +5480,7 @@ module Set : sig
   
   (** Divide a set into two according to [f]. The first set will contain the values that [f] returns [true] for, values that [f] returns [false] for will end up in the second.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         let numbers = Set.Int.ofList [1; 1; 5; 6; 5; 7; 9; 8] in
@@ -5508,7 +5496,7 @@ module Set : sig
 
     See {!Array.fold} for a more in-depth explanation.
 
-    {e Examples}
+    {3 Examples}
 
     {[Set.fold ~f:( * ) ~initial:1 (Set.Int.ofList [1;2;3;4]) = 24]}
   *)
@@ -5538,7 +5526,7 @@ module Set : sig
     
     (** Create a set of a single value
 
-        {e Examples}
+        {3 Examples}
 
         {[Set.Int.singleton (5, "Emu") |> Set.toList = [(5, "Emu")]]}
     *)
@@ -5547,7 +5535,7 @@ module Set : sig
     
     (** Create a set from an {!Array}
 
-        {e Examples}
+        {3 Examples}
 
         {[Set.Poly.ofArray [(1, "Ant");(2, "Bat");(2, "Bat")] |> Set.toList = [(1, "Ant"); (2, "Bat")]]}
     *)
@@ -5555,7 +5543,7 @@ module Set : sig
     
     (** Create a set from a {!List}
 
-      {e Examples}
+      {3 Examples}
 
       {[Set.Poly.ofList [(1, "Ant");(2, "Bat");(2, "Bat")] |> Set.toList = [(1, "Ant"); (2, "Bat")]]}
     *)
@@ -5572,7 +5560,7 @@ module Set : sig
 
     (** Create a set from a single {!Int}
 
-      {e Examples}
+      {3 Examples}
 
       {[Set.Int.singleton 5 |> Set.toList = [5]]}
     *)
@@ -5581,7 +5569,7 @@ module Set : sig
     
     (** Create a set from an {!Array}
 
-        {e Examples}
+        {3 Examples}
 
         {[Set.Int.ofArray [|1;2;3;3;2;1;7|] |> Set.toArray = [|1;2;3;7|]]}
     *)
@@ -5589,7 +5577,7 @@ module Set : sig
     
     (** Create a set from a {!List}
 
-        {e Examples}
+        {3 Examples}
 
         {[Set.Int.ofList [1;2;3;3;2;1;7] |> Set.toList = [1;2;3;7]]}
     *)
@@ -5605,7 +5593,7 @@ module Set : sig
     
     (** Create a set of a single {!String}
 
-        {e Examples}
+        {3 Examples}
 
         {[Set.String.singleton "Bat" |> Set.toList = ["Bat"]]}
     *)
@@ -5613,7 +5601,7 @@ module Set : sig
     
     (** Create a set from an {!Array}
 
-        {e Examples}
+        {3 Examples}
 
         {[Set.String.ofArray [|"a";"b";"g";"b";"g";"a";"a"|] |> Set.toArray = [|"a";"b";"g"|]]}
     *)
@@ -5621,7 +5609,7 @@ module Set : sig
     
     (** Create a set from a {!List}
 
-        {e Examples}
+        {3 Examples}
 
         {[Set.String.ofList [|"a";"b";"g";"b";"g";"a";"a"|] |> Set.toList = ["a";"b";"g"]]}
     *)
@@ -5654,7 +5642,7 @@ module Map : sig
 
   (** Adds a new entry to a map. If [key] is allready present, its previous value is replaced with [value].
 
-      {e Examples}
+      {3 Examples}
 
       {[Map.add (Map.Int.ofList [(1, "Ant"), (2, "Bat")]) ~key:3 ~value:"Cat"  |> Map.toList = [(1, "Ant"), (2, "Bat"), (3, "Cat")]]}
 
@@ -5665,7 +5653,7 @@ module Map : sig
   
   (** Removes a key-value pair from a map based on they provided key.
 
-      {e Examples}
+      {3 Examples}
 
       let animalPopulations = Map.String.ofList [
         ("Elephant", 3_156);
@@ -5683,7 +5671,7 @@ module Map : sig
   
   (** Get the value associated with a key. If the key is not present in the map, returns [None].
 
-      {e Examples}
+      {3 Examples}
 
       let animalPopulations = Map.String.ofList [
         ("Elephant", 3_156);
@@ -5701,7 +5689,7 @@ module Map : sig
 
       Searches starting from the smallest {b key}
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Map.String.ofList [
@@ -5719,7 +5707,7 @@ module Map : sig
   
   (** Update the value for a specific key using [f]. If [key] is not present in the map [f] will be called with [None].
 
-      {e Examples}
+      {3 Examples}
 
       {[
         let animalPopulations = Map.String.ofList [
@@ -5749,7 +5737,7 @@ module Map : sig
   
   (** Returns the number of key-value pairs present in the map.
 
-      {e Examples}
+      {3 Examples}
 
       {[Map.Int.ofList [(1, "Hornet"); (3, "Marmot")] |> Map.length = 2]}
   *)
@@ -5759,7 +5747,7 @@ module Map : sig
 
       Returns [None] if the map is empty.
 
-      {e Examples}
+      {3 Examples}
 
       {[Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")] |> Map.length = Some 1]}
   *)
@@ -5769,7 +5757,7 @@ module Map : sig
 
       Returns [None] if the map is empty.
 
-      {e Examples}
+      {3 Examples}
 
       {[Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")] |> Map.length = Some 8]}
   *)
@@ -5779,7 +5767,7 @@ module Map : sig
 
       Returns [None] if the map is empty.
 
-      {e Examples}
+      {3 Examples}
 
       {[Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")] |> Map.length = Some (1, 8)]}
   *)
@@ -5812,7 +5800,7 @@ module Map : sig
 
       You then traverse all the keys, building up whatever you want.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         let animalToPopulation = Map.String.ofList [
@@ -5845,7 +5833,7 @@ module Map : sig
 
   (** Apply a function to all values in a dictionary.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Map.String.ofList [
@@ -5868,7 +5856,7 @@ module Map : sig
   
   (** Keep elements that [f] returns [true] for.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Map.String.ofList [
@@ -5886,7 +5874,7 @@ module Map : sig
   
   (** Divide a map into two, the first map will contain the key-value pairs that [f] returns [true] for, pairs that [f] returns [false] for will end up in the second.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         let (endangered, notEndangered) = Map.String.ofList [
@@ -5936,7 +5924,7 @@ module Map : sig
 
   (** Get a {!List} of all of the keys in a map.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Map.String.ofList [
@@ -5957,7 +5945,7 @@ module Map : sig
   
   (** Get a {!List} of all of the values in a map.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         Map.String.ofList [
@@ -6079,7 +6067,7 @@ module Fun : sig
       or to avoid [unused value] compiler warnings when you really meant it,
       and haven't just made a mistake.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         module PretendMutableQueue : sig
@@ -6101,7 +6089,7 @@ module Fun : sig
 
       Useful with functions like {!List.map} or {!Array.initialize}
 
-      {e Examples}
+      {3 Examples}
 
       {[List.map ~f:(Fun.constant 0) [1;2;3;4;5] = [0;0;0;0;0]]}
 
@@ -6119,7 +6107,7 @@ module Fun : sig
       Perhaps you want to [fold] something, but the arguments of a function you
       already have access to are in the wrong order.
 
-      {e Examples}
+      {3 Examples}
 
       TODO
   *)
@@ -6134,7 +6122,7 @@ module Fun : sig
 
       Maybe you want to apply a function to a [match] expression? That sort of thing.
 
-      {e Examples}
+      {3 Examples}
 
       TODO
   *)
@@ -6145,7 +6133,7 @@ module Fun : sig
 
   (** Saying [x |> f] is exactly the same as [f x], just a bit longer.
 
-      It is called the “pipe” operator because it lets you write “pipelined” code.
+      It is called the "pipe" operator because it lets you write "pipelined" code.
 
       It can make nested function calls more readable.
 
@@ -6209,7 +6197,7 @@ module Fun : sig
 
       Most commonly used to log a value in the middle of a pipeline of function calls.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         let sanitize (input: string) : int option =
@@ -6238,7 +6226,7 @@ module Fun : sig
 
   (** Runs a function repeatedly.
 
-      {e Examples}
+      {3 Examples}
 
       {[
         let count = ref 0

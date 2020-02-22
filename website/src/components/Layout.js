@@ -1,3 +1,4 @@
+import { useStaticQuery, graphql } from 'gatsby';
 import React from 'react'
 import styled from 'styled-components';
 import { dimensions, colors, useTheme, ThemeToggle } from '../theme'
@@ -20,8 +21,17 @@ export const ContentContainer = styled.div`
   width: 100%;
 `;
 
-export const NavBar = ({ githubUrl }) => {
+export const NavBar = () => {
   let [themeName, toggleTheme] = useTheme();
+  let { site: { siteMetadata: { githubUrl } } } = useStaticQuery(graphql`
+    query {
+      site {
+        siteMetadata {
+          githubUrl
+        }
+      }
+    }`
+  )
 
   return (
     <nav
@@ -97,6 +107,9 @@ export const NavBar = ({ githubUrl }) => {
           </li>
           <li>
             <Link to="/api">api</Link>
+          </li>
+          <li>
+            <Link to="/try">try</Link>
           </li>
           <li>
             <Link
