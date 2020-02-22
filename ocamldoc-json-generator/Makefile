@@ -14,13 +14,13 @@ build:
 		./_build/Standard.ml
 
 doc:
-	rm -f ./doc/* && \
+	rm -f ../website/model.json && \
 	ocamlfind ocamldoc \
 		-package base,str,zarith \
 		-I ./_build \
 		-i ../_build/default/ocamldoc-json-generator/src/ \
 		-g JsonGenerator.cma \
-		-d ./doc \
+		-d ../website \
 		./_build/Core.mli \
 		./_build/Core.ml \
 		./_build/Standard.ml
@@ -37,7 +37,7 @@ build-test:
 
 clean: 
 	rm -rf \
-		./doc/model.json \
+		../website/model.json \
 		./_build/* \
 		./test/model.json \
 		./test/src/*.cmi \

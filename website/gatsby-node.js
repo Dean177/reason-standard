@@ -119,7 +119,7 @@ let createNodeFromModel = model => ({
 const inDevelopMode = process.env.gatsby_executing_command === 'develop';
 
 exports.sourceNodes = ({ actions }) => {
-  let modelPath = path.resolve(__dirname, `../ocamldoc-json-generator/doc/model.json`);
+  let modelPath = path.resolve(__dirname, `./model.json`);
   log.info('path', modelPath);
   if (modelPath == null) {
     throw new Error(`Invalid model path`);
