@@ -32,7 +32,7 @@ export let colors = {
 
 export let fonts = {
   body: 'Roboto, Helvetica, Arial, sans-serif',
-  monospace: `'Roboto Mono', monospace`,
+  monospace: `"Lucida Console", Monaco, monospace`,
 };
 
 export let spacing = {};
@@ -255,7 +255,7 @@ a:hover {
 }
 
 code, .code { 
-  font-family: 'Roboto Mono', monospace; 
+  font-family: ${fonts.monospace};
 }
 
 .blockquote {

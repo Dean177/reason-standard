@@ -1,6 +1,6 @@
 import React from 'react';
 import Helmet from 'react-helmet';
-import { graphql, navigate } from 'gatsby';
+import { graphql, navigate, Link } from 'gatsby';
 import styled, { css } from 'styled-components';
 import _ from 'lodash';
 import {
@@ -19,6 +19,7 @@ import {
 } from '../components/Layout';
 import { SyntaxProvider, SyntaxToggle } from '../components/Syntax';
 import * as lzString from 'lz-string';
+import refmt from 'reason';
 const compress = lzString.compressToEncodedURIComponent;
 const decompress = lzString.decompressFromEncodedURIComponent;
 
@@ -39,7 +40,180 @@ let SearchContainer = styled.div`
   flex-shrink: 0;
 `;
 
-const Sidebar = () => {
+let idFor = (path, tag, name) => {
+  // The names of values and types may not be unique within a module
+  // (for example float.radians refers to a function and a type)
+  // We need to be able to distinguish between them.
+  let prefix = tag === 'Type' ? 'type_' : '';
+  return `${path.join('.')}${path.length > 0 ? '.' : ''}${prefix}${name}`;
+};
+
+let linkFor = (path, tag, name) => {
+  return `/api#${idFor(path, tag, name)}`;
+};
+
+function renderSidebarElements(
+  module_elements,
+  modulesByName,
+  search = '',
+  path = [],
+) {
+  return module_elements.map((module_element, index) => {
+    switch (module_element.tag) {
+      case 'Type':
+        let typeLink = linkFor(
+          path,
+          module_element.tag,
+          module_element.value.name,
+        );
+        if (search.length > 0 && !module_element.value.name.includes(search)) {
+          return null;
+        }
+        return (
+          <div key={typeLink}>
+            <Link to={typeLink}>type {module_element.value.name}</Link>
+          </div>
+        );
+      case 'Value':
+        let valueLink = linkFor(
+          path,
+          module_element.tag,
+          module_element.value.name,
+        );
+        if (search.length > 0 && !module_element.value.name.includes(search)) {
+          return null;
+        }
+
+        return (
+          <div key={valueLink}>
+            <Link to={valueLink}>{module_element.value.name}</Link>
+          </div>
+        );
+      case 'ModuleType':
+        let moduleTypeLink = linkFor(
+          path,
+          module_element.tag,
+          module_element.value.name,
+        );
+        if (search.length > 0 && !module_element.value.name.includes(search)) {
+          return null;
+        }
+        return (
+          <div key={moduleTypeLink}>
+            <Link to={moduleTypeLink}>
+              module type {module_element.value.name}
+            </Link>
+          </div>
+        );
+      case 'Module':
+        switch (module_element.value.kind.tag) {
+          case 'ModuleStruct':
+            let moduleLink = linkFor(
+              path,
+              module_element.tag,
+              module_element.value.name,
+            );
+            let content = renderSidebarElements(
+              module_element.value.kind.value,
+              modulesByName,
+              search,
+              [...path, module_element.value.name],
+            );
+
+            if (
+              search.length > 0 &&
+              !(
+                module_element.value.name.includes(search) ||
+                content.filter(
+                  e => Boolean(e) && e.hasOwnProperty('length') && e.length > 0,
+                ).length > 0
+              )
+            ) {
+              return null;
+            }
+            return (
+              <div
+                key={moduleLink}
+                css={css`
+                  margin-top: -5px;
+                  .name {
+                    display: flex;
+                    flex-direction: row;
+                    font-weight: bold;
+                    font-size: 1.2em;
+                    padding-bottom: 12px;
+                    padding-top: 10px;
+
+                    .expansion-indicator {
+                      margin-right: 8px;
+                    }
+                  }
+                  .elements {
+                    border-left: 1px solid grey;
+                    padding-left: 12px;
+                  }
+                `}
+              >
+                <div className="name">
+                  <div className="expansion-indicator">V</div>
+                  <Link to={moduleLink}>
+                    module{' '}
+                    {path.length > 0
+                      ? [...path, module_element.value.name].join('.')
+                      : module_element.value.name}
+                  </Link>
+                </div>
+                <div className="elements">{content}</div>
+              </div>
+            );
+          default:
+            return (
+              <pre
+                key={index}
+                css={css`
+                  border: 6px dashed blue;
+                `}
+              >
+                {JSON.stringify(module_element, null, 2)}
+              </pre>
+            );
+        }
+      case 'IncludedModule':
+        let includedModule = modulesByName[module_element.value.name];
+        if (includedModule == null) {
+          throw new Error(
+            `The included module '${module_element.value.name}' is missing`,
+          );
+        }
+        if (includedModule.value.kind.tag != 'ModuleStruct') {
+          throw new Error(
+            `Unmapped case for ${module_element.kind.value.name} ${includedModule.value.kind}`,
+          );
+        }
+        return renderSidebarElements(
+          includedModule.value.kind.value,
+          modulesByName,
+          search,
+          path,
+        );
+      case 'Text':
+        return null;
+      default:
+        return (
+          <pre
+            key={index}
+            css={css`
+              border: 5px dotted darkgoldenrod;
+            `}
+          >
+            {JSON.stringify(module_element, null, 2)}
+          </pre>
+        );
+    }
+  });
+}
+
+const Sidebar = ({ moduleElements, moduleByModulePath }) => {
   let [search, setSearch] = React.useState('');
   return (
     <div
@@ -62,22 +236,19 @@ const Sidebar = () => {
       <div
         css={css`
           display: flex;
+          flex: 1;
+          height: 100vh;
+          display: flex;
           flex-direction: column;
           overflow: auto;
+          padding-left: 15px;
+          padding-top: 15px;
+          > * {
+            padding: 5px;
+          }
         `}
       >
-        {Array(100)
-          .fill('ModuleName')
-          .map((s, index) => (
-            <div
-              key={index}
-              css={css`
-                padding-top: 50px;
-              `}
-            >
-              {s}
-            </div>
-          ))}
+        {renderSidebarElements(moduleElements, moduleByModulePath, search)}
       </div>
     </div>
   );
@@ -133,8 +304,8 @@ let Identifiers = {
         flex-direction: row;
 
         .keyword {
-          font-family: 'Roboto Mono', monospace;
-          letter-spacing: 1.2px;
+          font-family: ${fonts.monospace};
+          letter-spacing: 1.1px;
           margin-right: 10px;
         }
         .name {
@@ -151,7 +322,8 @@ let Identifiers = {
   ),
 };
 
-let renderElements = (elements = []) => {
+let renderElements = (elements = [], parentPath = []) => {
+  // TODO take the parent path to link to section headings
   return elements.map(({ tag, value }, index) => {
     switch (tag) {
       case 'Raw':
@@ -173,10 +345,12 @@ let renderElements = (elements = []) => {
           <code
             key={index}
             css={css`
-              background-color: lightgoldenrodyellow;
-              border-radius: 3px;
-              padding: 0px 3px;
-              border: 1px solid lightyellow;
+              background: #fbfafa;
+              border: 1px solid #eee;
+              font-family: 'Lucida Console', Monaco, monospace;
+              padding: 2px;
+              border-radius: 1px;
+              overflow: auto;
             `}
           >
             {value}
@@ -221,19 +395,40 @@ let renderElements = (elements = []) => {
           <pre
             key={index}
             css={css`
+              font-family: 'Lucida Console', Monaco, monospace;
               background-color: lightyellow;
               border-radius: 3px;
               padding: 5px 8px;
               border: 1px solid lightgoldenrodyellow;
               width: 100%;
               overflow: auto;
+              position: relative;
+              width: 100%;
+
+              .try {
+                border: none;
+                bottom: 0;
+                font-size: 14px;
+                padding: 4px;
+                position: absolute;
+                right: 0;
+                opacity: 0.8;
+
+                &:hover {
+                  opacity: 1;
+                }
+              }
             `}
           >
             <code>{value}</code>
-            <button onClick={() => { 
-              navigate(`/try?ocaml=${compress(value)}`)
-            }}
-            >Try</button>
+            <button
+              className="try"
+              onClick={() => {
+                navigate(`/try?ocaml=${compress(value)}`);
+              }}
+            >
+              Try
+            </button>
           </pre>
         );
 
@@ -268,7 +463,7 @@ let TypeSignature = ({ signature }) => {
   return (
     <pre
       css={css`
-        border: 1px solid orange;
+        border: 2px solid orange;
       `}
     >
       <code dangerouslySetInnerHTML={{ __html: signature.rendered }} />
@@ -285,16 +480,17 @@ let ValueOrTypeContainer = props => (
       margin-bottom: 25px;
       margin-top: 15px;
       width: 100%;
+      overflow: auto;
     `}
     {...props}
   />
 );
 
-let Value = ({ name, qualified_name, type, info, parameters, ...value }) => {
+let Value = ({ path, name, type, info, parameters, ...value }) => {
   // TODO syntax highlighting
   return (
     <ValueOrTypeContainer>
-      <PageAnchor link={qualified_name}>
+      <PageAnchor link={idFor(path, 'Value', name)}>
         <div
           css={css`
             align-items: center;
@@ -312,16 +508,15 @@ let Value = ({ name, qualified_name, type, info, parameters, ...value }) => {
           <TypeSignature signature={type} />
         </div>
       </PageAnchor>
-      {info &&
+      {info && (
         <div
           css={css`
-            border-left: 5px solid lightblue;
+            border-left: 5px solid lightgreen;
           `}
-      >
-        
-        <TextElement elements={info.description.value} />
+        >
+          <TextElement elements={info.description.value} />
         </div>
-        }
+      )}
       {parameters.value.length > 0 && (
         <pre
           css={css`
@@ -336,7 +531,7 @@ let Value = ({ name, qualified_name, type, info, parameters, ...value }) => {
   );
 };
 
-let renderTopLevelModuleElements = (module_elements, modulesByName) => {
+let renderModuleElements = (module_elements, modulesByName, path = []) => {
   return module_elements.map((module_element, index) => {
     switch (module_element.tag) {
       case 'Text':
@@ -345,7 +540,13 @@ let renderTopLevelModuleElements = (module_elements, modulesByName) => {
         // TODO syntax highlighting
         return (
           <ValueOrTypeContainer>
-            <PageAnchor link={module_element.value.name}>
+            <PageAnchor
+              link={idFor(
+                path,
+                module_element.tag,
+                module_element.value.name,
+              )}
+            >
               <div
                 css={css`
                   align-items: center;
@@ -388,7 +589,7 @@ let renderTopLevelModuleElements = (module_elements, modulesByName) => {
           </ValueOrTypeContainer>
         );
       case 'Value':
-        return <Value key={index} {...module_element.value} />;
+        return <Value key={index} path={path} {...module_element.value} />;
       case 'Module':
         switch (module_element.value.kind.tag) {
           case 'ModuleStruct':
@@ -401,12 +602,19 @@ let renderTopLevelModuleElements = (module_elements, modulesByName) => {
                   padding: 10px;
                 `}
               >
-                <PageAnchor link={module_element.value.name}>
+                <PageAnchor
+                  link={idFor(
+                    path,
+                    module_element.tag,
+                    module_element.value.name,
+                  )}
+                >
                   <Identifiers.module name={module_element.value.name} />
                 </PageAnchor>
-                {renderTopLevelModuleElements(
+                {renderModuleElements(
                   module_element.value.kind.value,
                   modulesByName,
+                  [...path, module_element.value.name],
                 )}
                 <hr />
               </div>
@@ -432,15 +640,12 @@ let renderTopLevelModuleElements = (module_elements, modulesByName) => {
                   padding: 10px;
                 `}
               >
-                <PageAnchor link={module.value.name}>
+                <PageAnchor link={idFor(path, 'ModuleStruct', module.value.name)}>
                   <Identifiers.module
                     name={module_element.value.kind.value.name}
                   />
                 </PageAnchor>
-                {renderTopLevelModuleElements(
-                  module.value.kind.value,
-                  modulesByName,
-                )}
+                {renderModuleElements(module.value.kind.value, modulesByName)}
                 <hr />
               </div>
             );
@@ -468,7 +673,7 @@ let renderTopLevelModuleElements = (module_elements, modulesByName) => {
             `Unmapped case for ${module_element.kind.value.name} ${includedModule.value.kind}`,
           );
         }
-        return renderTopLevelModuleElements(
+        return renderModuleElements(
           includedModule.value.kind.value,
           modulesByName,
         );
@@ -531,18 +736,13 @@ export default ({ data }) => {
   return (
     <ThemeProvider>
       <SyntaxProvider>
-        <Helmet>
-          <link
-            href="https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap"
-            rel="stylesheet"
-          />
-        </Helmet>
         <GlobalStyles />
         <AppContainer>
           <ContentContainer>
             <NavBar />
             <div
               css={css`
+                background-color: blue;
                 bottom: 0;
                 left: 0;
                 right: 0;
@@ -562,33 +762,59 @@ export default ({ data }) => {
                 }
               `}
             >
-              <Sidebar />
+              <Sidebar
+                moduleElements={model.entry_point.value.kind.value}
+                moduleByModulePath={moduleByModulePath}
+              />
             </div>
-            <main
+            <div
               css={css`
-                align-self: center;
                 display: flex;
                 flex: 1;
-                flex-direction: column;
-                max-width: 970px;
+                flex-direction: row;
                 width: 100%;
-                padding: 0px 30px;
-                padding-top: 3rem;
-                padding-bottom: 3rem;
+                height: 100%;
               `}
             >
               <div
                 css={css`
-                  max-width: 750px;
+                  display: none;
+                  position: static;
+                  @media (min-width: ${breakpoints.desktop}px) {
+                    display: flex;
+                  }
                 `}
-              />
-              <PageTitle>API</PageTitle>
-              {renderTopLevelModuleElements(
-                model.entry_point.value.kind.value,
-                moduleByModulePath,
-              )}
-              {/* <pre>{JSON.stringify(_.mapValues(moduleByModulePath, _ => []), null, 2)}</pre> */}
-            </main>
+              >
+                <Sidebar
+                  moduleElements={model.entry_point.value.kind.value}
+                  moduleByModulePath={moduleByModulePath}
+                />
+              </div>
+              <main
+                css={css`
+                  overflow: auto;
+                  display: flex;
+                  flex: 1;
+                  flex-direction: column;
+                  height: 100%;
+                  width: 100%;
+                  padding: 0px 30px;
+                  padding-top: 3rem;
+                  padding-bottom: 3rem;
+
+                  @media (min-width: ${breakpoints.desktop}px) {
+                    max-width: 750px;
+                  }
+                `}
+              >
+                <PageTitle>API</PageTitle>
+                {renderModuleElements(
+                  model.entry_point.value.kind.value,
+                  moduleByModulePath,
+                )}
+                {/* <pre>{JSON.stringify(_.mapValues(moduleByModulePath, _ => []), null, 2)}</pre> */}
+              </main>
+            </div>
           </ContentContainer>
 
           <div
