@@ -10,12 +10,15 @@ module Bool : sig
       exhaustively pattern match on them:
 
       {[
-        switch (false) {
-        | false => "false"
-        }
-        // Warning 8: this pattern-matching is not exhaustive.
-        // Here is an example of a case that is not matched:
-        // true
+        let bool = false
+        let string = 
+          match bool with
+          | false -> "false"        
+        (* 
+          Warning 8: this pattern-matching is not exhaustive.
+          Here is an example of a case that is not matched:
+          true
+        *)
       ]}
   *)
 
@@ -33,7 +36,7 @@ module Bool : sig
 
       {[Bool.ofInt 8 = None]}
 
-      {[Bool.ofInt -3 = None]}
+      {[Bool.ofInt (-3) = None]}
   *)
   val ofInt : int -> t option
 
@@ -124,11 +127,6 @@ module Bool : sig
       This can be useful in combination with {!List.filter} / {!Array.filter} or {!List.find} / {!Array.find}
 
       {3 Examples}
-
-      {[
-        let isOdd = Bool.negate Int.isEven in
-        isOdd 7 = true
-      ]}
 
       {[
         let isLessThanTwelve = Bool.negate (fun n -> n >= 12) in
@@ -275,17 +273,17 @@ module Char : sig
 
       {3 Examples}
 
-      {[isLowercase 'a' = true]}
+      {[Char.isLowercase 'a' = true]}
 
-      {[isLowercase 'b' = true]}
+      {[Char.isLowercase 'b' = true]}
 
-      {[isLowercase 'z' = true]}
+      {[Char.isLowercase 'z' = true]}
 
-      {[isLowercase '0' = false]}
+      {[Char.isLowercase '0' = false]}
 
-      {[isLowercase 'A' = false]}
+      {[Char.isLowercase 'A' = false]}
 
-      {[isLowercase '-' = false]}
+      {[Char.isLowercase '-' = false]}
   *)
   val isLowercase : char -> bool
 
@@ -293,17 +291,17 @@ module Char : sig
 
       {3 Examples}
 
-      {[isUppercase 'A' = true]}
+      {[Char.isUppercase 'A' = true]}
 
-      {[isUppercase 'B' = true]}
+      {[Char.isUppercase 'B' = true]}
 
-      {[isUppercase 'Z' = true]}
+      {[Char.isUppercase 'Z' = true]}
 
       {[Char.isUppercase 'h' = false]}
 
-      {[isUppercase '0' = false]}
+      {[Char.isUppercase '0' = false]}
 
-      {[isUppercase '-' = false]} 
+      {[Char.isUppercase '-' = false]} 
   *)
   val isUppercase : char -> bool
 
@@ -311,17 +309,17 @@ module Char : sig
 
       {3 Examples}
 
-      {[isLetter 'a' = true]}
+      {[Char.isLetter 'a' = true]}
 
-      {[isLetter 'b' = true]}
+      {[Char.isLetter 'b' = true]}
 
-      {[isLetter 'E' = true]}
+      {[Char.isLetter 'E' = true]}
 
-      {[isLetter 'Y' = true]}
+      {[Char.isLetter 'Y' = true]}
 
-      {[isLetter '0' = false]}
+      {[Char.isLetter '0' = false]}
 
-      {[isLetter '-' = false]} 
+      {[Char.isLetter '-' = false]} 
   *)
   val isLetter : char -> bool
 
@@ -329,15 +327,15 @@ module Char : sig
 
       {3 Examples}
 
-      {[isDigit '0' = true]}
+      {[Char.isDigit '0' = true]}
 
-      {[isDigit '1' = true]}
+      {[Char.isDigit '1' = true]}
 
-      {[isDigit '9' = true]}
+      {[Char.isDigit '9' = true]}
 
-      {[isDigit 'a' = false]}
+      {[Char.isDigit 'a' = false]}
 
-      {[isDigit 'b' = false]}
+      {[Char.isDigit 'b' = false]}
   *)
   val isDigit : char -> bool
 
@@ -346,19 +344,19 @@ module Char : sig
 
       {3 Examples}
 
-      {[isAlphanumeric 'a' = true]}
+      {[Char.isAlphanumeric 'a' = true]}
 
-      {[isAlphanumeric 'b' = true]}
+      {[Char.isAlphanumeric 'b' = true]}
 
-      {[isAlphanumeric 'E' = true]}
+      {[Char.isAlphanumeric 'E' = true]}
 
-      {[isAlphanumeric 'Y' = true]}
+      {[Char.isAlphanumeric 'Y' = true]}
 
-      {[isAlphanumeric '0' = true]}
+      {[Char.isAlphanumeric '0' = true]}
 
-      {[isAlphanumeric '7' = true]}
+      {[Char.isAlphanumeric '7' = true]}
 
-      {[isAlphanumeric '-' = false]}
+      {[Char.isAlphanumeric '-' = false]}
   *)
   val isAlphanumeric : char -> bool
 
@@ -1185,11 +1183,11 @@ module Float : sig
 
       {3 Examples}
 
-      {[Float.(toInt 1.6) = Some(1)]}
+      {[Float.(toInt 1.6) = (Some 1)]}
 
-      {[Float.(toInt 2.0) = Some(2)]}
+      {[Float.(toInt 2.0) = (Some 2)]}
 
-      {[Float.(toInt 5.683) = Some(5)]}
+      {[Float.(toInt 5.683) = (Some 5)]}
 
       {[Float.(toInt nan) = None]}
 
@@ -1264,16 +1262,21 @@ module Int : sig
 
       {3 Examples}
 
-      {[
-        Int.ofString "0" = Some 0.
-        Int.of_string "42" = Some 42.
-        Int.of_string "-3" = Some (-3)
-        Int.of_string "123_456" = Some 123_456
-        Int.of_string "0xFF" = Some 255
-        Int.of_string "0x00A" = Some 10
-        Int.of_string "Infinity" = None
-        Int.of_string "NaN" = None
-      ]}
+      {[Int.ofString "0" = Some 0.]}
+
+      {[Int.ofString "42" = Some 42.]}
+
+      {[Int.ofString "-3" = Some (-3)]}
+
+      {[Int.ofString "123_456" = Some 123_456]}
+
+      {[Int.ofString "0xFF" = Some 255]}
+
+      {[Int.ofString "0x00A" = Some 10]}
+
+      {[Int.ofString "Infinity" = None]}
+
+      {[Int.ofString "NaN" = None]}
   *)
   val ofString : string -> t option
   
@@ -1364,11 +1367,11 @@ module Int : sig
 
       {3 Examples}
 
-      {[
-        3 % 2 = 1.5
-        27 % 5 = 5.25
-        8 % 4 = 2.0
-      ]}
+      {[Int.(3 % 2) = 1.5]}
+
+      {[Int.(27 % 5) = 5.25]}
+
+      {[Int.(8 % 4) = 2.0]}
   *)
   val (%) : t -> t -> float
   
@@ -1391,11 +1394,9 @@ module Int : sig
 
       {3 Examples}
 
-      {[
-        Int.negate 8 = (-8)
-        Int.negate (-7) = 7
-        Int.negate 0 = 0
-      ]}
+      {[Int.negate 8 = (-8)]}
+      {[Int.negate (-7) = 7]}
+      {[Int.negate 0 = 0]}
 
       Alternatively the [~-] operator can be used:
 
@@ -1410,11 +1411,9 @@ module Int : sig
 
       {3 Examples}
 
-      {[
-        Int.absolute 8 = 8
-        Int.absolute (-7) = 7
-        Int.absolute 0 = 0
-      ]}
+      {[Int.absolute 8 = 8]}
+      {[Int.absolute (-7) = 7]}
+      {[Int.absolute 0 = 0]}
   *)
   val absolute : t -> t
   
@@ -1428,17 +1427,15 @@ module Int : sig
 
       {3 Examples}
 
-      {[
-        Int.modulo ~by:3 -4 = 1
-        Int.modulo ~by:3 -3 = 0
-        Int.modulo ~by:3 -2 = 2
-        Int.modulo ~by:3 -1 = 1
-        Int.modulo ~by:3 0 = 0
-        Int.modulo ~by:3 1 = 1
-        Int.modulo ~by:3 2 = 2
-        Int.modulo ~by:3 3 = 0
-        Int.modulo ~by:3 4 = 1
-      ]}
+      {[Int.modulo ~by:3 (-4) = 1]}
+      {[Int.modulo ~by:3 (-3 )= 0]}
+      {[Int.modulo ~by:3 (-2) = 2]}
+      {[Int.modulo ~by:3 (-1) = 1]}
+      {[Int.modulo ~by:3 0 = 0]}
+      {[Int.modulo ~by:3 1 = 1]}
+      {[Int.modulo ~by:3 2 = 2]}
+      {[Int.modulo ~by:3 3 = 0]}
+      {[Int.modulo ~by:3 4 = 1]}
   *)
   val modulo : t -> by:t -> t
   
@@ -1464,10 +1461,9 @@ module Int : sig
 
       {3 Examples}
 
-      {[
-        Int.maximum 7 9 = 9
-        Int.maximum (-4) (-1) = (-1)
-      ]}
+      {[Int.maximum 7 9 = 9]}
+
+      {[Int.maximum (-4) (-1) = (-1)]}
   *)
   val maximum : t -> t -> t
   
@@ -1475,10 +1471,9 @@ module Int : sig
 
       {3 Examples}
 
-      {[
-        Int.minimum 7 9 = 7
-        Int.minimum (-4) (-1) = (-4)
-      ]}
+      {[Int.minimum 7 9 = 7]}
+
+      {[Int.minimum (-4) (-1) = (-4)]}      
   *)
   val minimum : t -> t -> t
 
@@ -1488,11 +1483,11 @@ module Int : sig
 
       {3 Examples}
 
-      {[
-        Int.isEven 8 = true
-        Int.isEven 7 = false
-        Int.isEven 0 = true
-      ]}
+      {[Int.isEven 8 = true]}
+
+      {[Int.isEven 7 = false]}
+
+      {[Int.isEven 0 = true]}
   *)
   val isEven : t -> bool
   
@@ -1500,11 +1495,11 @@ module Int : sig
 
     {3 Examples}
 
-    {[
-      Int.isOdd 7 = true
-      Int.isOdd 8 = false
-      Int.isOdd 0 = false
-    ]}
+    {[Int.isOdd 7 = true]}
+
+    {[Int.isOdd 8 = false]}
+
+    {[Int.isOdd 0 = false]}
   *)
   val isOdd : t -> bool
   
@@ -1516,11 +1511,11 @@ module Int : sig
 
     {3 Examples}
 
-    {[
-      Int.clamp ~lower:0 ~upper:8 5 = 5
-      Int.clamp ~lower:0 ~upper:8 9 = 8
-      Int.clamp ~lower:(-10) ~upper:(-5) 5 = (-5)
-    ]}
+    {[Int.clamp ~lower:0 ~upper:8 5 = 5]}
+
+    {[Int.clamp ~lower:0 ~upper:8 9 = 8]}
+
+    {[Int.clamp ~lower:(-10) ~upper:(-5) 5 = (-5)]}
   *)
   val clamp : t -> lower:t -> upper:t -> t
   
@@ -1532,11 +1527,11 @@ module Int : sig
 
       {3 Examples}
 
-      {[
-        Int.inRange ~lower:2 ~upper:4 3 = true
-        Int.inRange ~lower:5 ~upper:8 4 = false
-        Int.inRange ~lower:(-6) ~upper:(-2) (-3) = true
-      ]}
+      {[Int.inRange ~lower:2 ~upper:4 3 = true]}
+
+      {[Int.inRange ~lower:5 ~upper:8 4 = false]}
+
+      {[Int.inRange ~lower:(-6) ~upper:(-2) (-3) = true]}
 
   *)
   val inRange : t -> lower:t -> upper:t -> bool
@@ -1550,7 +1545,7 @@ module Int : sig
       {[
         let halfOf (number : int) : float =
           Float.((Int.toFloat number) / 2)
-          // Note that locally opening the {!Float} module here allows us to use the floating point division operator
+          (* Note that locally opening the {!Float} module here allows us to use the floating point division operator *) 
         in
         halfOf 7 = 3.5
       ]}
@@ -1565,11 +1560,9 @@ module Int : sig
 
       {3 Examples}
 
-      {[
-        Int.to_string 3 = "3"
-        Int.to_string (-3) = "-3"
-        Int.to_sString 0 = "0"
-      ]}
+        {[Int.to_string 3 = "3"]}
+        {[Int.to_string (-3) = "-3"]}
+        {[Int.to_sString 0 = "0"]}
   *)
   val toString : t -> string
   
@@ -1614,16 +1607,14 @@ module Integer : sig
 
       {3 Examples}
 
-      {[
-        Integer.ofString "0" = Some (ofInt 0)
-        Integer.ofString "42" = Some (ofInt 42)
-        Integer.ofString "-3" = Some (ofInt -3)
-        Integer.ofString "123_456" = Some (ofInt 123_456)
-        Integer.ofString "0xFF" = Some (ofInt 255)
-        Integer.ofString "0x00A" = Some (ofInt 10)
-        Integer.ofString "Infinity" = None
-        Integer.ofString "NaN" = None
-    ]}
+      {[Integer.(ofString "0" = Some (ofInt 0))]}
+      {[Integer.(ofString "42" = Some (ofInt 42))]}
+      {[Integer.(ofString "-3" = Some (ofInt -3))]}
+      {[Integer.(ofString "123_456" = Some (ofInt 123_456))]}
+      {[Integer.(ofString "0xFF" = Some (ofInt 255))]}
+      {[Integer.(ofString "0x00A" = Some (ofInt 10))]}
+      {[Integer.(ofString "Infinity" = None)]}
+      {[Integer.(ofString "NaN" = None)]}
   *)
   val ofString : string -> t option
   
@@ -1641,16 +1632,11 @@ module Integer : sig
 
       {3 Examples}
 
-      {[
-        open Integer;
-        add(ofInt(3002), ofInt(4004)) == ofInt(7006)]}
+      {[Integer.(add (ofInt 3002) (ofInt 4004) = ofInt 7006)]}
 
       Or using the operator:
 
-      {[
-        open Integer;
-        ofInt(3002) + ofInt(4004) = ofInt(7006)
-      ]}
+      {[Integer.((ofInt 3002) + (ofInt 4004) = (ofInt 7006))]}
   *)
   val add : t -> t -> t
   
@@ -1665,10 +1651,7 @@ module Integer : sig
 
       Alternatively the operator can be used:
 
-      {[
-        open Integer;
-        ofInt(4) - ofInt(3) = one
-      ]}
+      {[Integer.((ofInt 4) - (ofInt 3) = one)]}
   *)
   val subtract : t -> t -> t
   
@@ -1679,17 +1662,11 @@ module Integer : sig
 
       {3 Examples}
 
-      {[
-        open Integer
-        multiply ofInt(2) ofInt(7) = ofInt(14)
-      ]}
+      {[Integer.(multiply (ofInt 2) (ofInt 7) = (ofInt 14))]}
 
       Alternatively the operator can be used:
 
-      {[
-        open Integer
-        (ofInt 2) * (ofInt 7) = ofInt 14
-      ]}
+      {[Integer.((ofInt 2) * (ofInt 7) = ofInt 14)]}
   *)
   val multiply : t -> t -> t
   
@@ -1707,13 +1684,11 @@ module Integer : sig
       {3 Examples}
 
       {[
-        open Integer
-        divide ofInt(3) ~by:ofInt(2) = ofInt(1)
+        Integer.(divide (ofInt 3) ~by:(ofInt 2) = (ofInt 1))
       ]}
 
       {[
-        open Integer
-        ofInt(27) / ofInt(5) = ofInt(5)
+        Integer.((ofInt 27) / (ofInt 5) = (ofInt 5))
       ]}
   *)
   val divide : t -> by:t -> t
@@ -1728,13 +1703,15 @@ module Integer : sig
       {3 Examples}
 
       {[
-        open Integer
-        power ~base:(ofInt 7) ~exponent:3 ~modulo:(ofInt 300) = ofInt 43
+        Integer.(
+          power ~base:(ofInt 7) ~exponent:3 ~modulo:(ofInt 300) = ofInt 43
+        )
       ]}
 
       {[
-        open Integer
-        (ofInt 7) ** 4 = ofInt 2401
+        Integer.(
+          (ofInt 7) ** 4 = ofInt 2401
+        )
       ]}
   *)
   val power : ?modulo:t -> base:t -> exponent:int -> t
@@ -1747,11 +1724,11 @@ module Integer : sig
       {3 Examples}
 
       {[
-        open Integer
-
-        negate (ofInt 8) = ofInt -8
-        negate (ofInt -7) = ofInt 7
-        negate zero = zero
+        Integer.(
+          assert (negate (ofInt 8) = ofInt -8);
+          assert (negate (ofInt -7) = ofInt 7);
+          assert (negate zero = zero)
+        )
       ]}
   *)
   val negate : t -> t
@@ -1761,11 +1738,11 @@ module Integer : sig
       {3 Examples}
 
       {[
-        open Integer
-
-        absolute 8 = 8
-        absolute (-7) = 7
-        absolute 0 = 0
+        Integer.(
+          assert (absolute 8 = 8);
+          assert (absolute (-7) = 7);
+          assert (absolute 0 = 0);
+        )
       ]}
   *)
   val absolute : t -> t
@@ -1781,18 +1758,19 @@ module Integer : sig
       {3 Examples}
 
       {[
-        open Integer
+        Integer.(
 
-        let three = ofInt 3 in
-        let two = ofInt 2 in
+          let three = ofInt 3 in
+          let two = ofInt 2 in
 
-        modulo three ~by:three = zero
-        modulo two ~by:three = two
-        modulo one ~by:three = one
-        modulo zero ~by:three = zero
-        modulo (negate one) ~by:three = one
-        modulo (negate two) ~by:three = two
-        modulo (negate three) ~by:three = zero
+          assert (modulo three ~by:three = zero);
+          assert (modulo two ~by:three = two);
+          assert (modulo one ~by:three = one);
+          assert (modulo zero ~by:three = zero);
+          assert (modulo (negate one) ~by:three = one);
+          assert (modulo (negate two) ~by:three = two);
+          assert (modulo (negate three) ~by:three = zero)
+        )
       ]}
   *)
   val modulo : t -> by:t -> t
@@ -1804,17 +1782,18 @@ module Integer : sig
       {3 Examples}
 
       {[
-        open Integer
-        let three = ofInt 3 in
-        let two = ofInt 2 in
+        Integer.(
+          let three = ofInt 3 in
+          let two = ofInt 2 in
 
-        remainder three ~by:three = zero
-        remainder two ~by:three = two
-        remainder one ~by:three = one
-        remainder zero ~by:three = zero
-        remainder (negate one) ~by:three = (negate one)
-        remainder (negate two) ~by:three = (negate two)
-        remainder (negate three) ~by:three = zero
+          assert (remainder three ~by:three = zero);
+          assert (remainder two ~by:three = two);
+          assert (remainder one ~by:three = one);
+          assert (remainder zero ~by:three = zero);
+          assert (remainder (negate one) ~by:three = (negate one));
+          assert (remainder (negate two) ~by:three = (negate two));
+          assert (remainder (negate three) ~by:three = zero)
+        )
       ]}
   *)
   val remainder : t -> by:t -> t
@@ -1823,12 +1802,9 @@ module Integer : sig
 
       {3 Examples}
 
-      {[
-        open Integer
+      {[Integer.(maximum (ofInt 7) (ofInt 9) = (ofInt 9))]}
 
-        maximum (ofInt 7) (ofInt 9) = (ofInt 9)
-        maximum (ofInt -4) (ofInt -1) = (ofInt -1)
-      ]}
+      {[Integer.(maximum (ofInt -4) (ofInt -1) = (ofInt -1))]}
   *)
   val maximum : t -> t -> t
   
@@ -1836,10 +1812,8 @@ module Integer : sig
 
       {3 Examples}
 
-      {[
-        minimum (ofInt 7) (ofInt 9) = (ofInt 7)
-        minimum (ofInt -4) (ofInt -1) = (ofInt -4)
-      ]}
+      {[Integer.(minimum (ofInt 7) (ofInt 9) = (ofInt 7))]}
+      {[Integer.(minimum (ofInt -4) (ofInt -1) = (ofInt -4))]}
   *)
   val minimum : t -> t -> t
 
@@ -1849,24 +1823,19 @@ module Integer : sig
 
       {3 Examples}
 
-      {[
-        Integer.isEven (ofInt 8) = true
-        Integer.isEven (ofInt 7) = false
-        Integer.isEven (ofInt 0) = true
-      ]}
+      {[Integer.(isEven (ofInt 8)) = true]}
+      {[Integer.(isEven (ofInt 7)) = false]}
+      {[Integer.(isEven (ofInt 0)) = true]}
   *)
   val isEven : t -> bool
   
   (** Check if an [int] is odd
 
-    {3 Examples}
+      {3 Examples}
 
-    {[
-      open Integer
-      idOdd (ofInt 7) = true
-      idOdd (ofInt 8) = false
-      idOdd (ofInt 0) = false
-    ]}
+      {[Integer.(isOdd (ofInt 7) = true)]}
+      {[Integer.(isOdd (ofInt 8) = false)]}
+      {[Integer.(isOdd (ofInt 0) = false)]}
   *)
   val isOdd : t -> bool
   
@@ -1878,13 +1847,9 @@ module Integer : sig
 
       {3 Examples}
 
-      {[
-        open Integer
-
-        clamp ~lower:zero ~upper:(ofInt 8) (ofInt 5) = (ofInt 5)
-        clamp ~lower:zero ~upper:(ofInt 8) (ofInt 9) = (ofInt 8)
-        clamp ~lower:(ofInt -10) ~upper:(ofInt -5) (ofInt 5) = (ofInt -5)
-      ]}
+      {[Integer.(clamp ~lower:zero ~upper:(ofInt 8) (ofInt 5) = (ofInt 5))]}
+      {[Integer.(clamp ~lower:zero ~upper:(ofInt 8) (ofInt 9) = (ofInt 8))]}
+      {[Integer.(clamp ~lower:(ofInt -10) ~upper:(ofInt -5) (ofInt 5) = (ofInt -5))]}
   *)
   val clamp : t -> lower:t -> upper:t -> t
   
@@ -1896,13 +1861,9 @@ module Integer : sig
 
       {3 Examples}
 
-      {[
-        open Integer
-
-        inRange ~lower:(ofInt 2) ~upper:(ofInt 4) (ofInt 3) = true
-        inRange ~lower:(ofInt 5) ~upper:(ofInt 8) (ofInt 4) = false
-        inRange ~lower:(ofInt -6) ~upper:(ofInt -2) (ofInt -3) = true
-      ]}
+      {[Integer.(inRange ~lower:(ofInt 2) ~upper:(ofInt 4) (ofInt 3) = true)]}
+      {[Integer.(inRange ~lower:(ofInt 5) ~upper:(ofInt 8) (ofInt 4) = false)]}
+      {[Integer.(inRange ~lower:(ofInt -6) ~upper:(ofInt -2) (ofInt -3) = true)]}
   *)
   val inRange : t -> lower:t -> upper:t -> bool
   
@@ -1911,13 +1872,18 @@ module Integer : sig
 
   (** Convert an {!Integer} to an {!Int}
 
-      Returns [None] when greater than [Int.maximumValue]
+      Returns [None] when greater than [Int.maximumValue] or less than [Int.minimumValue]
 
       {3 Examples}
 
-      {[Integer.ofString "4" |> Integer.toString = Some 4]}
+      {[Integer.(ofInt 4 |> toInt) = Some 4]}
 
-      {[String.repeat "9" ~times:10_000 |> Integer.ofString |> Integer.toString = None]}
+      {[
+        String.repeat "9" ~times:10_000 
+        |> Integer.ofString 
+        |> Option.bind ~f:Integer.toString
+           = None
+      ]}
   *)
   val toInt : t -> int option
   
@@ -1927,13 +1893,18 @@ module Integer : sig
 
       {3 Examples}
 
-      {[Integer.ofString "1" |> Integer.toInt64 = Some Int64.one]}
+      {[Integer.ofInt 1 |> Integer.toInt64 = Some Int64.one]}
 
-      {[String.repeat "9" ~times:10_000 |> Integer.ofString |> Integer.toInt64 = None]}
+      {[
+        String.repeat "9" ~times:10_000 
+        |> Integer.ofString 
+        |> Option.bind ~f:Integer.toString
+           = None
+      ]}
   *)
   val toInt64 : t -> Int64.t option
   
-  (** Convert an {!Integer} to an [Int64.t]
+  (** Convert an {!Integer} to a {!Float}
 
       Returns {!Float.infinity} when greater than {!Float.largestValue}.
 
@@ -1942,10 +1913,10 @@ module Integer : sig
       {[Integer.ofString "8" |> Integer.toFloat = 8.0]}
 
       {[
-        String.initialize 1000 ~f:(Fun.constant '9')
+        String.repeat "9" ~times:10_000 
         |> Integer.ofString
-        |> Integer.toFloat
-          = Float.infinity
+        |> Option.map ~f:Integer.toFloat
+          = Some Float.infinity
       ]}
   *)
   val toFloat : t -> float
@@ -1964,10 +1935,7 @@ end
 
 (** Functions for working with ["strings"] *)
 module String : sig
-  (** Functions for working with ["strings"] 
-
-      TODO
-  *)
+  (** Functions for working with ["strings"] *)
 
   type t = string
 
@@ -2040,10 +2008,10 @@ module String : sig
   *)
   val length : string -> int
   
-  (** TODO *)
+  (** Get the character at the specified index *)
   val get : string -> int -> char
   
-  (** TODO *)
+  (** Get the character at [~index] *)
   val getAt : string -> index:int -> char option
   
   (** Returns, as an {!Option}, a tuple containing the first {!Char} and the remaining String.
@@ -2152,9 +2120,9 @@ module String : sig
   *)
   val uncapitalize : string -> string
   
-  (** Converts the first letter of [s] to upper case if it is lower case.
+  (** Converts the first letter of [s] to lowercase if it is upper case.
 
-      This function works only with ASCII characters, not Unicode.
+      {b Note} This function works only with ASCII characters, not Unicode.
 
       {3 Examples}
 
@@ -2164,7 +2132,7 @@ module String : sig
   
   (** Test if the first letter of a string is upper case.
 
-      This function works only with ASCII characters, not Unicode.
+      {b Note} This function works only with ASCII characters, not Unicode.
 
       {3 Examples}
 
@@ -2196,7 +2164,10 @@ module String : sig
   *)
   val reverse : string -> string
   
-  (** TODO  *)
+  (** Extract a substring from the specified indicies. 
+
+      See {!Array.slice}.
+  *)
   val slice : ?to_:int -> string -> from:int -> string
   
   (** Removes leading and trailing {{!Char.isWhitespace} whitespace} from a string
@@ -2217,7 +2188,9 @@ module String : sig
   (** Like {!trim} but only drops characters from the end of the string. *)
   val trimRight : string -> string
   
-  (** Insert a string at [index]
+  (** Insert a string at [index]. 
+  
+      The character previously at index will now follow the inserted string.
 
       {3 Examples}
 
@@ -2247,10 +2220,9 @@ module String : sig
 
       {3 Examples}
 
-      {[
-        String.toArray "" = [||]
-        String.toArray "abc" = [|'a'; 'b'; 'c'|]
-      ]}
+      {[String.toArray "" = [||]]}
+
+      {[String.toArray "abc" = [|'a'; 'b'; 'c'|]]}
   *)
   val toArray : string -> char array
   
@@ -2258,10 +2230,9 @@ module String : sig
 
       {3 Examples}
 
-      {[
-        String.toList "" = []
-        String.toList "abc" = ['a'; 'b'; 'c']
-      ]}
+      {[String.toList "" = []]}
+
+      {[String.toList "abc" = ['a'; 'b'; 'c']]}
   *)
   val toList : string -> char list
   
@@ -2278,9 +2249,8 @@ end
 
 (** Interfaces for use with container types like {!Array} or {!List} *)
 module Container : sig
-  (** This module contains module signatures which are used in functions which accept first class modules.
-
-      TODO this could do with some links explaining those concepts, or linking to a good explanation
+  (** This module contains module signatures which are used in functions which 
+      accept first class modules. 
   *)
 
   module type Sum  = sig
@@ -2298,11 +2268,11 @@ end
 module Option : sig
     (** {!Option} represents a value which may not be present.
 
-      It is a variant containing the [Some('a)] and [None] constructors
+      It is a variant containing the [(Some 'a)] and [None] constructors
 
       {[
-        type t('a) =
-          | Some('a)
+        type 'a t =
+          | Some of 'a
           | None
       ]}
 
@@ -2321,7 +2291,7 @@ module Option : sig
       - Pattern matching
       - Using {!map} or {!bind} (or their operators in {!Infix})
       - Unwrapping it using {!get}, or its operator {!Infix.(|?)}
-      - Converting a [None] into an exception using{!getOrFailWith}
+      - Converting a [None] into an exception using{!getUnsafe}
 
       If the function you are writing can fail in a variety of ways, use a {!Result} instead to
       better communicate with the caller.
@@ -2434,13 +2404,13 @@ module Option : sig
 
       {3 Examples}
 
-      {[Option.map2 (Some 3) (Some 4) ~f=Int.add = Some 7]}
+      {[Option.map2 (Some 3) (Some 4) ~f:Int.add = Some 7]}
 
-      {[Option.map2 (Some 3) (Some 4) ~f=Tuple.make = Some (3, 4)]}
+      {[Option.map2 (Some 3) (Some 4) ~f:Tuple.make = Some (3, 4)]}
 
-      {[Option.map2 (Some 3) None ~f=Int.add = None]}
+      {[Option.map2 (Some 3) None ~f:Int.add = None]}
 
-      {[Option.map2 None (Some 4) ~f=Int.add = None]}
+      {[Option.map2 None (Some 4) ~f:Int.add = None]}
   *)
   val map2 : 'a t -> 'b t -> f:('a -> 'b -> 'c) -> 'c t
   
@@ -2448,11 +2418,10 @@ module Option : sig
 
       It is helpful to see its definition:
       {[
-        let bind = (t, ~f) =>
-          switch (t) {
-          | Some(x) => f(x)
-          | None => None
-          };
+        let bind t ~f =
+          match t with
+          | Some x -> f x
+          | None -> None
       ]}
 
       This means we only continue with the callback if we have a value.
@@ -2460,30 +2429,31 @@ module Option : sig
       For example, say you need to parse some user input as a month:
 
       {[
-        let toValidMonth = (month: int): option(int) =>
-          if (1 <= month && month <= 12) {
-            Some(month)
-          } else {
+        let toValidMonth (month: int) : (int option) =
+          if (1 <= month && month <= 12) then
+            Some month
+          else
             None
-          }
+        in
 
-        let parseMonth = (userInput: string): option(int) =>
-          Int.ofString(userInput)
-          |> Option.bind(~f=toValidMonth)
+        let userInput = "5" in
+
+        Int.ofString userInput
+        |> Option.bind ~f:toValidMonth
       ]}
 
-      In the [parseMonth] function, if [String.toInt] produces [None] (because
-      the [userInput] was not an integer) this entire chain of operations will
-      short-circuit and result in [None]. If [toValidMonth] results in [None],
-      again the chain of computations will result in [None].
+      If [String.toInt] produces [None] (because the [userInput] was not an 
+      integer) this entire chain of operations will short-circuit and result in 
+      [None]. If [toValidMonth] results in [None], again the chain of 
+      computations will result in [None].
 
       See {!Infix.(>>=)} for an operator version of this function.
 
       {3 Examples}
 
-      {[Option.bind (Some [1, 2, 3]) ~f=List.head = Some 1]}
+      {[Option.bind (Some [1, 2, 3]) ~f:List.head = Some 1]}
 
-      {[Option.bind (Some []) ~f=List.head = None]}
+      {[Option.bind (Some []) ~f:List.head = None]}
   *)
   val bind : 'a t -> f:('a -> 'b t) -> 'b t
   
@@ -2505,34 +2475,6 @@ module Option : sig
       {[Option.get ~default:"unknown" (Map.get Map.String.empty "Tom") = "unknown"]}
   *)
   val get : 'a t -> default:'a -> 'a
-  
-  (** Unwrap an [option('a)] returning the enclosed ['a].
-
-      {b Note} in most situations it is encouraged to use pattern matching, {!get}, {!map} or {!bind}.
-      Can you structure your code slightly differently to avoid potentially raising an exception?
-
-      {3 Exceptions}
-
-      Raises the provided [exn] if called with [None].
-
-      {3 Examples}
-
-      {[
-        Option.getOrFailWith (Ok "Wolf") ~exn:(Invalid_argument "Thats no wolf") = "Wolf"
-      ]}
-
-      {[
-        Option.getOrFailWith (Error "Dog") ~exn:(Invalid_argument "Thats no wolf")
-        (* Raises (Invalid_argument "Thats no wolf") *)
-      ]}
-
-      {[
-        exception FelineEncounterd
-        Option.getOrFailWith (Error "Kitten") ~exn:FelineEncountered
-        (* Raises FelineEncountered *)
-      ]}
-  *)
-  val getOrFailWith : 'a t -> exn:exn -> 'a
   
   (** Unwrap an [option('a)] returning the enclosed ['a].
 
@@ -2642,26 +2584,24 @@ module Option : sig
         This module is intended to be [open]ed at the top of a block of code (or module) that uses
         its operators extensively.
 
-        {[
-          open Option.Infix;
-          let nameToAge = Map.String.ofArray([|
-            ("Ant", 1),
-            ("Bat", 5),
-            ("Cat", 19),
-          |]);
+        {[           
+          let nameToAge = Map.String.ofArray [|
+            ("Ant", 1);
+            ("Bat", 5);
+            ("Cat", 19);
+          |] in
 
-          let catAge = Map.get nameToAge "Cat" |? 8;
-          // 19
+          let catAge = Map.get nameToAge "Cat" |? 8 in
+          (* 19 *)
 
-          let ageDifference =
-            Map.get nameToAge "Ant"
-            >>= (antAge => {
-              Map.get nameToAge "Bat"
-              >>| (batAge => {
+          Option.Infix.(
+            Map.get nameToAge "Ant" >>= (fun antAge -> 
+              Map.get nameToAge "Bat" >>| (fun batAge -> 
                 Int.absolute(batAge - antAge)
-              })
-            });
-          // Some (4)
+              )
+            )
+          )
+          (* Some (4) *)
         ]}
     *)
 
@@ -2701,22 +2641,21 @@ end
 module Result : sig
     (** A {!Result} is used to represent a computation which may fail.
 
-        A [Result] is a variant, which has a constructor for successful results ([Ok('ok)]),
-        and one for unsuccessful results ([Error('error)]).
+        A [Result] is a variant, which has a constructor for successful results 
+        [(Ok 'ok)], and one for unsuccessful results ([(Error 'error)]).
 
         {[
-            type t('ok, 'error) =
-              | Ok('ok)
-              | Error('error);
-          ]}
+          type ('ok, 'error) t =
+            | Ok of 'ok
+            | Error of 'error
+        ]}
 
         Here is how you would annotate a [Result] variable whose [Ok]
         variant is an integer and whose [Error] variant is a string:
 
-        {[
-          let x: (int, string) Result.t = Ok 3;
-          let y: (int, string) Result.t = Error "bad"
-        ]}
+        {[let ok: (int, string) Result.t = Ok 3]}
+
+        {[let error: (int, string) Result.t = Error "This computation failed!"]}
 
         {b Note} The ['error] case can be of {b any} type and while [string] is very common you could also use:
         - [string List.t] to allow errors to be accumulated
@@ -2749,13 +2688,7 @@ module Result : sig
 
       When targetting the Bucklescript compiler you {b can} use constructors with the fast pipe.
 
-      {[5->Ok = Ok(5)]}
-
-      And you can use the placeholder syntax for use with functions like {!List.map}
-
-      {[
-        List.map([1,2,3], ~f:Ok(_)) == [Ok(1),Ok(2),Ok(3)]
-      ]}
+      {[5 |. Ok = (Ok 5)]}
 
       See the {{: https://reasonml.github.io/docs/en/pipe-first#pipe-into-variants} Reason docs } for more.
 
@@ -2771,23 +2704,27 @@ module Result : sig
 
       {3 Examples}
 
-      {[Result.attempt(() => 5 / 0) = Error(Division_by_zero)]}
+      {[Result.attempt (fun () -> 5 / 0) = Error Division_by_zero]}
 
       {[
-        let numbers = [|1,2,3|];
-        Result.attempt(() => numbers[3]) = Error(Invalid_argument "index out of bounds")
+        let numbers = [|1,2,3|] in
+        Result.attempt (fun () -> numbers.(3)) = 
+          Error (Invalid_argument "index out of bounds")
       ]}
   *)
   val attempt : (unit -> 'ok) -> ('ok, exn) t
   
   
-  (** Convert an {!Option} to a {!Result} where a [Some(value)] becomes [Ok(value)] and a [None] becomes [Error(error)].
+  (** Convert an {!Option} to a {!Result} where a [(Some value)] becomes [(Ok value)] and a [None] becomes [(Error error)].
 
       {3 Examples}
 
-      {[Result.ofOption(Some(84), ~error="Greater than 100") == Ok(8)]}
+      {[Result.ofOption (Some 84) ~error:"Greater than 100" = Ok 8]}
 
-      {[Result.ofOption(None, ~error="Greater than 100") == Error("Greater than 100")]}
+      {[
+        Result.ofOption None ~error:"Greater than 100" = 
+          Error "Greater than 100"
+      ]}
   *)
   val ofOption : 'ok option -> error:'error -> ('ok, 'error) t
   
@@ -2803,9 +2740,9 @@ module Result : sig
 
       {3 Examples}
 
-      {[Result.isOk(Ok(3)) == true]}
+      {[Result.isOk (Ok 3) = true]}
 
-      {[Result.isOk(Error(3)) == false]}
+      {[Result.isOk (Error 3) = false]}
   *)
   val isOk : (_, _) t -> bool
   
@@ -2815,15 +2752,15 @@ module Result : sig
       an [Error] like logging.
 
       {b Note} if you need access to the contained value rather than doing
-      [Result.isOk] followed by {!Result.getUnsafe} its safer and just as
+      {!Result.isOk} followed by {!Result.getUnsafe} its safer and just as
       convenient to use pattern matching directly or use one of {!Result.bind}
       or {!Result.map}
 
       {3 Examples}
 
-      {[Result.isError(Ok(3)) == false]}
+      {[Result.isError (Ok 3) = false]}
 
-      {[Result.isError(Error(3)) == true]}
+      {[Result.isError (Error 3) = true]}
   *)
   val isError : (_, _) t -> bool
   
@@ -2836,11 +2773,26 @@ module Result : sig
 
       {[Result.and_ (Ok "Antelope") (Ok "Salmon") = Ok "Salmon"]}
 
-      {[Result.and_ (Error `UnexpectedBird("Finch")) (Ok "Salmon") = (Error `UnexpectedBird("Finch"))]}
+      {[
+        Result.and_ 
+          (Error (`UnexpectedBird "Finch")) 
+          (Ok "Salmon") 
+          = Error (`UnexpectedBird "Finch")
+      ]}
 
-      {[Result.and_ (Ok "Antelope") (Error `UnexpectedBird("Finch")) = (Error `UnexpectedBird("Finch"))
+      {[
+        Result.and_ 
+          (Ok "Antelope") 
+          (Error (`UnexpectedBird "Finch")) 
+            = Error (`UnexpectedBird "Finch")
+      ]}
 
-      {[Result.and_ (Error `UnexpectedInvertabrate("Honey bee") `UnexpectedBird("Finch") = (Error `UnexpectedBird("Honey Bee"))]}
+      {[
+        Result.and_ 
+          (Error (`UnexpectedInvertabrate "Honey bee")) 
+          (Error (`UnexpectedBird "Finch")) 
+            = Error (`UnexpectedBird "Honey Bee")
+      ]}
   *)
   val and_ : ('ok, 'error) t -> ('ok, 'error) t -> ('ok, 'error) t
   
@@ -2853,11 +2805,11 @@ module Result : sig
 
     {[Result.or_ (Ok "Boar") (Ok "Gecko") = (Ok "Boar")]}
 
-    {[Result.or_ Error(`UnexpectedInvertabrate("Periwinkle")) (Ok "Gecko") = (Ok "Gecko")]}
+    {[Result.or_ (Error (`UnexpectedInvertabrate "Periwinkle")) (Ok "Gecko") = (Ok "Gecko")]}
 
-    {[Result.or_ (Ok "Boar") Error(`UnexpectedInvertabrate("Periwinkle")) = (Ok "Boar") ]}
+    {[Result.or_ (Ok "Boar") (Error (`UnexpectedInvertabrate "Periwinkle")) = (Ok "Boar") ]}
 
-    {[Result.or_ Error(`UnexpectedInvertabrate("Periwinkle")) Error(`UnexpectedBird("Robin")) = Error(`UnexpectedBird("Robin"))]}
+    {[Result.or_ (Error (`UnexpectedInvertabrate "Periwinkle")) (Error (`UnexpectedBird "Robin")) = (Error (`UnexpectedBird "Robin"))]}
   *)
   val or_ : ('ok, 'error) t -> ('ok, 'error) t -> ('ok, 'error) t
   
@@ -2871,11 +2823,24 @@ module Result : sig
 
       {[Result.both (Ok "Badger") (Ok "Rhino") = Ok ("Dog", "Rhino")]}
 
-      {[Result.both Error(`UnexpectedBird("Flamingo")) (Ok "Rhino") = Error(`UnexpectedBird("Flamingo"))]}
+      {[
+        Result.both (Error (`UnexpectedBird "Flamingo")) (Ok "Rhino") = 
+          (Error (`UnexpectedBird "Flamingo"))
+      ]}
 
-      {[Result.both (Ok "Badger") Error(`UnexpectedInvertabrate("Blue ringed octopus")) = Error(`UnexpectedInvertabrate("Blue ringed octopus"))]}
+      {[
+        Result.both 
+          (Ok "Badger") 
+          (Error (`UnexpectedInvertabrate "Blue ringed octopus")) = 
+            (Error (`UnexpectedInvertabrate "Blue ringed octopus"))
+      ]}
 
-      {[Result.both Error(`UnexpectedBird("Flamingo")) Error(`UnexpectedInvertabrate("Blue ringed octopus")) = Error(`UnexpectedBird("Flamingo"))]}
+      {[
+        Result.both 
+          (Error (`UnexpectedBird "Flamingo")) 
+          (Error (`UnexpectedInvertabrate "Blue ringed octopus")) = 
+            (Error (`UnexpectedBird "Flamingo"))
+      ]}
   *)
   val both : ('a, 'error) t -> ('b, 'error) t -> (('a * 'b), 'error) t
   
@@ -2885,38 +2850,27 @@ module Result : sig
 
       {[Result.join (Ok (Ok 2)) = Ok 2]}
 
-      {[Result.join (Ok (Error (`UnexpectedBird "Peregrin falcon"))) = Error(`UnexpectedBird("Peregrin falcon"))]}
+      {[
+        Result.join (Ok (Error (`UnexpectedBird "Peregrin falcon"))) = 
+          (Error (`UnexpectedBird "Peregrin falcon"))
+      ]}
 
-      {[Result.join Error(`UnexpectedInvertabrate("Woodlouse")) = Error(`UnexpectedInvertabrate("Woodlouse"))]}
+      {[
+        Result.join (Error (`UnexpectedInvertabrate "Woodlouse")) = 
+          (Error (`UnexpectedInvertabrate "Woodlouse"))
+      ]}
   *)
   val join : (('ok, 'error) t, 'error) t -> ('ok, 'error) t
   
   (** Unwrap a Result using the [~default] value in case of an [Error]
 
-      {e Exmples}
+      {3 Examples}
 
       {[Result.get ~default:0 (Ok 12) = 12]}
 
-      {[Result.get ~default:0 (Error(`UnexpectedBird("Ostrich"))) = 0]}
+      {[Result.get ~default:0 ((Error (`UnexpectedBird "Ostrich"))) = 0]}
   *)
   val get : ('ok, 'error) t -> default:'ok -> 'ok
-  
-  (** Unwrap a Result, raising the provided [~exn] in case of an [Error]
-
-      {e Exmples}
-
-      {[
-        exception UnexpectedAnimal
-
-        Result.getOrFailWith (Ok 12) ~exn:UnexpectedAnimal  = 12
-      ]}
-
-      {[
-        Result.getOrFailWith (Error(`UnexpectedBird("Chicken"))) ~exn:UnexpectedAnimal
-        // Raises an [UnexpectedAnimal] exception.
-      ]}
-  *)
-  val getOrFailWith : ('ok, _) t -> exn:exn -> 'ok
   
   (** Unwrap a Result, raising an exception in case of an [Error]
 
@@ -2924,7 +2878,7 @@ module Result : sig
 
       Raises an [Invalid_argument "Result.getUnsafe called with an Error"] exception.
 
-      {e Exmples}
+      {3 Examples}
 
       {[Result.getUnsafe (Ok 12) = 12]}
 
@@ -2934,11 +2888,21 @@ module Result : sig
   
   (** Like {!Result.get} but unwraps an [Error] value instead
 
-      {e Exmples}
+      {3 Examples}
 
-      {[Result.getError ~default:`UnexpectedInvertabrate("Ladybird") (Error `UnexpectedBird("Swallow")) = `UnexpectedBird("Swallow"]}
+      {[
+        Result.getError
+          (Error (`UnexpectedBird "Swallow")) 
+          ~default:(`UnexpectedInvertabrate "Ladybird") = 
+            `UnexpectedBird "Swallow"
+      ]}
 
-      {[Result.getError ~default:`UnexpectedInvertabrate("Ladybird") (Ok 5) = `UnexpectedInvertabrate("Ladybird")]}
+      {[
+        Result.getError 
+          (Ok 5) 
+          ~default:(`UnexpectedInvertabrate "Ladybird") = 
+            `UnexpectedInvertabrate "Ladybird"
+      ]}
   *)
   val getError : ('ok, 'error) t -> default:'error -> 'error
   
@@ -2950,13 +2914,13 @@ module Result : sig
 
       {3 Examples}
 
-      {[Result.map2 (Ok 7) (Ok 3) ~f:Int.add = Ok 10]
+      {[Result.map2 (Ok 7) (Ok 3) ~f:Int.add = Ok 10]}
 
       {[Result.map2 (Error "A") (Ok 3) ~f:Int.add = Error "A"]}
 
       {[Result.map2 (Ok 7) (Error "B") ~f:Int.add = Error "B"]}
 
-      {[Result.map2 (Error "A") (Error "B") ~f:Int.add = Error ("A")]}
+      {[Result.map2 (Error "A") (Error "B") ~f:Int.add = Error "A"]}
   *)
   val map2 :
     ('a, 'error) t -> ('b, 'error) t -> f:('a -> 'b -> 'c) -> ('c, 'error) t
@@ -3047,13 +3011,13 @@ module Result : sig
   (** TODO Seriously what would you use this for *)
   val fold : ('ok, _) t -> initial:'b -> f:('b -> 'ok -> 'b) -> 'b
   
-  (** Run a function against an [Ok(value)], ignores [Error]s.
+  (** Run a function against an [(Ok value)], ignores [Error]s.
 
       {3 Examples}
 
       {[
-        Result.forEach(Ok("Dog"), ~f:print_endline);
-        // prints "Dog"
+        Result.forEach (Ok "Dog") ~f:print_endline
+        (* prints "Dog" *)
       ]}
    *)
   val forEach : ('ok, _) t -> f:('ok -> unit) -> unit
@@ -3323,7 +3287,7 @@ module Array : sig
 
       {3 Examples}
 
-      {[[|1,2,3,2,1|][3] = 2]}
+      {[[|1; 2; 3; 2; 1|].(3) = 2]}
 
       {[
         let animals = [|"cat"; "dog"; "eel"|] in
@@ -3338,9 +3302,9 @@ module Array : sig
 
       {3 Examples}
 
-      {[Array.getAt([|0; 1; 2|], ~index=5) == None]}
+      {[Array.getAt [|0; 1; 2|] ~index:5 = None]}
 
-      {[Array.getAt([||], ~index=0) == None]}
+      {[Array.getAt [||] ~index:0 = None]}
   *)
   val getAt : 'a t -> index:int -> 'a option
   
@@ -3378,7 +3342,7 @@ module Array : sig
 
       You should prefer either to write
 
-      {[array.(index) <- value] }
+      {[array.(index) <- value]}
 
       Or use the {!setAt} function instead.
 
@@ -3390,9 +3354,8 @@ module Array : sig
 
       {[
         let numbers = [|1;2;3|] in
-
+        Array.set numbers 1 1;
         numbers.(2) <- 0;
-        Array.set numbers index 1;
 
         numbers = [|1;0;0|]
       ]}
@@ -3406,17 +3369,22 @@ module Array : sig
 
       {3 Examples}
 
-      {[Array.sum [|1;2;3|] (module Int) = 6]}
+      {[Array.sum [|1; 2; 3|] (module Int) = 6]}
 
-      {[Array.sum [|4.0;4.5;5.0|] (module Float) = 13.5]}
+      {[Array.sum [|4.0; 4.5; 5.0|] (module Float) = 13.5]}
 
       {[
-        module StringSum = {
-          type t = string;
-          let zero = ""
-          let add = (++)
-        };
-        Array.sum([|"a", "b", "c"|], (module StringSum)) = "abc"]}
+        Array.sum 
+          [|"a"; "b"; "c"|] 
+          (
+            module struct
+              type t = string
+              let zero = ""
+              let add = (^)
+            end
+          ) 
+          = "abc"
+      ]}
   *)
   val sum : 'a t -> (module Container.Sum with type t = 'a) -> 'a
   
@@ -3424,7 +3392,7 @@ module Array : sig
 
       {3 Examples}
 
-      {[Array.count [|7;5;8;6|] ~f:Int.isEven = 2]}
+      {[Array.count [|7; 5; 8; 6|] ~f:Int.isEven = 2]}
   *)
   val count : 'a t -> f:('a -> bool) -> int
   
@@ -3472,11 +3440,11 @@ module Array : sig
 
       If one array is longer, the extra elements are dropped.
 
-      The same as [Array.map2 ~f=Tuple.make]
+      The same as [Array.map2 ~f:Tuple.make]
 
       {3 Examples}
 
-      {[Array.zip [|1;2;3;4;5|] [|"Dog"; "Eagle"; "Ferret"|] = [|(1, "Dog"); (2, "Eagle"), (3, "Ferret")|]]}
+      {[Array.zip [|1;2;3;4;5|] [|"Dog"; "Eagle"; "Ferret"|] = [|(1, "Dog"); (2, "Eagle"); (3, "Ferret")|]]}
   *)
   val zip : 'a t -> 'b t -> ('a * 'b) t
   
@@ -3501,8 +3469,8 @@ module Array : sig
       {3 Examples}
 
       {[
-        let characters = [|'a'; '9'; '6'; ' '; '2'; 'z' |]
-        Array.filterMap characters ~f:Char.toDigit = [|9; 6; 2|];
+        let characters = [|'a'; '9'; '6'; ' '; '2'; 'z' |] in
+        Array.filterMap characters ~f:Char.toDigit = [|9; 6; 2|]
       ]}
 
       {[
@@ -3524,7 +3492,7 @@ module Array : sig
 
       {3 Examples}
 
-      {[Array.swap([|1;2;3|], 1, 2) == [|1;3;2|]]}
+      {[Array.swap [|1; 2; 3|] 1 2 = [|1; 3; 2|]]}
   *)
   val swap : 'a t -> int -> int -> unit
   
@@ -3686,7 +3654,7 @@ module Array : sig
 
       {3 Examples}
 
-      {[Array.contains([1; 2; 3], 2, ~equal:(=)) == true]}
+      {[Array.contains [1; 2; 3]  2 ~equal:(=) = true]}
   *)
   val includes : 'a t -> 'a -> equal:('a -> 'a -> bool) -> bool
   
@@ -3749,11 +3717,18 @@ module Array : sig
 
       {3 Examples}
 
-      {[Array.splitWhen [|5; 7; 8; 6; 4;|] ~f:Int.isEven = ([|5; 7|], ([|8; 6; 4|]))]}
+      {[
+        Array.splitWhen 
+          [|5; 7; 8; 6; 4;|]
+          ~f:Int.isEven = 
+          ([|5; 7|], [|8; 6; 4|])
+      ]}
 
       {[
-        Array.splitWhen [|"Ant"; "Bat"; "Cat"|] ~f:(fun animal -> String.length animal > 3) =
-          ([|"Ant"; "Bat"; "Cat"|], [||])
+        Array.splitWhen 
+          [|"Ant"; "Bat"; "Cat"|] 
+          ~f:(fun animal -> String.length animal > 3) =
+            ([|"Ant"; "Bat"; "Cat"|], [||])
       ]}
 
       {[
@@ -3948,7 +3923,7 @@ module Array : sig
 
       {3 Examples}
 
-      {[Array.join [|"Ant", "Bat", "Cat"|] ~sep:", " = "Ant, Bat, Cat"]}
+      {[Array.join [|"Ant"; "Bat"; "Cat"|] ~sep:", " = "Ant, Bat, Cat"]}
    *)
   val join : string t -> sep:string -> string
   
@@ -4004,12 +3979,11 @@ module List : sig
       They also support exhaustive pattern matching
 
       {[
-        switch(aList) {
-        | [] => "Empty"
-        | [a] => "Exactly one element"
-        | [a, b] => "Exactly two elements"
-        | [a, b, ...cs] => "More than two elements"
-        }
+        match aList with 
+        | [] -> "Empty"
+        | [a] -> "Exactly one element"
+        | [a, b] -> "Exactly two elements"
+        | a :: b :: cs -> "More than two elements"
       ]}
 
       Lists are slow when:
@@ -4154,12 +4128,17 @@ module List : sig
       {[List.sum [4.0;4.5;5.0] (module Float) = 13.5]}
 
       {[
-        module StringSum = {
-          type t = string;
-          let zero = ""
-          let add = (++)
-        };
-        List.sum(["a", "b", "c"], (module StringSum)) = "abc"]}
+        List.sum 
+          ["a"; "b"; "c"] 
+          (
+            module struct
+              type t = string
+              let zero = ""
+              let add = (^)
+            end
+          ) 
+          = "abc"
+      ]}
   *)
   val sum : 'a t -> (module Container.Sum with type t = 'a) -> 'a
   
@@ -4188,9 +4167,11 @@ module List : sig
       {3 Examples}
 
       {[
-        List.mapI(["zero", "one", "two"], ~f=(index,  element) =>
-          (Int.toString(index)) ++ ": " ++ element
-        ) = ["0: zero"; "1: one"; "2: two"]
+        List.mapI
+          ["zero"; "one"; "two"]
+          ~f:(fun index element ->
+            (Int.toString index) ^ ": " ^ element) 
+          = ["0: zero"; "1: one"; "2: two"]
       ]}
   *)
   val mapI : 'a t -> f:(int -> 'a -> 'b) -> 'b t
@@ -4279,13 +4260,9 @@ module List : sig
 
       {3 Examples}
 
-      {[List.contains [1; 2; 3] 2 ~equal:Int.equal = true]}
-
-      {[
-        List.includes ~value:3 [1;3;5;7] = true
-        List.includes ~value:4 [1;3;5;7] = false
-        List.includes ~value:5 [] = false
-    ]}
+      {[List.includes [1; 3; 5; 7] 3 ~equal:Int.equal = true]}
+      {[List.includes [1; 3; 5; 7] 4 ~equal:Int.equal = false]}
+      {[List.includes [] 5 ~equal:Int.equal = false]}
   *)
   val includes : 'a t -> 'a -> equal:('a -> 'a -> bool) -> bool
   
@@ -4323,16 +4300,18 @@ module List : sig
       {3 Examples}
 
       {[
-        let characters = ['a'; '9'; '6'; ' '; '2'; 'z' ]
-        filterMap characters ~f:Char.toDigit = [9; 6; 2];
+        let characters = ['a'; '9'; '6'; ' '; '2'; 'z'] in
+        List.filterMap characters ~f:Char.toDigit = [9; 6; 2]
       ]}
 
-      {[List.filterMap [3; 4; 5; 6] ~f:(fun number ->
-        if Int.isEven number then
-          Some (number * number)
-        else
-          None
-      ) = [16; 36]}
+      {[
+        List.filterMap [3; 4; 5; 6] ~f:(fun number ->
+          if Int.isEven number then
+            Some (number * number)
+          else
+            None
+        ) = [16; 36]
+      ]}
   *)
   val filterMap : 'a t -> f:('a -> 'b option) -> 'b t
   
@@ -4494,7 +4473,7 @@ module List : sig
 
       {3 Examples}
 
-      {[List.drop [1;2;3;4] ~count:2 = [3;4]}
+      {[List.drop [1;2;3;4] ~count:2 = [3;4]]}
 
       {[List.drop [1;2;3;4] ~count:6 = []]}
   *)
@@ -4504,11 +4483,11 @@ module List : sig
 
       {3 Examples}
 
-      {[
-        List.dropWhile ~f:Int.isEven [2; 4; 6; 7; 8; 9] = [7; 8; 9]
-        List.dropWhile ~f:Int.isEven [2; 4; 6; 8] = []
-        List.dropWhile ~f:Int.isEven [1; 2; 3] = [1; 2; 3]
-      ]}
+      {[List.dropWhile ~f:Int.isEven [2; 4; 6; 7; 8; 9] = [7; 8; 9]]}
+    
+      {[List.dropWhile ~f:Int.isEven [2; 4; 6; 8] = []]}
+    
+      {[List.dropWhile ~f:Int.isEven [1; 2; 3] = [1; 2; 3]]}
   *)
   val dropWhile : 'a t -> f:('a -> bool) -> 'a t
   
@@ -4550,7 +4529,7 @@ module List : sig
 
       {[
         let animals = ["Ant"; "Bat"; "Cat"] in
-        animals == List.updateAt animals ~index:4 ~f:String.reverse
+        animals = List.updateAt animals ~index:4 ~f:String.reverse
       ]}
   *)
   val updateAt : 'a t -> index:int -> f:('a -> 'a) -> 'a t
@@ -4580,9 +4559,9 @@ module List : sig
 
       {[
         if (List.length someList) = 0 then (
-          (* ... *)
+          () (* It will take longer than you think to reach here *)
         ) else (
-          (* ... *)
+          () (* But it doesn't need to *)
         )
       ]}
 
@@ -4590,9 +4569,9 @@ module List : sig
 
       {[
         if (List.isEmpty someList) then (
-          (* ... *)
+          () (* This happens instantly *)
         ) else (
-          (* ... *)
+          () (* Since List.isEmpty takes the same amount of time for all lists *)
         )
       ]}
 
@@ -4600,16 +4579,16 @@ module List : sig
 
       {[
         match someList with
-        | [] -> (* ... *)
-        | _ -> (* ... *)
+        | [] -> () (* Spoilers *)
+        | _ -> () (* This is how isEmptu is implemented *)
       ]}
 
 
       {3 Examples}
 
-      {[List.length([]) == 0]}
+      {[List.length [] = 0]}
 
-      {[List.length([7, 8, 9]) == 3]}
+      {[List.length [7; 8; 9] = 3]}
   *)
   val length : 'a t -> int
   
@@ -4617,7 +4596,7 @@ module List : sig
 
       {3 Examples}
 
-      {[List.reverse [1;2;3] = [3;2;1]]}
+      {[List.reverse [1; 2; 3] = [3; 2; 1]]}
    *)
   val reverse : 'a t -> 'a t
   
@@ -4637,12 +4616,8 @@ module List : sig
   
   (** Prepend a value to the front of a list.
 
-      The [::] operator can also be used
-
-      And in Reason you can use the [spread]() syntax.
-      {[
-        [1, ...[1,2,3]]
-      ]}
+      The [::] operator can also be used, in Reason you use the spread syntax
+      instead.      
 
       {3 Examples}
 
@@ -4686,7 +4661,7 @@ module List : sig
 
       {3 Examples}
 
-      {[List.minimum [|7;5;8;6|] ~compare:Int.compare = Some 5]}
+      {[List.minimum [|7; 5; 8; 6|] ~compare:Int.compare = Some 5]}
   *)
   val minimum : 'a t -> compare:('a -> 'a -> int) -> 'a option
   
@@ -4696,7 +4671,7 @@ module List : sig
 
       {3 Examples}
 
-      {[List.maximum [|7;5;8;6|] ~compare:compare = Some 8]}
+      {[List.maximum [|7; 5; 8; 6|] ~compare:compare = Some 8]}
   *)
   val maximum : 'a t -> compare:('a -> 'a -> int) -> 'a option
   
@@ -4706,7 +4681,7 @@ module List : sig
 
       {3 Examples}
 
-      {[List.extent [|7;5;8;6|] ~compare:compare = Some (5, 8)]}
+      {[List.extent [|7; 5; 8; 6|] ~compare:compare = Some (5, 8)]}
   *)
   val extent : 'a t -> compare:('a -> 'a -> int) -> ('a * 'a) option
   
@@ -4717,21 +4692,25 @@ module List : sig
       {3 Examples}
 
       {[
-        List.groupWhile [1;2;3;] ~f:(Fun.constant false) = [[1]; [2]; [3]]
+        List.groupWhile [1; 2; 3;] ~f:(Fun.constant false) = [[1]; [2]; [3]]
       ]}
 
       {[
-        List.groupWhile [1;2;3;] ~f:(Fun.constant true) = [[1; 2; 3]]
+        List.groupWhile [1; 2; 3;] ~f:(Fun.constant true) = [[1; 2; 3]]
       ]}
 
       {[
-        List.groupWhile ~f:String.equal
-          ["a"; "b"; "b"; "a"; "a"; "a"; "b"; "a"] = [["a"]; ["b"; "b"]; ["a"; "a"; "a";] ["b"]; ["a"]]
+        List.groupWhile 
+          ~f:String.equal
+          ["a"; "b"; "b"; "a"; "a"; "a"; "b"; "a"] = 
+            [["a"]; ["b"; "b"]; ["a"; "a"; "a";] ["b"]; ["a"]]
       ]}
 
       {[
-        List.groupWhile ~f:(fun x y -> x mod 2 == y mod 2)
-          [2; 4; 6; 5; 3; 1; 8; 7; 9] = [[2; 4; 6]; [5; 3; 1]; [8]; [7; 9]]
+        List.groupWhile 
+          ~f:(fun x y -> x mod 2 = y mod 2)
+          [2; 4; 6; 5; 3; 1; 8; 7; 9] = 
+            [[2; 4; 6]; [5; 3; 1]; [8]; [7; 9]]
       ]}
   *)
   val groupWhile : 'a t -> f:('a -> 'a -> bool) -> 'a t t
@@ -4748,7 +4727,13 @@ module List : sig
 
       {3 Examples}
 
-      {[List.insertAt ~index:2 ~value:999 [100; 101; 102; 103] = [100; 101; 999; 102; 103]]}
+      {[
+        List.insertAt 
+          ~index:2 
+          ~value:999 
+          [100; 101; 102; 103] =  
+            [100; 101; 999; 102; 103]
+      ]}
 
       {[List.insertAt ~index:0 ~value:999 [100; 101; 102; 103] = [999; 100; 101; 102; 103]]}
 
@@ -4796,10 +4781,12 @@ module List : sig
 
       {[
         List.forEach [|1; 2; 3|] ~f:(fun int -> print (Int.toString int))
-        // Prints
-        // 1
-        // 2
-        // 3
+        (* 
+          Prints
+          1
+          2
+          3 
+        *)
       ]}
   *)
   val forEach : 'a t -> f:('a -> unit) -> unit
@@ -4827,7 +4814,7 @@ module List : sig
 
       {3 Examples}
 
-      {[List.join ["Ant", "Bat", "Cat"] ~sep:", " = "Ant, Bat, Cat"]}
+      {[List.join ["Ant"; "Bat"; "Cat"] ~sep:", " = "Ant, Bat, Cat"]}
    *)
   val join : string t -> sep:string -> string
   
@@ -4868,12 +4855,7 @@ module Tuple : sig
 
       {3 Examples}
 
-      {[Tuple.make(3, 4) = (3, 4)]}
-
-      {[
-        let zip = (xs: List.t('a), ys: List.t('b)): List.t(('a, 'b)) =
-          List.map2(xs, ys, ~f:Tuple.make);
-      ]}
+      {[Tuple.make 3 "Clementine" = (3, "Clementine")]}
   *)
   val make : 'a -> 'b -> ('a * 'b)
   
@@ -4889,7 +4871,7 @@ module Tuple : sig
 
       {[Tuple.ofArray [|1|] = None]}
 
-      {[Tuple.ofArray [|4;5;6|] = Some (4, 5)]}
+      {[Tuple.ofArray [|4; 5; 6|] = Some (4, 5)]}
   *)
   val ofArray : 'a array -> ('a * 'a) option
   
@@ -4905,7 +4887,7 @@ module Tuple : sig
 
       {[Tuple.ofList [1] = None]}
 
-      {[Tuple.ofList [4;5;6] = Some (4, 5)]}
+      {[Tuple.ofList [4; 5; 6] = Some (4, 5)]}
   *)
   val ofList : 'a list -> ('a * 'a) option
   
@@ -4984,32 +4966,6 @@ module Tuple : sig
       {[Tuple.swap ("stressed", 16) = (16, "stressed")]}
   *)
   val swap : ('a * 'b) -> ('b * 'a)
-
-  (** Takes a function [f] which takes a single argument of a tuple ['a * 'b] and returns a function which takes two arguments that can be partially applied.
-
-      {3 Examples}
-
-      {[
-        let squareArea (width, height) = width * height
-        let curriedArea : float -> float -> float = curry squareArea
-        let heights = [3, 4, 5]
-
-        List.map widths ~f:(curriedArea 4) = [12; 16; 20]
-      ]}
-  *)
-  val curry : (('a * 'b) -> 'c) -> 'a -> 'b -> 'c
-  
-  (** Takes a function which takes two arguments and returns a function which takes a single argument of a tuple.
-
-      {3 Examples}
-
-      {[
-        let sum (a : int) (b: int) : int = a + b
-        let uncurriedSum : (int * int) -> int = uncurry add
-        uncurriedSum (3, 4) = 7
-      ]}
-  *)
-  val uncurry : ('a -> 'b -> 'c) -> ('a * 'b) -> 'c
   
   (** {2 Conversion} *)
 
@@ -5246,28 +5202,7 @@ module Tuple3 : sig
       {[Tuple.rotateRight ("was", "stressed", "then") = ("then", "was", "stressed")]}
   *)
   val rotateRight : ('a * 'b * 'c) -> ('c * 'a * 'b)
-  
-  (** Takes a function which takes a single argument of a {!Tuple3} and returns a function which takes three arguments that can be partially applied.
 
-      {3 Examples}
-
-      {[
-        let cubeVolume (width, height, depth) = width * height * depth in
-        let curriedVolume : float -> float -> float = curry squareArea in
-        let depths = [3; 4; 5] in
-        List.map depths ~f:(curriedVolume 3 4) = [36; 48; 60]
-      ]}
-  *)
-  val curry : (('a * 'b * 'c) -> 'd) -> 'a -> 'b -> 'c -> 'd
-  
-  (** [uncurry f] takes a function [f] which takes three arguments and returns a function which takes a single argument of a {!Tuple3}
-
-      {3 Examples}
-
-      TODO
-  *)
-  val uncurry : ('a -> 'b -> 'c -> 'd) -> ('a * 'b * 'c) -> 'd
-  
   (** {2 Conversion} *)
 
   (** Turns a tuple into a {!List} of length three.
@@ -5371,7 +5306,7 @@ module Set : sig
       {[
         let originalSet = Set.Int.ofList [1; 2] in
         let newSet = Set.remove orignalSet 3 in
-        originalSet == newSet
+        originalSet = newSet
       ]}
   *)
   val remove : ('a, 'id) t -> 'a -> ('a, 'id) t
@@ -5388,7 +5323,7 @@ module Set : sig
 
       {3 Examples}
 
-      {[Set.length (Set.Int.ofList [1; 2; 3])) = 3]}
+      {[Set.length (Set.Int.ofList [1; 2; 3]) = 3]}
   *)
   val length : (_, _) t -> int
   
@@ -5644,28 +5579,34 @@ module Map : sig
 
       {3 Examples}
 
-      {[Map.add (Map.Int.ofList [(1, "Ant"), (2, "Bat")]) ~key:3 ~value:"Cat"  |> Map.toList = [(1, "Ant"), (2, "Bat"), (3, "Cat")]]}
+      {[
+        Map.add 
+          (Map.Int.ofList [(1, "Ant"); (2, "Bat")]) 
+          ~key:3 
+          ~value:"Cat" 
+        |> Map.toList = [(1, "Ant"); (2, "Bat"); (3, "Cat")]
+      ]}
 
-      {[Map.add (Map.Int.ofList [(1, "Ant"), (2, "Bat")]) ~key:2 ~value:"Bug" |> Map.toList = [(1, "Ant"), (2, "Bug")]]}
+      {[Map.add (Map.Int.ofList [(1, "Ant"); (2, "Bat")]) ~key:2 ~value:"Bug" |> Map.toList = [(1, "Ant"); (2, "Bug")]]}
   *)
   val add : ('k, 'v, 'id) t -> key:'k -> value:'v -> ('k, 'v, 'id) t
-  
   
   (** Removes a key-value pair from a map based on they provided key.
 
       {3 Examples}
-
-      let animalPopulations = Map.String.ofList [
-        ("Elephant", 3_156);
-        ("Mosquito", 56_123_156);
-        ("Rhino", 3);
-        ("Shrew", 56_423);
-      ] in
-      Map.remove animalPopulations "Mosquito" |> Map.toList = [
-        ("Elephant", 3_156);
-        ("Rhino", 3);
-        ("Shrew", 56_423);
-      ];
+      {[
+        let animalPopulations = Map.String.ofList [
+          ("Elephant", 3_156);
+          ("Mosquito", 56_123_156);
+          ("Rhino", 3);
+          ("Shrew", 56_423);
+        ] in
+        Map.remove animalPopulations "Mosquito" |> Map.toList = [
+          ("Elephant", 3_156);
+          ("Rhino", 3);
+          ("Shrew", 56_423);
+        ]
+      ]}
   *)
   val remove : ('k, 'v, 'id) t -> 'k -> ('k, 'v, 'id) t
   
@@ -5718,9 +5659,9 @@ module Map : sig
         ] in
 
         Map.update animalPopulations ~key:"Hedgehog" ~f:(fun population ->
-          match population
-          | None => Some 1
-          | Some count => Some (count + 1)
+          match population with
+          | None -> Some 1
+          | Some count -> Some (count + 1)
         )
         |> Map.toList = [
           ("Elephant", 3_156);
@@ -5739,7 +5680,10 @@ module Map : sig
 
       {3 Examples}
 
-      {[Map.Int.ofList [(1, "Hornet"); (3, "Marmot")] |> Map.length = 2]}
+      {[
+        Map.Int.ofList [(1, "Hornet"); (3, "Marmot")]
+        |> Map.length = 2
+      ]}
   *)
   val length : (_, _, _) t -> int
   
@@ -5749,7 +5693,10 @@ module Map : sig
 
       {3 Examples}
 
-      {[Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")] |> Map.length = Some 1]}
+      {[
+        Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")]
+        |> Map.minimum = Some 1
+      ]}
   *)
   val minimum : ('key, _, _) t -> 'key option
   
@@ -5759,7 +5706,10 @@ module Map : sig
 
       {3 Examples}
 
-      {[Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")] |> Map.length = Some 8]}
+      {[
+        Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")] 
+        |> Map.maximum = Some 8
+      ]}
   *)
   val maximum : ('key, _, _) t -> 'key option
   
@@ -5769,7 +5719,10 @@ module Map : sig
 
       {3 Examples}
 
-      {[Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")] |> Map.length = Some (1, 8)]}
+      {[
+        Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")]
+        |> Map.extent = Some (1, 8)
+      ]}
   *)
   val extent : ('key, _, _) t -> ('key * 'key) option
   
@@ -5803,22 +5756,27 @@ module Map : sig
       {3 Examples}
 
       {[
-        let animalToPopulation = Map.String.ofList [
-          ("Elephant", 3_156);
-          ("Shrew", 56_423);
-        ]
+        let animalToPopulation = 
+          Map.String.ofList [
+            ("Elephant", 3_156);
+            ("Shrew", 56_423);
+          ] 
         in
         let animalToPopulationGrowthRate = Map.String.ofList [
           ("Elephant", 0.88);
           ("Squirrel", 1.2);
           ("Python", 4.0);
-        ]
+        ] in
 
-        Map.merge animalToPopulation animalToPopulationGrowthRate ~f:(fun _animal population growth) ->
-          match (Option.both (population, growth))
-          | Some(population, growth) => Float.(ofInt population * growth)
-          | None => None
-        )
+        Map.merge 
+          animalToPopulation 
+          animalToPopulationGrowthRate 
+          ~f:(fun _animal population growth ->
+            match (Option.both population growth) with
+            | Some (population, growth) -> 
+                Some Float.((ofInt population) * growth)
+            | None -> None
+          )
         |> Map.toList
           = [("Elephant", 2777.28)]
       ]}
@@ -6046,17 +6004,17 @@ module Fun : sig
 
       Perhaps you want to create an array of integers
 
-      {[Array.initialize 6 ~f:Fun.identity = [|0;1;2;3;4;5|]]}
+      {[Array.initialize 6 ~f:Fun.identity = [|0; 1; 2; 3; 4; 5|]]}
 
       (In this particular case you probably want to use {!Array.range}.)
 
       Or maybe you need to register a callback, but dont want to do anything:
 
       {[
-        let httpMiddleware = HttpLibrary.createMiddleWare(
-          ~onEventYouDoCareAbout=transformAndReturn,
-          ~onEventYouDontCareAbout=Fun.identity,
-        }
+        let httpMiddleware = 
+          HttpLibrary.createMiddleWare
+            ~onEventYouDoCareAbout:transformAndReturn
+            ~onEventYouDontCareAbout:Fun.identity        
       ]}
   *)
   external identity : 'a -> 'a = "%identity"
@@ -6070,17 +6028,20 @@ module Fun : sig
       {3 Examples}
 
       {[
-        module PretendMutableQueue : sig
-          type 'a t
+        (* Pretend we have a module with the following signature:
+            module PretendMutableQueue : sig
+              type 'a t
 
-          (** Adds an element to the queue, returning the new length of the queue *)
-          val pushReturningLength : 'a t -> 'a -> int
-        end
+              (** Adds an element to the queue, returning the new length of the queue *)
+              val pushReturningLength : 'a t -> 'a -> int
+            end
+        *)
 
         let addListToQueue queue list =
           List.forEach list ~f:(fun element ->
-            ignore (PretentMutableQueue.pushReturningLength queue element)
+            ignore (MutableQueue.pushReturningLength queue element)
           )
+        in ()
       ]}
   *)
   external ignore : _ -> unit = "%ignore"
@@ -6171,7 +6132,7 @@ module Fun : sig
 
       You can think of this operator as equivalent to the following:
 
-      {[(g << f)  ==  (fun x -> g (f x))]}
+      {[(g << f) = (fun x -> g (f x))]}
 
       So our example expands out to something like this:
 
@@ -6214,13 +6175,9 @@ module Fun : sig
         = [|4;0|]
       ]}
   *)
-  val tap : 'a -> f:('a -> unit) -> 'a
+  val tap : 'a -> f:('a -> unit) -> 'a  
 
-  (* // TODO *)
-  (**  Useful in combination with functions like `filter` *)
-  val negate : ('a -> bool) -> 'a -> bool
-
-  (* // TODO a better type than unit for the return value? *)
+  (* TODO a better type than unit for the return value? *)
   (** Runs the provided function, forever. *)
   val forever : (unit -> unit) -> unit
 
@@ -6235,4 +6192,53 @@ module Fun : sig
       ]}
   *)
   val times : int -> f:(unit -> unit) -> unit
+
+
+  (** Takes a function [f] which takes a single argument of a tuple ['a * 'b] and returns a function which takes two arguments that can be partially applied.
+
+      {3 Examples}
+
+      {[
+        let squareArea (width, height) = width * height in
+        let curriedArea : float -> float -> float = curry squareArea in
+        let sizes = [3, 4, 5] in
+        List.map sizes ~f:(curriedArea 4) = [12; 16; 20]
+      ]}
+  *)
+  val curry : (('a * 'b) -> 'c) -> 'a -> 'b -> 'c
+  
+  (** Takes a function which takes two arguments and returns a function which takes a single argument of a tuple.
+
+      {3 Examples}
+
+      {[
+        let sum (a : int) (b: int) : int = a + b in
+        let uncurriedSum : (int * int) -> int = uncurry add in
+        uncurriedSum (3, 4) = 7
+      ]}
+  *)
+  val uncurry : ('a -> 'b -> 'c) -> ('a * 'b) -> 'c
+
+    
+  (** Takes a function which takes a single argument of a {!Tuple3} and returns a function which takes three arguments that can be partially applied.
+
+      {3 Examples}
+
+      {[
+        let cubeVolume (width, height, depth) = width * height * depth in
+        let curriedVolume : float -> float -> float = curry squareArea in
+        let depths = [3; 4; 5] in
+        List.map depths ~f:(curriedVolume 3 4) = [36; 48; 60]
+      ]}
+  *)
+  val curry3 : (('a * 'b * 'c) -> 'd) -> 'a -> 'b -> 'c -> 'd
+  
+  (** [uncurry3 f] takes a function [f] which takes three arguments and returns a function which takes a single argument of a {!Tuple3}
+
+      {3 Examples}
+
+      TODO
+  *)
+  val uncurry3 : ('a -> 'b -> 'c -> 'd) -> ('a * 'b * 'c) -> 'd
+  
 end

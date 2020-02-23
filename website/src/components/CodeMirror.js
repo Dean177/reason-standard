@@ -1,9 +1,5 @@
-import AnsiUp from 'ansi_up';
-import { debounce } from 'lodash';
 import React, { useEffect, useRef } from 'react';
-import * as lzString from 'lz-string';
 import codemirror from 'codemirror';
-import refmt from 'reason';
 
 export class CodeMirror extends React.Component {
   componentDidMount() {
@@ -32,7 +28,6 @@ export class CodeMirror extends React.Component {
       <div
         className={this.props.className}
         ref={div => {
-          console.info(div);
           this.div = div;
         }}
       />

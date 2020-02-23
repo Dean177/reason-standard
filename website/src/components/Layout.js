@@ -108,9 +108,10 @@ export const NavBar = () => {
           <li>
             <Link to="/api">api</Link>
           </li>
-          <li>
+          {/* TODO get the playground working */}
+          {/* <li>
             <Link to="/try">try</Link>
-          </li>
+          </li> */}
           <li>
             <Link
               to={githubUrl}
@@ -142,7 +143,6 @@ export let PageTitle = ({children}) => {
         display: flex;
         align-items: center;
         padding-bottom: 40px;
-        margin-bottom: 32px;
 
         h1 {
           border-left: 2px solid ${colors.red.dark};
@@ -152,7 +152,6 @@ export let PageTitle = ({children}) => {
           line-height: 1.5;
           margin-top: 0;
           padding: 0 16px;
-          padding-top: 0;
         }
       `}
     >

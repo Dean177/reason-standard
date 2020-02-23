@@ -4,8 +4,6 @@ import { graphql } from 'gatsby';
 import MDXRenderer from 'gatsby-plugin-mdx/mdx-renderer';
 import { MDXProvider } from '@mdx-js/react';
 import { css } from 'styled-components';
-import { LeftSidebar } from '../components/sidebar';
-import { RightSidebar } from '../components/RightSideBar';
 import { NextPrevious } from '../components/NextPrevious';
 import { GithubEditButton } from '../components/GithubEditButton';
 import { breakpoints, colors, GlobalStyles, ThemeProvider } from '../theme';
@@ -16,7 +14,7 @@ import {
   MenuButton,
   PageTitle,
 } from '../components/Layout';
-import CodeBlock from '../components/CodeBlock';
+import {CodeBlock} from '../components/CodeBlock';
 import { formatTitleToId } from '../id';
 
 let mdxComponents = {

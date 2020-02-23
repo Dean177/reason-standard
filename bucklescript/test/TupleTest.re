@@ -45,14 +45,6 @@ let suite =
       expect(Tuple.swap((3, 4))) |> toEqual(Eq.(pair(int, int)), (4, 3))
     });
 
-    test("curry", () => {
-      expect(Tuple.curry(((a, b)) => a / b, 8, 4)) |> toEqual(Eq.(int), 2)
-    });
-
-    test("uncurry", () => {
-      expect(Tuple.uncurry((a, b) => a / b, (8, 4)))
-      |> toEqual(Eq.(int), 2)
-    });
 
     test("toArray", () => {
       expect(Tuple.toArray((3, 4))) |> toEqual(Eq.(array(int)), [|3, 4|])

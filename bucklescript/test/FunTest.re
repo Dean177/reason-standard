@@ -53,4 +53,23 @@ let suite =
       )
       |> toEqual(Eq.(array(int)), [|0, 2|])
     });
+
+    test("curry", () => {
+      expect(Fun.curry(((a, b)) => a / b, 8, 4)) |> toEqual(Eq.(int), 2)
+    });
+
+    test("uncurry", () => {
+      expect(Fun.uncurry((a, b) => a / b, (8, 4))) |> toEqual(Eq.(int), 2)
+    });
+
+    test("curry3", () => {
+      let tupleAdder = ((a, b, c)) => a + b + c;
+      expect(Fun.curry3(tupleAdder, 3, 4, 5)) |> toEqual(Eq.int, 12);
+    });
+
+    test("uncurry3", () => {
+      let curriedAdder = (a, b, c) => a + b + c;
+      expect(Fun.uncurry3(curriedAdder, (3, 4, 5))) |> toEqual(Eq.int, 12);
+    });
+
   });

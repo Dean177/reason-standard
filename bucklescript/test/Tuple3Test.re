@@ -75,16 +75,6 @@ let suite =
       |> toEqual(Eq.(trio(int, int, int)), (5, 3, 4))
     });
 
-    test("curry", () => {
-      let tupleAdder = ((a, b, c)) => a + b + c;
-      expect(curry(tupleAdder, 3, 4, 5)) |> toEqual(Eq.int, 12);
-    });
-
-    test("uncurry", () => {
-      let curriedAdder = (a, b, c) => a + b + c;
-      expect(uncurry(curriedAdder, (3, 4, 5))) |> toEqual(Eq.int, 12);
-    });
-
     test("toArray", () => {
       expect(toArray((3, 4, 5))) |> toEqual(Eq.(array(int)), [|3, 4, 5|])
     });

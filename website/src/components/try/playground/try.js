@@ -1,8 +1,8 @@
 import AnsiUp from 'ansi_up';
 import { debounce } from 'lodash';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import * as lzString from 'lz-string';
-import codemirror from 'codemirror';
+import {CodeMirror} from '../../CodeMirror';
 import refmt from 'reason';
 
 import 'codemirror/mode/javascript/javascript';
@@ -13,56 +13,6 @@ const compress = lzString.compressToEncodedURIComponent;
 const decompress = lzString.decompressFromEncodedURIComponent;
 
 let ansiUp = new AnsiUp();
-
-// let CodeMirror = props => {
-//   let editorContainer = useRef()
-//   let editor = useRef()
-//   useEffect(() => {
-//     editor.current = codemirror(editorContainer.current, props.options)
-//     editor.current.setValue(props.value)
-//     editor.current.on('change', (cm, metadata) => {
-//       const value = editor.current.getValue()
-//       if (value !== props.value && props.onChange) {
-//         props.onChange(value)
-//       }
-//     })
-//   }, [editorContainer.current, props.options])
-//   useEffect(() => {
-//     if (props.value !== editor.current.getValue()) {
-//       editor.current.setValue(nextProps.value)
-//     }
-//   }, [props.value])
-//   return <div className={props.className} ref={editorContainer} />
-// }
-
-class CodeMirror extends React.Component {
-  componentDidMount() {
-    this.editor = codemirror(this.div, this.props.options);
-    this.editor.setValue(this.props.value);
-
-    this.editor.on('change', (cm, metadata) => {
-      const value = this.editor.getValue();
-      if (value !== this.props.value && this.props.onChange) {
-        this.props.onChange(value);
-      }
-    });
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (
-      this.props.value !== nextProps.value &&
-      nextProps.value !== this.editor.getValue()
-    ) {
-      this.editor.setValue(nextProps.value);
-    }
-  }
-
-  render() {
-    return (
-      <div className={this.props.className} ref={div => (this.div = div)} />
-    );
-  }
-}
 
 // https://davidwalsh.name/query-string-javascript
 function getUrlParameter(name) {

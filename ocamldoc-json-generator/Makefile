@@ -14,7 +14,6 @@ build:
 		./_build/Standard.ml
 
 doc:
-	rm -f ../website/model.json && \
 	ocamlfind ocamldoc \
 		-package base,str,zarith \
 		-I ./_build \

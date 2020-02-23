@@ -11,11 +11,9 @@ import {
   ThemeProvider,
 } from '../theme';
 import {
-  MenuButton,
   NavBar,
   ContentContainer,
   AppContainer,
-  PageTitle,
 } from '../components/Layout';
 import { SyntaxProvider, SyntaxToggle } from '../components/Syntax';
 

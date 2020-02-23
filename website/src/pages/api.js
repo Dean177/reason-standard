@@ -1,8 +1,9 @@
 import React from 'react';
-import Helmet from 'react-helmet';
 import { graphql, navigate, Link } from 'gatsby';
 import styled, { css } from 'styled-components';
 import _ from 'lodash';
+import refmt from 'reason';
+window.refmt = refmt;
 import {
   breakpoints,
   colors,
@@ -17,24 +18,27 @@ import {
   AppContainer,
   PageTitle,
 } from '../components/Layout';
+import { CodeBlock } from '../components/CodeBlock';
 import { SyntaxProvider, SyntaxToggle } from '../components/Syntax';
 import * as lzString from 'lz-string';
-import refmt from 'reason';
+
 const compress = lzString.compressToEncodedURIComponent;
-const decompress = lzString.decompressFromEncodedURIComponent;
 
 let SearchInput = styled.input`
   background-color: #fff;
   border-color: ${colors.grey.light};
+  background-color: ${({ theme }) => theme.body};
   border-radius: 10px;
   border-style: solid;
   border-width: 1px;
   font-size: 16px;
   padding: 10px 12px;
 `;
-let SearchContainer = styled.div`
-  background-color: ${colors.grey.lighter};
-  padding: 12px;
+
+let SearchContainer = styled.div`  
+  padding-top: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -55,7 +59,9 @@ let linkFor = (path, tag, name) => {
 function renderSidebarElements(
   module_elements,
   modulesByName,
-  search = '',
+  search,
+  collapsed,
+  toggleModule,
   path = [],
 ) {
   return module_elements.map((module_element, index) => {
@@ -108,15 +114,24 @@ function renderSidebarElements(
       case 'Module':
         switch (module_element.value.kind.tag) {
           case 'ModuleStruct':
+            let qualifiedModuleName =
+              path.length > 0
+                ? [...path, module_element.value.name].join('.')
+                : module_element.value.name;
+
+            let isCollapsed = !!collapsed[qualifiedModuleName];
             let moduleLink = linkFor(
               path,
               module_element.tag,
               module_element.value.name,
             );
+
             let content = renderSidebarElements(
               module_element.value.kind.value,
               modulesByName,
               search,
+              collapsed,
+              toggleModule,
               [...path, module_element.value.name],
             );
 
@@ -146,30 +161,36 @@ function renderSidebarElements(
 
                     .expansion-indicator {
                       margin-right: 8px;
+                      cursor: pointer;
                     }
                   }
                   .elements {
                     border-left: 1px solid grey;
+                    margin-left: 8px;
                     padding-left: 12px;
+                    > * {
+                      padding-bottom: 5px;
+                      padding-top: 5px;
+                    }
                   }
                 `}
               >
                 <div className="name">
-                  <div className="expansion-indicator">V</div>
-                  <Link to={moduleLink}>
-                    module{' '}
-                    {path.length > 0
-                      ? [...path, module_element.value.name].join('.')
-                      : module_element.value.name}
-                  </Link>
+                  <div
+                    className="expansion-indicator"
+                    onClick={() => toggleModule(qualifiedModuleName)}
+                  >
+                    {isCollapsed ? '▷' : '▽'}
+                  </div>
+                  <Link to={moduleLink}>module {qualifiedModuleName}</Link>
                 </div>
-                <div className="elements">{content}</div>
+                {isCollapsed ? null : <div className="elements">{content}</div>}
               </div>
             );
           default:
             return (
               <pre
-                key={index}
+                key={'DefaultSidebarModule' + index}
                 css={css`
                   border: 6px dashed blue;
                 `}
@@ -194,6 +215,8 @@ function renderSidebarElements(
           includedModule.value.kind.value,
           modulesByName,
           search,
+          collapsed,
+          toggleModule,
           path,
         );
       case 'Text':
@@ -201,7 +224,7 @@ function renderSidebarElements(
       default:
         return (
           <pre
-            key={index}
+            key={'DefaultSidebarElement' + index}
             css={css`
               border: 5px dotted darkgoldenrod;
             `}
@@ -215,6 +238,12 @@ function renderSidebarElements(
 
 const Sidebar = ({ moduleElements, moduleByModulePath }) => {
   let [search, setSearch] = React.useState('');
+  let [collapsed, setCollapsed] = React.useState({});
+  let toggleModule = qualifiedModuleName =>
+    setCollapsed(collapsed => ({
+      ...collapsed,
+      [qualifiedModuleName]: !collapsed[qualifiedModuleName],
+    }));
   return (
     <div
       css={css`
@@ -243,12 +272,20 @@ const Sidebar = ({ moduleElements, moduleByModulePath }) => {
           overflow: auto;
           padding-left: 15px;
           padding-top: 15px;
+          padding-right: 15px;
+          padding-bottom: 15px;
           > * {
             padding: 5px;
           }
         `}
       >
-        {renderSidebarElements(moduleElements, moduleByModulePath, search)}
+        {renderSidebarElements(
+          moduleElements,
+          moduleByModulePath,
+          search,
+          collapsed,
+          toggleModule,
+        )}
       </div>
     </div>
   );
@@ -322,7 +359,7 @@ let Identifiers = {
   ),
 };
 
-let renderElements = (elements = [], parentPath = []) => {
+let renderTextElements = (elements = [], parentPath = []) => {
   // TODO take the parent path to link to section headings
   return elements.map(({ tag, value }, index) => {
     switch (tag) {
@@ -331,15 +368,15 @@ let renderElements = (elements = [], parentPath = []) => {
       case 'Link':
         return (
           <a key={index} href={value.target}>
-            {renderElements(value.content)}
+            {renderTextElements(value.content)}
           </a>
         );
       case 'Newline':
         return <pre key={index}>{'\n'}</pre>;
       case 'Emphasize':
-        return <em key={index}>{renderElements(value)}</em>;
+        return <em key={index}>{renderTextElements(value)}</em>;
       case 'Bold':
-        return <b key={index}>{renderElements(value)}</b>;
+        return <b key={index}>{renderTextElements(value)}</b>;
       case 'Code':
         return (
           <code
@@ -347,7 +384,7 @@ let renderElements = (elements = [], parentPath = []) => {
             css={css`
               background: #fbfafa;
               border: 1px solid #eee;
-              font-family: 'Lucida Console', Monaco, monospace;
+              font-family: ${fonts.monospace};
               padding: 2px;
               border-radius: 1px;
               overflow: auto;
@@ -356,32 +393,30 @@ let renderElements = (elements = [], parentPath = []) => {
             {value}
           </code>
         );
-
       case 'List':
         return (
           <ul key={index}>
             {value.map((listElement, subIndex) => (
-              <li key={subIndex}>{renderElements(listElement)}</li>
+              <li key={subIndex}>{renderTextElements(listElement)}</li>
             ))}
           </ul>
         );
       case 'Ref':
         return (
           <a key={index} href={`/doc#${value.reference.target}`}>
-            {renderElements(value.reference.content)}
+            {renderTextElements(value.reference.content)}
           </a>
         );
       case 'Title':
         return (
-          <PageAnchor link={value.name}>
-            {React.createElement(`h${value.size}`, {
+          <PageAnchor link={value.name} key={index}>
+            {React.createElement(`h${value.size + 1}`, {
               key: index,
               id: value.label,
-              children: renderElements(value.content),
+              children: renderTextElements(value.content),
             })}
           </PageAnchor>
         );
-
       case 'Custom':
         return (
           <pre key={index}>
@@ -389,17 +424,11 @@ let renderElements = (elements = [], parentPath = []) => {
           </pre>
         );
       case 'CodePre':
-        // TODO syntax higlighting
-        // TODO make it live
         return (
-          <pre
+          <div
             key={index}
             css={css`
-              font-family: 'Lucida Console', Monaco, monospace;
-              background-color: lightyellow;
-              border-radius: 3px;
-              padding: 5px 8px;
-              border: 1px solid lightgoldenrodyellow;
+              font-family: ${fonts.monospace};
               width: 100%;
               overflow: auto;
               position: relative;
@@ -408,6 +437,7 @@ let renderElements = (elements = [], parentPath = []) => {
               .try {
                 border: none;
                 bottom: 0;
+                cursor: pointer;
                 font-size: 14px;
                 padding: 4px;
                 position: absolute;
@@ -420,22 +450,22 @@ let renderElements = (elements = [], parentPath = []) => {
               }
             `}
           >
-            <code>{value}</code>
-            <button
+            <CodeBlock>{value}</CodeBlock>
+            {/* TODO get the playground working */}
+            {/* <button
               className="try"
               onClick={() => {
                 navigate(`/try?ocaml=${compress(value)}`);
               }}
             >
               Try
-            </button>
-          </pre>
+            </button> */}
+          </div>
         );
-
       default:
         return (
           <pre
-            key={index}
+            key={'DefaultTextElement' + index}
             css={css`
               border: 5px dashed red;
             `}
@@ -451,24 +481,19 @@ let TextElement = ({ elements }) => {
   return (
     <div
       css={css`
-        padding: 12px;
+        padding-top: 12px;
+        padding-bottom: 12px;
       `}
     >
-      {renderElements(elements)}
+      {renderTextElements(elements)}
     </div>
   );
 };
 
 let TypeSignature = ({ signature }) => {
   return (
-    <pre
-      css={css`
-        border: 2px solid orange;
-      `}
-    >
+    <pre>
       <code dangerouslySetInnerHTML={{ __html: signature.rendered }} />
-      {/* TODO */}
-      {/* <code>{JSON.stringify(signature.raw, null, 2)}</code> */}
     </pre>
   );
 };
@@ -476,7 +501,6 @@ let TypeSignature = ({ signature }) => {
 let ValueOrTypeContainer = props => (
   <div
     css={css`
-      border: 1px solid lightseagreen;
       margin-bottom: 25px;
       margin-top: 15px;
       width: 100%;
@@ -495,8 +519,9 @@ let Value = ({ path, name, type, info, parameters, ...value }) => {
           css={css`
             align-items: center;
             display: flex;
-            background-color: white;
-            border-left: 5px solid lightblue;
+            background-color: #f6f8fa;
+            border-radius: 3px;
+            border-left: 4px solid #5c9cf5;
             flex: 1;
             flex-direction: row;
             padding: 10px 15px;
@@ -511,21 +536,11 @@ let Value = ({ path, name, type, info, parameters, ...value }) => {
       {info && (
         <div
           css={css`
-            border-left: 5px solid lightgreen;
+            padding: 10px 15px;
           `}
         >
           <TextElement elements={info.description.value} />
         </div>
-      )}
-      {parameters.value.length > 0 && (
-        <pre
-          css={css`
-            border: 5px dashed red;
-          `}
-        >
-          {'params'}
-          {JSON.stringify(parameters, null, 2)}
-        </pre>
       )}
     </ValueOrTypeContainer>
   );
@@ -539,20 +554,17 @@ let renderModuleElements = (module_elements, modulesByName, path = []) => {
       case 'Type':
         // TODO syntax highlighting
         return (
-          <ValueOrTypeContainer>
+          <ValueOrTypeContainer key={index}>
             <PageAnchor
-              link={idFor(
-                path,
-                module_element.tag,
-                module_element.value.name,
-              )}
+              link={idFor(path, module_element.tag, module_element.value.name)}
             >
               <div
                 css={css`
                   align-items: center;
                   display: flex;
-                  background-color: white;
-                  border-left: 5px solid lightblue;
+                  background-color: #f6f8fa;
+                  border-radius: 3px;
+                  border-left: 4px solid #5c9cf5;
                   flex: 1;
                   flex-direction: row;
                   padding: 10px 15px;
@@ -577,15 +589,7 @@ let renderModuleElements = (module_elements, modulesByName, path = []) => {
               <TextElement
                 elements={module_element.value.info.description.value}
               />
-            )}
-            {/* <pre
-              key={index}
-              css={css`
-                border: 3px solid lightyellow;
-              `}
-            >
-              {JSON.stringify(module_element, null, 2)}
-            </pre> */}
+            )}            
           </ValueOrTypeContainer>
         );
       case 'Value':
@@ -593,22 +597,17 @@ let renderModuleElements = (module_elements, modulesByName, path = []) => {
       case 'Module':
         switch (module_element.value.kind.tag) {
           case 'ModuleStruct':
+            let moduleStructId = idFor(path, module_element.tag, module_element.value.name);
             return (
               <div
-                key={index}
+                key={moduleStructId + index}
                 css={css`
                   background-color: white;
                   margin-bottom: 3rem;
-                  padding: 10px;
+                  padding: 20px;
                 `}
               >
-                <PageAnchor
-                  link={idFor(
-                    path,
-                    module_element.tag,
-                    module_element.value.name,
-                  )}
-                >
+                <PageAnchor link={moduleStructId}>
                   <Identifiers.module name={module_element.value.name} />
                 </PageAnchor>
                 {renderModuleElements(
@@ -616,7 +615,6 @@ let renderModuleElements = (module_elements, modulesByName, path = []) => {
                   modulesByName,
                   [...path, module_element.value.name],
                 )}
-                <hr />
               </div>
             );
           case 'ModuleAlias':
@@ -631,28 +629,28 @@ let renderModuleElements = (module_elements, modulesByName, path = []) => {
                 'Unmapped case for ' + kind.value.name + module.value.kind,
               );
             }
+            let id = idFor(path, 'ModuleStruct', module.value.name);
             return (
               <div
-                key={index}
+                key={id + index}
                 css={css`
                   background-color: white;
                   margin-bottom: 3rem;
                   padding: 10px;
                 `}
               >
-                <PageAnchor link={idFor(path, 'ModuleStruct', module.value.name)}>
+                <PageAnchor link={id}>
                   <Identifiers.module
                     name={module_element.value.kind.value.name}
                   />
                 </PageAnchor>
                 {renderModuleElements(module.value.kind.value, modulesByName)}
-                <hr />
               </div>
             );
           default:
             return (
               <pre
-                key={index}
+                key={'DefaultModule' + index}
                 css={css`
                   border: 6px dashed blue;
                 `}
@@ -807,12 +805,23 @@ export default ({ data }) => {
                   }
                 `}
               >
-                <PageTitle>API</PageTitle>
+                <div
+                  css={css`
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-between;
+                    width: 100%;
+                  `}
+                >
+                  <PageTitle>API</PageTitle>
+                  <div>
+                    <SyntaxToggle />
+                  </div>
+                </div>
                 {renderModuleElements(
                   model.entry_point.value.kind.value,
                   moduleByModulePath,
                 )}
-                {/* <pre>{JSON.stringify(_.mapValues(moduleByModulePath, _ => []), null, 2)}</pre> */}
               </main>
             </div>
           </ContentContainer>
