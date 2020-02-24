@@ -1581,7 +1581,7 @@ module Integer : sig
     Arbitrary precision integers.
 
     Backed by {{: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt } BigInt }
-    when targeting Javascript and {{: } Zarith} when targetting native.
+    when targeting Javascript and {{: https://github.com/ocaml/Zarith } Zarith } when targetting native.
   *)
   type t
   

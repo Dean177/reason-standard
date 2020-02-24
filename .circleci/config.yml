@@ -67,7 +67,7 @@ jobs:
       - run: ~/.npm-global/bin/esy build
       - run: ~/.npm-global/bin/esy test
       - run: ~/.npm-global/bin/esy doc
-      - run: ~/.npm-global/bin/esy dune build @fmt
+      # - run: ~/.npm-global/bin/esy dune build @fmt
       # Use both pre and post build caches so that we're more likely
       # to have dependencies cached. `esy build` is more likely to fail,
       # so this will make the push that fixes the build faster
@@ -107,5 +107,5 @@ workflows:
   build:
     jobs:
       - bucklescript-build-and-test
-      # - native-build-and-test
+      - native-build-and-test
       - website-build
