@@ -1,10 +1,10 @@
 version: 2
 
 esy_cache_key: &esy_cache_key
-  key: esy-cache-{{ checksum "native/package.json" }}-{{ checksum "native/esy.lock/index.json" }}-{{ checksum ".circleci/config.yml" }}
+  key: esy-cache-{{ checksum "package.json" }}-{{ checksum "esy.lock/index.json" }}-{{ checksum ".circleci/config.yml" }}
 
 esy_post_build_cache_key: &esy_post_build_cache_key
-  key: esy-post-build-cache-{{ checksum "native/package.json" }}-{{ checksum "native/esy.lock/index.json" }}-{{ checksum ".circleci/config.yml" }}
+  key: esy-post-build-cache-{{ checksum "package.json" }}-{{ checksum "esy.lock/index.json" }}-{{ checksum ".circleci/config.yml" }}
 
 
 jobs:
