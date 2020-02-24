@@ -4952,32 +4952,6 @@ module Tuple: {
   */
   let swap: (('a, 'b)) => ('b, 'a);
 
-  /** Takes a function [f] which takes a single argument of a tuple ['a * 'b] and returns a function which takes two arguments that can be partially applied.
-
-      {e Examples}
-
-      {[
-        let squareArea (width, height) = width * height
-        let curriedArea : float -> float -> float = curry squareArea
-        let heights = [3, 4, 5]
-
-        List.map widths ~f:(curriedArea 4) = [12; 16; 20]
-      ]}
-  */
-  let curry: ((('a, 'b)) => 'c, 'a, 'b) => 'c;
-
-  /** Takes a function which takes two arguments and returns a function which takes a single argument of a tuple.
-
-      {e Examples}
-
-      {[
-        let sum (a : int) (b: int) : int = a + b
-        let uncurriedSum : (int * int) -> int = uncurry add
-        uncurriedSum (3, 4) = 7
-      ]}
-  */
-  let uncurry: (('a, 'b) => 'c, ('a, 'b)) => 'c;
-
   /** {2 Conversion} */
 
   /** Turns a tuple into an {!Array} of length two.
@@ -5208,27 +5182,6 @@ module Tuple3: {
       {[Tuple.rotateRight ("was", "stressed", "then") = ("then", "was", "stressed")]}
   */
   let rotateRight: (('a, 'b, 'c)) => ('c, 'a, 'b);
-
-  /** Takes a function which takes a single argument of a {!Tuple3} and returns a function which takes three arguments that can be partially applied.
-
-      {e Examples}
-
-      {[
-        let cubeVolume (width, height, depth) = width * height * depth in
-        let curriedVolume : float -> float -> float = curry squareArea in
-        let depths = [3; 4; 5] in
-        List.map depths ~f:(curriedVolume 3 4) = [36; 48; 60]
-      ]}
-  */
-  let curry: ((('a, 'b, 'c)) => 'd, 'a, 'b, 'c) => 'd;
-
-  /** [uncurry f] takes a function [f] which takes three arguments and returns a function which takes a single argument of a {!Tuple3}
-
-      {e Examples}
-
-      TODO
-  */
-  let uncurry: (('a, 'b, 'c) => 'd, ('a, 'b, 'c)) => 'd;
 
   /** {2 Conversion} */
 
@@ -5740,7 +5693,9 @@ module Fun: {
 
       While the functions in this module can often make code more concise, this
       often imposes a readability burden on future readers.
-  */ /** Given a value, returns exactly the same value. This may seem pointless at first glance but it can often be useful when an api offers you more control than you actually need.
+  */ 
+  
+  /** Given a value, returns exactly the same value. This may seem pointless at first glance but it can often be useful when an api offers you more control than you actually need.
 
       Perhaps you want to create an array of integers
 
@@ -5934,4 +5889,50 @@ module Fun: {
       ]}
   */
   let times: (int, ~f: unit => unit) => unit;
+
+ /** Takes a function [f] which takes a single argument of a tuple ['a * 'b] and returns a function which takes two arguments that can be partially applied.
+
+        {e Examples}
+
+        {[
+          let squareArea (width, height) = width * height
+          let curriedArea : float -> float -> float = Fun.curry squareArea
+          let heights = [3, 4, 5]
+
+          List.map widths ~f:(curriedArea 4) = [12; 16; 20]
+        ]}
+    */
+  let curry: ((('a, 'b)) => 'c, 'a, 'b) => 'c;
+
+  /** Takes a function which takes two arguments and returns a function which takes a single argument of a tuple.
+
+      {e Examples}
+
+      {[
+        let sum (a : int) (b: int) : int = a + b
+        let uncurriedSum : (int * int) -> int = Fun.uncurry add
+        uncurriedSum (3, 4) = 7
+      ]}
+  */
+  let uncurry: (('a, 'b) => 'c, ('a, 'b)) => 'c;
+
+  /** Takes a function which takes a single argument of a {!Tuple3} and returns 
+      a function which takes three arguments that can be partially applied.
+
+      {e Examples}
+
+      {[
+        let cubeVolume (width, height, depth) = width * height * depth in
+        let curriedVolume : float -> float -> float = Fun.curry3 squareArea in
+        let depths = [3; 4; 5] in
+        List.map depths ~f:(curriedVolume 3 4) = [36; 48; 60]
+      ]}
+  */
+  let curry3: ((('a, 'b, 'c)) => 'd, 'a, 'b, 'c) => 'd;
+
+  /** [uncurry3 f] takes a function [f] which takes three arguments and returns 
+      a function which takes a single argument of a {!Tuple3}
+  */
+  let uncurry3: (('a, 'b, 'c) => 'd, ('a, 'b, 'c)) => 'd;
+
 };

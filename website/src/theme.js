@@ -70,6 +70,10 @@ let ThemeContext = React.createContext(['light', () => {}]);
 
 export const ThemeProvider = ({ children }) => {
   let [themeName, setTheme] = useState(() => {
+    if (typeof window === `undefined`) {
+      // We are server side renderding
+      return 'light'
+    }
     return (
       window.localStorage.getItem('theme') ||
       (window.matchMedia &&

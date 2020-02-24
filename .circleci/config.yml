@@ -22,16 +22,16 @@ jobs:
           path: ~/repo
       - restore_cache:
           keys:
-            - v1-bucklescript-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
+            - v1-bucklescript-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
             - v1-bucklescript-dependencies-{{ .Branch }}-
             - v1-bucklescript-dependencies-
 
-      - run: npm install
-      - run: npm run build
-      - run: npm test
+      - run: yarn install
+      - run: yarn build
+      - run: yarn test
 
       - save_cache:
-          key: v1-bucklescript-dependencies-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          key: v1-bucklescript-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
             - ~/repo/bucklescript/node_modules
 
@@ -76,8 +76,36 @@ jobs:
           paths:
             - ~/.esy      
 
+  website-build:
+    docker:
+      - image: circleci/node:12
+
+    environment:
+      CI: true
+      NODE_ENV: test
+
+    working_directory: ~/repo/website
+    steps:
+      - checkout:
+          path: ~/repo
+      - restore_cache:
+          keys:
+            - v1-website-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - v1-website-dependencies-{{ .Branch }}-
+            - v1-website-dependencies-
+
+      - run: yarn install
+      - run: yarn build      
+
+      - save_cache:
+          key: v1-website-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/repo/website/node_modules
+
 workflows:
   version: 2
   build:
     jobs:
       - bucklescript-build-and-test
+      # - native-build-and-test
+      - website-build

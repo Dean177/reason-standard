@@ -16,6 +16,7 @@ import {
 } from '../components/Layout';
 import {CodeBlock} from '../components/CodeBlock';
 import { formatTitleToId } from '../id';
+import { LeftSidebar } from '../components/sidebar';
 
 let mdxComponents = {
   h1: props => (
@@ -163,7 +164,7 @@ export default ({ data }) => {
               }
             `}
           >
-            <LeftSidebar location={location} />
+            <LeftSidebar />
           </div>
           <main
             css={css`

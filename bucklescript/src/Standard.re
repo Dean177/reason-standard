@@ -166,6 +166,14 @@ module Fun = {
       f();
     };
   };
+
+  let curry = (f: (('a, 'b)) => 'c, a, b): 'c => f((a, b));
+
+  let uncurry = (f: ('a, 'b) => 'c, (a, b): ('a, 'b)): 'c => f(a, b);
+
+ let curry3 = (f, a, b, c) => f((a, b, c));
+
+  let uncurry3 = (f, (a, b, c)) => f(a, b, c);
 };
 
 module Container = {
@@ -1253,10 +1261,6 @@ module Tuple = {
 
   let swap = ((a, b)) => (b, a);
 
-  let curry = (f: (('a, 'b)) => 'c, a, b): 'c => f((a, b));
-
-  let uncurry = (f: ('a, 'b) => 'c, (a, b): ('a, 'b)): 'c => f(a, b);
-
   let toArray = ((a, b)) => [|a, b|];
 
   let toList = ((a, b)) => [a, b];
@@ -1318,10 +1322,6 @@ module Tuple3 = {
   let rotateLeft = ((a, b, c)) => (b, c, a);
 
   let rotateRight = ((a, b, c)) => (c, a, b);
-
-  let curry = (f, a, b, c) => f((a, b, c));
-
-  let uncurry = (f, (a, b, c)) => f(a, b, c);
 
   let toArray = ((a, b, c)) => [|a, b, c|];
 

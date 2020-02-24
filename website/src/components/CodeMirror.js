@@ -1,5 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import codemirror from 'codemirror';
+let codemirror = null;
+if (typeof window !== `undefined`) {
+  // We are server side renderding
+  codemirror = require('codemirror');
+}
 
 export class CodeMirror extends React.Component {
   componentDidMount() {
@@ -24,6 +28,9 @@ export class CodeMirror extends React.Component {
   }
 
   render() {
+    if (codemirror == null) {
+      return null;
+    }
     return (
       <div
         className={this.props.className}

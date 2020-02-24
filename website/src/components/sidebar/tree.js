@@ -55,12 +55,8 @@ const TreeNode = ({
   items,
 }) => {
   const isCollapsed = collapsed[url];
-  const hasChildren = items.length !== 0;
-  let location;
-  if (typeof document != 'undefined') {
-    location = document.location;
-  }
-  const active = location.pathname === url;
+  const hasChildren = items.length !== 0;  
+  const active = false;
   return (
     <li className={`${className} item ${active ? 'active' : ''}`}>
       {title && (

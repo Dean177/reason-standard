@@ -122,7 +122,7 @@ const Divider = styled(props => (
 `;
 
 
-export const LeftSidebar = ({location}) => (
+export const LeftSidebar = () => (
   <StaticQuery
     query={graphql`
       query {

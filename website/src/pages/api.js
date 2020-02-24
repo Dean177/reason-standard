@@ -3,7 +3,6 @@ import { graphql, navigate, Link } from 'gatsby';
 import styled, { css } from 'styled-components';
 import _ from 'lodash';
 import refmt from 'reason';
-window.refmt = refmt;
 import {
   breakpoints,
   colors,
@@ -316,7 +315,7 @@ const PageAnchor = ({ link, children }) => {
       `}
     >
       <a
-        href={`${location.pathname}#${link}`}
+        href={`/api#${link}`}
         css={css`
           font-size: 13px;
           height: 100%;
