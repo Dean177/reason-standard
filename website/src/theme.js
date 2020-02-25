@@ -16,7 +16,7 @@ export let colors = {
     dark: 'rgb(219, 77, 63)',
     darkest: 'rgb(162,70,57)',
   },
-  black: 'rgb (36, 42, 49)',
+  black: 'rgb(36, 42, 49)',
   grey: {
     lighter: 'rgb(230, 236, 241)',
     light: 'rgb(246,244,244)',
@@ -188,7 +188,7 @@ export const GlobalStyles = createGlobalStyle`
 }
 
 html, body {
-  background: ${({ theme }) => theme.body};
+  background-color: ${({ theme }) => theme.body};
   color: ${({ theme }) => theme.text};
   font-family: BlinkMacSystemFont, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   font-size: 16px;
