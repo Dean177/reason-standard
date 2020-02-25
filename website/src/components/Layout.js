@@ -1,7 +1,7 @@
 import { useStaticQuery, graphql } from 'gatsby';
 import React from 'react'
 import styled from 'styled-components';
-import { dimensions, colors, useTheme, ThemeToggle } from '../theme'
+import { dimensions, colors, spacing, useTheme, ThemeToggle } from '../theme'
 import { Link } from './Link';
 import { GitHub } from './Icon';
 
@@ -13,9 +13,7 @@ export const AppContainer = styled.div`
   width: 100%;
 `;
 
-export const ContentContainer = styled.div`
-  display: flex;
-  flex-direction: column;
+export const ContentContainer = styled.div`  
   overflow: auto;
   height: 100%;
   width: 100%;
@@ -36,10 +34,13 @@ export const NavBar = () => {
   return (
     <nav
       css={css`
-        background-color: ${colors.red.dark};
+        background-color: ${({ theme }) => theme.navbar.background};
         display: flex;
         flex-direction: column;
+        min-height: ${dimensions.navbar}px;
         width: 100%;
+        padding-left: ${spacing.medium}px;
+        padding-right: ${spacing.medium}px;
       `}
     >
       <div
@@ -47,20 +48,19 @@ export const NavBar = () => {
           align-items: center;
           align-self: center;
           display: flex;
-          flex-shrink: 0;
           flex-direction: row;
+          flex-shrink: 0;
           justify-content: space-between;
           max-width: ${dimensions.maxContentWidth}px;
           padding-top: 12px;
           padding-bottom: 12px;
-          padding-left: 15px;
           width: 100%;
           z-index: 1;
 
           .navBarHeader {
-            display: flex;
             align-items: center;
-            color: #fff;
+            display: flex;
+            color: ${({ theme }) => theme.navbar.text};
             font-size: 18px;
             font-weight: 500;
             height: auto;
@@ -76,11 +76,9 @@ export const NavBar = () => {
             display: flex;
             flex-direction: row;
 
-            li {
-              list-style-type: none;
-
+            .navLink {
               a {
-                color: #fff;
+                color: ${({ theme }) => theme.navbar.text};
                 font-size: 16px;
                 font-weight: 500;
                 line-height: 1em;
@@ -98,21 +96,21 @@ export const NavBar = () => {
         <Link to={'/'} className="navBarHeader">
           Standard
         </Link>
-        <ul className="navLinks">
-          <li>
+        <div className="navLinks">
+          <div className="navLink">
             <ThemeToggle theme={themeName} toggleTheme={toggleTheme} />
-          </li>
-          <li>
+          </div>
+          <div className="navLink">
             <Link to="/docs">docs</Link>
-          </li>
-          <li>
+          </div>
+          <div className="navLink">
             <Link to="/api">api</Link>
-          </li>
+          </div>
           {/* TODO get the playground working */}
-          {/* <li>
+          {/* <div>
             <Link to="/try">try</Link>
-          </li> */}
-          <li>
+          </div> */}
+          <div className="navLink">
             <Link
               to={githubUrl}
               css={css`
@@ -120,7 +118,7 @@ export const NavBar = () => {
                 align-items: center;
 
                 svg {
-                  fill: white;
+                  fill: ${({ theme }) => theme.navbar.text};
                   width: 15px;
                   margin-right: 5px;
                 }
@@ -129,8 +127,8 @@ export const NavBar = () => {
               <GitHub />
               <span>github</span>
             </Link>
-          </li>
-        </ul>
+          </div>
+        </div>
       </div>
     </nav>
   );
@@ -162,7 +160,6 @@ export let PageTitle = ({children}) => {
 
 export const MenuButton = ({ onClick, isOpen }) => {
   return (
-    
       <div
         onClick={onClick}
         css={css`

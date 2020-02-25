@@ -18,6 +18,7 @@ module.exports = {
         enabled: ['production', 'stage'].indexOf(process.env.NODE_ENV) !== -1,
       },
     },
+    'gatsby-plugin-remove-trailing-slashes',
     'gatsby-plugin-styled-components',
     'gatsby-plugin-sitemap',
     'gatsby-plugin-sharp',

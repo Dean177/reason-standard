@@ -15,7 +15,9 @@ npm install reason-standard --save
 
 Then add to your bsconfig.json file:
 
-`"bs-dependencies" : ["reason-standard"]`
+```json
+  "bs-dependencies" : ["reason-standard"]`
+```
 
 ## OCaml native
 

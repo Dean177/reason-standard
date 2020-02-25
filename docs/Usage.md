@@ -23,12 +23,13 @@ To avoid having to write `open Standard` at the top of every file, you can pass 
 
 ### With Bucklescript
 
-In `bsconfig.json` edit the `bsx-flags` array to look like the following:
+In `bsconfig.json` edit the `bsc-flags` array to look like the following:
 
-```JSON
+```json
 "bsc-flags": [
-  "-open",
-  "Standard"
+  "-open", 
+  "Standard",
+  // ...
 ]
 ```
 
@@ -55,28 +56,4 @@ https://dune.readthedocs.io/en/stable/concepts.html#ocaml-flags
  (libraries standard zarith)
  (flags (:open Standard)))
  ```
-
-## Using with rtop / utop
-
-Standard comes with pretty-printers to improve the development experience when using a repl.
-
-To enable them, copy the following to `~/.ocamlinit` (Creating it if it doesn't allready exist).
-
-If you already have `findlib` in your `~/.ocamlinit`, you only need the last expression.
-
-```ocaml
-(* Pretend to be in non-interactive mode to hide topfind
-initialization message *)
-let interactive = !Sys.interactive;;
-Sys.interactive := false;;
-#use "topfind";;
-Sys.interactive := interactive;;
-
-(* Run battop.ml in toplevel *)
-Toploop.use_silently
-  Format.err_formatter (
-    Filename.concat
-      (Findlib.package_directory "reason-standard") 
-      "battop.ml"
-  );;
-```
+ 

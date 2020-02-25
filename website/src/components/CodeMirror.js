@@ -9,7 +9,6 @@ export class CodeMirror extends React.Component {
   componentDidMount() {
     this.editor = codemirror(this.div, this.props.options);
     this.editor.setValue(this.props.value);
-
     this.editor.on('change', (cm, metadata) => {
       const value = this.editor.getValue();
       if (value !== this.props.value && this.props.onChange) {

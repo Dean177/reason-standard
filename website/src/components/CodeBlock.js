@@ -1,8 +1,10 @@
 import * as React from 'react';
 import Highlight, { defaultProps } from 'prism-react-renderer';
-import prismTheme from 'prism-react-renderer/themes/github';
+import prismLightTheme from 'prism-react-renderer/themes/nightOwlLight';
+import prismDarkTheme from 'prism-react-renderer/themes/nightOwl';
 import refmt from 'reason';
 import { useSyntax } from './Syntax';
+import { useTheme, colors } from '../theme';
 
 /** Removes the last token from a code example if it's empty. */
 function cleanTokens(tokens) {
@@ -19,6 +21,7 @@ function cleanTokens(tokens) {
 
 export const CodeBlock = ({ children, ...props }) => {
   let [syntax, _] = useSyntax();
+  let [theme] = useTheme();
   let lines = children.split('\n');
   let firstNonEmptyLine = 0;
   while (lines[firstNonEmptyLine].trim() === '') {
@@ -34,7 +37,7 @@ export const CodeBlock = ({ children, ...props }) => {
     .join('\n')
     .toString();
   try {
-    if (syntax === 'reason') {
+    if (!props.language && syntax === 'reason') {
       code = refmt.printRE(refmt.parseML(code));
     }
   } catch (error) {      
@@ -44,12 +47,15 @@ export const CodeBlock = ({ children, ...props }) => {
     <Highlight
       {...defaultProps}
       code={code}
-      theme={prismTheme}
-      language={syntax}
+      theme={theme === 'light' ? prismLightTheme : prismDarkTheme}
+      language={props.language || syntax}
       {...props}
     >
       {({ className, style, tokens, getLineProps, getTokenProps }) => (
-        <pre className={className + ' pre'} style={style} p={3}>
+        <pre className={'CodeBlock ' + className} style={style} p={3} css={css`
+          border: 1px solid ${colors.grey.base};
+          border-radius: 3px;
+          padding: 15px;`}>
           {cleanTokens(tokens).map((line, i) => {
             const lineProps = getLineProps({ line, key: i });
             return (

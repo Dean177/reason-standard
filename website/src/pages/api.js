@@ -5,6 +5,7 @@ import _ from 'lodash';
 import refmt from 'reason';
 import {
   breakpoints,
+  dimensions,
   colors,
   fonts,
   GlobalStyles,
@@ -751,8 +752,7 @@ export default ({ data }) => {
                 z-index: ${isOpen ? 2 : -1};
                 opacity: ${isOpen ? 1 : 0};
                 transform: ${isOpen ? 'translateY(0)' : 'translateY(60px)'};
-                /* TODO linear is weird */
-                transition: all 0.2s linear;
+                transition: all 0.2s ease;
 
                 @media (min-width: ${breakpoints.desktop}px) {
                   display: none;

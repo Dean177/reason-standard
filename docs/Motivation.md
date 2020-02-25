@@ -1,5 +1,6 @@
 ---
 title: "Motivation"
+order: "3"
 ---
 
 ## Where are all the functions
@@ -63,3 +64,48 @@ Belt is OK:
 - It has some legacy baggage
 - Its inconsistent TODO is it
 - Its not available for native code\* (It is when you are using bucklescript-native)
+
+- High quality documentation and examples
+- Consistency
+- Well-documented and consistent edge-case behaviour,
+- No name mangling
+- Standard functions should not throw any exceptions
+- Batteries included
+- Functions are data-first TODO explain what this means
+- Takes inspiration from the standard libraries of Rust, Elm and Go
+- Make extensive use of labelled arguments
+- use labelled arguments so that can be used with both pipefirst and pipelast,
+- Performance
+- have both snake_case and camelCase versions of all functions and types,
+- are backed by [Jane Street Base](https://opensource.janestreet.com/base/) for native OCaml
+- are backed by Belt and the `Js` library for Bucklescript/ReasonML,
+
+
+- Can it easily be made from existing functions -> Don't include it
+- Are people always making that custom function -> Do include it
+
+TODO nail this
+
+- Amazing documentation & examples
+- Easy to use and learn
+- Consistency
+- Find a balance between batteries included and bare essentials
+- Providing the same basic API for both ocaml and bucklescript
+- Provide platoform specific features where it makes sense
+- Strike a balance between JS and Ocaml conventions
+- Safety. Exceptions that can throw are not the default, well documented
+- Pragmatism over purity. While Foldable Magmas are pretty,
+- Portability
+
+Draw inspiration from
+
+- [ImmutableJS](https://immutable-js.github.io/immutable-js/)
+- [Lodash](https://lodash.com/docs)
+- [Base](https://ocaml.janestreet.com/ocaml-core/latest/doc/base/index.html)
+- [Batteries](http://ocaml-batteries-team.github.io/batteries-included/hdoc2/)
+- [Containers](https://c-cube.github.io/ocaml-containers/)
+- [Go](https://golang.org/pkg/#stdlib)
+- [Rust](https://doc.rust-lang.org/std/)
+- [Elm](https://package.elm-lang.org/packages/elm/core/latest/)
+- [Elixir](https://hexdocs.pm/elixir/Kernel.html)
+

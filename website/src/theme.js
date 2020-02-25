@@ -16,7 +16,7 @@ export let colors = {
     dark: 'rgb(219, 77, 63)',
     darkest: 'rgb(162,70,57)',
   },
-  black: 'rgb(0,0,0)',
+  black: 'rgb (36, 42, 49)',
   grey: {
     lighter: 'rgb(230, 236, 241)',
     light: 'rgb(246,244,244)',
@@ -35,13 +35,16 @@ export let fonts = {
   monospace: `"Lucida Console", Monaco, monospace`,
 };
 
-export let spacing = {};
+export let spacing = {
+  medium: 15,
+};
 
 export let breakpoints = {
   desktop: 768,
 };
 
 export let dimensions = {
+  navbar: 60,
   maxContentWidth: 970,
   leftSideBar: 298,
   rightSideBar: 224,
@@ -51,17 +54,35 @@ export let themes = {
   light: {
     body: colors.grey.light,
     text: colors.black,
+    link: colors.red.dark,
+    navbar: {
+      background: colors.white,
+      text: colors.red.dark,
+    },
+    card: {
+      background: colors.white,
+      text: colors.black,
+    },
     toggle: {
       background: colors.grey.lightest,
-      border: colors.white,
+      border: colors.red.base,
     },
   },
   dark: {
-    body: colors.grey.dark,
+    body: colors.black,
     text: colors.white,
+    link: colors.red.base,
+    navbar: {
+      background: colors.purple.base,
+      text: colors.white,
+    },
+    card: {
+      background: colors.black,
+      text: colors.white,
+    },
     toggle: {
       background: colors.grey.darkest,
-      border: colors.black,
+      border: colors.red.dark,
     },
   },
 };
@@ -72,7 +93,7 @@ export const ThemeProvider = ({ children }) => {
   let [themeName, setTheme] = useState(() => {
     if (typeof window === `undefined`) {
       // We are server side renderding
-      return 'light'
+      return 'light';
     }
     return (
       window.localStorage.getItem('theme') ||
@@ -126,8 +147,7 @@ const ToggleContainer = styled.button`
   span {
     font-size: 1rem;
     width: 2.5rem;
-    /* TOOD linear is weird */
-    transition: all 0.3s linear;
+    transition: all 0.3s ease;
 
     // sun icon
     &:first-child {
@@ -181,7 +201,7 @@ html, body {
 }
  
 a {
-  color: ${colors.red.base};
+  color: ${({ theme }) => theme.link};
   text-decoration: none;
 }
 a:hover {
@@ -237,34 +257,35 @@ a:hover {
 }
 
 .paragraph {
-  margin: 16px 0px 32px;
+  margin: 16px 0px;
   line-height: 1.625;
 }
 
 .pre {
   border: 0;
-  background-color: rgb(245, 247, 249);
   font-size: 14px;
   margin: 0px;
-  padding: 16px;
   overflow: auto;
 }
 
 .code {
-  background: #f9f7fb;
-  border: 1px solid #ede7f3;
   border-radius: 4px;
-  padding: 2px 6px;
-  font-size: 0.9375em;
-}
-
-code, .code { 
   font-family: ${fonts.monospace};
+  font-size: 0.9375em;
 }
 
 .blockquote {
   background-color: ${colors.grey.lighter};
   border-left: 3px solid ${colors.grey.base};
   padding-left: 14px;  
+}
+
+ul, ol {
+  padding: 0px 0px 0px 2em;
+  li {
+    font-size: 16px;
+    line-height: 1.8;
+    font-weight: 400;
+  }
 }
 `;

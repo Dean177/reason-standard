@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { graphql } from 'gatsby';
 import { useSpring, animated } from 'react-spring';
 import styled, { css } from 'styled-components';
@@ -47,7 +47,7 @@ const SellingPoint = ({ description, illustration, flip }) => {
         }
 
         .description {
-          background-color: white;
+          background-color: ${({theme}) => theme.card.background};
           display: flex;
           flex: 1;
           font-size: 20px;
@@ -102,6 +102,14 @@ export default props => {
     allMdx,
   } = props.data;
   let [logo, setLogo] = React.useState('reason');
+  useEffect(() => {
+    let toggleLogo = setInterval(() => {
+      setLogo(current => current === 'reason' ? 'ocaml' : 'reason')
+    }, 3000);
+    return () => {
+      clearInterval(toggleLogo)
+    };
+  });
 
   // Todo, use a static query to move this into NextPrevious
   const nav = allMdx.edges
@@ -160,23 +168,30 @@ export default props => {
               >
                 Standard
               </h1>
+              <p>A standard library replacement for Reason and Ocaml. </p>
               <p
                 css={css`
                   padding-top: 30px;
                   padding-bottom: 30px;
-                `}
+                  `}
               >
-                A standard library replacement for Reason and Ocaml. Standard
-                provides an easy-to-use, comprehensive and performant standard
-                library, that has the same API for the OCaml and Bucklescript
-                compilers.
+                Standard provides an easy-to-use, comprehensive and performant
+                standard library, that has the same API for the OCaml and
+                Bucklescript compilers.
               </p>
+              <div css={css`
+                h1 {
+                  
+                }
+              `}>
+                <button>Get started</button>
+              </div>
               <div
                 css={css`
                   padding-bottom: 50px;
                 `}
               >
-                <CodeBlock langauge="reason">
+                <CodeBlock language="reason">
                   {`
 open Standard;
 
@@ -185,7 +200,7 @@ String.toList("somestring")
   Char.toCode(character)->Int.add(1)->Char.ofCode
 )
 ->String.ofList
-// "asdfasdf"
+/* "asdfasdf" */
                   `}
                 </CodeBlock>
               </div>
@@ -259,10 +274,6 @@ String.toList("somestring")
                   (let+) Bindings for Options & Results
               `}
               />
-              <h1>
-                Get started 
-              </h1>
-              <NextPrevious currentUrl={null} nav={nav} />
             </div>
           </main>
         </ContentContainer>

@@ -1,0 +1,4 @@
+assignment-operator = end-line
+parens-ite = true
+parens-tuple = always
+parens-tuple-patterns = always

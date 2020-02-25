@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from './Link';
+import { colors } from '../theme'
 
 export const NextPrevious = ({ nav, currentUrl }) => {
   const currentIndex = nav.findIndex(({ url }) => url === currentUrl);
@@ -35,7 +36,8 @@ export const NextPrevious = ({ nav, currentUrl }) => {
         column-gap: 24px;
         grid-template-columns: calc(50% - 8px) calc(50% - 8px);
 
-        .previousBtn {
+        .previousBtn,
+        .nextBtn {
           cursor: pointer;
           margin: 0px;
           padding: 0px;
@@ -44,8 +46,8 @@ export const NextPrevious = ({ nav, currentUrl }) => {
           flex-direction: row;
           align-items: center;
           place-self: stretch;
-          color: rgb(36, 42, 49);
-          background-color: rgb(255, 255, 255);
+          color: ${({ theme }) => theme.card.text};
+          background-color: ${({ theme }) => theme.card.background};
           border-radius: 3px;
           border: 1px solid rgb(230, 236, 241);
           transition: border 200ms ease 0s;
@@ -53,7 +55,8 @@ export const NextPrevious = ({ nav, currentUrl }) => {
           text-decoration: none;
         }
 
-        .leftArrow {
+        .leftArrow,
+        .rightArrow {
           display: block;
           margin: 0px;
           color: rgb(157, 170, 182);
@@ -64,11 +67,14 @@ export const NextPrevious = ({ nav, currentUrl }) => {
           padding-right: 16px;
         }
 
+        .nextRightWrapper,
         .preRightWrapper {
           display: block;
-          margin: 0px;
           flex: 1 1 0%;
+          margin: 0px;
           padding: 16px;
+        }
+        .preRightWrapper {
           text-align: right;
         }
 
@@ -77,76 +83,37 @@ export const NextPrevious = ({ nav, currentUrl }) => {
           margin: 0px;
           padding: 0px;
           color: #6e6e6e;
-        }
 
-        .smallContent span {
-          font-size: 12px;
-          line-height: 1.625;
-          font-weight: 400;
-        }
+          span {
+            font-size: 12px;
+            line-height: 1.625;
+            font-weight: 400;
+          }
 
-        .nextPreviousTitle {
-          display: block;
-          margin: 0px;
-          padding: 0px;
-          transition: color 200ms ease 0s;
-        }
+          .nextPreviousTitle {
+            display: block;
+            margin: 0px;
+            padding: 0px;
+            transition: color 200ms ease 0s;
 
-        .nextPreviousTitle span {
-          font-size: 16px;
-          line-height: 1.5;
-          font-weight: 500;
-        }
-
-        .nextBtn {
-          cursor: pointer;
-          -moz-box-align: center;
-          -moz-box-direction: normal;
-          -moz-box-orient: horizontal;
-          margin: 0px;
-          padding: 0px;
-          position: relative;
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          place-self: stretch;
-          color: rgb(36, 42, 49);
-          background-color: rgb(255, 255, 255);
-          border-radius: 3px;
-          border: 1px solid rgb(230, 236, 241);
-          transition: border 200ms ease 0s;
-          box-shadow: rgba(116, 129, 141, 0.1) 0px 3px 8px 0px;
-          text-decoration: none;
-        }
-
-        .rightArrow {
-          flex: 0 0 auto;
-          font-size: 24px;
-          transition: color 200ms ease 0s;
-          padding: 16px;
-          padding-left: 16px;
-          display: block;
-          margin: 0px;
-          color: rgb(157, 170, 182);
-        }
-
-        .nextRightWrapper {
-          display: block;
-          margin: 0px;
-          padding: 16px;
-          flex: 1 1 0%;
+            span {
+              font-size: 16px;
+              line-height: 1.5;
+              font-weight: 500;
+            }
+          }
         }
 
         .nextBtn:hover,
         .previousBtn:hover {
-          color: rgb(116, 76, 188);
+          color: ${colors.red.dark};
           text-decoration: none;
-          border: 1px solid rgb(116, 76, 188);
+          border: 1px solid ${colors.red.dark};
         }
 
         .nextBtn:hover .rightArrow,
         .previousBtn:hover .leftArrow {
-          color: rgb(116, 76, 188);
+          color: ${colors.red.dark};
         }
       `}
     >

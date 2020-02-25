@@ -6,7 +6,7 @@ import { MDXProvider } from '@mdx-js/react';
 import { css } from 'styled-components';
 import { NextPrevious } from '../components/NextPrevious';
 import { GithubEditButton } from '../components/GithubEditButton';
-import { breakpoints, colors, GlobalStyles, ThemeProvider } from '../theme';
+import { breakpoints, colors, dimensions, GlobalStyles, ThemeProvider } from '../theme';
 import {
   NavBar,
   ContentContainer,
@@ -14,9 +14,9 @@ import {
   MenuButton,
   PageTitle,
 } from '../components/Layout';
-import {CodeBlock} from '../components/CodeBlock';
+import { CodeBlock } from '../components/CodeBlock';
 import { formatTitleToId } from '../id';
-import { LeftSidebar } from '../components/sidebar';
+import { Sidebar } from '../components/Sidebar';
 
 let mdxComponents = {
   h1: props => (
@@ -38,8 +38,15 @@ let mdxComponents = {
     <h6 className="heading6" id={formatTitleToId(props.children)} {...props} />
   ),
   p: props => <p className="paragraph" {...props} />,
-  pre: props => <pre className="pre" {...props} />,
-  code: CodeBlock,
+  pre: props => <pre className="pre">{props.children}</pre>,
+  code: ({ className, ...props }) => (
+    <div className="code">
+    <CodeBlock
+      language={className && className.replace('language-', '')}
+      {...props}
+      />
+    </div>
+  ),
   a: ({ children: link, ...props }) => {
     return (
       <a href={props.href} target="_blank" rel="noopener" {...props}>
@@ -95,7 +102,7 @@ export const pageQuery = graphql`
   }
 `;
 
-export default ({ data }) => {
+export default ({ data, location }) => {
   let [isOpen, setIsOpen] = React.useState(false);
   const {
     allMdx,
@@ -115,14 +122,23 @@ export default ({ data }) => {
     .sort((fieldsA, fieldsB) => fieldsA.order - fieldsB.order);
 
   const { title } = mdx.fields;
-  const { metaTitle, metaDescription } = mdx.frontmatter;  
+  const { metaTitle, metaDescription } = mdx.frontmatter;
   // TODO static query for site url
   // let canonicalUrl = `${config.gatsby.pathPrefix}${config.gatsby.siteUrl}${mdx.fields.url}`;
 
   return (
     <ThemeProvider>
       <GlobalStyles />
-      <AppContainer>
+      <div
+        css={css`
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          overflow-y: auto;
+          position: relative;
+          width: 100%;
+        `}
+      >
         {/* <Helmet>
           {title ? (
             <>
@@ -140,9 +156,17 @@ export default ({ data }) => {
             </>
           ) : null}
         </Helmet> */}
-       
-        <ContentContainer>
-          <NavBar githubUrl={githubUrl} />
+        <NavBar githubUrl={githubUrl} />
+        <div
+          css={css`
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            @media (min-width: ${breakpoints.desktop}px) {
+              flex-direction: row;
+            }
+          `}
+        >
           <div
             css={css`
               bottom: 0;
@@ -150,25 +174,29 @@ export default ({ data }) => {
               right: 0;
               top: 0;
               display: flex;
-              flex: 1;
               flex-direction: column;
+              flex: 1;              
               position: absolute;
               z-index: ${isOpen ? 2 : -1};
               opacity: ${isOpen ? 1 : 0};
               transform: ${isOpen ? 'translateY(0)' : 'translateY(60px)'};
-              /* TODO linear is weird */
-              transition: all 0.2s linear;
+              transition: all 0.2s ease;
 
               @media (min-width: ${breakpoints.desktop}px) {
-                display: none;
+                flex-grow: 0;
+                position: fixed;
+                position: sticky;
+                opacity: 1;
+                transform: translateY(0);
+                width: ${dimensions.leftSideBar}px;
+                z-index: 2;
               }
             `}
           >
-            <LeftSidebar />
+            <Sidebar location={location} />
           </div>
           <main
             css={css`
-              align-self: center;
               display: flex;
               flex: 1;
               flex-direction: column;
@@ -184,20 +212,8 @@ export default ({ data }) => {
             />
             <div
               className={css`
-                background-color: pink;
                 display: flex;
                 flex: 1;
-
-                ul,
-                ol {
-                  margin: 24px 0px;
-                  padding: 0px 0px 0px 2em;
-                  li {
-                    font-size: 16px;
-                    line-height: 1.8;
-                    font-weight: 400;
-                  }
-                }
               `}
             >
               <MDXProvider components={mdxComponents}>
@@ -212,8 +228,7 @@ export default ({ data }) => {
               <NextPrevious currentUrl={mdx.fields.url} nav={nav} />
             </div>
           </main>
-          {/* <RightSidebar location={location} /> */}
-        </ContentContainer>
+        </div>
 
         <div
           css={css`
@@ -232,7 +247,7 @@ export default ({ data }) => {
             isOpen={isOpen}
           />
         </div>
-      </AppContainer>
+      </div>
     </ThemeProvider>
   );
 };

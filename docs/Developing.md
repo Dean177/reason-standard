@@ -1,9 +1,7 @@
 ---
 title: "Developing"
-order: "99"
+order: "6"
 ---
-
-## Developing
 
 There are a few prerequisites you will need to get started:
 
@@ -14,8 +12,7 @@ Install a current version of:
 - [esy](http://esy.sh)
 
 
-
-### bucklescript
+## bucklescript
 
 In the `bucklescript` directory run 
 
@@ -25,7 +22,7 @@ yarn install
 
 Then see `scripts` in `bucklescript/package.json`
 
-### native
+## native
 
 In the `native` directory run 
 
@@ -35,7 +32,7 @@ esy install
 
 Then see `scripts` in `native/package.json`
 
-### website
+## website
 
 In the `website` directory run 
 
@@ -46,7 +43,7 @@ yarn install
 Then see `scripts` in `website/package.json`
 
 
-### Running tests
+## Running tests
 
 The tests files are located in `bucklescript/test` and **run against both platforms**.
 

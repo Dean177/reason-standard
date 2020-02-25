@@ -1,6 +1,6 @@
 ---
 title: "Roadmap"
-order: "8"
+order: "5"
 ---
 
 #### Future
@@ -20,7 +20,7 @@ order: "8"
 
 ## Future
 
-- [ ] Bool
+- [x] Bool
 - [ ] Vector (Immutable, Growable array-like)
 - [ ] Buffer: file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Buffer/index.html
 - [ ] Random
