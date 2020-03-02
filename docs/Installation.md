@@ -16,14 +16,12 @@ npm install reason-standard --save
 Then add to your bsconfig.json file:
 
 ```json
-  "bs-dependencies" : ["reason-standard"]`
+  "bs-dependencies" : ["reason-standard"]
 ```
 
 ## OCaml native
 
 ### Using opam
-
-Install via opam:
 
 ```sh
 opam install reason-standard
@@ -38,9 +36,11 @@ Then update the libraries section in your `dune` file:
 ### Using esy
 
 ```sh
-esy install reason-standard
+esy install @opam/reason-standard
 ```
 
 Then add to your dune file:
 
-`(libraries (standard ...))`
+```
+(libraries (standard ...))
+```

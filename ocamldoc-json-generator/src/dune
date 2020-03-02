@@ -1,9 +1,10 @@
-(env
-  (dev
-    (flags (:standard -warn-error -A))))
+; (env
+;   (dev
+;     (flags (:standard -warn-error -A))))
 
 (library 
  (name JsonGenerator)
- (public_name JsonGenerator)
- (libraries ocamldoc))
-
+ (public_name JsonGenerator) 
+ (libraries ocamldoc reason)
+ (flags (:standard -warn-error -A -linkall -linkpkg))
+ )

@@ -44,61 +44,46 @@ order: "5"
 
 ## Maybe
 
-- Unicode
+- Date & Time - Useful, but a nightmare
+
 - Range
   - https://immutable-js.github.io/immutable-js/docs/#/Range
 - Slice
 - Lazy
-- DoublyLinkedList
-- file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Lazy/index.html
-- HashTable
-  file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Hashtbl/index.html
-- HashSet
+  file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Lazy/index.html
 - Hash
   file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Hash/index.html
 - Hashable
   file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Hashable/index.html
+- HashTable
+  file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Hashtbl/index.html
+- HashSet
 - Unit
 - Record
 - Object
 - Class
 - Validation file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base\_\_/Validate/index.html
-- Matrix
+- DoublyLinkedList
 - Async
+  - Promise for BS
 - Http
 - Json
 - Url
-- Parser
-
-### Out of scope
-
-- Graph?
-
-#### Maybe 
-
+- Parser (Parser - combinator, Angstrom but with great docs)
+- Matrix
+- Regex
+- Staged
+- Bytes
 - Console
   - https://reason-native.com/docs/console/quickstart
   - https://github.com/facebookexperimental/reason-native/issues/216
-- Staged
-- Parser
-- Json
-- Http
-
-## JS environments?
-
-- Console
-- Promise
 - Timer based functions
   - debounce
   - throttle
 
-## Do I even want to know
+### Nope
 
-- Bytes
-- UChar
-- UFind
-- SubStr
-- Regex
+- Graph
 
 ## Wishlist
 

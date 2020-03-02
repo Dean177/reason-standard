@@ -1,35 +1,102 @@
 import { useStaticQuery, graphql } from 'gatsby';
-import React from 'react'
+import React from 'react';
 import styled from 'styled-components';
-import { dimensions, colors, spacing, useTheme, ThemeToggle } from '../theme'
+import {
+  breakpoints,
+  dimensions,
+  colors,
+  spacing,
+  useTheme,
+  ThemeToggle,
+} from '../theme';
 import { Link } from './Link';
 import { GitHub } from './Icon';
 
 export const AppContainer = styled.div`
-  display: flex;
-  height: 100%;
-  overflow: hidden;
   position: relative;
+  height: 100vh;
+  overflow-y: auto;
+`;
+
+export const ContentContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  padding-top: ${dimensions.navbar}px;
+  width: 100%;
+  @media (min-width: ${dimensions.maxContentWidth + dimensions.leftSideBar}px) {
+    justify-content: flex-start;
+  }
+`;
+
+export const SidebarContainer = ({ children, isOpen }) => {
+  return (
+    <aside
+      className="SidebarContainer"
+      css={css`
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: 0;
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        z-index: ${isOpen ? 2 : -1};
+        opacity: ${isOpen ? 1 : 0};
+        transform: ${isOpen ? 'translateY(0)' : 'translateY(60px)'};
+        transition: all 0.2s ease;
+
+        @media (min-width: ${dimensions.maxContentWidth +
+            dimensions.leftSideBar}px) {
+          border-right: 1px solid ${colors.grey.light};
+          display: flex;
+          flex-shrink: 0;
+          position: sticky;
+          overflow-y: auto;
+          transform: translateY(0);
+          top: 0;
+          height: 100vh;
+          width: ${dimensions.leftSideBar}px;
+          z-index: 1;
+          opacity: 1;
+        }
+      `}
+    >
+      {children}
+    </aside>
+  );
+};
+
+export const Main = styled.main`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  max-width: ${dimensions.maxContentWidth}px;
+  padding: 3rem ${spacing.pageMargin}px;
   width: 100%;
 `;
 
-export const ContentContainer = styled.div`  
-  overflow: auto;
-  height: 100%;
+export const NavBarContainer = styled.div`
+  position: absolute;
+  top: 0;
   width: 100%;
 `;
 
 export const NavBar = () => {
   let [themeName, toggleTheme] = useTheme();
-  let { site: { siteMetadata: { githubUrl } } } = useStaticQuery(graphql`
+  let {
+    site: {
+      siteMetadata: { githubUrl },
+    },
+  } = useStaticQuery(graphql`
     query {
       site {
         siteMetadata {
           githubUrl
         }
       }
-    }`
-  )
+    }
+  `);
 
   return (
     <nav
@@ -37,7 +104,7 @@ export const NavBar = () => {
         background-color: ${({ theme }) => theme.navbar.background};
         display: flex;
         flex-direction: column;
-        min-height: ${dimensions.navbar}px;
+        height: ${dimensions.navbar}px;
         width: 100%;
         padding-left: ${spacing.medium}px;
         padding-right: ${spacing.medium}px;
@@ -61,9 +128,8 @@ export const NavBar = () => {
             align-items: center;
             display: flex;
             color: ${({ theme }) => theme.navbar.text};
-            font-size: 18px;
-            font-weight: 500;
-            height: auto;
+            font-size: 22px;
+            font-weight: 400;
             line-height: 1.5;
             &:hover {
               text-decoration: none;
@@ -134,7 +200,7 @@ export const NavBar = () => {
   );
 };
 
-export let PageTitle = ({children}) => {
+export let PageTitle = ({ children }) => {
   return (
     <div
       css={css`
@@ -156,33 +222,63 @@ export let PageTitle = ({children}) => {
       <h1>{children}</h1>
     </div>
   );
-}
+};
+
+export const MenuButtonContainer = styled.div`
+  bottom: 24px;
+  position: fixed;
+  right: 24px;
+  z-index: 3;
+
+  @media (min-width: ${dimensions.maxContentWidth + dimensions.leftSideBar}px) {
+    display: none;
+  }
+`;
+
+let Bar = styled.div`
+  background-color: ${colors.white};
+  height: 2px;
+  width: 20px;
+`;
+
+let Bars = () => (
+  <div
+    css={css`
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      justify-content: space-between;
+    `}
+  >
+    <Bar />
+    <Bar />
+    <Bar />
+  </div>
+);
 
 export const MenuButton = ({ onClick, isOpen }) => {
   return (
-      <div
-        onClick={onClick}
-        css={css`
-          align-items: center;
-          background-color: ${colors.red.dark};
-          border: 1px solid ${colors.white};
-          border-radius: 4px;
-          color: ${colors.white};
-          display: flex;
-          flex-direction: column;
-          width: 38px;
-          height: 38px;
-          padding: 9px 6px;
+    <div
+      onClick={onClick}
+      css={css`
+        align-items: center;
+        background-color: ${colors.red.dark};
+        border: 1px solid ${colors.white};
+        border-radius: 4px;
+        color: ${colors.white};
+        display: flex;
+        flex-direction: column;
+        width: 38px;
+        height: 38px;
+        padding: 9px 6px;
 
-          &:focus,
-          &:hover {
-            background-color: ${colors.red.base};
-          }
-        `}
-      >
-        <span>{isOpen ? '╳' : '⠇'}</span>
-      </div>
-    
+        &:focus,
+        &:hover {
+          background-color: ${colors.red.base};
+        }
+      `}
+    >
+      {isOpen ? <span>╳</span> : <Bars />}
+    </div>
   );
 };
-    

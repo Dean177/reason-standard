@@ -55,25 +55,25 @@ module.exports = {
         anonymize: false,
       },
     },
-    {
-      resolve: `gatsby-plugin-manifest`,
-      options: {
-        name: 'Reason Standard',
-        short_name: 'Standard',
-        start_url: '/',
-        background_color: '#FFFFFF',
-        theme_color: '#6b37bf',
-        display: 'standalone',
-        crossOrigin: 'use-credentials',
-        icons: [
-          {
-            src: 'src/pwa-512.png',
-            sizes: `512x512`,
-            type: `image/png`,
-          },
-        ],
-      },
-    },
-    'gatsby-plugin-offline',
+    // {
+    //   resolve: `gatsby-plugin-manifest`,
+    //   options: {
+    //     name: 'Reason Standard',
+    //     short_name: 'Standard',
+    //     start_url: '/',
+    //     background_color: '#FFFFFF',
+    //     theme_color: '#6b37bf',
+    //     display: 'standalone',
+    //     crossOrigin: 'use-credentials',
+    //     icons: [
+    //       {
+    //         src: 'src/pwa-512.png',
+    //         sizes: `512x512`,
+    //         type: `image/png`,
+    //       },
+    //     ],
+    //   },
+    // },
+    // 'gatsby-plugin-offline',
   ],
 };

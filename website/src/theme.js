@@ -4,60 +4,61 @@ import styled, {
 } from 'styled-components';
 import React, { useEffect, useState } from 'react';
 
+let hsl = (h, s, l) => ({
+  lightest: `hsl(${h}, ${s}%, ${l + ((100 - l) * 0.95)}%)`,
+  lighter: `hsl(${h}, ${s}%, ${l + (100 - l) * 0.6}%)`,
+  light: `hsl(${h}, ${s}%, ${l + (100 - l) * 0.2}%)`,
+  base: `hsl(${h}, ${s}%, ${l}%)`,
+  dark: `hsl(${h}, ${s}%, ${l * 0.9}%)`,
+  darker: `hsl(${h}, ${s}%, ${l * 0.7}%)`,
+  darkest: `hsl(${h}, ${s}%, ${l * 0.4}%)`,
+});
+
 export let colors = {
-  purple: {
-    base: '#372476',
-    dark: '#3b173b',
+  purple: hsl(253.9, 53.2, 30.2),
+  blue: hsl(197.2, 100, 43.1),
+  red: hsl(8.2, 58.16, 53.14),
+  orange: {
+    ocaml: {
+      start: '#f29100',
+      end: '#ec670f',
+    },
   },
-  red: {
-    lightest: 'rgb(245,221,218)',
-    light: 'rgba(224, 96, 80, 0.694118)',
-    base: 'rgb(194, 52, 38)',
-    dark: 'rgb(219, 77, 63)',
-    darkest: 'rgb(162,70,57)',
-  },
-  black: 'rgb(36, 42, 49)',
-  grey: {
-    lighter: 'rgb(230, 236, 241)',
-    light: 'rgb(246,244,244)',
-    base: 'rgb(113,113,113)',
-    dark: 'rgb(55,55,55)',
-  },
-  white: 'rgb(255,255,255)',
-  yellow: {
-    base: 'rgb(251,230,121)',
-    light: 'rbg(254,247,215)',
-  },
+  black: 'hsl(212.3, 15.3%, 16.7%)',
+  grey: hsl(0, 10, 91.1),
+  white: '#FFFFFF',
+  yellow: hsl(50.3, 94.2, 72.9),
 };
 
 export let fonts = {
   body: 'Roboto, Helvetica, Arial, sans-serif',
-  monospace: `"Lucida Console", Monaco, monospace`,
+  monospace: `Menlo, "Lucida Console", Monaco, monospace`,
 };
 
 export let spacing = {
   medium: 15,
+  pageMargin: 36,
 };
 
 export let breakpoints = {
-  desktop: 768,
+  desktop: 720,
 };
 
 export let dimensions = {
   navbar: 60,
-  maxContentWidth: 970,
-  leftSideBar: 298,
+  maxContentWidth: 750,
+  leftSideBar: 268,
   rightSideBar: 224,
 };
 
 export let themes = {
   light: {
-    body: colors.grey.light,
+    body: colors.white,
     text: colors.black,
     link: colors.red.dark,
     navbar: {
-      background: colors.white,
-      text: colors.red.dark,
+      background: colors.blue.base,
+      text: colors.white,
     },
     card: {
       background: colors.white,
@@ -195,9 +196,6 @@ html, body {
 }
 
 #___gatsby, #gatsby-focus-wrapper {
-  display: flex;
-  flex:1;
-  height: 100vh;    
 }
  
 a {
@@ -208,84 +206,4 @@ a:hover {
   text-decoration: none;
 }
 
-.heading1 {
-  font-size: 26px;
-  font-weight: 800;
-  line-height: 1.5;
-  margin-bottom: 16px;
-  margin-top: 32px;
-}
-
-.heading2 {
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1.5;
-  margin-bottom: 16px;
-  margin-top: 32px;
-}
-
-.heading3 {
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 1.5;
-  margin-bottom: 16px;
-  margin-top: 32px;
-}
-
-.heading4 {
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 1.5;
-  margin-bottom: 16px;
-  margin-top: 32px;
-}
-
-.heading5 {
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.5;
-  margin-bottom: 16px;
-  margin-top: 32px;
-}
-
-.heading6 {
-  font-size: 14px;
-  font-weight: 300;
-  line-height: 1.5;
-  margin-bottom: 16px;
-  margin-top: 32px;
-}
-
-.paragraph {
-  margin: 16px 0px;
-  line-height: 1.625;
-}
-
-.pre {
-  border: 0;
-  font-size: 14px;
-  margin: 0px;
-  overflow: auto;
-}
-
-.code {
-  border-radius: 4px;
-  font-family: ${fonts.monospace};
-  font-size: 0.9375em;
-}
-
-.blockquote {
-  background-color: ${colors.grey.lighter};
-  border-left: 3px solid ${colors.grey.base};
-  padding-left: 14px;  
-}
-
-ul, ol {
-  padding: 0px 0px 0px 2em;
-  li {
-    font-size: 16px;
-    line-height: 1.8;
-    font-weight: 400;
-  }
-}
 `;

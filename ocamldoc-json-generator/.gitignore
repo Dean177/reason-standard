@@ -1,6 +1,5 @@
 _build/**/* 
 test/**
-example/*.cmi
-example/*.cmx
-example/*.o
-example/*.exe
+src/*.cmo
+src/*.cmi
+

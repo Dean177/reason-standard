@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { graphql } from 'gatsby';
 import { useSpring, animated } from 'react-spring';
 import styled, { css } from 'styled-components';
-import { breakpoints, colors, GlobalStyles, ThemeProvider } from '../theme';
+import { breakpoints, colors, GlobalStyles, ThemeProvider, fonts } from '../theme';
 import {
   MenuButton,
   NavBar,
@@ -131,7 +131,7 @@ export default props => {
             1.12}px, 0)`,
         }
       : {
-          background: 'linear-gradient(#f29100", #ec670f)',
+          background: `linear-gradient(${colors.orange.ocaml.start}, ${colors.orange.ocaml.end})`,
           borderRadius: 40,
           reTransform: `translate3d(${logoSize}px, ${-logoSize / 2.25}px, 0)`,
           camlTransform: `translate3d(${0}px, ${-logoSize / 1.12}px,0)`,
@@ -164,6 +164,10 @@ export default props => {
               <h1
                 css={css`
                   padding-top: 20px;
+                  padding-bottom: 20px;
+                  font-size: 50px;
+                  font-weight: normal;
+                  letter-spacing: 1.1px;
                 `}
               >
                 Standard
@@ -173,17 +177,18 @@ export default props => {
                 css={css`
                   padding-top: 30px;
                   padding-bottom: 30px;
-                  `}
+                `}
               >
                 Standard provides an easy-to-use, comprehensive and performant
                 standard library, that has the same API for the OCaml and
                 Bucklescript compilers.
               </p>
-              <div css={css`
-                h1 {
-                  
-                }
-              `}>
+              <div
+                css={css`
+                  h1 {
+                  }
+                `}
+              >
                 <button>Get started</button>
               </div>
               <div
@@ -191,18 +196,17 @@ export default props => {
                   padding-bottom: 50px;
                 `}
               >
-                <CodeBlock language="reason">
-                  {`
+                <CodeBlock language="reason" value={`
 open Standard;
 
 String.toList("somestring")
 ->List.filterMap(~f=character => 
-  Char.toCode(character)->Int.add(1)->Char.ofCode
-)
+    Char.toCode(character)->Int.add(1)->Char.ofCode
+  )
 ->String.ofList
 /* "asdfasdf" */
                   `}
-                </CodeBlock>
+                />
               </div>
               <SellingPoint
                 illustration={() => (

@@ -45,13 +45,15 @@ export let SyntaxProvider = ({ children }) => {
 
 export let useSyntax = () => React.useContext(SyntaxContext);
 
-let logoSize = 40;
+let logoSize = 35;
 const ToggleContainer = styled.button`
   background: ${({ isReason }) =>
     isReason
       ? `linear-gradient(${colors.red.base}, ${colors.red.base})`
-      : 'linear-gradient(#f29100, #ec670f)'};
-  border: 2px solid ${({ theme }) => theme.toggle.border};
+      : `linear-gradient(${colors.orange.ocaml.start}, ${colors.orange.ocaml.end})`};
+  border: 2px solid
+    ${({ isReason }) =>
+      isReason ? colors.red.base : colors.orange.ocaml.start};
   border-radius: 30px;
   cursor: pointer;
   margin: 0 auto;
@@ -67,8 +69,7 @@ const ToggleContainer = styled.button`
     bottom: 0;
     flex-shrink: 0;
     fill: white;
-    /* TOOD linear is weird */
-    transition: all 0.3s linear;
+    transition: transform 0.3s ease;
 
     // reason logo
     &:first-child {

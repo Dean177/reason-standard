@@ -344,7 +344,20 @@ class virtual text = object (self)
       function
       | Odoc_info.Raw s -> (tagged "Raw" (string s))
       | Odoc_info.Code s -> (tagged "Code" (string s))
-      | Odoc_info.CodePre s -> (tagged "CodePre" (string s))
+      | Odoc_info.CodePre code -> 
+        let reasonSyntax: string =  
+          (* try ( *)
+          Lexing.from_string code
+          |> Reason_toolchain.ML.implementation_with_comments
+          |> Reason_toolchain.ML.print_implementation_with_comments Format.str_formatter
+          |> Format.flush_str_formatter
+          (* )
+          with _ -> code *)
+        in
+        (tagged "CodePre" (obj [
+          ("ocaml", string code);
+          ("reason", string reasonSyntax)
+        ]))
       | Odoc_info.Verbatim s -> (tagged "Verbatim" (string s))
       | Odoc_info.Bold t -> (tagged "Bold" (array self#json_of_text_element t))
       | Odoc_info.Italic t -> (tagged "Italic" (array self#json_of_text_element t))
@@ -781,8 +794,8 @@ class json = object (self)
       let rendered = 
         (Odoc_info.string_of_type_expr t)
         |> Odoc_info.remove_ending_newline 
-        |> newline_to_indented_br 
-        |> (self#create_fully_qualified_idents_links "ModuleName")
+        (* |> newline_to_indented_br  *)
+        (* |> (self#create_fully_qualified_idents_links "ModuleName") *)
       in
       let raw = 
         match (desc) with 
@@ -877,7 +890,6 @@ class json = object (self)
       let s2 = newline_to_indented_br s in
       Json.string (self#create_fully_qualified_idents_links m_name s2);
 
-    (** Json to display a [Types.module_type]. *)
     method json_of_module_type ?code m_name t : Json.t =
       let s = Odoc_info.remove_ending_newline (Odoc_info.string_of_module_type ?code t) in
       Json.string (self#create_fully_qualified_module_idents_links m_name s);
@@ -980,7 +992,7 @@ class json = object (self)
 
     (** Generate a file containing the module type in the given file name. *)
     (* method output_module_type in_title file mtyp : unit =
-      let s = Odoc_info.remove_ending_newline (Odoc_info.string_of_module_type ~complete: true mtyp) in
+      
       (* self#output_code ~with_pre:false in_title file s *)
       () *)
 
@@ -1313,18 +1325,21 @@ class json = object (self)
         ("info", self#json_of_info m.m_info)
       ]))
 
-    method json_of_modtype ?(info=true) ?(complete=true) ?(with_link=true) mt =
+    method json_of_modtype ?(info=true) ?(complete=true) ?(with_link=true) (mt : t_module_type) =
       let father = Name.father mt.mt_name in
       let open Json in
       (tagged "ModuleType" (obj [
         ("name", string (Name.simple mt.mt_name));
         ("target", string (Naming.module_type_target mt););
         ("kind", nullable (self#json_of_module_type_kind father ~mt) mt.mt_kind);
-        ("info", self#json_of_info mt.mt_info)
+        ("info", self#json_of_info mt.mt_info);
+        ("signature", nullable (fun (m_type : Types.module_type) : Json.t -> string (Odoc_info.string_of_module_type ~complete:true m_type))  mt.mt_type);
+        ("elements", array
+          (self#json_of_module_element mt.mt_name)
+          (Module.module_type_elements mt))
       ]))
       
 
-    (** Json for an included module. *)
     method json_of_included_module (im: included_module) : Json.t =
       let open Json in        
       tagged "IncludedModule" (obj [
@@ -1391,11 +1406,10 @@ class json = object (self)
 
 
     method json_of_class_type_kind (father : string) ?(ct : t_class option) (kind : class_kind) : Json.t =
-      print_DEBUG "json_of_class_type_kind";
       ignore father;
       ignore ct;
       ignore kind;
-      Json.null
+      failwith "json_of_class_type_kind"
       (* match kind with
         Class_type cta ->
           (
@@ -1546,22 +1560,13 @@ class json = object (self)
       let a = Array.map f dag.Odoc_dag2html.dag in
       Json.string (Odoc_dag2html.html_of_dag { Odoc_dag2html.dag = a })
 
-    (** Json for a module comment.*)
+    
     method json_of_module_comment text =
       self#json_of_text text
 
-    (** Json for a class comment.*)
-    method json_of_class_comment (_text : text_element list) : Json.t =
-      print_DEBUG "json_of_class_comment";
-      Json.null
-      (* Add some style if there is no style for the first part of the text. *)
-      (* let text2 =
-        match text with
-        | (Odoc_info.Raw s) :: q ->
-            (Odoc_info.Title (1, None, [Odoc_info.Raw s])) :: q
-        | _ -> text
-      in
-      self#json_of_text  text2 *)
+    
+    method json_of_class_comment (text : text_element list) : Json.t =
+      self#json_of_text text
 
     (** Generate html code for the given list of inherited classes.*)
     method generate_inheritance_info (_inher_l : inherited_class list) : unit =
@@ -1771,41 +1776,20 @@ class json = object (self)
 
     (** Generate the html file for the given module type.
        @raise Failure if an error occurs.*)
-    method generate_for_module_type (_mt: t_module_type) : unit = 
-      failwith "generate_for_module_type"
-      (* try
-        let (html_file, _) = Naming.html_files mt.mt_name in
-        let type_file = Naming.file_type_module_complete_target mt.mt_name in
-        let chanout = open_out (Filename.concat !Global.target_dir html_file) in
-        let b = Buffer.create 1024 in
-        bs doctype ;
-        bs "<html>\n";        
-        bs "<body>\n";
-        bp "<h1>";
-        bs (Odoc_messages.module_type^" ");
-        (
-         match mt.mt_type with
-           Some _ -> bp "<a href=\"%s\">%s</a>" type_file mt.mt_name
-         | None-> bs mt.mt_name
-        );
-        bs "</h1>\n" ;
-        self#json_of_modtype ~with_link: false mt;
-
-        (* parameters for functors *)
-        self#json_of_module_parameter_list b
+    method json_for_module_type (mt: t_module_type) : Json.t = 
+      let open Json in
+      (obj [
+        ("name", string mt.mt_name);
+        (* ("paramenter_list", self#json_of_module_parameter_list
           (Name.father mt.mt_name)
-          (Module.module_type_parameters mt);
-        
-        (* module elements *)
-        List.iter
+          (Module.module_type_parameters mt)); *)
+        ("signature", nullable (fun (m_type : Types.module_type) : Json.t -> string (Odoc_info.string_of_module_type ~complete:true m_type))  mt.mt_type);
+        ("elements", array
           (self#json_of_module_element mt.mt_name)
-          (Module.module_type_elements mt);
+          (Module.module_type_elements mt))
 
-        bs "</body></html>\n";
-        Buffer.output_buffer chanout b;
-        close_out chanout;
-
-        (* generate html files for submodules *)
+      ])        
+        (* generate html files for submodules
         self#generate_elements 
           self#generate_for_module 
           (Module.module_type_modules mt);
@@ -1819,21 +1803,15 @@ class json = object (self)
         self#generate_elements self#generate_for_class (Module.module_type_classes mt);
 
         (* generate html files for class types *)
-        self#generate_elements self#generate_for_class_type (Module.module_type_class_types mt);
+        self#generate_elements self#generate_for_class_type (Module.module_type_class_types mt); *)
 
         (* generate the file with the complete module type *)
-        (
+        (* (
          match mt.mt_type with
          | None -> ()
          | Some mty ->
-             self#output_module_type
-               mt.mt_name
-               (Filename.concat !Global.target_dir type_file)
-               mty
-        )
-      with
-        Sys_error s ->
-          raise (Failure s) *)
+             string (Odoc_info.remove_ending_newline (Odoc_info.string_of_module_type ~complete: true mty))
+        ) *)
 
     (** Generate the html file for the given module.
        @raise Failure if an error occurs.*)
@@ -2048,7 +2026,7 @@ class json = object (self)
           known_modules_names
           modules ;
 
-      let module_types = Odoc_info.Search.module_types module_list in
+      let module_types : t_module_type list = Odoc_info.Search.module_types module_list in
       known_modules_names <-
         List.fold_left
           (fun acc mt -> String.Set.add mt.mt_name acc)
@@ -2057,7 +2035,6 @@ class json = object (self)
 
       let chanout = open_out (Filename.concat !Global.target_dir "model.json") in
       let buffer = Buffer.create 1024 in        
-      
 
       module_list
       |> List.rev
@@ -2071,7 +2048,10 @@ class json = object (self)
             let open Json in
             toBuffer buffer (obj [
               ("entry_point", self#json_of_module entrypoint);
-              ("modules", obj (List.map (fun modu -> (modu.m_name, self#json_of_module modu)) linkedModules));
+              ("modules", obj (List.map (fun modu -> 
+                (modu.m_name, self#json_of_module modu)) linkedModules));
+              (* ("module_types", obj (List.map (fun module_type ->  *)
+                (* (module_type.mt_name, self#json_of_modtype module_type)) module_types)); *)
             ])
       ;
       

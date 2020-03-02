@@ -3,20 +3,115 @@ import Helmet from 'react-helmet';
 import { graphql } from 'gatsby';
 import MDXRenderer from 'gatsby-plugin-mdx/mdx-renderer';
 import { MDXProvider } from '@mdx-js/react';
-import { css } from 'styled-components';
+import { css, createGlobalStyle } from 'styled-components';
 import { NextPrevious } from '../components/NextPrevious';
 import { GithubEditButton } from '../components/GithubEditButton';
-import { breakpoints, colors, dimensions, GlobalStyles, ThemeProvider } from '../theme';
 import {
-  NavBar,
-  ContentContainer,
+  breakpoints,
+  colors,
+  fonts,
+  dimensions,
+  GlobalStyles,
+  ThemeProvider,
+} from '../theme';
+import {
   AppContainer,
+  ContentContainer,
+  Main,
   MenuButton,
+  MenuButtonContainer,
+  NavBar,
+  NavBarContainer,
   PageTitle,
+  SidebarContainer,
 } from '../components/Layout';
 import { CodeBlock } from '../components/CodeBlock';
 import { formatTitleToId } from '../id';
+import { SyntaxProvider, SyntaxToggle } from '../components/Syntax';
 import { Sidebar } from '../components/Sidebar';
+
+let MdxStyles = createGlobalStyle`
+.heading1 {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  margin-top: 32px;
+}
+
+.heading2 {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  margin-top: 32px;
+}
+
+.heading3 {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  margin-top: 32px;
+}
+
+.heading4 {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  margin-top: 32px;
+}
+
+.heading5 {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  margin-top: 32px;
+}
+
+.heading6 {
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  margin-top: 32px;
+}
+
+.paragraph {
+  margin: 16px 0px;
+  line-height: 1.625;
+}
+
+.pre {
+  border: 0;
+  font-size: 14px;
+  margin: 0px;
+  overflow: auto;
+}
+
+.code {
+  border-radius: 4px;
+  font-family: ${fonts.monospace};
+  font-size: 0.9375em;
+}
+
+.blockquote {
+  background-color: ${colors.grey.lighter};
+  border-left: 3px solid ${colors.grey.base};
+  padding-left: 14px;  
+}
+
+ul, ol {
+  padding: 0px 0px 0px 2em;
+  li {
+    font-size: 16px;
+    line-height: 1.8;
+    font-weight: 400;
+  }
+}
+`;
 
 let mdxComponents = {
   h1: props => (
@@ -39,11 +134,12 @@ let mdxComponents = {
   ),
   p: props => <p className="paragraph" {...props} />,
   pre: props => <pre className="pre">{props.children}</pre>,
-  code: ({ className, ...props }) => (
+  code: ({ className, children, ...props }) => (
     <div className="code">
-    <CodeBlock
-      language={className && className.replace('language-', '')}
-      {...props}
+      <CodeBlock
+        language={className && className.replace('language-', '')}
+        code={children}
+        {...props}
       />
     </div>
   ),
@@ -123,131 +219,69 @@ export default ({ data, location }) => {
 
   const { title } = mdx.fields;
   const { metaTitle, metaDescription } = mdx.frontmatter;
-  // TODO static query for site url
-  // let canonicalUrl = `${config.gatsby.pathPrefix}${config.gatsby.siteUrl}${mdx.fields.url}`;
 
   return (
     <ThemeProvider>
-      <GlobalStyles />
-      <div
-        css={css`
-          display: flex;
-          flex-direction: column;
-          height: 100%;
-          overflow-y: auto;
-          position: relative;
-          width: 100%;
-        `}
-      >
+      <SyntaxProvider>
+        <GlobalStyles />
+        <MdxStyles />
         {/* <Helmet>
-          {title ? (
-            <>
-              <title>{title}</title>
-              <meta name="title" content={metaTitle} />
-              <meta property="og:title" content={metaTitle} />
-              <meta property="twitter:title" content={metaTitle} />
-            </>
-          ) : null}
-          {metaDescription ? (
-            <>
-              <meta name="description" content={metaDescription} />
-              <meta property="og:description" content={metaDescription} />
-              <meta property="twitter:description" content={metaDescription} />
-            </>
-          ) : null}
-        </Helmet> */}
-        <NavBar githubUrl={githubUrl} />
-        <div
-          css={css`
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            @media (min-width: ${breakpoints.desktop}px) {
-              flex-direction: row;
-            }
-          `}
-        >
-          <div
-            css={css`
-              bottom: 0;
-              left: 0;
-              right: 0;
-              top: 0;
-              display: flex;
-              flex-direction: column;
-              flex: 1;              
-              position: absolute;
-              z-index: ${isOpen ? 2 : -1};
-              opacity: ${isOpen ? 1 : 0};
-              transform: ${isOpen ? 'translateY(0)' : 'translateY(60px)'};
-              transition: all 0.2s ease;
-
-              @media (min-width: ${breakpoints.desktop}px) {
-                flex-grow: 0;
-                position: fixed;
-                position: sticky;
-                opacity: 1;
-                transform: translateY(0);
-                width: ${dimensions.leftSideBar}px;
-                z-index: 2;
-              }
-            `}
-          >
-            <Sidebar location={location} />
-          </div>
-          <main
-            css={css`
-              display: flex;
-              flex: 1;
-              flex-direction: column;
-              padding: 0px 22px;
-              padding-top: 3rem;
-              width: 100%;
-              max-width: 970px;
-            `}
-          >
-            <PageTitle>{mdx.fields.title}</PageTitle>
-            <GithubEditButton
-              link={`${docsLocation}/${mdx.parent.relativePath}`}
-            />
-            <div
-              className={css`
-                display: flex;
-                flex: 1;
-              `}
-            >
-              <MDXProvider components={mdxComponents}>
-                <MDXRenderer>{mdx.body}</MDXRenderer>
-              </MDXProvider>
-            </div>
-            <div
-              css={css`
-                padding: 50px 0;
-              `}
-            >
-              <NextPrevious currentUrl={mdx.fields.url} nav={nav} />
-            </div>
-          </main>
-        </div>
-
-        <div
-          css={css`
-            position: absolute;
-            bottom: 24px;
-            right: 24px;
-            z-index: 3;
-
-            @media (min-width: ${breakpoints.desktop}px) {
-              display: none;
-            }
-          `}
-        >
-          <MenuButton
-            onClick={() => setIsOpen(open => !open)}
-            isOpen={isOpen}
-          />
-        </div>
-      </div>
+        {title ? (
+          <>
+            <title>{title}</title>
+            <meta name="title" content={metaTitle} />
+            <meta property="og:title" content={metaTitle} />
+            <meta property="twitter:title" content={metaTitle} />
+          </>
+        ) : null}
+        {metaDescription ? (
+          <>
+            <meta name="description" content={metaDescription} />
+            <meta property="og:description" content={metaDescription} />
+            <meta property="twitter:description" content={metaDescription} />
+          </>
+        ) : null}
+      </Helmet> */}
+        <AppContainer>
+          <ContentContainer>
+            <NavBarContainer>
+              <NavBar />
+            </NavBarContainer>
+            <SidebarContainer isOpen={isOpen}>
+              <Sidebar location={location} />
+            </SidebarContainer>
+            <Main>
+              <PageTitle>{mdx.fields.title}</PageTitle>
+              <GithubEditButton
+                link={`${docsLocation}/${mdx.parent.relativePath}`}
+              />
+              <div
+                className={css`
+                  display: flex;
+                  flex: 1;
+                `}
+              >
+                <MDXProvider components={mdxComponents}>
+                  <MDXRenderer>{mdx.body}</MDXRenderer>
+                </MDXProvider>
+              </div>
+              <div
+                css={css`
+                  padding: 50px 0;
+                `}
+              >
+                <NextPrevious currentUrl={mdx.fields.url} nav={nav} />
+              </div>
+            </Main>
+            <MenuButtonContainer>
+              <MenuButton
+                onClick={() => setIsOpen(open => !open)}
+                isOpen={isOpen}
+              />
+            </MenuButtonContainer>
+          </ContentContainer>
+        </AppContainer>
+      </SyntaxProvider>
     </ThemeProvider>
   );
 };
