@@ -17,7 +17,7 @@ import {
   MenuButton,
   MenuButtonContainer,
   NavBar,
-  NavBarContainer,  
+  NavBarContainer,
   PageTitle,
   SidebarContainer,
 } from '../components/Layout';
@@ -110,9 +110,13 @@ function renderSidebarElements(
   toggleModule,
   path = [],
 ) {
+  let moduleSearchPath =
+    search.length > 1 ? search.slice(0, search.length - 1) : [];
+  let valueSearch = search.length === 0 ? '' : search[search.length - 1];
   return deDupeIncludedModules(moduleElements, modulesByModulePath).map(
     (moduleElement, index) => {
-      let pathMatchesSearch = path.some(module => module.includes(search));
+      let hasSearch = valueSearch.length > 0;
+
       switch (moduleElement.tag) {
         case 'Type':
           let typeLink = linkFor(
@@ -121,9 +125,11 @@ function renderSidebarElements(
             moduleElement.value.name,
           );
           if (
-            search.length > 0 &&
-            !pathMatchesSearch &&
-            !moduleElement.value.name.includes(search)
+            hasSearch &&
+            !(
+              moduleSearchPath.length === 0 &&
+              moduleElement.value.name.includes(valueSearch)
+            )
           ) {
             return null;
           }
@@ -139,13 +145,14 @@ function renderSidebarElements(
             moduleElement.value.name,
           );
           if (
-            search.length > 0 &&
-            !pathMatchesSearch &&
-            !moduleElement.value.name.includes(search)
+            hasSearch &&
+            !(
+              moduleSearchPath.length === 0 &&
+              moduleElement.value.name.includes(valueSearch)
+            )
           ) {
             return null;
           }
-
           return (
             <div key={valueLink}>
               <Link to={valueLink}>{moduleElement.value.name}</Link>
@@ -157,11 +164,7 @@ function renderSidebarElements(
             moduleElement.tag,
             moduleElement.value.name,
           );
-          if (
-            search.length > 0 &&
-            !pathMatchesSearch &&
-            !moduleElement.value.name.includes(search)
-          ) {
+          if (hasSearch && !moduleElement.value.name.includes(valueSearch)) {
             return null;
           }
           return (
@@ -186,25 +189,43 @@ function renderSidebarElements(
                 moduleElement.value.name,
               );
 
+              let moduleNameMatchesValueSearch = moduleElement.value.name.includes(
+                valueSearch,
+              );
+
+              let subSearch;
+              if (moduleSearchPath.length === 0) {
+                if (moduleNameMatchesValueSearch) {
+                  subSearch = [];
+                } else {
+                  subSearch = search;
+                }
+              } else {
+                if (moduleElement.value.name.includes(moduleSearchPath[0])) {
+                  subSearch = [
+                    ...moduleSearchPath.slice(1, moduleSearchPath.length),
+                    valueSearch,
+                  ];
+                } else {                  
+                  subSearch = search;
+                }
+              }
+
               let content = renderSidebarElements(
                 moduleElement.value.kind.value,
                 modulesByModulePath,
-                search,
+                subSearch,
                 collapsed,
                 toggleModule,
                 [...path, moduleElement.value.name],
               );
 
+              let hasElementsMatchingSearch =
+                content.filter(e => e != null).length > 0;
+
               if (
-                search.length > 0 &&
-                !pathMatchesSearch &&
-                !(
-                  moduleElement.value.name.includes(search) ||
-                  content.filter(
-                    e =>
-                      Boolean(e) && e.hasOwnProperty('length') && e.length > 0,
-                  ).length > 0
-                )
+                hasSearch &&
+                !((moduleSearchPath.length === 0 && moduleNameMatchesValueSearch) || hasElementsMatchingSearch)
               ) {
                 return null;
               }
@@ -294,7 +315,10 @@ function renderSidebarElements(
 }
 
 const Sidebar = ({ moduleElements, moduleByModulePath }) => {
-  let [search, setSearch] = React.useState('');
+  let [searchString, setSearch] = React.useState('of');
+  let search = searchString
+    .split('.')
+    .filter(identifier => identifier.length > 0);
   let [collapsed, setCollapsed] = React.useState({});
   let toggleModule = qualifiedModuleName =>
     setCollapsed(collapsed => ({
@@ -305,14 +329,14 @@ const Sidebar = ({ moduleElements, moduleByModulePath }) => {
     <div
       css={css`
         background-color: ${({ theme }) => theme.body};
-        display: flex;        
+        display: flex;
         flex-direction: column;
         height: 100vh;
         width: 100%;
       `}
     >
       <input
-        value={search}
+        value={searchString}
         placeholder="Search"
         onChange={e => setSearch(e.target.value)}
         css={css`
