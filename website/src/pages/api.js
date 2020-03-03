@@ -315,7 +315,7 @@ function renderSidebarElements(
 }
 
 const Sidebar = ({ moduleElements, moduleByModulePath }) => {
-  let [searchString, setSearch] = React.useState('of');
+  let [searchString, setSearch] = React.useState('');
   let search = searchString
     .split('.')
     .filter(identifier => identifier.length > 0);
