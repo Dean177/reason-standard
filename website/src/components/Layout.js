@@ -106,8 +106,6 @@ export const NavBar = () => {
         flex-direction: column;
         height: ${dimensions.navbar}px;
         width: 100%;
-        padding-left: ${spacing.medium}px;
-        padding-right: ${spacing.medium}px;
       `}
     >
       <div
@@ -121,6 +119,8 @@ export const NavBar = () => {
           max-width: ${dimensions.maxContentWidth}px;
           padding-top: 12px;
           padding-bottom: 12px;
+          padding-left: ${spacing.pageMargin}px;
+          padding-right: ${spacing.pageMargin}px;
           width: 100%;
           z-index: 1;
 

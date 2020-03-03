@@ -1216,7 +1216,7 @@ end
 
 (** Fixed precision integers *)
 module Int : sig
-    (** The platform-dependant {{: https://en.wikipedia.org/wiki/Signed_number_representations } signed } {{: https://en.wikipedia.org/wiki/Integer } integer} type.
+  (** The platform-dependant {{: https://en.wikipedia.org/wiki/Signed_number_representations } signed } {{: https://en.wikipedia.org/wiki/Integer } integer} type.
 
       An [int] is a whole number.
 
@@ -1395,7 +1395,9 @@ module Int : sig
       {3 Examples}
 
       {[Int.negate 8 = (-8)]}
+
       {[Int.negate (-7) = 7]}
+
       {[Int.negate 0 = 0]}
 
       Alternatively the [~-] operator can be used:
@@ -1412,7 +1414,9 @@ module Int : sig
       {3 Examples}
 
       {[Int.absolute 8 = 8]}
+
       {[Int.absolute (-7) = 7]}
+
       {[Int.absolute 0 = 0]}
   *)
   val absolute : t -> t
@@ -1428,13 +1432,21 @@ module Int : sig
       {3 Examples}
 
       {[Int.modulo ~by:3 (-4) = 1]}
+
       {[Int.modulo ~by:3 (-3 )= 0]}
+
       {[Int.modulo ~by:3 (-2) = 2]}
+
       {[Int.modulo ~by:3 (-1) = 1]}
+
       {[Int.modulo ~by:3 0 = 0]}
+
       {[Int.modulo ~by:3 1 = 1]}
+
       {[Int.modulo ~by:3 2 = 2]}
+
       {[Int.modulo ~by:3 3 = 0]}
+
       {[Int.modulo ~by:3 4 = 1]}
   *)
   val modulo : t -> by:t -> t
@@ -1560,9 +1572,11 @@ module Int : sig
 
       {3 Examples}
 
-        {[Int.to_string 3 = "3"]}
-        {[Int.to_string (-3) = "-3"]}
-        {[Int.to_sString 0 = "0"]}
+      {[Int.to_string 3 = "3"]}
+
+      {[Int.to_string (-3) = "-3"]}
+
+      {[Int.to_sString 0 = "0"]}
   *)
   val toString : t -> string
   
@@ -1608,12 +1622,19 @@ module Integer : sig
       {3 Examples}
 
       {[Integer.(ofString "0" = Some (ofInt 0))]}
+
       {[Integer.(ofString "42" = Some (ofInt 42))]}
+
       {[Integer.(ofString "-3" = Some (ofInt -3))]}
+
       {[Integer.(ofString "123_456" = Some (ofInt 123_456))]}
+
       {[Integer.(ofString "0xFF" = Some (ofInt 255))]}
+
       {[Integer.(ofString "0x00A" = Some (ofInt 10))]}
+
       {[Integer.(ofString "Infinity" = None)]}
+
       {[Integer.(ofString "NaN" = None)]}
   *)
   val ofString : string -> t option
@@ -1813,6 +1834,7 @@ module Integer : sig
       {3 Examples}
 
       {[Integer.(minimum (ofInt 7) (ofInt 9) = (ofInt 7))]}
+
       {[Integer.(minimum (ofInt -4) (ofInt -1) = (ofInt -4))]}
   *)
   val minimum : t -> t -> t
@@ -1824,7 +1846,9 @@ module Integer : sig
       {3 Examples}
 
       {[Integer.(isEven (ofInt 8)) = true]}
+
       {[Integer.(isEven (ofInt 7)) = false]}
+
       {[Integer.(isEven (ofInt 0)) = true]}
   *)
   val isEven : t -> bool
@@ -1834,7 +1858,9 @@ module Integer : sig
       {3 Examples}
 
       {[Integer.(isOdd (ofInt 7) = true)]}
+
       {[Integer.(isOdd (ofInt 8) = false)]}
+
       {[Integer.(isOdd (ofInt 0) = false)]}
   *)
   val isOdd : t -> bool
@@ -1848,7 +1874,9 @@ module Integer : sig
       {3 Examples}
 
       {[Integer.(clamp ~lower:zero ~upper:(ofInt 8) (ofInt 5) = (ofInt 5))]}
+
       {[Integer.(clamp ~lower:zero ~upper:(ofInt 8) (ofInt 9) = (ofInt 8))]}
+
       {[Integer.(clamp ~lower:(ofInt -10) ~upper:(ofInt -5) (ofInt 5) = (ofInt -5))]}
   *)
   val clamp : t -> lower:t -> upper:t -> t
@@ -1862,7 +1890,9 @@ module Integer : sig
       {3 Examples}
 
       {[Integer.(inRange ~lower:(ofInt 2) ~upper:(ofInt 4) (ofInt 3) = true)]}
+
       {[Integer.(inRange ~lower:(ofInt 5) ~upper:(ofInt 8) (ofInt 4) = false)]}
+
       {[Integer.(inRange ~lower:(ofInt -6) ~upper:(ofInt -2) (ofInt -3) = true)]}
   *)
   val inRange : t -> lower:t -> upper:t -> bool
@@ -2639,30 +2669,30 @@ end
 
 (** Functions for working with computations which may fail. *)
 module Result : sig
-    (** A {!Result} is used to represent a computation which may fail.
+  (** A {!Result} is used to represent a computation which may fail.
 
-        A [Result] is a variant, which has a constructor for successful results 
-        [(Ok 'ok)], and one for unsuccessful results ([(Error 'error)]).
+      A [Result] is a variant, which has a constructor for successful results 
+      [(Ok 'ok)], and one for unsuccessful results ([(Error 'error)]).
 
-        {[
-          type ('ok, 'error) t =
-            | Ok of 'ok
-            | Error of 'error
-        ]}
+      {[
+        type ('ok, 'error) t =
+          | Ok of 'ok
+          | Error of 'error
+      ]}
 
-        Here is how you would annotate a [Result] variable whose [Ok]
-        variant is an integer and whose [Error] variant is a string:
+      Here is how you would annotate a [Result] variable whose [Ok]
+      variant is an integer and whose [Error] variant is a string:
 
-        {[let ok: (int, string) Result.t = Ok 3]}
+      {[let ok: (int, string) Result.t = Ok 3]}
 
-        {[let error: (int, string) Result.t = Error "This computation failed!"]}
+      {[let error: (int, string) Result.t = Error "This computation failed!"]}
 
-        {b Note} The ['error] case can be of {b any} type and while [string] is very common you could also use:
-        - [string List.t] to allow errors to be accumulated
-        - [exn], in which case the result type just makes exceptions explicit in the return type
-        - A variant or polymorphic variant, with one case per possible error. This is means each error can be dealt with explicitly. See {{: https://keleshev.com/composable-error-handling-in-ocaml } this excellent article} for mnore information on this approach.
+      {b Note} The ['error] case can be of {b any} type and while [string] is very common you could also use:
+      - [string List.t] to allow errors to be accumulated
+      - [exn], in which case the result type just makes exceptions explicit in the return type
+      - A variant or polymorphic variant, with one case per possible error. This is means each error can be dealt with explicitly. See {{: https://keleshev.com/composable-error-handling-in-ocaml } this excellent article} for mnore information on this approach.
 
-        If the function you are writing can only fail in a single obvious way, maybe you want an {!Option} instead.
+      If the function you are writing can only fail in a single obvious way, maybe you want an {!Option} instead.
   *)
 
   type ('ok, 'error) t = ('ok, 'error) Result.t
@@ -4261,7 +4291,9 @@ module List : sig
       {3 Examples}
 
       {[List.includes [1; 3; 5; 7] 3 ~equal:Int.equal = true]}
+
       {[List.includes [1; 3; 5; 7] 4 ~equal:Int.equal = false]}
+
       {[List.includes [] 5 ~equal:Int.equal = false]}
   *)
   val includes : 'a t -> 'a -> equal:('a -> 'a -> bool) -> bool
@@ -4423,7 +4455,7 @@ module List : sig
 
     If [f] doesn't return [true] for any of the elements [find] will return [None]
 
-    {e Example}
+    {3 Examples}
 
     {[List.find ~f:Int.isEven [|1; 3; 4; 8;|] = Some 4]}
 
@@ -4437,7 +4469,7 @@ module List : sig
 
       If [f] doesnt return [true] for any [(index, element)] pair, returns [None].
 
-      {e Example}
+      {3 Examples}
 
       {[List.findIndex ~f:(fun index number -> index > 2 && Int.isEven number) [|1; 3; 4; 8;|] = Some (3, 8)]}
   *)
@@ -4447,7 +4479,7 @@ module List : sig
 
      If the list has fewer than [count] elements, returns [None].
 
-     {e Example}
+     {3 Examples}
 
      {[List.take [1;2;3] ~count:2 = Some [1;2]]}
 
@@ -5337,7 +5369,7 @@ module Set : sig
 
       {[Set.find ~f:Int.isEven Set.Int.empty = None]}
   *)
-  val find : ('v, _) t -> f:('v -> bool) -> 'v option
+  val find : ('value, _) t -> f:('value -> bool) -> 'value option
   
   (** {1 Query} *)
 
@@ -5361,7 +5393,7 @@ module Set : sig
 
       {[Set.any (Set.Int.ofList []) ~f:Int.isEven = false]}
   *)
-  val any : ('v, _) t -> f:('v -> bool) -> bool
+  val any : ('value, _) t -> f:('value -> bool) -> bool
   
   (** Determine if [f] returns true for [all] values in a set.
 
@@ -5373,7 +5405,7 @@ module Set : sig
 
       {[Set.all ~f:Int.isEven Set.Int.empty = true]}
   *)
-  val all : ('v, _) t -> f:('v -> bool) -> bool
+  val all : ('value, _) t -> f:('value -> bool) -> bool
   
   (** {1 Combine} *)
 
@@ -5589,7 +5621,7 @@ module Map : sig
 
       {[Map.add (Map.Int.ofList [(1, "Ant"); (2, "Bat")]) ~key:2 ~value:"Bug" |> Map.toList = [(1, "Ant"); (2, "Bug")]]}
   *)
-  val add : ('k, 'v, 'id) t -> key:'k -> value:'v -> ('k, 'v, 'id) t
+  val add : ('key, 'value, 'id) t -> key:'key -> value:'value -> ('key, 'value, 'id) t
   
   (** Removes a key-value pair from a map based on they provided key.
 
@@ -5608,7 +5640,7 @@ module Map : sig
         ]
       ]}
   *)
-  val remove : ('k, 'v, 'id) t -> 'k -> ('k, 'v, 'id) t
+  val remove : ('key, 'value, 'id) t -> 'key -> ('key, 'value, 'id) t
   
   (** Get the value associated with a key. If the key is not present in the map, returns [None].
 
@@ -5622,7 +5654,7 @@ module Map : sig
       ] in
       Map.get animalPopulations "Shrew" = Some 56_423;
   *)
-  val get : ('k, 'v, 'id) t -> 'k -> 'v option
+  val get : ('key, 'value, 'id) t -> 'key -> 'value option
   
   (** Returns, as an {!Option} the first key-value pair for which [f] evaluates to true.
 
@@ -5643,7 +5675,7 @@ module Map : sig
           = Some ("Mosquito", 56_123_156)
       ]}
   *)
-  val find : ('k, 'v, _) t -> f:(key:'k -> value:'v -> bool) -> ('k * 'v) option
+  val find : ('key, 'value, _) t -> f:(key:'key -> value:'value -> bool) -> ('key * 'value) option
   
   
   (** Update the value for a specific key using [f]. If [key] is not present in the map [f] will be called with [None].
@@ -5673,8 +5705,8 @@ module Map : sig
       ]}
   *)
   val update :
-    ('k, 'v, 'id) t ->
-      key:'k -> f:('v option -> 'v option) -> ('k, 'v, 'id) t
+    ('key, 'value, 'id) t ->
+      key:'key -> f:('value option -> 'value option) -> ('key, 'value, 'id) t
   
   (** Returns the number of key-value pairs present in the map.
 
@@ -5732,13 +5764,13 @@ module Map : sig
   val isEmpty : (_, _, _) t -> bool
   
   (** Determine if a map includes [key].  *)
-  val includes : ('k, _, _) t -> 'k -> bool
+  val includes : ('key, _, _) t -> 'key -> bool
   
   (** Determine if [f] returns [true] for [any] values in a map. *)
-  val any : (_, 'v, _) t -> f:('v -> bool) -> bool
+  val any : (_, 'value, _) t -> f:('value -> bool) -> bool
   
   (** Determine if [f] returns [true] for [all] values in a map. *)
-  val all : (_, 'v, _) t -> f:('v -> bool) -> bool
+  val all : (_, 'value, _) t -> f:('value -> bool) -> bool
   
   (** {1 Combine} *)
 
@@ -5782,9 +5814,9 @@ module Map : sig
       ]}
   *)
   val merge :
-    ('k, 'v1, 'id) t ->
-      ('k, 'v2, 'id) t ->
-        f:('k -> 'v1 option -> 'v2 option -> 'v3 option) -> ('k, 'v3, 'id) t
+    ('key, 'v1, 'id) t ->
+      ('key, 'v2, 'id) t ->
+        f:('key -> 'v1 option -> 'v2 option -> 'v3 option) -> ('key, 'v3, 'id) t
   
   
   (** {1 Transformations} *)
@@ -5806,10 +5838,10 @@ module Map : sig
         ]
       ]}
   *)
-  val map : ('k, 'v, 'id) t -> f:('v -> 'b) -> ('k, 'b, 'id) t
+  val map : ('key, 'value, 'id) t -> f:('value -> 'b) -> ('key, 'b, 'id) t
   
   (** Like {!map} but [f] is also called with each values corresponding key *)
-  val mapI : ('k, 'va, 'i) t -> f:('k -> 'va -> 'vb) -> ('k, 'vb, 'i) t
+  val mapI : ('key, 'va, 'i) t -> f:('key -> 'va -> 'vb) -> ('key, 'vb, 'i) t
   
   
   (** Keep elements that [f] returns [true] for.
@@ -5828,7 +5860,7 @@ module Map : sig
         ]
       ]}
   *)
-  val filter : ('k, 'v, 'id) t -> f:('v -> bool) -> ('k, 'v, 'id) t
+  val filter : ('key, 'value, 'id) t -> f:('value -> bool) -> ('key, 'value, 'id) t
   
   (** Divide a map into two, the first map will contain the key-value pairs that [f] returns [true] for, pairs that [f] returns [false] for will end up in the second.
 
@@ -5856,8 +5888,8 @@ module Map : sig
       ]}
   *)
   val partition :
-    ('k, 'v, 'id) t ->
-      f:(key:'k -> value:'v -> bool) -> (('k, 'v, 'id) t * ('k, 'v, 'id) t)
+    ('key, 'value, 'id) t ->
+      f:(key:'key -> value:'value -> bool) -> (('key, 'value, 'id) t * ('key, 'value, 'id) t)
   
   (** Like {!Array.fold} but [f] is also called with both the [key] and [value] 
 
@@ -5866,7 +5898,7 @@ module Map : sig
       TODO
   *)
   val fold :
-    ('k, 'v, _) t -> initial:'a -> f:('a -> key:'k -> value:'v -> 'a) -> 'a
+    ('key, 'value, _) t -> initial:'a -> f:('a -> key:'key -> value:'value -> 'a) -> 'a
   
   (** Runs a function [f] against each {b value} in the map.
   
@@ -5875,7 +5907,7 @@ module Map : sig
 
       TODO
   *)
-  val forEach : (_, 'v, _) t -> f:('v -> unit) -> unit
+  val forEach : (_, 'value, _) t -> f:('value -> unit) -> unit
   
   
   (** {1 Conversion} *)
@@ -5899,7 +5931,7 @@ module Map : sig
         ]
       ]}
   *)
-  val keys : ('k, _, _) t -> 'k list
+  val keys : ('key, _, _) t -> 'key list
   
   (** Get a {!List} of all of the values in a map.
 
@@ -5920,7 +5952,7 @@ module Map : sig
         ]
       ]}
   *)
-  val values : (_, 'v, _) t -> 'v list
+  val values : (_, 'value, _) t -> 'value list
 
   (** Get an {!Array} of all of the key-value pairs in a map. *)
   val toArray : ('key, 'value, _) t -> ('key * 'value) array
@@ -5934,14 +5966,14 @@ module Map : sig
     type nonrec ('key, 'value) t = ('key, 'value, identity) t
     
     (** A map with nothing in it. *)
-    val empty : unit -> ('k, 'v) t
+    val empty : unit -> ('key, 'value) t
 
 
     (** Create a map from a key and value
     
         {[Map.Poly.singleton ~key:false ~value:1 |> Map.toList = [(false, 1)]]}
     *)
-    val singleton : key:'k -> value:'v -> ('k, 'v) t
+    val singleton : key:'key -> value:'value -> ('key, 'value) t
 
     (** Create a map from an {!Array} of key-value tuples *)
     val ofArray : ('key * 'value) array -> ('key, 'value) t
@@ -5961,7 +5993,7 @@ module Map : sig
 
         {[Map.Int.singleton ~key:1 ~value:"Ant" |> Map.toList = [(1, "Ant")]]}
     *)
-    val singleton : key:int -> value:'v -> 'v t
+    val singleton : key:int -> value:'value -> 'value t
     
     (** Create a map from an {!Array} of key-value tuples *)
     val ofArray : (int * 'value) array -> 'value t
@@ -5982,7 +6014,7 @@ module Map : sig
 
         {[Map.String.singleton ~key:"Ant" ~value:1 |> Map.toList = [("Ant", 1)]]}
     *)
-    val singleton : key:string -> value:'v -> 'v t
+    val singleton : key:string -> value:'value -> 'value t
     
     (** Create a map from an {!Array} of key-value tuples *)
     val ofArray : (string * 'value) array -> 'value t
@@ -6218,27 +6250,11 @@ module Fun : sig
       ]}
   *)
   val uncurry : ('a -> 'b -> 'c) -> ('a * 'b) -> 'c
-
     
-  (** Takes a function which takes a single argument of a {!Tuple3} and returns a function which takes three arguments that can be partially applied.
-
-      {3 Examples}
-
-      {[
-        let cubeVolume (width, height, depth) = width * height * depth in
-        let curriedVolume : float -> float -> float = curry squareArea in
-        let depths = [3; 4; 5] in
-        List.map depths ~f:(curriedVolume 3 4) = [36; 48; 60]
-      ]}
-  *)
+  (** Like {!curry} but for a {!Tuple3} *)
   val curry3 : (('a * 'b * 'c) -> 'd) -> 'a -> 'b -> 'c -> 'd
   
-  (** [uncurry3 f] takes a function [f] which takes three arguments and returns a function which takes a single argument of a {!Tuple3}
-
-      {3 Examples}
-
-      TODO
-  *)
+  (** Like {!uncurry} but for a {!Tuple3} *)
   val uncurry3 : ('a -> 'b -> 'c -> 'd) -> ('a * 'b * 'c) -> 'd
   
 end

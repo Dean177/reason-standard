@@ -1,5 +1,6 @@
 _build/**/* 
-test/**
-src/*.cmo
-src/*.cmi
-
+*.cm*
+*.o
+test/*.cm*
+test/*.o
+test/doc/*

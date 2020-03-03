@@ -72,31 +72,22 @@ import { useTheme, colors } from '../theme';
 export const CodeBlock = ({ code, ...props }) => {
   let [syntax, _] = useSyntax();
   let [theme] = useTheme();
-  let content = React.useMemo(() => {
-    let lines = code.split('\n');
-    let firstNonEmptyLine = 0;
-    while (lines[firstNonEmptyLine].trim() === '') {
-      firstNonEmptyLine++;
-    }
-    let spacesToFirstCharacter = 0;
-    while (lines[firstNonEmptyLine][spacesToFirstCharacter] == ' ') {
-      spacesToFirstCharacter++;
-    }
-    let codeContent = lines
-      .slice(firstNonEmptyLine, lines.length)
-      .map(line => line.slice(spacesToFirstCharacter, line.length))
-      .join('\n')
-      .toString();
+  let language = typeof code === 'object' ? syntax : (props.language || 'ocaml');
+  let lines = (typeof code === 'object' ? code[syntax] : code).split('\n');
+  let firstNonEmptyLine = 0;
+  while (lines[firstNonEmptyLine].trim() === '') {
+    firstNonEmptyLine++;
+  }
+  let spacesToFirstCharacter = 0;
+  while (lines[firstNonEmptyLine][spacesToFirstCharacter] == ' ') {
+    spacesToFirstCharacter++;
+  }
+  let content = lines
+    .slice(firstNonEmptyLine, lines.length)
+    .map(line => line.slice(spacesToFirstCharacter, line.length))
+    .join('\n')
+    .toString();
 
-    // try {
-    //   if (!props.language && syntax === 'reason') {
-    //     codeContent = refmt.printRE(refmt.parseML(code));
-    //   }
-    // } catch (error) {
-    //   console.error(error.message, code);
-    // }
-    return codeContent;
-  }, [code, syntax]);
   return (
     <pre
       className={'CodeBlock'}

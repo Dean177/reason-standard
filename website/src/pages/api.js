@@ -565,7 +565,6 @@ let renderTextElements = (elements = [], parentPath = []) => {
               }
             `}
           >
-            {/* <pre className="pre">{value}</pre> */}
             <CodeBlock code={value} />
             {/* TODO get the playground working */}
             {/* <button

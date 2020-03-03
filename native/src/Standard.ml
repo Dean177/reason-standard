@@ -60,23 +60,3 @@ module Result = struct
     map t' ~f:(fun b -> (a, b))
   ) 
 end
-
-(** The standard library modules shadowed by [Standard] *)
-(* module Caml = struct
-  (** This module provides access to Ocamls original standard library.
-
-      It means you can still use standard library functions in files which you 
-      have done
-
-      {[open Standard]}
-  *)
-  module Array = Array
-  module Char = Char
-  module Float = Float
-  module Int = Int
-  module List = List
-  module Option = Option
-  (* TODO This requires 4.06 *)
-  module Result = Result
-  module String = Result
-end *)

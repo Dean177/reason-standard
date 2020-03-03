@@ -2,20 +2,25 @@ import React, { useEffect } from 'react';
 import { graphql } from 'gatsby';
 import { useSpring, animated } from 'react-spring';
 import styled, { css } from 'styled-components';
-import { breakpoints, colors, GlobalStyles, ThemeProvider, fonts } from '../theme';
 import {
-  MenuButton,
+  breakpoints,
+  colors,
+  GlobalStyles,
+  ThemeProvider,
+} from '../theme';
+import {
   NavBar,
   ContentContainer,
   AppContainer,
-  PageTitle,
+  Main,
+  NavBarContainer,
 } from '../components/Layout';
-import { NextPrevious } from '../components/NextPrevious';
 import { CodeBlock } from '../components/CodeBlock';
 import { Ocaml, Reason } from '../components/Icon';
+import { SyntaxProvider } from '../components/Syntax';
 
-let AnimatedOcaml = animated(Ocaml)
-let AnimatedReason = animated(Reason)
+let AnimatedOcaml = animated(Ocaml);
+let AnimatedReason = animated(Reason);
 
 import {
   ArtificialInteligence,
@@ -47,7 +52,7 @@ const SellingPoint = ({ description, illustration, flip }) => {
         }
 
         .description {
-          background-color: ${({theme}) => theme.card.background};
+          background-color: ${({ theme }) => theme.card.background};
           display: flex;
           flex: 1;
           font-size: 20px;
@@ -98,28 +103,15 @@ export const pageQuery = graphql`
 `;
 
 export default props => {
-  const {
-    allMdx,
-  } = props.data;
   let [logo, setLogo] = React.useState('reason');
-  useEffect(() => {
-    let toggleLogo = setInterval(() => {
-      setLogo(current => current === 'reason' ? 'ocaml' : 'reason')
-    }, 3000);
-    return () => {
-      clearInterval(toggleLogo)
-    };
-  });
-
-  // Todo, use a static query to move this into NextPrevious
-  const nav = allMdx.edges
-    .filter(({ node }) => node.fields.url !== '/')
-    .map(({ node }) => ({
-      title: node.fields.title,
-      url: node.fields.url,
-      order: Number(node.frontmatter.order || "999"),
-    }))
-    .sort((fieldsA, fieldsB) => fieldsA.order - fieldsB.order);
+  // useEffect(() => {
+  //   let toggleLogo = setInterval(() => {
+  //     setLogo(current => (current === 'reason' ? 'ocaml' : 'reason'));
+  //   }, 3000);
+  //   return () => {
+  //     clearInterval(toggleLogo);
+  //   };
+  // });
 
   const logoStyles = useSpring(
     logo === 'reason'
@@ -139,64 +131,60 @@ export default props => {
   );
   return (
     <ThemeProvider>
-      <GlobalStyles />
-      <AppContainer>
-        <ContentContainer>
-          <NavBar />
-          <main
-            css={css`
-              align-items: center;
-              display: flex;
-              flex: 1;
-              flex-direction: column;
-              width: 100%;
-              overflow: auto;
-              padding: 0px 22px;
-              padding-top: 3rem;
-              padding-bottom: 3rem;
-            `}
-          >
+      <SyntaxProvider>
+        <GlobalStyles />
+        <AppContainer>
+          <ContentContainer>
+            <NavBarContainer>
+              <NavBar />
+            </NavBarContainer>
             <div
               css={css`
-                max-width: 970px;
+                align-items: center;
+                display: flex;
+                flex-direction: column;
+                width: 100%;
               `}
             >
-              <h1
-                css={css`
-                  padding-top: 20px;
-                  padding-bottom: 20px;
-                  font-size: 50px;
-                  font-weight: normal;
-                  letter-spacing: 1.1px;
-                `}
-              >
-                Standard
-              </h1>
-              <p>A standard library replacement for Reason and Ocaml. </p>
-              <p
-                css={css`
-                  padding-top: 30px;
-                  padding-bottom: 30px;
-                `}
-              >
-                Standard provides an easy-to-use, comprehensive and performant
-                standard library, that has the same API for the OCaml and
-                Bucklescript compilers.
-              </p>
-              <div
-                css={css`
-                  h1 {
-                  }
-                `}
-              >
-                <button>Get started</button>
-              </div>
-              <div
-                css={css`
-                  padding-bottom: 50px;
-                `}
-              >
-                <CodeBlock language="reason" value={`
+            <Main>
+                <h1
+                  css={css`
+                    padding-top: 20px;
+                    padding-bottom: 20px;
+                    font-size: 50px;
+                    font-weight: normal;
+                    letter-spacing: 1.1px;
+                  `}
+                >
+                  Standard
+                </h1>
+                <p>A standard library replacement for Reason and Ocaml. </p>
+                <p
+                  css={css`
+                    padding-top: 30px;
+                    padding-bottom: 30px;
+                  `}
+                >
+                  Standard provides an easy-to-use, comprehensive and performant
+                  standard library, that has the same API for the OCaml and
+                  Bucklescript compilers.
+                </p>
+                <div
+                  css={css`
+                    h1 {
+                    }
+                  `}
+                >
+                  <button>Get started</button>
+                </div>
+                <div
+                  css={css`
+                    padding-bottom: 50px;
+                  `}
+                >
+                  <CodeBlock
+                    language="reason"
+                    code={`
 open Standard;
 
 String.toList("somestring")
@@ -206,82 +194,83 @@ String.toList("somestring")
 ->String.ofList
 /* "asdfasdf" */
                   `}
+                  />
+                </div>
+                <SellingPoint
+                  illustration={() => (
+                    <animated.div
+                      onClick={() =>
+                        setLogo(current =>
+                          current === 'ocaml' ? 'reason' : 'ocaml',
+                        )
+                      }
+                      style={{
+                        display: 'block',
+                        flexShrink: 0,
+                        width: logoSize,
+                        height: logoSize,
+                        background: logoStyles.background,
+                        borderRadius: logoStyles.borderRadius,
+                        overflow: 'hidden',
+                        margin: 20,
+                        position: 'relative',
+                      }}
+                    >
+                      <AnimatedReason
+                        style={{
+                          transform: logoStyles.reTransform,
+                          position: 'absolute',
+                          fill: 'white',
+                        }}
+                        height={logoSize * 2}
+                        width={logoSize * 2}
+                      />
+                      <AnimatedOcaml
+                        style={{
+                          transform: logoStyles.camlTransform,
+                          position: 'absolute',
+                          fill: 'white',
+                        }}
+                        height={logoSize * 3}
+                        width={logoSize * 3}
+                      />
+                    </animated.div>
+                  )}
+                  description="Works with either the Reason or Ocaml syntax, targetting the bucklescript, native or js_of_ocaml compilers"
                 />
-              </div>
-              <SellingPoint
-                illustration={() => (
-                  <animated.div
-                    onClick={() =>
-                      setLogo(current =>
-                        current === 'ocaml' ? 'reason' : 'ocaml',
-                      )
-                    }
-                    style={{
-                      display: 'block',
-                      flexShrink: 0,
-                      width: logoSize,
-                      height: logoSize,
-                      background: logoStyles.background,
-                      borderRadius: logoStyles.borderRadius,
-                      overflow: 'hidden',
-                      margin: 20,
-                      position: 'relative',
-                    }}
-                  >
-                    <AnimatedReason
-                      style={{
-                        transform: logoStyles.reTransform,
-                        position: 'absolute',
-                        fill: 'white',
-                      }}
-                      height={logoSize * 2}
-                      width={logoSize * 2}
-                    />
-                    <AnimatedOcaml
-                      style={{
-                        transform: logoStyles.camlTransform,
-                        position: 'absolute',
-                        fill: 'white',
-                      }}
-                      height={logoSize * 3}
-                      width={logoSize * 3}
-                    />
-                  </animated.div>
-                )}
-                description="Works with either the Reason or Ocaml syntax, targetting the bucklescript, native or js_of_ocaml compilers"
-              />
-              <SellingPoint
-                flip={true}
-                illustration={() => <BookLover className="illustration" />}
-                description={`
+                <SellingPoint
+                  flip={true}
+                  illustration={() => <BookLover className="illustration" />}
+                  description={`
                   Easy to learn.
                   Excellent documentation 
                   Examples for each function
                   Thoroughly tested
                   `}
-              />
-              <SellingPoint
-                illustration={() => <Productive className="illustration" />}
-                description={`
+                />
+                <SellingPoint
+                  illustration={() => <Productive className="illustration" />}
+                  description={`
                   Safe
                   Banish runtime errors.
                 `}
-              />
-              <SellingPoint
-                flip={true}
-                illustration={() => (
-                  <ArtificialInteligence className="illustration" />
-                )}
-                description={`
+                />
+                <SellingPoint
+                  flip={true}
+                  illustration={() => (
+                    <ArtificialInteligence className="illustration" />
+                  )}
+                  description={`
                   Advanced.
                   Index operators for Maps, Sets arrays and strings
                   (let+) Bindings for Options & Results
               `}
-              />
+                />
+            </Main>
             </div>
-          </main>
-        </ContentContainer>
-      </AppContainer>
+          </ContentContainer>
+        </AppContainer>
+      </SyntaxProvider>
     </ThemeProvider>
   );
 };
