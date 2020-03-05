@@ -31,19 +31,20 @@ install:byte opt
 	mkdir -p `ocamlfind ocamldoc -customdir`
 	cp -f $(CMA) $(CMXS) `ocamlfind ocamldoc -customdir`/
 
-build-source: dummy
+build: all dummy
 	cp ../native/src/Standard.ml ./_build/Standard.ml
 	cp ../native/src/Core.ml ./_build/Core.ml
 	cp ../native/src/Core.mli ./_build/Core.mli	
 	ocamlfind ocamlopt \
 		-package base,str,zarith \
+		-linkpkg \
 		-I ./_build \
-		-o ./_build/built.exe \
+		-o ../_build.out \
 		./_build/Core.mli \
 		./_build/Core.ml \
 		./_build/Standard.ml
 
-doc: dummy
+doc: build
 	ocamldoc.opt \
 		-g ./$(CMXS) \
 		`ocamlfind query -i-format base` \
@@ -67,21 +68,14 @@ test: dummy
 # 	rm -rf ./test-doc/* && \
 # 	ocamlfind ocamldoc \
 # 		-I ./test/src \
-# 		-i ../_build/default/ocamldoc-json-generator/src/ \
+# 		-i ../_build/default/ocamldoc-json-generator/ \
 # 		-g JsonGenerator.cma \
 # 		-d ./test \
-# 		./test/src/Core.mli \
-# 		./test/src/Core.ml \
-# 		./test/src/Fourier.ml \
-# 		./test/src/Included.ml \
-# 		./test/src/ExampleEntry.ml 
-
-# findlib-install: byte opt
-# 	ocamlfind install JsonGenerator META LICENSE \
-# 		$(CMA) $(CMXS) $(CMXS:.cmxs=.o)
-
-# findlib-uninstall: byte opt
-# 	ocamlfind remove JsonGenerator
+# 		./test/Core.mli \
+# 		./test/Core.ml \
+# 		./test/Fourier.ml \
+# 		./test/Included.ml \
+# 		./test/ExampleEntry.ml 
 
 clean:
 	rm -f *.cm* *.o *.a ./test/*.cm* ./test/*.o ./test/*.a

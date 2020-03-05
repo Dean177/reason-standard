@@ -100,9 +100,12 @@ module Fun = struct
       times (n - 1) ~f )
 
   let forever f =
-    while true do
-      f ()
-    done
+    try
+      while true do
+        f ()
+      done;
+      failwith "[while true] managed to return, you are in trouble now."
+    with exn -> exn
 
   let curry (f : 'a * 'b -> 'c) (a : 'a) (b : 'b) = (f (a, b) : 'c)
 
@@ -480,9 +483,6 @@ module Option = struct
     | Some x ->
         x
 
-  let fold t ~initial ~f =
-    match t with None -> initial | Some value -> f initial value
-
   let forEach t ~f = Option.iter f t
 
   let toArray t = match t with None -> [||] | Some value -> [|value|]
@@ -568,7 +568,7 @@ module Result = struct
   let mapError t ~f =
     match t with Error error -> Error (f error) | Ok value -> Ok value
 
-  let combine t =
+  let values t =
     List.foldRight t ~initial:(Ok []) ~f:(map2 ~f:(fun b a -> a :: b))
 
   let toOption r = match r with Ok v -> Some v | Error _ -> None
@@ -577,9 +577,6 @@ module Result = struct
 
   let attempt f =
     match f () with value -> Ok value | exception error -> Error error
-
-  let fold t ~initial ~f =
-    match t with Ok a -> f initial a | Error _ -> initial
 
   let transpose t =
     match t with
@@ -931,9 +928,11 @@ module Integer = struct
 
   let negate = Z.neg
 
-  let modulo (n : t) ~(by : t) = (Z.rem n by : t)
+  let modulo (n : t) ~(by : t) : t = (Z.rem n by)
 
-  let remainder (n : t) ~(by : t) = (Z.rem n by : t)
+  let (mod) (n : t) (by : t) : t = (Z.rem n by)
+
+  let remainder (n : t) ~(by : t) = (Z.rem n by)
 
   let ( ** ) = Z.( ** )
 
@@ -1058,6 +1057,26 @@ module String = struct
   let trimLeft string = Base.String.lstrip string
 
   let trimRight string = Base.String.rstrip string
+
+  let padLeft string targetLength ~with_ = 
+    if (length(string) >= targetLength) then 
+      string 
+    else (
+      let paddingLength = targetLength - length(string) in
+      let count = paddingLength / length(with_) in
+      let padding = slice (repeat with_ ~count) ~from:0 ~to_:paddingLength in
+      padding ^ string
+    )
+
+  let padRight string targetLength ~with_ = 
+    if (length(string) >= targetLength) then 
+      string 
+    else (
+      let paddingLength = targetLength - length(string) in
+      let count = paddingLength / length(with_) in
+      let padding = slice (repeat with_ ~count) ~from:0 ~to_:paddingLength in
+      string ^ padding
+    )
 
   let forEach = Base.String.iter
 
@@ -1200,6 +1219,9 @@ module Map = struct
   let all = Base.Map.for_all
 
   let forEach = Base.Map.iter
+
+  let forEachI (map : ('key, 'value, _) t) ~(f:key:'key -> value:'value -> unit) : unit = 
+    Base.Map.iteri map ~f:(fun ~key ~data -> f ~key ~value:data)
 
   let fold m ~initial ~f =
     Base.Map.fold m ~init:initial ~f:(fun ~key ~data acc ->

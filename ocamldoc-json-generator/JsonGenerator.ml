@@ -350,13 +350,16 @@ class virtual text = object (self)
       | Odoc_info.Code s -> (tagged "Code" (string s))
       | Odoc_info.CodePre code -> 
         let reasonSyntax: string =  
-          (* try ( *)
-          Lexing.from_string code
-          |> Reason_toolchain.ML.implementation_with_comments
-          |> Reason_toolchain.RE.print_implementation_with_comments Format.str_formatter
-          |> Format.flush_str_formatter
-          (* )
-          with _ -> code *)
+          try (
+            Lexing.from_string code
+            |> Reason_toolchain.ML.implementation_with_comments
+            |> Reason_toolchain.RE.print_implementation_with_comments Format.str_formatter
+            |> Format.flush_str_formatter
+          ) with _ -> (
+            print_DEBUG "Unable to convert code snippet";
+            print_DEBUG code;
+            code
+          )
         in
         (tagged "CodePre" (obj [
           ("ocaml", string code);

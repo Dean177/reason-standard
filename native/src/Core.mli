@@ -24,7 +24,7 @@ module Bool : sig
 
   type t = bool
 
-  (** {1 Creation} *)
+  (** {1 Create} *)
 
   (** Convert an {!Int} into a {!Bool}.
 
@@ -59,6 +59,8 @@ module Bool : sig
       {[Bool.ofString "Not even close" = None]}
   *)
   val ofString : string -> t option
+
+  (** {1 Basic operations} *)
 
   (** The lazy logical AND operator.
 
@@ -135,7 +137,7 @@ module Bool : sig
   *)
   val negate : ('a -> bool) -> 'a -> bool
   
-  (** {1 Conversion} *)
+  (** {1 Convert} *)
 
   (** Convert a [bool] to a {!String}
 
@@ -157,7 +159,7 @@ module Bool : sig
   *)  
   val toInt : t -> int
 
-  (** {1 Comparison} *)
+  (** {1 Compare} *)
 
   (** Test for the equality of two [bool] values.
 
@@ -244,30 +246,9 @@ module Char : sig
       {[Char.ofString " a" = None]}
   *)
   val ofString : string -> char option
-  
-  (** Converts an ASCII character to lower case, preserving non alphabetic ASCII characters.
 
-      {2 Examples}
-
-      {[Char.toLowercase 'A' = 'a']}
-
-      {[Char.toLowercase 'B' = 'b']}
-
-      {[Char.toLowercase '7' = '7']} *)
-  val toLowercase : char -> char
-  
-  (** Convert an ASCII character to upper case, preserving non alphabetic ASCII characters.
-
-      {2 Examples}
-
-      {[toUppercase 'a' = 'A']}
-
-      {[toUppercase 'b' = 'B']}
-
-      {[toUppercase '7' = '7']} 
-  *)
-  val toUppercase : char -> char
-  
+  (** {1 Query}  *)
+    
   (** Detect lower case ASCII characters.
 
       {2 Examples}
@@ -338,7 +319,6 @@ module Char : sig
   *)
   val isDigit : char -> bool
 
-
   (** Detect upper case, lower case and digit ASCII characters.
 
       {2 Examples}
@@ -397,7 +377,32 @@ module Char : sig
   *)
   val isWhitespace : char -> bool
 
-  (** {1 Conversion} *)
+  (** {1 Modify} *)
+  
+  (** Converts an ASCII character to lower case, preserving non alphabetic ASCII characters.
+
+      {2 Examples}
+
+      {[Char.toLowercase 'A' = 'a']}
+
+      {[Char.toLowercase 'B' = 'b']}
+
+      {[Char.toLowercase '7' = '7']} *)
+  val toLowercase : char -> char
+  
+  (** Convert an ASCII character to upper case, preserving non alphabetic ASCII characters.
+
+      {2 Examples}
+
+      {[toUppercase 'a' = 'A']}
+
+      {[toUppercase 'b' = 'B']}
+
+      {[toUppercase '7' = '7']} 
+  *)
+  val toUppercase : char -> char
+
+  (** {1 Convert} *)
 
   (** Convert to the corresponding ASCII [code point][cp].
 
@@ -439,7 +444,7 @@ module Char : sig
   *)
   val toDigit : char -> int option
   
-  (** {1 Comparison} *)
+  (** {1 Compare} *)
 
   (** Test two {!Char}s for equality *)
   val equal : t -> t -> bool
@@ -480,7 +485,6 @@ module Float : sig
   *)
 
   type t = float
-  
   
   (** {1 Constants} *)
 
@@ -535,7 +539,40 @@ module Float : sig
   
   (** For floats less than [minimumSafeInteger], it no longer holds that [Float.(n - 1.) < n]  *)
   val minimumSafeInteger : t
+    
+  (** {1 Create} *)
+
+  (** Convert an {!Int} to a [float]
+
+      {2 Examples}
+
+      {[
+        Float.ofInt 5 = 5.0
+        Float.ofInt 0 = 0.0
+        Float.ofInt -7 = -7.0
+      ]}
+  *)
+  val ofInt : int -> t
   
+  (** Convert a {!String} to a [float].
+
+      Parses [nan] and [infinity] case-insensitive.
+
+      {2 Examples}
+
+      {[Float.ofString "4.667" = Some 4.667]}
+
+      {[Float.ofString "-4.667" = Some (-4.667)]}
+
+      {[Float.ofString "Hamster" = None]}
+
+      {[Float.ofString "NaN" = Some Float.nan]}
+
+      {[Float.ofString "nan" = Some Float.nan]}
+
+      {[Float.ofString "Infinity" = Some Float.infinity]}
+  *)
+  val ofString : string -> t option
   
   (** {1 Basic arithmetic and operators} *)
 
@@ -807,7 +844,6 @@ module Float : sig
   *)
   val isSafeInteger : t -> bool
   
-  
   (** Checks if a float is between [lower] and up to, but not including, [upper].
 
       If [lower] is not specified, it's set to to [0.0].
@@ -989,7 +1025,7 @@ module Float : sig
   *)
   val atan2 : y:t -> x:t -> radians
 
-  (** {1 Conversion} *)
+  (** {1 Rounding} *)
 
   (** The possible [direction]s availible when doing {!Float.round}.
 
@@ -1122,7 +1158,6 @@ module Float : sig
   *)
   val ceiling : t -> t
   
-  
   (** Ceiling function, equivalent to [Float.round ~direction:`Zero].
 
       {2 Examples}
@@ -1138,41 +1173,8 @@ module Float : sig
       ]}
   *)
   val truncate : t -> t
-  
-  
-  (** Convert an {!Int} to a [float]
 
-      {2 Examples}
-
-      {[
-        Float.ofInt 5 = 5.0
-        Float.ofInt 0 = 0.0
-        Float.ofInt -7 = -7.0
-      ]}
-  *)
-  val ofInt : int -> t
-  
-  (** Convert a {!String} to a [float].
-
-      Parses [nan] and [infinity] case-insensitive.
-
-      {2 Examples}
-
-      {[Float.ofString "4.667" = Some 4.667]}
-
-      {[Float.ofString "-4.667" = Some (-4.667)]}
-
-      {[Float.ofString "Hamster" = None]}
-
-      {[Float.ofString "NaN" = Some Float.nan]}
-
-      {[Float.ofString "nan" = Some Float.nan]}
-
-      {[Float.ofString "Infinity" = Some Float.infinity]}
-  *)
-  val ofString : string -> t option
-  
-  (** {1 Conversion} *)
+  (** {1 Convert} *)
 
   (** Converts a [float] to an {!Int} by {b ignoring the decimal portion}. See {!Float.truncate} for examples.
 
@@ -1196,15 +1198,13 @@ module Float : sig
   *)
   val toInt : t -> int option
   
-  (** Convert a [float] to a {!String}
-
-      {2 Examples}
-
-      TODO
+  (** Convert a [float] to a {!String} 
+  
+      The behaviour of this function is platform specific
   *)
   val toString : t -> string
   
-  (** {1 Comparison} *)
+  (** {1 Compare} *)
 
   (** Test two floats for equality *)
   val equal : t -> t -> bool
@@ -1254,8 +1254,22 @@ module Int : sig
   type t = int
 
   type identity
+  
+  (** {1 Constants } *)
 
-  (** {1 Creation} *)
+  (** The literal [0] as a named value *)
+  val zero : t
+  
+  (** The literal [1] as a named value *)
+  val one : t
+  
+  (** The maximum representable [int] on the current platform *)
+  val maximumValue : t
+  
+  (** The minimum representable [int] on the current platform *)
+  val minimumValue : t
+  
+  (** {1 Create} *)
 
   (** Attempt to parse a [string] into a [int].
 
@@ -1278,22 +1292,8 @@ module Int : sig
       {[Int.ofString "NaN" = None]}
   *)
   val ofString : string -> t option
-  
-  (** {1 Constants } *)
 
-  (** The literal [0] as a named value *)
-  val zero : t
-  
-  (** The literal [1] as a named value *)
-  val one : t
-  
-  (** The maximum representable [int] on the current platform *)
-  val maximumValue : t
-  
-  (** The minimum representable [int] on the current platform *)
-  val minimumValue : t
-  
-  (** {1 Operators }
+  (** {1 Operators}
 
       {b Note } You do not need to open the {!Int} module to use the
       {!( + )}, {!( - )}, {!( * )}, {!( ** )}, {! (mod)} or {!( / )} operators, these are
@@ -1547,7 +1547,7 @@ module Int : sig
   *)
   val inRange : t -> lower:t -> upper:t -> bool
   
-  (** {1 Conversion } *)
+  (** {1 Convert} *)
 
   (** Convert an integer into a float. Useful when mixing {!Int} and {!Float} values like this:
 
@@ -1579,7 +1579,7 @@ module Int : sig
   *)
   val toString : t -> string
   
-  (** {1 Comparison} *)
+  (** {1 Compare} *)
 
   (** Test two [int]s for equality *)
   val equal : t -> t -> bool
@@ -1598,7 +1598,7 @@ module Integer : sig
   *)
   type t
   
-  (** {1 Creation} *)
+  (** {1 Create} *)
 
   (** Create an {!Integer} from an {!Int} *)
   val ofInt : int -> t
@@ -1609,10 +1609,6 @@ module Integer : sig
   (** Create an {!Integer} from an Int64.
 
       Returns [None] when called with {!Float.nan}, {!Float.infinity} or {!Float.negativeInfinity}
-
-      {2 Examples}
-
-      TODO
   *)
   val ofFloat : float -> t option
   
@@ -1794,6 +1790,9 @@ module Integer : sig
       ]}
   *)
   val modulo : t -> by:t -> t
+
+  (** See {!Integer.modulo} *)
+  val (mod) : t -> t -> t
   
   (** Get the remainder after division. Here are bunch of examples of dividing by four:
 
@@ -1897,7 +1896,7 @@ module Integer : sig
   val inRange : t -> lower:t -> upper:t -> bool
   
   
-  (** {1 Conversion } *)
+  (** {1 Convert} *)
 
   (** Convert an {!Integer} to an {!Int}
 
@@ -1953,7 +1952,7 @@ module Integer : sig
   (** Gives a human-readable, decimal string representation *)
   val toString : t -> string
   
-  (** {1 Comparison} *)
+  (** {1 Compare} *)
 
   (** Test two {!Integer}s for equality *)
   val equal : t -> t -> bool
@@ -1968,7 +1967,10 @@ module String : sig
 
   type t = string
 
-  (** {1 Create} *)
+  (** {1 Create} 
+  
+      Strings literals are created with the ["double quotes"] syntax.
+  *)
 
   (** Converts the given character to an equivalent string of length one. *)
   val ofChar : char -> string
@@ -2023,12 +2025,38 @@ module String : sig
   *)
   val initialize : int -> f:(int -> char) -> string
   
+  (** {1 Basic operations} *)
+
+  (** Get the character at the specified index *)
+  val get : string -> int -> char
+  
+  (** Get the character at [~index] *)
+  val getAt : string -> index:int -> char option
+   
+  (** Reverse a string
+
+      {b Note} This function does not work with Unicode characters.
+
+      {2 Examples}
+
+      {[String.reverse "stressed" = "desserts"]}
+  *)
+  val reverse : string -> string
+  
+  (** Extract a substring from the specified indicies. 
+
+      See {!Array.slice}.
+  *)
+  val slice : ?to_:int -> string -> from:int -> string
+  
+  (** {1 Query} *)
+
   (** Check if a string is empty *)
   val isEmpty : string -> bool
   
   (** Returns the length of the given string.
 
-      {b Warning} if the string contains non-ASCII characters then {!length} will
+      {b Warning} if the string contains non-ASCII characters then [length] will
       not equal the number of characters
 
       {2 Examples}
@@ -2036,26 +2064,52 @@ module String : sig
       {[String.length "abc" = 3]}
   *)
   val length : string -> int
-  
-  (** Get the character at the specified index *)
-  val get : string -> int -> char
-  
-  (** Get the character at [~index] *)
-  val getAt : string -> index:int -> char option
-  
-  (** Returns, as an {!Option}, a tuple containing the first {!Char} and the remaining String.
-
-      If given an empty string, returns [None].
+    
+  (** See if the second string starts with [prefix]
 
       {2 Examples}
 
-      {[String.uncons "abcde" = Some ('a', "bcde")]}
+      {[String.startsWith ~prefix:"the" "theory" = true]}
 
-      {[String.uncons "a" = Some ('a', "")]}
-
-      {[String.uncons "" = None]}
+      {[String.startsWith ~prefix:"ory" "theory" = false]}
   *)
-  val uncons : string -> (char * string) option
+  val startsWith : string -> prefix:string -> bool
+  
+  (** See if the second string ends with [suffix].
+
+      {2 Examples}
+
+      {[String.endsWith ~suffix:"the" "theory" = false]}
+
+      {[String.endsWith ~suffix:"ory" "theory" = true]}
+  *)
+  val endsWith : string -> suffix:string -> bool
+  
+  (** Check if one string appears within another
+
+      {2 Examples}
+
+      {[String.includes "team" ~substring:"tea" = true]}
+
+      {[String.includes "team" ~substring:"i" = false]}
+
+      {[String.includes "ABC" ~substring:"" = true]}
+  *)
+  val includes : string -> substring:string -> bool
+
+  (** Test if the first letter of a string is upper case.
+
+      {b Note} This function works only with ASCII characters, not Unicode.
+
+      {2 Examples}
+
+      {[String.isCapitalized "Anastasia" = true]}
+
+      {[String.isCapitalized "" = false]}
+  *)
+  val isCapitalized : string -> bool
+
+  (** {1 Modify} *)
   
   (** Drop [count] characters from the left side of a string.
 
@@ -2084,41 +2138,27 @@ module String : sig
       ]}
   *)
   val dropRight : string -> count:int -> string
+    
+  (** Insert a string at [index]. 
   
-  (** Divide a string into a list of strings, splitting whenever [on] is encountered.
+      The character previously at index will now follow the inserted string.
 
       {2 Examples}
 
-      {[
-        String.split ~on:"/" "a/b/c" = ["a"; "b"; "c"]
-        String.split ~on:"--" "a--b--c" = ["a"; "b"; "c"]
-        String.split ~on:"/" "abc" = ["abc"]
-        String.split ~on:"/" "" = [""]
-        String.split ~on:"" "abc" = ["a"; "b"; "c"]
-      ]}
+      {[String.insertAt ~insert:"**" ~index:2 "abcde" = "ab**cde"]}
+
+      {[String.insertAt ~insert:"**" ~index:0 "abcde" = "**abcde"]}
+
+      {[String.insertAt ~insert:"**" ~index:5 "abcde" = "abcde**"]}
+
+      {[String.insertAt ~insert:"**" ~index:(-2) "abcde" = "abc**de"]}
+
+      {[String.insertAt ~insert:"**" ~index:(-9) "abcde" = "**abcde"]}
+
+      {[String.insertAt ~insert:"**" ~index:9 "abcde" = "abcde**"]}
   *)
-  val split : string -> on:string -> string list
-  
-  (** See if the second string starts with [prefix]
+  val insertAt : string -> index:int -> value:t -> string
 
-      {2 Examples}
-
-      {[String.startsWith ~prefix:"the" "theory" = true]}
-
-      {[String.startsWith ~prefix:"ory" "theory" = false]}
-  *)
-  val startsWith : string -> prefix:string -> bool
-  
-  (** See if the second string ends with [suffix].
-
-      {2 Examples}
-
-      {[String.endsWith ~suffix:"the" "theory" = false]}
-
-      {[String.endsWith ~suffix:"ory" "theory" = true]}
-  *)
-  val endsWith : string -> suffix:string -> bool
-  
   (** Converts all upper case letters to lower case.
 
       {b Note} This function works only with ASCII characters, not Unicode.
@@ -2159,46 +2199,6 @@ module String : sig
   *)
   val capitalize : string -> string
   
-  (** Test if the first letter of a string is upper case.
-
-      {b Note} This function works only with ASCII characters, not Unicode.
-
-      {2 Examples}
-
-      {[String.isCapitalized "Anastasia" = true]}
-
-      {[String.isCapitalized "" = false]}
-  *)
-  val isCapitalized : string -> bool
-  
-  (** Check if one string appears within another
-
-      {2 Examples}
-
-      {[String.includes "team" ~substring:"tea" = true]}
-
-      {[String.includes "team" ~substring:"i" = false]}
-
-      {[String.includes "ABC" ~substring:"" = true]}
-  *)
-  val includes : string -> substring:string -> bool
-  
-  (** Reverse a string
-
-      {b Note} This function does not work with Unicode characters.
-
-      {2 Examples}
-
-      {[String.reverse "stressed" = "desserts"]}
-  *)
-  val reverse : string -> string
-  
-  (** Extract a substring from the specified indicies. 
-
-      See {!Array.slice}.
-  *)
-  val slice : ?to_:int -> string -> from:int -> string
-  
   (** Removes leading and trailing {{!Char.isWhitespace} whitespace} from a string
 
       {2 Examples}
@@ -2216,34 +2216,66 @@ module String : sig
   
   (** Like {!trim} but only drops characters from the end of the string. *)
   val trimRight : string -> string
-  
-  (** Insert a string at [index]. 
-  
-      The character previously at index will now follow the inserted string.
+
+  (** Pad a string up to a minimum length 
+
+      If the string is shorted than the proivded length, adds [with] to the left of the string until the minimum length is met
 
       {2 Examples}
 
-      {[String.insertAt ~insert:"**" ~index:2 "abcde" = "ab**cde"]}
-
-      {[String.insertAt ~insert:"**" ~index:0 "abcde" = "**abcde"]}
-
-      {[String.insertAt ~insert:"**" ~index:5 "abcde" = "abcde**"]}
-
-      {[String.insertAt ~insert:"**" ~index:(-2) "abcde" = "abc**de"]}
-
-      {[String.insertAt ~insert:"**" ~index:(-9) "abcde" = "**abcde"]}
-
-      {[String.insertAt ~insert:"**" ~index:9 "abcde" = "abcde**"]}
+      {[String.padLeft "5" 3 ~with_:"0" = "005"]}
   *)
-  val insertAt : string -> index:int -> value:t -> string
+  val padLeft : string -> int -> with_:string -> string
+
+  (** Pad a string up to a minimum length 
+
+      If the string is shorted than the proivded length, adds [with] to the left of the string until the minimum length is met
+
+      {2 Examples}
+
+      {[String.padRight "Ahh" 7 ~with_:"h" = "Ahhhhhh"]}
+  *)
+  val padRight : string -> int -> with_:string -> string
   
+  (** {1 Deconstruct} *)
+
+  (** Returns, as an {!Option}, a tuple containing the first {!Char} and the remaining String.
+
+      If given an empty string, returns [None].
+
+      {2 Examples}
+
+      {[String.uncons "abcde" = Some ('a', "bcde")]}
+
+      {[String.uncons "a" = Some ('a', "")]}
+
+      {[String.uncons "" = None]}
+  *)
+  val uncons : string -> (char * string) option
+
+  (** Divide a string into a list of strings, splitting whenever [on] is encountered.
+
+      {2 Examples}
+
+      {[
+        String.split ~on:"/" "a/b/c" = ["a"; "b"; "c"]
+        String.split ~on:"--" "a--b--c" = ["a"; "b"; "c"]
+        String.split ~on:"/" "abc" = ["abc"]
+        String.split ~on:"/" "" = [""]
+        String.split ~on:"" "abc" = ["a"; "b"; "c"]
+      ]}
+  *)
+  val split : string -> on:string -> string list
+
+  (** {1 Iterate} *)
+
   (** Run [f] on each character in a string. *)
   val forEach : string -> f:(char -> unit) -> unit
   
   (** Like {!Array.fold} but the elements are {!Char}s  *)
   val fold : string -> initial:'a -> f:('a -> char -> 'a) -> 'a
   
-  (** {1 Conversion} *)
+  (** {1 Convert} *)
 
   (** Returns an {!Array} of the individual characters in the given string.
 
@@ -2265,7 +2297,7 @@ module String : sig
   *)
   val toList : string -> char list
   
-  (** {1 Comparison} *)
+  (** {1 Compare} *)
 
   type identity
 
@@ -2549,9 +2581,6 @@ module Option : sig
   (** Run a function against a value, if it is present. *)
   val forEach : 'a t -> f:('a -> unit) -> unit
   
-  (** TODO *)
-  val fold : 'a t -> initial:'b -> f:('b -> 'a -> 'b) -> 'b
-  
   (** Convert an option to a {!Array}.
 
       [None] is represented as an empty list and [Some] is represented as a list of one element.
@@ -2576,7 +2605,7 @@ module Option : sig
   *)
   val toList : 'a t -> 'a list
   
-  (** {1 Comparison} *)
+  (** {1 Compare} *)
 
   (** Test two optional values for equality using the provided function
 
@@ -2697,7 +2726,7 @@ module Result : sig
   type ('ok, 'error) t = ('ok, 'error) Result.t
   
   
-  (** {1 Creation} *)
+  (** {1 Create} *)
 
   (** A function alternative to the [Ok] constructor which can be used in places where
       the constructor isn't permitted such as at the of a {!Fun.(|>)} or functions like {!List.map}.
@@ -2957,15 +2986,14 @@ module Result : sig
   (** If all of the elements of a list are [Ok], returns an [Ok] of the the list of unwrapped values.
 
       If {b any} of the elements are an [Error], the first one encountered is returned.
-
-      TODO This has the same name as Map.combine, but is very different
+      
       {2 Examples}
 
-      {[Result.combine [Ok 1; Ok 2; Ok 3; Ok 4] = Ok [1; 2; 3; 4]]}
+      {[Result.values [Ok 1; Ok 2; Ok 3; Ok 4] = Ok [1; 2; 3; 4]]}
 
-      {[Result.combine [Ok 1; Error "two"; Ok 3; Error "four"] = Error "two"]}
+      {[Result.values [Ok 1; Error "two"; Ok 3; Error "four"] = Error "two"]}
   *)
-  val combine : ('ok, 'error) t list -> ('ok list, 'error) t
+  val values : ('ok, 'error) t list -> ('ok list, 'error) t
   
   (** Transforms the ['ok] in a result using [f]. Leaves the ['error] untouched.
 
@@ -3037,9 +3065,6 @@ module Result : sig
   *)
   val bind : ('a, 'error) t -> f:('a -> ('b, 'error) t) -> ('b, 'error) t
   
-  (** TODO Seriously what would you use this for *)
-  val fold : ('ok, _) t -> initial:'b -> f:('b -> 'ok -> 'b) -> 'b
-  
   (** Run a function against an [(Ok value)], ignores [Error]s.
 
       {2 Examples}
@@ -3051,7 +3076,7 @@ module Result : sig
    *)
   val forEach : ('ok, _) t -> f:('ok -> unit) -> unit
   
-  (** {1 Conversion} *)
+  (** {1 Convert} *)
 
   (** Convert a {!Result} to an {!Option}.
 
@@ -3068,7 +3093,7 @@ module Result : sig
   val toOption : ('ok, _) t -> 'ok option
   
   
-  (** {1 Comparison} *)
+  (** {1 Compare} *)
 
   (** Test two results for equality using the provided functions.
 
@@ -3958,7 +3983,7 @@ module Array : sig
   *)
   val toIndexedList : 'a t -> (int * 'a) list
   
-  (** {1 Comparison} *)
+  (** {1 Compare} *)
 
   (** Test two arrays for equality using the provided function to test pairs of elements. *)
   val equal : ('a -> 'a -> bool) -> 'a t -> 'a t -> bool
@@ -4850,7 +4875,7 @@ module List : sig
   (** Converts a list to an {!Array}. *)
   val toArray : 'a t -> 'a array
   
-  (** {1 Comparison} *)
+  (** {1 Compare} *)
 
   (** Test two lists for equality using the provided function to test elements. *)
   val equal : ('a -> 'a -> bool) -> 'a t -> 'a t -> bool
@@ -4996,7 +5021,7 @@ module Tuple : sig
   *)
   val swap : ('a * 'b) -> ('b * 'a)
   
-  (** {1 Conversion} *)
+  (** {1 Convert} *)
 
   (** Turns a tuple into an {!Array} of length two.
 
@@ -5010,7 +5035,6 @@ module Tuple : sig
   *)
   val toArray : ('a * 'a) -> 'a array
   
-  
   (** Turns a tuple into a list of length two. This function can only be used on tuples which have the same type for each value.
 
       {2 Examples}
@@ -5021,7 +5045,7 @@ module Tuple : sig
   *)
   val toList : ('a * 'a) -> 'a list
   
-  (** {1 Comparison} *)
+  (** {1 Compare} *)
 
   (** Test two {!Tuple}s for equality, using the provided functions to test the
       first and second components.
@@ -5051,8 +5075,8 @@ module Tuple : sig
     ('a -> 'a -> int) -> ('b -> 'b -> int) -> ('a, 'b) t -> ('a, 'b) t -> int
   
 end
-(** Functions for manipulating trios of values *)
 
+(** Functions for manipulating trios of values *)
 module Tuple3 : sig
   (** Functions for manipulating trios of values *)
 
@@ -5105,7 +5129,7 @@ module Tuple3 : sig
   *)
   val ofList : 'a list -> ('a * 'a * 'a) option
   
-  (** {1 Create} *)
+  (** {1 Basic operations} *)
 
   (** Extract the first value from a tuple.
 
@@ -5156,6 +5180,30 @@ module Tuple3 : sig
       {[Tuple3.tail ("john", 16, true) = (16, true)]}
   *)
   val tail : ('a * 'b * 'c) -> ('b * 'c)
+
+  (** {1 Modify} *)
+
+  (** Move each value in the tuple one position to the left, moving the value in the first position into the last position.
+
+      {2 Examples}
+
+      {[Tuple.rotateLeft (3, 4, 5) = (4, 5, 3)]}
+
+      {[Tuple.rotateLeft ("was", "stressed", "then") = ("stressed", "then", "was")]}
+  *)
+  val rotateLeft : ('a * 'b * 'c) -> ('b * 'c * 'a)
+  
+  (** Move each value in the tuple one position to the right, moving the value in the last position into the first position.
+
+      {2 Examples}
+
+      {[Tuple.rotateRight (3, 4, 5) = (5, 3, 4)]}
+
+      {[Tuple.rotateRight ("was", "stressed", "then") = ("then", "was", "stressed")]}
+  *)
+  val rotateRight : ('a * 'b * 'c) -> ('c * 'a * 'b)
+
+  (** {1 Transform} *)
   
   (** Transform the first value in a tuple.
 
@@ -5212,28 +5260,8 @@ module Tuple3 : sig
       {[Tuple.mapAll ~f:String.length ("was", "stressed", "then") = (3, 8, 4)]}
   *)
   val mapAll : ('a * 'a * 'a) -> f:('a -> 'b) -> ('b * 'b * 'b)
-  
-  (** Move each value in the tuple one position to the left, moving the value in the first position into the last position.
 
-      {2 Examples}
-
-      {[Tuple.rotateLeft (3, 4, 5) = (4, 5, 3)]}
-
-      {[Tuple.rotateLeft ("was", "stressed", "then") = ("stressed", "then", "was")]}
-  *)
-  val rotateLeft : ('a * 'b * 'c) -> ('b * 'c * 'a)
-  
-  (** Move each value in the tuple one position to the right, moving the value in the last position into the first position.
-
-      {2 Examples}
-
-      {[Tuple.rotateRight (3, 4, 5) = (5, 3, 4)]}
-
-      {[Tuple.rotateRight ("was", "stressed", "then") = ("then", "was", "stressed")]}
-  *)
-  val rotateRight : ('a * 'b * 'c) -> ('c * 'a * 'b)
-
-  (** {1 Conversion} *)
+  (** {1 Convert} *)
 
   (** Turns a tuple into a {!List} of length three.
 
@@ -5247,7 +5275,6 @@ module Tuple3 : sig
   *)
   val toArray : ('a * 'a * 'a) -> 'a array
   
-  
   (** Turns a tuple into a {!List} of length three.
 
       This function can only be used on tuples which have the same type for each value.
@@ -5260,7 +5287,7 @@ module Tuple3 : sig
   *)
   val toList : ('a * 'a * 'a) -> 'a list
   
-  (** {1 Comparison} *)
+  (** {1 Compare} *)
 
   (** Test two {!Tuple3}s for equality, using the provided functions to test the
       first, second and third components.
@@ -5296,23 +5323,22 @@ end
 
 (** A collection of unique values *)
 module Set : sig
-   (** A {!Set} represents a unique collection of values.
+  (** A {!Set} represents a unique collection of values.
 
       [Set] is an immutable data structure which means operations like {!Set.add} and {!Set.remove} do not modify the data structure, but return a new set with the desired changes.
 
-      Since the usage is so common the {!Set.Int} and {!Set.String} modules are available, offering a convenient way to construct new sets.
+      Since the usage is so common the {!Set.Int} and {!Set.String} modules are available, offering a convenient way to construct sets.
 
       For other data types you can use {!Set.Poly} which uses OCaml's polymorphic [compare] function.
-
-      The specialized modules {!Set.Int}, {!Set.String} are in general more efficient.
   *)
 
   type ('a, 'id) t
 
-
-  (** {1 Construction} *)
-
-  (** A [Set] can be constructed using one of the functions available in the {!Set.Int}, {!Set.String} or {!Set.Poly} sub-modules. *)
+  (** {1 Create} 
+  
+      A [Set] can be constructed using one of the functions available in the 
+      {!Set.Int}, {!Set.String} or {!Set.Poly} sub-modules. 
+  *)
 
   (** {1 Basic operations} *)
 
@@ -5325,7 +5351,6 @@ module Set : sig
       {[Set.add (Set.Int.ofList [1; 2]) 2 |> Set.toList = [1; 2]]}
   *)
   val add : ('a, 'id) t -> 'a -> ('a, 'id) t
-  
   
   (** Remove a value from a set, if the set doesn't contain the value anyway, returns the original set
 
@@ -5469,8 +5494,8 @@ module Set : sig
   
   (** Runs a function [f] against each element of the set. *)
   val forEach : ('a, _) t -> f:('a -> unit) -> unit
-  
-  (** {1 Conversion} *)
+
+  (** {1 Convert} *)
 
   (** Converts a set into an {!Array} *)
   val toArray : ('a, _) t -> 'a array
@@ -5597,8 +5622,7 @@ module Map : sig
 
   type ('key, 'value, 'id) t
 
-
-  (** {1 Construction}
+  (** {1 Create}
 
       A [Map] can be constructed using one of the functions available in {!Map.Int}, {!Map.String} or {!Map.Poly}
   *)
@@ -5653,29 +5677,7 @@ module Map : sig
       Map.get animalPopulations "Shrew" = Some 56_423;
   *)
   val get : ('key, 'value, 'id) t -> 'key -> 'value option
-  
-  (** Returns, as an {!Option} the first key-value pair for which [f] evaluates to true.
 
-      If [f] doesn't return [true] for any of the elements [find] will return [None].
-
-      Searches starting from the smallest {b key}
-
-      {2 Examples}
-
-      {[
-        Map.String.ofList [
-          ("Elephant", 3_156);
-          ("Mosquito", 56_123_156);
-          ("Rhino", 3);
-          ("Shrew", 56_423);
-        ]
-        |> Map.find ~f:(fun ~key ~value -> value > 10_000)
-          = Some ("Mosquito", 56_123_156)
-      ]}
-  *)
-  val find : ('key, 'value, _) t -> f:(key:'key -> value:'value -> bool) -> ('key * 'value) option
-  
-  
   (** Update the value for a specific key using [f]. If [key] is not present in the map [f] will be called with [None].
 
       {2 Examples}
@@ -5706,6 +5708,11 @@ module Map : sig
     ('key, 'value, 'id) t ->
       key:'key -> f:('value option -> 'value option) -> ('key, 'value, 'id) t
   
+  (** {1 Query} *)
+
+  (** Determine if a map is empty. *)
+  val isEmpty : (_, _, _) t -> bool
+
   (** Returns the number of key-value pairs present in the map.
 
       {2 Examples}
@@ -5717,6 +5724,36 @@ module Map : sig
   *)
   val length : (_, _, _) t -> int
   
+  (** Determine if [f] returns [true] for [any] values in a map. *)
+  val any : (_, 'value, _) t -> f:('value -> bool) -> bool
+  
+  (** Determine if [f] returns [true] for [all] values in a map. *)
+  val all : (_, 'value, _) t -> f:('value -> bool) -> bool
+
+  (** Returns, as an {!Option} the first key-value pair for which [f] evaluates to true.
+
+      If [f] doesn't return [true] for any of the elements [find] will return [None].
+
+      Searches starting from the smallest {b key}
+
+      {2 Examples}
+
+      {[
+        Map.String.ofList [
+          ("Elephant", 3_156);
+          ("Mosquito", 56_123_156);
+          ("Rhino", 3);
+          ("Shrew", 56_423);
+        ]
+        |> Map.find ~f:(fun ~key ~value -> value > 10_000)
+          = Some ("Mosquito", 56_123_156)
+      ]}
+  *)
+  val find : ('key, 'value, _) t -> f:(key:'key -> value:'value -> bool) -> ('key * 'value) option
+  
+  (** Determine if a map includes [key].  *)
+  val includes : ('key, _, _) t -> 'key -> bool
+
   (** Returns, as an {!Option}, the smallest {b key } in the map.
 
       Returns [None] if the map is empty.
@@ -5755,20 +5792,6 @@ module Map : sig
       ]}
   *)
   val extent : ('key, _, _) t -> ('key * 'key) option
-  
-  (** {1 Query} *)
-
-  (** Determine if a map is empty. *)
-  val isEmpty : (_, _, _) t -> bool
-  
-  (** Determine if a map includes [key].  *)
-  val includes : ('key, _, _) t -> 'key -> bool
-  
-  (** Determine if [f] returns [true] for [any] values in a map. *)
-  val any : (_, 'value, _) t -> f:('value -> bool) -> bool
-  
-  (** Determine if [f] returns [true] for [all] values in a map. *)
-  val all : (_, 'value, _) t -> f:('value -> bool) -> bool
   
   (** {1 Combine} *)
 
@@ -5887,29 +5910,19 @@ module Map : sig
     ('key, 'value, 'id) t ->
       f:(key:'key -> value:'value -> bool) -> (('key, 'value, 'id) t * ('key, 'value, 'id) t)
   
-  (** Like {!Array.fold} but [f] is also called with both the [key] and [value] 
-
-      {2 Examples}
-
-      TODO
-  *)
+  (** Like {!Array.fold} but [f] is also called with both the [key] and [value] *)
   val fold :
     ('key, 'value, _) t -> initial:'a -> f:('a -> key:'key -> value:'value -> 'a) -> 'a
   
-
   (** {1 Iterate} *)
 
-  (** Runs a function [f] against each {b value} in the map.
-  
-
-      {2 Examples}
-
-      TODO
-  *)
+  (** Runs a function [f] against each {b value} in the map. *)
   val forEach : (_, 'value, _) t -> f:('value -> unit) -> unit
   
-  
-  (** {1 Conversion} *)
+  (** Like {!Map.forEach} except [~f] is also called with the corresponding key *)
+  val forEachI : ('key, 'value, _) t -> f:(key:'key -> value:'value -> unit) -> unit
+
+  (** {1 Convert} *)
 
   (** Get a {!List} of all of the keys in a map.
 
@@ -6005,7 +6018,6 @@ module Map : sig
   end
 
   (** Construct a Map with {!String}s for keys. *)
-
   module String : sig
     type nonrec 'value t = (String.t, 'value, String.identity) t
     
@@ -6103,10 +6115,6 @@ module Fun : sig
 
       Perhaps you want to [fold] something, but the arguments of a function you
       already have access to are in the wrong order.
-
-      {2 Examples}
-
-      TODO
   *)
   val flip : ('a -> 'b -> 'c) -> 'b -> 'a -> 'c
 
@@ -6118,10 +6126,6 @@ module Fun : sig
       [f <| x] is exactly the same as [f x].
 
       Maybe you want to apply a function to a [match] expression? That sort of thing.
-
-      {2 Examples}
-
-      TODO
   *)
   val (<|) : ('a -> 'b) -> 'a -> 'b
 
@@ -6213,9 +6217,11 @@ module Fun : sig
   *)
   val tap : 'a -> f:('a -> unit) -> 'a  
 
-  (* TODO a better type than unit for the return value? *)
-  (** Runs the provided function, forever. *)
-  val forever : (unit -> unit) -> unit
+  (** Runs the provided function, forever. 
+      
+      If an exception is thrown, returns the exception
+  *)
+  val forever : (unit -> unit) -> exn
 
   (** Runs a function repeatedly.
 
