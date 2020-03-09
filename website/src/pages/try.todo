@@ -13,7 +13,7 @@ import {
 import {
   NavBar,
   ContentContainer,
-  AppContainer,
+  AppWrapper,
 } from '../components/Layout';
 import { SyntaxProvider, SyntaxToggle } from '../components/Syntax';
 
@@ -247,7 +247,7 @@ export default () => {
           <script type="text/javascript" src="/js/reasonStandardBundle.js" />
         </Helmet>
         <GlobalStyles />
-        <AppContainer>
+        <AppWrapper>
           <ContentContainer>
             <NavBar />
             <main
@@ -265,7 +265,7 @@ export default () => {
               <Try />
             </main>
           </ContentContainer>
-        </AppContainer>
+        </AppWrapper>
       </SyntaxProvider>
     </ThemeProvider>
   );

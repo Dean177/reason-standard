@@ -15,7 +15,7 @@ import {
   ThemeProvider,
 } from '../theme';
 import {
-  AppContainer,
+  AppWrapper,
   ContentContainer,
   Main,
   MenuButton,
@@ -24,6 +24,7 @@ import {
   NavBarContainer,
   PageTitle,
   SidebarContainer,
+  Container,
 } from '../components/Layout';
 import { CodeBlock } from '../components/CodeBlock';
 import { formatTitleToId } from '../id';
@@ -32,7 +33,7 @@ import { Sidebar } from '../components/Sidebar';
 
 let MdxStyles = createGlobalStyle`
 .heading1 {
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 800;
   line-height: 1.5;
   margin-bottom: 16px;
@@ -40,7 +41,7 @@ let MdxStyles = createGlobalStyle`
 }
 
 .heading2 {
-  font-size: 24px;
+  font-size: 25px;
   font-weight: 700;
   line-height: 1.5;
   margin-bottom: 16px;
@@ -242,7 +243,7 @@ export default ({ data, location }) => {
           </>
         ) : null}
       </Helmet> */}
-        <AppContainer>
+        <AppWrapper>
           <ContentContainer>
             <NavBarContainer>
               <NavBar />
@@ -251,27 +252,29 @@ export default ({ data, location }) => {
               <Sidebar location={location} />
             </SidebarContainer>
             <Main>
-              <PageTitle>{mdx.fields.title}</PageTitle>
-              <GithubEditButton
-                link={`${docsLocation}/${mdx.parent.relativePath}`}
-              />
-              <div
-                className={css`
-                  display: flex;
-                  flex: 1;
-                `}
-              >
-                <MDXProvider components={mdxComponents}>
-                  <MDXRenderer>{mdx.body}</MDXRenderer>
-                </MDXProvider>
-              </div>
-              <div
-                css={css`
-                  padding: 50px 0;
-                `}
-              >
-                <NextPrevious currentUrl={mdx.fields.url} nav={nav} />
-              </div>
+              <Container>
+                <PageTitle>{mdx.fields.title}</PageTitle>
+                <GithubEditButton
+                  link={`${docsLocation}/${mdx.parent.relativePath}`}
+                />
+                <div
+                  className={css`
+                    display: flex;
+                    flex: 1;
+                  `}
+                >
+                  <MDXProvider components={mdxComponents}>
+                    <MDXRenderer>{mdx.body}</MDXRenderer>
+                  </MDXProvider>
+                </div>
+                <div
+                  css={css`
+                    padding: 50px 0;
+                  `}
+                >
+                  <NextPrevious currentUrl={mdx.fields.url} nav={nav} />
+                </div>
+              </Container>
             </Main>
             <MenuButtonContainer>
               <MenuButton
@@ -280,7 +283,7 @@ export default ({ data, location }) => {
               />
             </MenuButtonContainer>
           </ContentContainer>
-        </AppContainer>
+        </AppWrapper>
       </SyntaxProvider>
     </ThemeProvider>
   );

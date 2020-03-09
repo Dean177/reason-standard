@@ -12,7 +12,7 @@ import {
 import { Link } from './Link';
 import { GitHub } from './Icon';
 
-export const AppContainer = styled.div`
+export const AppWrapper = styled.div`
   position: relative;
   height: 100vh;
   overflow-y: auto;
@@ -67,12 +67,18 @@ export const SidebarContainer = ({ children, isOpen }) => {
   );
 };
 
+export const Container = styled.div`
+  max-width: ${dimensions.maxContentWidth}px;
+  width: 100%;
+  padding: 0 ${spacing.pageMargin}px;
+`;
+
 export const Main = styled.main`
   display: flex;
   flex: 1;
   flex-direction: column;
-  max-width: ${dimensions.maxContentWidth}px;
-  padding: 3rem ${spacing.pageMargin}px;
+  padding-bottom: 3rem;
+  padding-top: 3rem;
   width: 100%;
 `;
 
@@ -209,7 +215,7 @@ export let PageTitle = ({ children }) => {
         padding-bottom: 40px;
 
         h1 {
-          border-left: 2px solid ${colors.red.dark};
+          border-left: 2px solid ${colors.red.base};
           flex: 1;
           font-size: 32px;
           font-weight: 500;
@@ -262,7 +268,7 @@ export const MenuButton = ({ onClick, isOpen }) => {
       onClick={onClick}
       css={css`
         align-items: center;
-        background-color: ${colors.red.dark};
+        background-color: ${colors.red.base};
         border: 1px solid ${colors.white};
         border-radius: 4px;
         color: ${colors.white};
@@ -274,7 +280,7 @@ export const MenuButton = ({ onClick, isOpen }) => {
 
         &:focus,
         &:hover {
-          background-color: ${colors.red.base};
+          background-color: ${colors.red.dark};
         }
       `}
     >

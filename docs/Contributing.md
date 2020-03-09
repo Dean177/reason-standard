@@ -7,7 +7,7 @@ order: "4"
 
 Standard is an ideal library to contribute to, even if you're new to OCaml / Reason.
 
-The maintainers are warm and friendly, and the project abides by a [Code of Conduct](./CODE_OF_CONDUCT.md).
+The maintainers are warm and friendly, and the project abides by a [Code of Conduct](../.github/CODE_OF_CONDUCT.md).
 
 There are many small tasks to be done and even a small change to a single functions documentation is extremely helpful.
 
@@ -18,23 +18,13 @@ Here are some ways to contribute:
 - Point out inconsistencies between different functions in the library
 - Report an edge-case or performance problem in one of the functions
 - Add test cases for a function
+- Add examples for a function
 - Add documentation to a function
 - Improve a function's documentation by discussing an edge-case
 - Check that a function cannot throw exceptions (and add a note to the function documentation to that effect)
-- Optimize a function
 - Propose a strategy for benchmarking
-- Suggest a new function by [creating an issue](https://github.com/Dean177/Standard/issues/new). You might find it helpful to create a module wrapping `Standard`, that allows you to experiment with new modules or adding new functions to existing modules to see if your new function
-
-```reason
-/* Standard.re */
-include Standard;
-
-module Array = {
-  include Standard.Array;
-
-  let functionYouWantToBeInStandard = ...
-}
-```
+- Optimize a function
+- Suggest a new function by [creating an issue](https://github.com/Dean177/Standard/issues/new). 
 
 If you'd like to contribute but don't know where to start, [open an
 issue](https://github.com/Dean177/reason-standard/issues/new) with your thoughts
@@ -98,18 +88,13 @@ A good way to do this is by including `Unsafe` or `Dangerously` in the name.
 If one ecosystem already has a name for something, thats going to be the one to
 go for unless there is a good reason not to.
 
-#### Module names should not be repeated in function names
+### Module names should not be repeated in function names
 
-A function called `State.runState` is noy only redundant but encourages `open`ing modules which does not scale well. 
+A function called `State.runState` is not only redundant but encourages `open`ing modules which does not scale well. 
 
 In files with many unqualified dependencies it is really hard to figure out where functions are coming from.
 
 This can code difficuly to understand, especially if custom infix operators are used as well. 
-
-### Maybe
-
-- Use existing names, even if they aren't a perfect fit for the specific scenario (e.g. Array.length, List.length, Map.length, Set.length)???
-- Use specific names when the added context makes sense???
 
 ## Documentation
 
@@ -130,4 +115,3 @@ Its incredibly dense, the names are short to the point of basically being symbol
 Either a longer explanation using real words or an example using real data would have been better.
 
 In Standard we do both.
-

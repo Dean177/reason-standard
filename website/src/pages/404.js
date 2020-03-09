@@ -7,7 +7,7 @@ import {
   MenuButton,
   NavBar,
   ContentContainer,
-  AppContainer,
+  AppWrapper,
   PageTitle,
 } from '../components/Layout';
 
@@ -35,7 +35,7 @@ export default props => {
   return (
     <ThemeProvider>
       <GlobalStyles />
-      <AppContainer>
+      <AppWrapper>
         <ContentContainer>
           <NavBar githubUrl={githubUrl} />
           <main
@@ -84,7 +84,7 @@ export default props => {
             </div>
           </main>
         </ContentContainer>
-      </AppContainer>
+      </AppWrapper>
     </ThemeProvider>
   );
 }

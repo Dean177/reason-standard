@@ -78,16 +78,6 @@ Sometimes this can be for performance, and sometimes you just need an escape hat
 
 See [`Option.get`](/api#Option.get) and [`Option.getUnsafe`](/api#Option.getUnsafe)
 
-## Modules
-
-### S is for signature
-
-TODO
-
-### T is for module types
-
-TODO 
-
 ## Data comes first
 
 In allmost all of the functions that `Standard` provides, the datastructure the 
@@ -154,7 +144,7 @@ let isbns = List.map(books, ~f=book => book.isbn, Book.classics);
 ```
 
 
-## More intuitive, consistent APIs
+### More intuitive, consistent APIs
 
 Consider appending an array two arrays.
 
@@ -177,6 +167,14 @@ open Standard
 Array.append([|1, 2, 3|], [|4, 5, 6|]) = [|1, 2, 3, 4, 5, 6|]
 ```
 
-
-
 This section was heavily inspired by [Javier Chavarri's excellent blog post](https://www.javierchavarri.com/data-first-and-data-last-a-comparison/) and the discussions on the [Bucklescipt](https://github.com/BuckleScript/bucklescript/issues/2625) and [Reason](https://github.com/facebook/reason/issues/1452#issuecomment-350424873) GitHub issue trackers.
+
+## Modules
+
+### S is for signature
+
+TODO
+
+### T is for module types
+
+TODO 

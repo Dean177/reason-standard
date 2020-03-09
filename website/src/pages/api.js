@@ -11,8 +11,9 @@ import {
   spacing,
 } from '../theme';
 import {
-  AppContainer,
+  AppWrapper,
   ContentContainer,
+  Container,
   Main,
   MenuButton,
   MenuButtonContainer,
@@ -234,6 +235,7 @@ function renderSidebarElements(
                   key={moduleLink}
                   css={css`
                     margin-top: -5px;
+
                     .name {
                       display: flex;
                       flex-direction: row;
@@ -360,8 +362,13 @@ const Sidebar = ({ moduleElements, moduleByModulePath }) => {
           padding-top: 15px;
           padding-right: 15px;
           padding-bottom: ${15 + dimensions.navbar}px;
+
+          a {
+            color: ${({theme}) => theme.sidebar.text};
+          }
+
           > * {
-            padding: 4px;
+            /* padding: 4px; */
           }
         `}
       >
@@ -502,8 +509,9 @@ let renderTextElements = (elements = [], parentPath = []) => {
           <code
             key={index}
             css={css`
-              background: #fbfafa;
-              border: 1px solid #eee;
+              background: ${({ theme }) => theme.code.background};
+              border: 1px solid ${({ theme }) => theme.code.border};
+              color: ${({ theme }) => theme.code.text};
               font-family: ${fonts.monospace};
               padding: 2px;
               border-radius: 1px;
@@ -533,7 +541,11 @@ let renderTextElements = (elements = [], parentPath = []) => {
           </ul>
         );
       case 'Ref':
-        let content =
+        if (value.reference.content == null) {
+          console.error(value)
+          throw new Error("Empty")
+        }
+        let content =          
           value.reference.content.length === 1 &&
           value.reference.content[0].tag === 'Code'
             ? stripCorePrefix(value.reference.content[0].value)
@@ -675,6 +687,7 @@ let ValueWrapper = styled.div`
   background-color: ${colors.blue.lightest};
   border-radius: 3px;
   border-left: 4px solid ${colors.blue.base};
+  color: black;
   flex: 1;
   flex-direction: row;
   padding-top: 10px;
@@ -751,7 +764,7 @@ function renderModuleElements(moduleElements, modulesByName, path = []) {
                       type {moduleElement.value.name}
                       {moduleElement.value.parameters.length > 0 &&
                         `(${moduleElement.value.parameters})`}
-                      {moduleElement.value.manifest ? ': ' : ''}
+                      {moduleElement.value.manifest ? ' = ' : ''}
                     </code>
                   </pre>
                   {moduleElement.value.manifest && (
@@ -918,7 +931,7 @@ export default ({ data }) => {
     <ThemeProvider>
       <SyntaxProvider>
         <GlobalStyles />
-        <AppContainer>
+        <AppWrapper>
           <ContentContainer>
             <NavBarContainer>
               <NavBar />
@@ -930,23 +943,25 @@ export default ({ data }) => {
               />
             </SidebarContainer>
             <Main>
-              <div
-                css={css`
-                  display: flex;
-                  flex-direction: row;
-                  justify-content: space-between;
-                  width: 100%;
-                `}
-              >
-                <PageTitle>API</PageTitle>
-                <div>
-                  <SyntaxToggle />
+              <Container>
+                <div
+                  css={css`
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-between;
+                    width: 100%;
+                  `}
+                >
+                  <PageTitle>API</PageTitle>
+                  <div>
+                    <SyntaxToggle />
+                  </div>
                 </div>
-              </div>
-              {renderModuleElements(
-                model.entry_point.value.kind.value,
-                moduleByModulePath,
-              )}
+                {renderModuleElements(
+                  model.entry_point.value.kind.value,
+                  moduleByModulePath,
+                )}
+              </Container>
             </Main>
           </ContentContainer>
           <MenuButtonContainer>
@@ -955,7 +970,7 @@ export default ({ data }) => {
               isOpen={isOpen}
             />
           </MenuButtonContainer>
-        </AppContainer>
+        </AppWrapper>
       </SyntaxProvider>
     </ThemeProvider>
   );

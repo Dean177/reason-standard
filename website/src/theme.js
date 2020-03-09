@@ -5,13 +5,13 @@ import styled, {
 import React, { useEffect, useState } from 'react';
 
 let hsl = (h, s, l) => ({
-  lightest: `hsl(${h}, ${s}%, ${l + ((100 - l) * 0.95)}%)`,
+  lightest: `hsl(${h}, ${s}%, ${l + (100 - l) * 0.95}%)`,
   lighter: `hsl(${h}, ${s}%, ${l + (100 - l) * 0.6}%)`,
   light: `hsl(${h}, ${s}%, ${l + (100 - l) * 0.2}%)`,
   base: `hsl(${h}, ${s}%, ${l}%)`,
-  dark: `hsl(${h}, ${s}%, ${l * 0.9}%)`,
-  darker: `hsl(${h}, ${s}%, ${l * 0.7}%)`,
-  darkest: `hsl(${h}, ${s}%, ${l * 0.4}%)`,
+  dark: `hsl(${h}, ${s}%, ${l - l * 0.4}%)`,
+  darker: `hsl(${h}, ${s}%, ${l - l * 0.6}%)`,
+  darkest: `hsl(${h}, ${s}%, ${l - l * 0.85}%)`,
 });
 
 export let colors = {
@@ -36,49 +36,90 @@ export let fonts = {
 };
 
 export let spacing = {
-  medium: 15,
+  smallest: 4,
+  smaller: 8,
+  small: 12,
+  medium: 16,
+  large: 24,
+  larger: 32,
   pageMargin: 36,
+};
+
+export let dimensions = {
+  navbar: 60,
+  maxContentWidth: 750,
+  leftSideBar: 264,
+  rightSideBar: 224,
 };
 
 export let breakpoints = {
   desktop: 720,
 };
 
-export let dimensions = {
-  navbar: 60,
-  maxContentWidth: 750,
-  leftSideBar: 268,
-  rightSideBar: 224,
-};
-
 export let themes = {
   light: {
+    favicon: {
+      appleTouchIcon: require('./assets/favicon_light/apple-touch-icon.png'),
+      icon32: require('./assets/favicon_light/favicon-32x32.png'),
+      icon16: require('./assets/favicon_light/favicon-16x16.png'),
+    },
     body: colors.white,
     text: colors.black,
     link: colors.red.dark,
     navbar: {
-      background: colors.blue.base,
+      background: colors.red.base,
+      backgroundHover: colors.red.dark,
       text: colors.white,
     },
+    sidebar: {
+      text: colors.red.base,
+      activeBackground: colors.red.base,
+      activeText: colors.white,
+      hover: colors.red.dark,
+    },
     card: {
-      background: colors.white,
+      background: colors.grey.lighter,
+      border: colors.grey.light,
+      text: colors.black,
+    },
+    code: {
+      background: colors.grey.lighter,
+      border: colors.grey.light,
       text: colors.black,
     },
     toggle: {
       background: colors.grey.lightest,
-      border: colors.red.base,
+      border: colors.purple.base,
     },
   },
   dark: {
+    favicon: {
+      appleTouchIcon: require('./assets/favicon_dark/apple-touch-icon.png'),
+      icon32: require('./assets/favicon_dark/favicon-32x32.png'),
+      icon16: require('./assets/favicon_dark/favicon-16x16.png'),
+    },
     body: colors.black,
     text: colors.white,
     link: colors.red.base,
     navbar: {
       background: colors.purple.base,
+      backgroundHover: colors.purple.dark,
       text: colors.white,
     },
+    sidebar: {
+      text: colors.white,
+      activeBackground: colors.purple.base,
+      activeText: colors.white,
+      hover: colors.purple.dark,
+    },
     card: {
-      background: colors.black,
+      background: colors.grey.darkest,
+      border: colors.grey.dark,
+      text: colors.white,
+    },
+    code: {
+      background: colors.grey.darkest,
+      border: colors.grey.dark,
       text: colors.white,
     },
     toggle: {
@@ -127,10 +168,12 @@ export const ThemeProvider = ({ children }) => {
 };
 
 export let useTheme = () => {
-  return React.useContext(ThemeContext);
+  let [themeName, toggleTheme] = React.useContext(ThemeContext);
+  return [themeName, toggleTheme, themes[themeName]];
 };
 
 const ToggleContainer = styled.button`
+  align-items: center;
   background: ${({ theme }) => theme.toggle.background};
   border: 2px solid ${({ theme }) => theme.toggle.border};
   border-radius: 30px;
@@ -140,7 +183,8 @@ const ToggleContainer = styled.button`
   justify-content: space-between;
   margin: 0 auto;
   overflow: hidden;
-  padding: 0.4rem;
+  outline: none;
+  padding: 0 0.4rem;
   position: relative;
   width: 4rem;
   height: 2rem;
@@ -192,13 +236,10 @@ html, body {
   background-color: ${({ theme }) => theme.body};
   color: ${({ theme }) => theme.text};
   font-family: BlinkMacSystemFont, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  font-size: 16px;
+  font-size: 15px;
 }
 
-#___gatsby, #gatsby-focus-wrapper {
-}
- 
-a {
+a  {
   color: ${({ theme }) => theme.link};
   text-decoration: none;
 }

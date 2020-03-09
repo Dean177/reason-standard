@@ -58,8 +58,8 @@ export const Sidebar = ({ location }) => {
     <div
       className="Sidebar"
       css={css`
-        background-color: ${({ theme }) => theme.card.background};
-        color: ${({ theme }) => theme.card.text};
+        background-color: ${({ theme }) => theme.body.background};
+        color: ${({ theme }) => theme.navbar.background};
         padding-top: 3rem;
         padding-bottom: 3rem;
         width: 100%;
@@ -72,6 +72,7 @@ export const Sidebar = ({ location }) => {
 
           .item {
             a {
+              color: ${({ theme }) => theme.sidebar.text};
               font-size: 14px;
               font-weight: 500;
               line-height: 1.5;
@@ -80,9 +81,10 @@ export const Sidebar = ({ location }) => {
               align-items: center;
               position: relative;
               width: 100%;
-              &:hover {               
-                background-color: ${colors.red.dark};
-                color: ${colors.white};
+              &:hover {
+                background-color: ${({ theme }) =>
+                  theme.sidebar.hover};
+                color: ${({ theme }) => theme.sidebar.activeText};
               }
             }
 
@@ -93,8 +95,9 @@ export const Sidebar = ({ location }) => {
 
             &.active {
               > a {
-                background-color: ${colors.red.base};
-                color: ${colors.white};
+                background-color: ${({ theme }) =>
+                  theme.sidebar.activeBackground};
+                color: ${({ theme }) => theme.sidebar.activeText};
               }
             }
           }

@@ -20,7 +20,6 @@ order: "5"
 
 ## Future
 
-- [x] Bool
 - [ ] Vector (Immutable, Growable array-like)
 - [ ] Buffer: file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Buffer/index.html
 - [ ] Random

@@ -1,17 +1,22 @@
+import { graphql, Link } from 'gatsby';
 import React, { useEffect } from 'react';
-import { graphql } from 'gatsby';
+import Helmet from 'react-helmet';
 import { useSpring, animated } from 'react-spring';
 import styled, { css } from 'styled-components';
 import {
   breakpoints,
   colors,
+  spacing,
+  useTheme,
   GlobalStyles,
   ThemeProvider,
+  dimensions,
 } from '../theme';
 import {
   NavBar,
   ContentContainer,
-  AppContainer,
+  Container,
+  AppWrapper,
   Main,
   NavBarContainer,
 } from '../components/Layout';
@@ -22,62 +27,129 @@ import { SyntaxProvider } from '../components/Syntax';
 let AnimatedOcaml = animated(Ocaml);
 let AnimatedReason = animated(Reason);
 
-import {
-  ArtificialInteligence,
-  BookLover,
-  Productive,
-} from '../components/Illustration';
+import { ArtificialInteligence, BookLover } from '../components/Illustration';
 
 let logoSize = 180;
 
-const SellingPoint = ({ description, illustration, flip }) => {
+let sellingPointPadding = 40;
+const Section = ({ tell, show, flip }) => {
   return (
-    <div
+    <section
+      flip={flip}
       css={css`
+        align-items: center;
+        background-color: ${({ flip, theme }) =>
+          flip ? theme.card.background : theme.body};
+        border-top: 1px solid ${({ theme }) => theme.card.border};
         display: flex;
         flex-direction: column;
-        padding-bottom: 50px;
+        overflow: hidden;
+        width: 100%;
 
-        .illustration-container {
-          align-items: center;
-          /* background-color: lightgoldenrodyellow; */
-          display: flex;
-          flex: 1;
-          flex-direction: column;
-
-          .illustration {
-            height: 200px;
-            padding: 30px;
-          }
-        }
-
-        .description {
-          background-color: ${({ theme }) => theme.card.background};
-          display: flex;
-          flex: 1;
-          font-size: 20px;
-          line-height: 1.4;
-          padding: 40px;
-          padding-top: 30px;
-        }
-
-        @media (min-width: ${breakpoints.desktop}px) {
-          flex-direction: ${flip ? 'row-reverse' : 'row'};
-
-          .illustration-container {
-            align-items: ${flip ? 'flex-start' : 'flex-end'};
-            display: flex;
-            flex: 1;
-            flex-direction: column;
-          }
-        }
+        /* Give the last section a border */
+        border-bottom: 1px solid ${({ theme }) => theme.card.border};
+        padding-bottom: 1px;
+        margin-bottom: -1px;
       `}
     >
-      <div className="illustration-container">{illustration()}</div>
-      <div className="description">{description}</div>
-    </div>
+      <Container>
+        <div
+          flip={flip}
+          css={css`
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+
+            .tell {
+              padding-top: ${sellingPointPadding}px;
+              padding-bottom: ${sellingPointPadding}px;
+              display: flex;
+              flex: 1;
+              flex-direction: column;
+              font-size: 18px;
+              line-height: 1.4;
+
+              h2 {
+                font-size: 25px;
+                margin-bottom: ${spacing.medium}px;
+              }
+            }
+            .show {
+              padding-top: ${sellingPointPadding}px;
+              padding-bottom: ${sellingPointPadding}px;
+              display: flex;
+              flex: 1;
+              flex-direction: column;
+              position: relative;
+            }
+
+            @media (min-width: ${breakpoints.desktop}px) {
+              flex-direction: ${flip ? 'row-reverse' : 'row'};
+              .tell {
+                flex: 4;
+                padding-left: ${flip ? spacing.large : 0}px;
+                padding-right: ${flip ? 0 : spacing.large}px;
+              }
+              .show {
+                max-width: 50%;
+                flex: 5;
+              }
+            }
+          `}
+        >
+          <div className="tell">{tell()}</div>
+          <div className="show">{show()}</div>
+        </div>
+      </Container>
+    </section>
   );
 };
+
+const CallToAction = () => (
+  <div
+    css={css`
+      align-items: center;
+      border-top: 1px solid ${({ theme }) => theme.card.border};
+      background-color: ${({ theme }) => theme.card.background};
+      display: flex;
+      flex-direction: column;
+      margin-top: ${sellingPointPadding * 1.5}px;
+      padding: ${sellingPointPadding}px 0px;
+      width: 100%;
+
+      /* Give the last call to action a border */
+      border-bottom: 1px solid ${({ theme }) => theme.card.border};
+      margin-bottom: -1px;
+    `}
+  >
+    <Container>
+      <div
+        css={css`
+          align-items: center;
+          display: flex;
+          flex-direction: column;
+          max-width: ${dimensions.maxContentWidth}px;
+
+          a {
+            background-color: ${({ theme }) => theme.navbar.background};
+            border: 1px solid ${({ theme }) => theme.navbar.text};
+            border-radius: 3px;
+            color: ${({ theme }) => theme.navbar.text};
+            padding: 12px 16px;
+            letter-spacing: 1px;
+            font-size: 16px;
+            /* font-weight: bold; */
+            text-transform: uppercase;
+          }
+        `}
+      >
+        <div>
+          <Link to="/docs">Get started</Link>
+        </div>
+      </div>
+    </Container>
+  </div>
+);
 
 export const pageQuery = graphql`
   query {
@@ -102,21 +174,57 @@ export const pageQuery = graphql`
   }
 `;
 
-export default props => {
+let title = 'Standard';
+let description = 'A standard library replacement for Reason and Ocaml.';
+
+let Header = () => {
+  let [_themeName, _toggle, theme] = useTheme();
+  return (
+    <Helmet>
+      <title>{title}</title>
+      <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href={theme.favicon.appleTouchIcon}
+      />
+      <link
+        rel="icon"
+        type="image/png"
+        sizes="32x32"
+        href={theme.favicon.icon32}
+      />
+      <link
+        rel="icon"
+        type="image/png"
+        sizes="16x16"
+        href={theme.favicon.icon16}
+      />
+      <meta name="title" content={title} />
+      <meta property="og:title" content={title} />
+      <meta property="twitter:title" content={title} />
+      <meta name="description" content={description} />
+      <meta property="og:description" content={description} />
+      <meta property="twitter:description" content={description} />
+    </Helmet>
+  );
+};
+
+export default () => {
   let [logo, setLogo] = React.useState('reason');
-  // useEffect(() => {
-  //   let toggleLogo = setInterval(() => {
-  //     setLogo(current => (current === 'reason' ? 'ocaml' : 'reason'));
-  //   }, 3000);
-  //   return () => {
-  //     clearInterval(toggleLogo);
-  //   };
-  // });
+  useEffect(() => {
+    let toggleLogo = setInterval(() => {
+      setLogo(current => (current === 'reason' ? 'ocaml' : 'reason'));
+    }, 3000);
+    return () => {
+      clearInterval(toggleLogo);
+    };
+  });
 
   const logoStyles = useSpring(
     logo === 'reason'
       ? {
-          background: `linear-gradient(${colors.red.base}, ${colors.red.base})`,
+          // Using hsl colors with useSpring throws an exception during interpolation
+          background: `linear-gradient(#d44f3a, #d44f3a)`,
           borderRadius: 0,
           reTransform: `translate3d(${logoSize / 7}px,${-logoSize / 2.25}px,0)`,
           camlTransform: `translate3d(-${logoSize}px, ${-logoSize /
@@ -133,71 +241,65 @@ export default props => {
     <ThemeProvider>
       <SyntaxProvider>
         <GlobalStyles />
-        <AppContainer>
+        <Header />
+        <AppWrapper>
           <ContentContainer>
             <NavBarContainer>
               <NavBar />
             </NavBarContainer>
-            <div
-              css={css`
-                align-items: center;
-                display: flex;
-                flex-direction: column;
-                width: 100%;
-              `}
-            >
             <Main>
-                <h1
-                  css={css`
-                    padding-top: 20px;
-                    padding-bottom: 20px;
-                    font-size: 50px;
-                    font-weight: normal;
-                    letter-spacing: 1.1px;
-                  `}
-                >
-                  Standard
-                </h1>
-                <p>A standard library replacement for Reason and Ocaml. </p>
-                <p
-                  css={css`
-                    padding-top: 30px;
-                    padding-bottom: 30px;
-                  `}
-                >
-                  Standard provides an easy-to-use, comprehensive and performant
-                  standard library, that has the same API for the OCaml and
-                  Bucklescript compilers.
-                </p>
-                <div
-                  css={css`
-                    h1 {
-                    }
-                  `}
-                >
-                  <button>Get started</button>
-                </div>
-                <div
-                  css={css`
-                    padding-bottom: 50px;
-                  `}
-                >
-                  <CodeBlock
-                    language="reason"
-                    code={`
+              <div
+                css={css`
+                  align-items: center;
+                  display: flex;
+                  flex-direction: column;
+                  .illustration {
+                    max-height: ${logoSize}px;
+                  }
+                `}
+              >
+                <Container>
+                  <h1
+                    css={css`
+                      padding-top: 20px;
+                      padding-bottom: 20px;
+                      font-size: 50px;
+                      font-weight: normal;
+                      letter-spacing: 1.1px;
+                    `}
+                  >
+                    Standard
+                  </h1>
+                  <p>A standard library replacement for Reason and Ocaml. </p>
+                  <p
+                    css={css`
+                      padding-top: 30px;
+                      padding-bottom: 30px;
+                    `}
+                  >
+                    Standard provides an easy-to-use, comprehensive and safe
+                    standard library, that has the same API for the OCaml and
+                    Bucklescript compilers.
+                  </p>
+                  <div>
+                    <CodeBlock
+                      language="reason"
+                      code={`
 open Standard;
 
 String.toList("somestring")
 ->List.filterMap(~f=character => 
-    Char.toCode(character)->Int.add(1)->Char.ofCode
-  )
+  Char.toCode(character)->Int.add(1)->Char.ofCode
+)
 ->String.ofList
 /* "asdfasdf" */
-                  `}
-                  />
-                </div>
-                <SellingPoint
-                  illustration={() => (
+                `}
+                    />
+                  </div>
+                </Container>
+                <CallToAction />
+                <Section
+                  show={() => (
                     <animated.div
                       onClick={() =>
                         setLogo(current =>
@@ -212,7 +314,6 @@ String.toList("somestring")
                         background: logoStyles.background,
                         borderRadius: logoStyles.borderRadius,
                         overflow: 'hidden',
-                        margin: 20,
                         position: 'relative',
                       }}
                     >
@@ -236,40 +337,108 @@ String.toList("somestring")
                       />
                     </animated.div>
                   )}
-                  description="Works with either the Reason or Ocaml syntax, targetting the bucklescript, native or js_of_ocaml compilers"
+                  tell={() => (
+                    <>
+                      <h2>Portable</h2>
+                      <span>
+                        Works with either the Reason or Ocaml syntax, targetting
+                        the bucklescript, native or <code>js_of_ocaml</code>{' '}
+                        compilers
+                      </span>
+                    </>
+                  )}
                 />
-                <SellingPoint
+                <Section
                   flip={true}
-                  illustration={() => <BookLover className="illustration" />}
-                  description={`
-                  Easy to learn.
-                  Excellent documentation 
-                  Examples for each function
-                  Thoroughly tested
-                  `}
-                />
-                <SellingPoint
-                  illustration={() => <Productive className="illustration" />}
-                  description={`
-                  Safe
-                  Banish runtime errors.
-                `}
-                />
-                <SellingPoint
-                  flip={true}
-                  illustration={() => (
+                  show={() => (
                     <ArtificialInteligence className="illustration" />
                   )}
-                  description={`
-                  Advanced.
-                  Index operators for Maps, Sets arrays and strings
-                  (let+) Bindings for Options & Results
-              `}
+                  tell={() => (
+                    <>
+                      <h2>Safe</h2>
+                      <span>
+                        Banish runtime errors and work effectively with Options
+                        and Results
+                      </span>
+                    </>
+                  )}
                 />
+                <Section
+                  flip={false}
+                  show={() => (
+                    <div
+                      css={css`
+                        margin-top: -${sellingPointPadding}px;
+                        margin-left: -${sellingPointPadding}px;
+                        margin-right: -${sellingPointPadding}px;
+                        margin-bottom: -${sellingPointPadding}px;
+                        pre {
+                          padding-top: ${sellingPointPadding}px;
+                          padding-left: ${spacing.large}px;
+                          padding-right: ${sellingPointPadding}px;
+                          padding-bottom: ${sellingPointPadding}px;
+                        }
+                        @media (min-width: ${breakpoints.desktop}px) {
+                          margin-left: 0;
+                          margin-right: -1000px;
+                        }
+                      `}
+                    >
+                      <CodeBlock
+                        language="ocaml"
+                        code={`
+                    open Standard
+
+                    let nameToSpecies = Map.String.ofList [
+                      ("Alan", "Ant"); 
+                      ("Bertie", "Badger");                         
+                    ] in
+                    let nameToSpecies = 
+                      nameToSpecies.Map.?{"Delilah"} <- "Duck" in
+
+                    let hybrid = Option.(
+                      let+ delilahSpecies =
+                        nameToSpecies.Map.?{"Delilah"} in
+                      and+ frankSpecies =
+                        nameToSpecies.Map.?{"Frank"} |? "Cat" in
+                      delilahSpecies ^ frankSpecies 
+                    ) in
+
+                    hybrid = Some "DuckCat"                    
+                  `}
+                      />
+                    </div>
+                  )}
+                  tell={() => (
+                    <>
+                      <h2>Advanced</h2>
+                      <span>
+                        Index operators for Arrays, Maps, Sets and Strings and
+                        binding operators for Options & Results mean your code
+                        is concise and expressive
+                      </span>
+                    </>
+                  )}
+                />
+                <Section
+                  flip={true}
+                  show={() => <BookLover className="illustration" />}
+                  tell={() => (
+                    <>
+                      <h2>Easy to learn</h2>
+                      <span>
+                        Excellent documentation, comprehensive examples and
+                        consistent behaviour make Standard efficient to get
+                        started with
+                      </span>
+                    </>
+                  )}
+                />
+                <CallToAction />
+              </div>
             </Main>
-            </div>
           </ContentContainer>
-        </AppContainer>
+        </AppWrapper>
       </SyntaxProvider>
     </ThemeProvider>
   );

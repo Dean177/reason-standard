@@ -1,3 +1,6 @@
+const chokidar = require('chokidar');
+const crypto = require('crypto');
+const fs = require('fs');
 const path = require("path");
 
 exports.createPages = ({ graphql, actions }) => {
@@ -35,7 +38,6 @@ exports.createPages = ({ graphql, actions }) => {
           reject(result.errors);
         }
 
-        // Create documentation pages.
         result.data.allMdx.edges.forEach(({ node }) => {
           createPage({
             path: node.fields.url,
@@ -81,8 +83,8 @@ exports.onCreateNode = ({ node, getNode, actions }) => {
   }
 };
 
-// refmt does a `require('fs')` but doesn't actually use the module
-// Prevent this from causing an error by mocking the module
+// refmt does a `require('fs')` but doesn't actually use the module,
+// prevent this from causing an error by mocking the module
 // https://www.npmjs.com/package/reason#javascript-api
 exports.onCreateWebpackConfig = ({ actions }) => {
   actions.setWebpackConfig({
@@ -92,10 +94,6 @@ exports.onCreateWebpackConfig = ({ actions }) => {
   });
 };
 
-// TODO make this into a plugin?
-const chokidar = require('chokidar');
-const crypto = require('crypto');
-const fs = require('fs');
 
 let log = {
   info: (...rest) => console.info('[odoc]', ...rest),
@@ -119,12 +117,12 @@ let createNodeFromModel = model => ({
 const inDevelopMode = process.env.gatsby_executing_command === 'develop';
 
 exports.sourceNodes = ({ actions }) => {
+  const { createNode } = actions;
   let modelPath = path.resolve(__dirname, `./model.json`);
-  log.info('path', modelPath);
   if (modelPath == null) {
     throw new Error(`Invalid model path`);
   }
-  const { createNode } = actions;
+  log.info('path', modelPath);
   let node = createNodeFromModel(fs.readFileSync(modelPath).toString());
   createNode(node);
 

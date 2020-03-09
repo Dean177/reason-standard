@@ -20,8 +20,7 @@ export const CodeBlock = ({ code, ...props }) => {
   }
   let content = lines
     .slice(firstNonEmptyLine, lines.length)
-    .map(line => line.slice(spacesToFirstCharacter, line.length))
-    .filter(line => line.trim().length > 0)
+    .map(line => line.slice(spacesToFirstCharacter, line.length))    
     .join('\n')
     .toString();
 
@@ -39,9 +38,12 @@ export const CodeBlock = ({ code, ...props }) => {
           style={style}
           p={3}
           css={css`
-            border: 1px solid ${colors.grey.base};
+            border: 1px solid ${({ theme }) => theme.card.background};
             border-radius: 3px;
+            font-size: 14px;
             padding: 10px 12px;
+            width: 100%;
+            overflow-x: auto;
           `}
         >
           {tokens.map((line, i) => {

@@ -54,15 +54,16 @@ Ocamls standard library sucks:
 
 - It has poor documentation
 - It has some legacy baggage
-- Its T last (TODO is it always?)
-- Its inconsistent TODO is it?
+- Its T last (most of the time)
+- Its inconsistent
 - It can only change slowly
 
 Belt is OK:
 
-- It has OK documentation
+- The documentation is not great
+- The examples are sparse
 - It has some legacy baggage
-- Its inconsistent TODO is it
+- Its inconsistent (TODO is it)
 - Its not available for native code\* (It is when you are using bucklescript-native)
 
 - High quality documentation and examples
