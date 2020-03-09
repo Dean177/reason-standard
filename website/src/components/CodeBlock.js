@@ -1,3 +1,4 @@
+import {dropWhile, dropRightWhile} from 'lodash'
 import * as React from 'react';
 import Highlight, { defaultProps } from 'prism-react-renderer';
 import prismLightTheme from 'prism-react-renderer/themes/nightOwlLight';
@@ -5,10 +6,11 @@ import prismDarkTheme from 'prism-react-renderer/themes/nightOwl';
 import { useSyntax } from './Syntax';
 import { useTheme, colors } from '../theme';
 
+let isEmptyLine = line => line.trim().length === 0
+
 export const CodeBlock = ({ code, ...props }) => {
   let [syntax, _] = useSyntax();
   let [theme] = useTheme();
-  let language = typeof code === 'object' ? syntax : props.language || 'ocaml';
   let lines = (typeof code === 'object' ? code[syntax] : code).split('\n');
   let firstNonEmptyLine = 0;
   while (lines[firstNonEmptyLine].trim() === '') {
@@ -20,16 +22,17 @@ export const CodeBlock = ({ code, ...props }) => {
   }
   let content = lines
     .slice(firstNonEmptyLine, lines.length)
-    .map(line => line.slice(spacesToFirstCharacter, line.length))    
-    .join('\n')
-    .toString();
+    .map(line => line.slice(spacesToFirstCharacter, line.length))        
+  content = dropWhile(content, isEmptyLine)
+  content = dropRightWhile(content, isEmptyLine)
+  content = content.join('\n').toString();
 
   return (
     <Highlight
       {...defaultProps}
       code={content}
       theme={theme === 'light' ? prismLightTheme : prismDarkTheme}
-      language={props.language || 'ocaml' || syntax}
+      language={props.language || syntax}
       {...props}
     >
       {({ className, style, tokens, getLineProps, getTokenProps }) => (
