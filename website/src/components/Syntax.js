@@ -92,21 +92,22 @@ const ToggleContainer = styled.button`
 export const SyntaxToggle = () => {
   let [syntax, toggleSyntax] = useSyntax();
   return (
-    <div css={css`
-      align-items: flex-end;
-      display: flex;
-      flex-direction: column;
-      margin-top: -10px;
-
-      span {
-        color: ${colors.grey.dark};
-        font-size: 10px;
-        font-weight: 500;
-        letter-spacing: 1.1px;
-        margin-bottom: ${spacing.smallest}px;
-        text-transform: uppercase;
-      }
-    `}>
+    <div
+      css={css`
+        align-items: flex-end;
+        display: flex;
+        flex-direction: column;
+        margin-top: -${spacing.smaller}px;
+        span {
+          color: ${colors.grey.dark};
+          font-size: 10px;
+          font-weight: 500;
+          letter-spacing: 1.1px;
+          margin-bottom: ${spacing.smaller}px;
+          text-transform: uppercase;
+        }
+      `}
+    >
       <span>Switch syntax</span>
       <ToggleContainer onClick={toggleSyntax} isReason={syntax === 'reason'}>
         <Reason height={logoSize * 2.5} width={logoSize * 2.5} />

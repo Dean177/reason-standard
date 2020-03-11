@@ -136,11 +136,11 @@ export let themes = {
              border: colors.red.dark,
            },
            githubEditButton: {
-             background: 'rgb(255, 255, 255)',
-             backgroundHover: 'rgb(255, 255, 255)',
-             border: 'rgb(211, 220, 228)',
-             text: 'rgb(36, 42, 49)',
-             shadow: 'rgba(116, 129, 141, 0.1)',
+             background: colors.black,
+             backgroundHover: 'rgb(36, 42, 49)',
+             border: colors.grey.base,
+             text: colors.white,
+             shadow: colors.grey.darkest,
            },
          },
        };

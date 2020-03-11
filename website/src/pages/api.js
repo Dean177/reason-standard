@@ -1,4 +1,5 @@
 import React from 'react';
+import Helmet from 'react-helmet';
 import { graphql, navigate, Link } from 'gatsby';
 import styled, { css } from 'styled-components';
 import _ from 'lodash';
@@ -9,6 +10,7 @@ import {
   GlobalStyles,
   ThemeProvider,
   spacing,
+  useTheme,
 } from '../theme';
 import {
   AppWrapper,
@@ -181,7 +183,7 @@ function renderSidebarElements(
               let moduleFunctorLink = linkFor(
                 path,
                 moduleElement.value.kind.tag,
-                moduleElement.value.kind.name,
+                moduleElement.value.name,
               );
               if (
                 hasSearch &&
@@ -792,15 +794,9 @@ function renderModuleElements(moduleElements, modulesByName, path = []) {
                 </ValueWrapper>
               </PageAnchor>
               {moduleElement.value.info && (
-                <div
-                  css={css`
-                    padding-left: 15px;
-                  `}
-                >
-                  <TextElement
-                    elements={moduleElement.value.info.description.value}
-                  />
-                </div>
+                <TextElement
+                  elements={moduleElement.value.info.description.value}
+                />
               )}
             </ValueContainer>
           );
@@ -879,13 +875,7 @@ function renderModuleElements(moduleElements, modulesByName, path = []) {
                     </ValueWrapper>
                   </PageAnchor>
                   {functor.info && (
-                    <div
-                      css={css`
-                        padding-left: 15px;
-                      `}
-                    >
-                      <TextElement elements={functor.info.description.value} />
-                    </div>
+                    <TextElement elements={functor.info.description.value} />
                   )}
                 </ValueContainer>
               );
@@ -919,6 +909,8 @@ export const pageQuery = graphql`
   }
 `;
 
+let title = 'API'
+
 let moduleIndex = (moduleElements, parentPath = []) => {
   return moduleElements
     .filter(
@@ -932,6 +924,37 @@ let moduleIndex = (moduleElements, parentPath = []) => {
       return [[path, modu], ...moduleIndex(modu.value.kind.value, path)];
     });
 };
+
+
+let Header = ({ title }) => {
+  let [_themeName, _toggle, theme] = useTheme();
+  return (
+    <Helmet>
+      <title>{title}</title>
+      <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href={theme.favicon.appleTouchIcon}
+      />
+      <link
+        rel="icon"
+        type="image/png"
+        sizes="32x32"
+        href={theme.favicon.icon32}
+      />
+      <link
+        rel="icon"
+        type="image/png"
+        sizes="16x16"
+        href={theme.favicon.icon16}
+      />
+      <meta name="title" content={title} />
+      <meta property="og:title" content={title} />
+      <meta property="twitter:title" content={title} />
+    </Helmet>
+  );
+};
+
 
 export default ({ data }) => {
   let [isOpen, setIsOpen] = React.useState(false);
@@ -949,6 +972,7 @@ export default ({ data }) => {
     <ThemeProvider>
       <SyntaxProvider>
         <GlobalStyles />
+        <Header title={title}/>
         <AppWrapper>
           <ContentContainer>
             <NavBarContainer>

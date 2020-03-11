@@ -13,6 +13,7 @@ import {
   dimensions,
   GlobalStyles,
   ThemeProvider,
+  useTheme,
 } from '../theme';
 import {
   AppWrapper,
@@ -145,7 +146,7 @@ let mdxComponents = {
   ),
   p: props => <p className="paragraph" {...props} />,
   pre: props => <pre className="pre">{props.children}</pre>,
-  inlineCode: props => <code className="inlineCode" {...props}/>,
+  inlineCode: props => <code className="inlineCode" {...props} />,
   code: ({ className, children, ...props }) => (
     <div className="code">
       <CodeBlock
@@ -164,6 +165,38 @@ let mdxComponents = {
   },
   img: props => <img className="img" {...props} />,
   blockquote: props => <blockquote className="blockquote" {...props} />,
+};
+
+let Header = ({title, metaTitle, metaDescription}) => {
+  let [_themeName, _toggle, theme] = useTheme();
+  return (
+    <Helmet>
+      <title>{title}</title>
+      <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href={theme.favicon.appleTouchIcon}
+      />
+      <link
+        rel="icon"
+        type="image/png"
+        sizes="32x32"
+        href={theme.favicon.icon32}
+      />
+      <link
+        rel="icon"
+        type="image/png"
+        sizes="16x16"
+        href={theme.favicon.icon16}
+      />
+      <meta name="title" content={metaTitle} />
+      <meta property="og:title" content={metaTitle} />
+      <meta property="twitter:title" content={metaTitle} />
+      <meta name="description" content={metaDescription} />
+      <meta property="og:description" content={metaDescription} />
+      <meta property="twitter:description" content={metaDescription} />
+    </Helmet>
+  );
 };
 
 export const pageQuery = graphql`
@@ -237,23 +270,7 @@ export default ({ data, location }) => {
       <SyntaxProvider>
         <GlobalStyles />
         <MdxStyles />
-        {/* <Helmet>
-        {title ? (
-          <>
-            <title>{title}</title>
-            <meta name="title" content={metaTitle} />
-            <meta property="og:title" content={metaTitle} />
-            <meta property="twitter:title" content={metaTitle} />
-          </>
-        ) : null}
-        {metaDescription ? (
-          <>
-            <meta name="description" content={metaDescription} />
-            <meta property="og:description" content={metaDescription} />
-            <meta property="twitter:description" content={metaDescription} />
-          </>
-        ) : null}
-      </Helmet> */}
+        <Header {...{ title, metaDescription, metaTitle: metaTitle || title }} />
         <AppWrapper>
           <ContentContainer>
             <NavBarContainer>
