@@ -80,9 +80,9 @@ See [`Option.get`](/api#Option.get) and [`Option.getUnsafe`](/api#Option.getUnsa
 
 ## Modules
 
-### S is for signature
+### S is for signature, T is for module type
 
-Functions which accept first class modules or [Functors]() need a way to label their arguments. 
+Functions which accept first class modules or functors need a way to label their arguments, and to avoid this being to long they are usually named `S` for the signature a functor returns and `T` for the input type.
 
 In a similar way to modules primary type being [named `t`](#t-is-the-main-type-of-n-module) 
 
@@ -92,28 +92,32 @@ In allmost all of the functions that `Standard` provides, the datastructure the
 function is operating on will be the first positional argument.
 
 This is the opposite of the way the standard library, or other related languages 
-like [elm](https://package.elm-lang.org/help/design-guidelines#the-data-structure-is-always-the-last-argument) 
-or [haskell](https://downloads.haskell.org/~ghc/latest/docs/html/libraries/base-4.13.0.0/GHC-List.html) 
+like [Elm](https://package.elm-lang.org/help/design-guidelines#the-data-structure-is-always-the-last-argument) 
+or [Haskell](https://downloads.haskell.org/~ghc/latest/docs/html/libraries/base-4.13.0.0/GHC-List.html) 
 tend to do things, but for some good reasons:
 
 ### Better error messages
 
-The type of the
 
+Compare the error message for data last:
 ```reason
 let words = ["hi"]
 let res = List.map(n => n + 1, words)
 //                             ^^^^^
 // This expression has type string list
-//  but an expression was expected of type Base.Int.t list
-//  Type string is not compatible with type Base.Int.t = int
+// but an expression was expected of type int list
+// Type string is not compatible with type int
 ```
 
+With the one returned for data first:
 ```reason
-let words = ["hi"]
-let res = Standard.List.map(~f:n => n + 1, words)
-//                                  ^
-// This expression has type string but an expression was expected of type int
+open Standard;
+
+let words = ["hi"];
+let res = List.map(words, ~f:n => n + 1 );
+//                                ^
+// This expression has type string but an expression 
+// was expected of type int
 ```
 
 ### Better type inference
@@ -177,3 +181,10 @@ Array.append([|1, 2, 3|], [|4, 5, 6|]) = [|1, 2, 3, 4, 5, 6|]
 ```
 
 This section was heavily inspired by [Javier Chavarri's excellent blog post](https://www.javierchavarri.com/data-first-and-data-last-a-comparison/) and the discussions on the [Bucklescipt](https://github.com/BuckleScript/bucklescript/issues/2625) and [Reason](https://github.com/facebook/reason/issues/1452#issuecomment-350424873) GitHub issue trackers.
+
+
+## Check out the API
+
+Now is a great time to jump straight into the [API](/api).
+
+If you want to find out more about why it exists and how you can help, read on.

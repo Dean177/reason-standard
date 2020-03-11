@@ -26,7 +26,7 @@ Here are some ways to contribute:
 - Optimize a function
 - Suggest a new function by [creating an issue](https://github.com/Dean177/Standard/issues/new). 
 
-If you'd like to contribute but don't know where to start, [open an
+If you'd like to contribute but don't know where to start [open an
 issue](https://github.com/Dean177/reason-standard/issues/new) with your thoughts
 or reach out on [Twitter](https://twitter.com/Dean177) or by
 [email](mailto:deanmerchant@gmail.com).
@@ -67,7 +67,7 @@ Abbreviations impose additional mental overhead when reading code:
 - You have to translate them back to the 'real' word in your head
 - You have to disambiguate them, does `init` mean `initial` or `initialize` (`List` has both!)
 
-If its a super common abbreviation, it needs to be justified and explained in the documentation or in [Conventions.md].
+If its a super common abbreviation, it needs to be justified and explained in the documentation or in [Conventions](./conventions).
 
 ### Don't be cute
 
@@ -110,7 +110,7 @@ Everyone has gaps in their knowledge, try to remove roadblocks. External links a
 
 > `lfindi ?pos t ~f` returns the smallest `i >= pos` such that `f i t.[i]`, if there is such an `i`. By default, `pos = 0`.
 
-Its incredibly dense, the names are short to the point of basically being symbols and self referential. 
+Its incredibly dense, the names are short to the point of basically being symbols and it is self referential. 
 
 Either a longer explanation using real words or an example using real data would have been better.
 

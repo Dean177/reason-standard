@@ -110,7 +110,7 @@ let MdxStyles = createGlobalStyle`
 }
 
 .blockquote {
-  background-color: ${colors.grey.lighter};
+  background-color: ${({ theme }) => theme.code.background};
   border-left: 3px solid ${colors.grey.base};
   padding-left: 14px;  
 }

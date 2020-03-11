@@ -187,7 +187,7 @@ function renderSidebarElements(
               );
               if (
                 hasSearch &&
-                !moduleElement.value.kind.name.includes(valueSearch)
+                !moduleElement.value.name.includes(valueSearch)
               ) {
                 return null;
               }

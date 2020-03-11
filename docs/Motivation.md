@@ -1,5 +1,5 @@
 ---
-title: "Motivation"
+title: "Motivation & Goals"
 order: "3"
 ---
 
@@ -9,14 +9,22 @@ Ocaml already has a standard library, Bucklescript ships with [Belt]() and on th
 
 ## Where are all the functions
 
-Ocamls standard library is a sparse and moves very slowly as a result its standard library
-Lots of functions throw exceptions
+Ocamls standard library is a sparse and moves very slowly.
+
+Standard aims to include many more useful functions.
+
+## Safety first
+
+Ocamls standard library throws lots of exceptions.
 
 ## Modules, Modules, Modules
 
-Ocaml has a great module system, but the standard library doesn't make great use of it.
+Ocaml has a great module system, but the standard library doesn't make great use of it. 
+
+Functions like `string_of_int` and `fst` live in the top level meaning they have to encode extra information in their name (like `string_of_int`) or be generally confusing (what does `fst` operate on?). 
+
 Almost everything in Standard lives in module which means functions like 
-`string_of_int` or `float_to_int` are now available in `Int.toString` or `Float.toInt`. 
+`string_of_int` or `fst` are now available in `Int.toString` or `Tuple.first` respectively. 
 
 ## Bucklescript lives in the browser
 
@@ -66,10 +74,7 @@ The other part of the reason is that Option and Result make
 
 Ocamls standard library sucks:
 
-- It has poor documentation
 - It has some legacy baggage
-- Its T last (most of the time)
-- Its inconsistent
 - It can only change slowly
 
 Belt is OK:
@@ -78,7 +83,6 @@ Belt is OK:
 - The examples are sparse
 - It has some legacy baggage
 - Its not available for native code\* (It is when you are using bucklescript-native)
-
 - High quality documentation and examples
 - Consistency
 - Well-documented and consistent edge-case behaviour,
@@ -100,18 +104,25 @@ Belt is OK:
 
 # Goals
 
+We aim to improve things with Standard
+
 ## Amazing documentation & examples
+
 Easy to use and learn
 - Consistency
+
+## Portable 
+
 Providing the same basic API for both ocaml and bucklescript
 
-- Find a balance between batteries included and bare essentials
+## Pragmatic
 
-- Provide platoform specific features where it makes sense
-- Strike a balance between JS and Ocaml conventions
+Find a balance between batteries included and bare essentials
+Provide platoform specific features where it makes sense
+Strike a balance between JS and Ocaml conventions
 - Safety. Exceptions that can throw are not the default, well documented
-- Pragmatism over purity. While Foldable Magmas are pretty,
-- Portability
+While Foldable Magmas are pretty, they don't provide good returns on the mental overhead.
+
 
 Draw inspiration from
 
@@ -120,8 +131,6 @@ Draw inspiration from
 - [Base](https://ocaml.janestreet.com/ocaml-core/latest/doc/base/index.html)
 - [Batteries](http://ocaml-batteries-team.github.io/batteries-included/hdoc2/)
 - [Containers](https://c-cube.github.io/ocaml-containers/)
-- [Go](https://golang.org/pkg/#stdlib)
 - [Rust](https://doc.rust-lang.org/std/)
 - [Elm](https://package.elm-lang.org/packages/elm/core/latest/)
-- [Elixir](https://hexdocs.pm/elixir/Kernel.html)
 

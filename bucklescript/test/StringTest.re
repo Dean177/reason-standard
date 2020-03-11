@@ -87,4 +87,13 @@ let suite =
     test("reverse", () => {
       expect(String.reverse("stressed")) |> toEqual(Eq.string, "desserts")
     });
+
+    test("toArray", () => {
+      expect(String.toArray("Standard"))
+      |> toEqual(Eq.(array(char)), [|'S', 't', 'a', 'n', 'd', 'a', 'r', 'd'|])
+    });
+
+    test("toList", () => {
+      expect(String.toList("Standard")) |> toEqual(Eq.(list(char)), ['S', 't','a','n','d','a','r','d']);
+    })
   });

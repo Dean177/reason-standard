@@ -5,6 +5,13 @@ let suite =
   suite("List", () => {
     open List;
 
+    describe("filterMap", () => {
+      test("keeps elements which return Some", () => {
+        expect(List.filterMap([-1, 80, 99], ~f=Char.ofCode))
+        |> toEqual(Eq.(list(char)), ['P', 'c'])
+      })
+    })
+
     describe("drop", () => {
       test("from an empty list", () =>
         expect(drop([], ~count=1)) |> toEqual(Eq.(list(int)), [])

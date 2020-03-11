@@ -278,7 +278,7 @@ export default () => {
                     `}
                   >
                     Standard provides an easy-to-use, comprehensive and safe
-                    standard library, that has the same API for the OCaml and
+                    standard library that has the same API for the OCaml and
                     Bucklescript compilers.
                   </p>
                   <div>
@@ -287,12 +287,14 @@ export default () => {
                       code={`
 open Standard;
 
-String.toList("somestring")
-->List.filterMap(~f=character => 
-  Char.toCode(character)->Int.add(1)->Char.ofCode
+String.toList("Standard")
+|> List.filterMap(~f=character => 
+  Char.toCode(character)
+  |> Int.add(1)
+  |> Char.ofCode
 )
-->String.ofList
-/* "asdfasdf" */
+|>String.ofList
+/* "Tuboebse" */
                 `}
                     />
                   </div>
@@ -341,8 +343,8 @@ String.toList("somestring")
                     <>
                       <h2>Portable</h2>
                       <span>
-                        Works with either the Reason or Ocaml syntax, targetting
-                        the bucklescript, native or <code>js_of_ocaml</code>{' '}
+                        Works with either the Reason or Ocaml syntax, targeting
+                        the Bucklescript, Native or <code>js_of_ocaml</code>{' '}
                         compilers
                       </span>
                     </>

@@ -112,7 +112,7 @@ module Comparator : sig
         let books = Set.empty (module Book)
       ]}
   *)
-  module Make : functor (M: T) -> S with type t := M.t
+  module Make : functor (Comparable: T) -> S with type t := Comparable.t
 end
 
 (** Functions for working with boolean ([true] or [false]) values. *)

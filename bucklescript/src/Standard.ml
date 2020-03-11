@@ -938,11 +938,14 @@ module String = struct
   let reverse s =
     Js.Array.joinWith "" (Js.Array.reverseInPlace (Js.String.split "" s))
 
-  let toArray t = Js.String.castToArrayLike t |. Js.Array.from
+  let toArray (t : string) : char array =
+    Js.String.castToArrayLike t
+    |. Js.Array.from
+    |> (Js.Array.map (fun characterString -> Char.ofString characterString |. Option.getUnsafe))
+    
 
-  let toList s =
-    ( Js.String.castToArrayLike s |. Js.Array.from |. Belt.List.fromArray
-      : char list )
+  let toList (s : string) : char list =
+    toArray s |> Belt.List.fromArray
 
   let slice ?to_ (t : string) ~from =
     (Js.String.slice ~from ~to_:(Option.get to_ ~default:(length t)) t : string)

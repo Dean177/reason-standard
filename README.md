@@ -6,20 +6,16 @@
 
 > A standard library for use with OCaml and ReasonML.
 
-Standard provides an easy-to-use, comprehensive and performant standard library, that has the same API for the OCaml and Bucklescript compilers.
+Standard provides an easy-to-use, comprehensive and safe standard library, that has the same API for the OCaml and Bucklescript compilers.
 
-**Standard is alpha-quality software. The API will change.**
+> ⚠️ **Warning** 
+> Standard is alpha-quality software. 
+> There could be bugs.
+> The API will change
 
 ## Documentation
 
-Refer the the interface file for either [bucklescript](./bucklescript/src/Standard.rei) or the [native](./native/src/Standard.rei) targets
-
-If you have cloned the repository
-
-```sh
-esy doc
-open ${esy doc-path}
-```
+Head to the [documentation site](https://reason-standard.netlify.com)
 
 ## License
 
