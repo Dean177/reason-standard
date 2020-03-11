@@ -57,77 +57,93 @@ export let breakpoints = {
 };
 
 export let themes = {
-  light: {
-    favicon: {
-      appleTouchIcon: require('./assets/favicon_light/apple-touch-icon.png'),
-      icon32: require('./assets/favicon_light/favicon-32x32.png'),
-      icon16: require('./assets/favicon_light/favicon-16x16.png'),
-    },
-    body: colors.white,
-    text: colors.black,
-    link: colors.red.dark,
-    navbar: {
-      background: colors.red.base,
-      backgroundHover: colors.red.dark,
-      text: colors.white,
-    },
-    sidebar: {
-      text: colors.red.base,
-      activeBackground: colors.red.base,
-      activeText: colors.white,
-      hover: colors.red.dark,
-    },
-    card: {
-      background: colors.grey.lighter,
-      border: colors.grey.light,
-      text: colors.black,
-    },
-    code: {
-      background: colors.grey.lighter,
-      border: colors.grey.light,
-      text: colors.black,
-    },
-    toggle: {
-      background: colors.grey.lightest,
-      border: colors.purple.base,
-    },
-  },
-  dark: {
-    favicon: {
-      appleTouchIcon: require('./assets/favicon_dark/apple-touch-icon.png'),
-      icon32: require('./assets/favicon_dark/favicon-32x32.png'),
-      icon16: require('./assets/favicon_dark/favicon-16x16.png'),
-    },
-    body: colors.black,
-    text: colors.white,
-    link: colors.red.base,
-    navbar: {
-      background: colors.purple.base,
-      backgroundHover: colors.purple.dark,
-      text: colors.white,
-    },
-    sidebar: {
-      text: colors.white,
-      activeBackground: colors.purple.base,
-      activeText: colors.white,
-      hover: colors.purple.dark,
-    },
-    card: {
-      background: colors.grey.darkest,
-      border: colors.grey.dark,
-      text: colors.white,
-    },
-    code: {
-      background: colors.grey.darkest,
-      border: colors.grey.dark,
-      text: colors.white,
-    },
-    toggle: {
-      background: colors.grey.darkest,
-      border: colors.red.dark,
-    },
-  },
-};
+         light: {
+           favicon: {
+             appleTouchIcon: require('./assets/favicon_light/apple-touch-icon.png'),
+             icon32: require('./assets/favicon_light/favicon-32x32.png'),
+             icon16: require('./assets/favicon_light/favicon-16x16.png'),
+           },
+           body: colors.white,
+           text: colors.black,
+           link: colors.red.dark,
+           navbar: {
+             background: colors.red.base,
+             backgroundHover: colors.red.dark,
+             text: colors.white,
+           },
+           sidebar: {
+             background: colors.white,
+             text: colors.red.base,
+             activeBackground: colors.red.base,
+             activeText: colors.white,
+             hover: colors.red.dark,
+           },
+           card: {
+             background: colors.grey.lighter,
+             border: colors.grey.light,
+             text: colors.black,
+           },
+           code: {
+             background: colors.grey.lighter,
+             border: colors.grey.light,
+             text: colors.black,
+           },
+           toggle: {
+             background: colors.grey.lightest,
+             border: colors.purple.base,
+           },
+           githubEditButton: {
+             background: 'rgb(255, 255, 255)',
+             backgroundHover: 'rgb(245, 247, 249)',
+             border: 'rgb(211, 220, 228)',
+             text: '#555',
+             shadow: 'rgba(116, 129, 141, 0.1)',
+           },
+         },
+         dark: {
+           favicon: {
+             appleTouchIcon: require('./assets/favicon_dark/apple-touch-icon.png'),
+             icon32: require('./assets/favicon_dark/favicon-32x32.png'),
+             icon16: require('./assets/favicon_dark/favicon-16x16.png'),
+           },
+           body: colors.black,
+           text: colors.white,
+           link: colors.red.base,
+           navbar: {
+             background: colors.purple.base,
+             backgroundHover: colors.purple.dark,
+             text: colors.white,
+           },
+           sidebar: {
+             background: colors.black,
+             text: colors.white,
+             activeBackground: colors.purple.base,
+             activeText: colors.white,
+             hover: colors.purple.dark,
+           },
+           card: {
+             background: colors.grey.darkest,
+             border: colors.grey.dark,
+             text: colors.white,
+           },
+           code: {
+             background: colors.grey.darkest,
+             border: colors.grey.dark,
+             text: colors.white,
+           },
+           toggle: {
+             background: colors.grey.darkest,
+             border: colors.red.dark,
+           },
+           githubEditButton: {
+             background: 'rgb(255, 255, 255)',
+             backgroundHover: 'rgb(255, 255, 255)',
+             border: 'rgb(211, 220, 228)',
+             text: 'rgb(36, 42, 49)',
+             shadow: 'rgba(116, 129, 141, 0.1)',
+           },
+         },
+       };
 
 let ThemeContext = React.createContext(['light', () => {}]);
 

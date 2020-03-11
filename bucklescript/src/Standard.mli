@@ -1,5 +1,35 @@
 (** *)
 
+(**  *)
+module Comparator : sig
+  type ('a, 'identity) t
+
+  (**/**)
+  type ('a, 'identity) comparator = ('a, 'identity) t
+  (**/**)
+
+  module type T = sig 
+    type nonrec t    
+    val compare : t -> t -> int
+  end
+  
+  module type S = sig
+    type nonrec t
+    type identity
+    val comparator : (t, identity) comparator
+  end 
+
+  (** A type alias that is useful for functions which accept first class modules like {!Set.empty} *)
+  type ('a, 'identity) s =
+    (module S with type identity = 'identity and type t = 'a)
+
+  (** Create a new comparator by providing a compare function. *)
+  module Make : functor (M: T) -> S with type t := M.t
+
+  (** Create a new comparator by providing a compare function. *)
+  val make : compare:('a -> 'a -> int) -> (module S with type t = 'a)
+end
+
 (** Functions for working with boolean ([true] or [false]) values. *)
 module Bool : sig
   (** Functions for working with boolean values.
@@ -451,6 +481,11 @@ module Char : sig
 
   (** Compare two {!Char}s *)
   val compare : t -> t -> int
+
+  (** The unique identity for [chars] {!Comparator} *)
+  type identity
+
+  val comparator: (t, identity) Comparator.t
 end
 
 (** Functions for working with floating point numbers. *)
@@ -1253,8 +1288,6 @@ module Int : sig
   
   type t = int
 
-  type identity
-  
   (** {1 Constants } *)
 
   (** The literal [0] as a named value *)
@@ -1586,6 +1619,11 @@ module Int : sig
 
   (** Compare two [int]s *)
   val compare : t -> t -> int
+
+  (** The unique identity for [ints] {!Comparator} *)
+  type identity
+
+  val comparator: (t, identity) Comparator.t
 end
 
 (** Arbitrary precision integers.  *)
@@ -1959,6 +1997,11 @@ module Integer : sig
   
   (** Compare two {!Integer}s *)
   val compare : t -> t -> int
+
+  (** The unique identity for [ints] {!Comparator} *)
+  type identity
+
+  val comparator: (t, identity) Comparator.t
 end
 
 (** Functions for working with ["strings"] *)
@@ -2032,6 +2075,18 @@ module String : sig
   
   (** Get the character at [~index] *)
   val getAt : string -> index:int -> char option
+
+  (** The {{: https://caml.inria.fr/pub/docs/manual-ocaml/indexops.html } index operator} version of {!getAt} 
+
+      {b Note} Currently this is only supported by the Ocaml syntax.
+  
+      {2 Examples}
+
+      {[("Doggie".String.?[3]) = Some 'g']}
+
+      {[String.("Doggie".?[9]) = None]}
+   *)
+  val (.?[]) : string -> int -> char option
    
   (** Reverse a string
 
@@ -2299,13 +2354,17 @@ module String : sig
   
   (** {1 Compare} *)
 
-  type identity
-
   (** Test two string for equality *)
   val equal : string -> string -> bool
 
   (** Test two string for equality *)
   val compare : string -> string -> int
+
+
+  (** The unique identity for {!Comparator} *)
+  type identity
+
+  val comparator: (t, identity) Comparator.t
 end
 
 (** Interfaces for use with container types like {!Array} or {!List} *)
@@ -3200,6 +3259,1273 @@ module Result : sig
   end
 end
 
+(** Functions for manipulating pairs of values *)
+module Tuple : sig
+  (** Functions for manipulating pairs of values *)
+
+  type ('a, 'b) t = ('a * 'b)
+  
+  (** {1 Create} *)
+
+  (** Create a two-tuple with the given values.
+
+      The values do not have to be of the same type.
+
+      {2 Examples}
+
+      {[Tuple.make 3 "Clementine" = (3, "Clementine")]}
+  *)
+  val make : 'a -> 'b -> ('a * 'b)
+  
+  (** Create a tuple from the first two elements of an {!Array}.
+
+      If the array is longer than two elements, the extra elements are ignored.
+
+      If the array is less than two elements, returns [None]
+
+      {2 Examples}
+
+      {[Tuple.ofArray [|1; 2|] = Some (1, 2)]}
+
+      {[Tuple.ofArray [|1|] = None]}
+
+      {[Tuple.ofArray [|4; 5; 6|] = Some (4, 5)]}
+  *)
+  val ofArray : 'a array -> ('a * 'a) option
+  
+  (** Create a tuple from the first two elements of a {!List}.
+
+      If the list is longer than two elements, the extra elements are ignored.
+
+      If the list is less than two elements, returns [None]
+
+      {2 Examples}
+
+      {[Tuple.ofList [1; 2] = Some (1, 2)]}
+
+      {[Tuple.ofList [1] = None]}
+
+      {[Tuple.ofList [4; 5; 6] = Some (4, 5)]}
+  *)
+  val ofList : 'a list -> ('a * 'a) option
+  
+  (** Extract the first value from a tuple.
+
+      {2 Examples}
+
+      {[Tuple.first (3, 4) = 3]}
+
+      {[Tuple.first ("john", "doe") = "john"]}
+  *)
+  val first : ('a * 'b) -> 'a
+  
+  (** Extract the second value from a tuple.
+
+      {2 Examples}
+
+      {[Tuple.second (3, 4) = 4]}
+
+      {[Tuple.second ("john", "doe") = "doe"]}
+  *)
+  val second : ('a * 'b) -> 'b
+  
+  (** {1 Transform} *)
+
+  (** Transform the {!first} value in a tuple.
+
+      {2 Examples}
+
+      {[Tuple.mapFirst ~f:String.reverse ("stressed", 16) = ("desserts", 16)]}
+
+      {[Tuple.mapFirst ~f:String.length ("stressed", 16) = (8, 16)]}
+  *)
+  val mapFirst : ('a * 'b) -> f:('a -> 'x) -> ('x * 'b)
+  
+  
+  (** Transform the second value in a tuple.
+
+      {2 Examples}
+
+      {[Tuple.mapSecond ~f:Float.squareRoot ("stressed", 16.) = ("stressed", 4.)]}
+
+      {[Tuple.mapSecond ~f:(~-) ("stressed", 16) = ("stressed", -16)]}
+  *)
+  val mapSecond : ('a * 'b) -> f:('b -> 'c) -> ('a * 'c)
+  
+  (** Transform both values of a tuple, using [f] for the first value and [g] for the second.
+
+      {2 Examples}
+
+      {[Tuple.mapEach ~f:String.reverse ~g:Float.squareRoot ("stressed", 16.) = ("desserts", 4.)]}
+
+      {[Tuple.mapEach ~f:String.length ~g:(~-) ("stressed", 16) = (8, -16)]}
+  *)
+  val mapEach : ('a * 'b) -> f:('a -> 'x) -> g:('b -> 'y) -> ('x * 'y)
+  
+  
+  (** Transform both of the values of a tuple using the same function.
+
+      [mapAll] can only be used on tuples which have the same type for each value.
+
+      {2 Examples}
+
+      {[Tuple.mapAll ~f:(Int.add 1) (3, 4, 5) = (4, 5, 6)]}
+
+      {[Tuple.mapAll ~f:String.length ("was", "stressed") = (3, 8)]}
+  *)
+  val mapAll : ('a * 'a) -> f:('a -> 'b) -> ('b * 'b)
+  
+  (** Switches the first and second values of a tuple.
+
+      {2 Examples}
+
+      {[Tuple.swap (3, 4) = (4, 3)]}
+
+      {[Tuple.swap ("stressed", 16) = (16, "stressed")]}
+  *)
+  val swap : ('a * 'b) -> ('b * 'a)
+  
+  (** {1 Convert} *)
+
+  (** Turns a tuple into an {!Array} of length two.
+
+      This function can only be used on tuples which have the same type for each value.
+
+      {2 Examples}
+
+      {[Tuple.toArray (3, 4) = [|3; 4|]]}
+
+      {[Tuple.toArray ("was", "stressed") = [|"was"; "stressed"|]]}
+  *)
+  val toArray : ('a * 'a) -> 'a array
+  
+  (** Turns a tuple into a list of length two. This function can only be used on tuples which have the same type for each value.
+
+      {2 Examples}
+
+      {[Tuple.toList (3, 4) = [3; 4]]}
+
+      {[Tuple.toList ("was", "stressed") = ["was"; "stressed"]]}
+  *)
+  val toList : ('a * 'a) -> 'a list
+  
+  (** {1 Compare} *)
+
+  (** Test two {!Tuple}s for equality, using the provided functions to test the
+      first and second components.
+
+      {2 Examples}
+
+      {[Tuple.equal Int.equal String.equal (1, "Fox") (1, "Fox") = true]}
+
+      {[Tuple.equal Int.equal String.equal (1, "Fox") (2, "Hen") = false]}
+  *)
+  val equal :
+    ('a -> 'a -> bool) ->
+      ('b -> 'b -> bool) -> ('a, 'b) t -> ('a, 'b) t -> bool
+  
+  (** Compare two {!Tuple}s, using the provided functions to compare the first
+      components then, if the first components are equal, the second components.
+
+      {2 Examples}
+
+      {[Tuple.compare Int.compare String.compare (1, "Fox") (1, "Fox") = 0]}
+
+      {[Tuple.compare Int.compare String.compare (1, "Fox") (1, "Eel") = 1]}
+
+      {[Tuple.compare Int.compare String.compare (1, "Fox") (2, "Hen") = -1]}
+  *)
+  val compare :
+    ('a -> 'a -> int) -> ('b -> 'b -> int) -> ('a, 'b) t -> ('a, 'b) t -> int
+  
+end
+
+(** Functions for manipulating trios of values *)
+module Tuple3 : sig
+  (** Functions for manipulating trios of values *)
+
+  type ('a, 'b, 'c) t = ('a * 'b * 'c)
+  
+  (** {1 Create} *)
+
+  (** Create a {!Tuple3}.
+
+      {2 Examples}
+
+      {[Tuple3.create 3 "cat" false = (3, "cat", false)]}
+
+      {[
+        List.map3 ~f:Tuple3.create [1;2;3] ['a'; 'b'; 'c'] [4.; 5.; 6.] =
+          [(1, 'a', 4.), (2, 'b', 5.), (3, 'c', 6.)]
+      ]}
+  *)
+  val make : 'a -> 'b -> 'c -> ('a * 'b * 'c)
+  
+  (** Create a tuple from the first two elements of an {!Array}.
+
+      If the array is longer than two elements, the extra elements are ignored.
+
+      If the array is less than two elements, returns [None]
+
+      {2 Examples}
+
+      {[Tuple3.ofArray [|1; 2;3 |] = Some (1, 2, 3)]}
+
+      {[Tuple3.ofArray [|1; 2|] = None]}
+
+      {[Tuple3.ofArray [|4;5;6;7|] = Some (4, 5, 6)]}
+  *)
+  val ofArray : 'a array -> ('a * 'a * 'a) option
+  
+  (** Create a tuple from the first two elements of a {!List}.
+
+      If the list is longer than two elements, the extra elements are ignored.
+
+      If the list is less than two elements, returns [None]
+
+      {2 Examples}
+
+      {[Tuple3.ofList [1; 2; 3] = Some (1, 2, 3)]}
+
+      {[Tuple3.ofList [1; 2] = None]}
+
+      {[Tuple3.ofList [4; 5; 6; 7] = Some (4, 5, 6)]}
+  *)
+  val ofList : 'a list -> ('a * 'a * 'a) option
+  
+  (** {1 Basic operations} *)
+
+  (** Extract the first value from a tuple.
+
+      {2 Examples}
+
+      {[Tuple3.first (3, 4, 5) = 3]}
+
+      {[Tuple3.first ("john", "danger", "doe") = "john"]}
+  *)
+  val first : ('a * 'b * 'c) -> 'a
+  
+  (** Extract the second value from a tuple.
+
+      {2 Examples}
+
+      {[Tuple.second (3, 4, 5) = 4]}
+
+      {[Tuple.second ("john", "danger", "doe") = "danger"]}
+  *)
+  val second : ('a * 'b * 'c) -> 'b
+  
+  (** Extract the third value from a tuple.
+
+      {2 Examples}
+
+      {[Tuple.third (3, 4, 5) = 5]}
+
+      {[Tuple.third ("john", "danger", "doe") = "doe"]}
+  *)
+  val third : ('a * 'b * 'c) -> 'c
+  
+  (** Extract the first and second values of a {!Tuple3} as a {!Tuple}.
+
+      {2 Examples}
+
+      {[Tuple3.initial (3, "stressed", false) = (3, "stressed")]}
+
+      {[Tuple3.initial ("john", 16, true) = ("john", 16)]}
+  *)
+  val initial : ('a * 'b * 'c) -> ('a * 'b)
+  
+  (** Extract the second and third values of a {!Tuple3} as a {!Tuple}.
+
+      {2 Examples}
+
+      {[Tuple3.tail (3, "stressed", false) = ("stressed", false)]}
+
+      {[Tuple3.tail ("john", 16, true) = (16, true)]}
+  *)
+  val tail : ('a * 'b * 'c) -> ('b * 'c)
+
+  (** {1 Modify} *)
+
+  (** Move each value in the tuple one position to the left, moving the value in the first position into the last position.
+
+      {2 Examples}
+
+      {[Tuple.rotateLeft (3, 4, 5) = (4, 5, 3)]}
+
+      {[Tuple.rotateLeft ("was", "stressed", "then") = ("stressed", "then", "was")]}
+  *)
+  val rotateLeft : ('a * 'b * 'c) -> ('b * 'c * 'a)
+  
+  (** Move each value in the tuple one position to the right, moving the value in the last position into the first position.
+
+      {2 Examples}
+
+      {[Tuple.rotateRight (3, 4, 5) = (5, 3, 4)]}
+
+      {[Tuple.rotateRight ("was", "stressed", "then") = ("then", "was", "stressed")]}
+  *)
+  val rotateRight : ('a * 'b * 'c) -> ('c * 'a * 'b)
+
+  (** {1 Transform} *)
+  
+  (** Transform the first value in a tuple.
+
+      {2 Examples}
+
+      {[Tuple3.mapFirst ~f:String.reverse ("stressed", 16, false) = ("desserts", 16, false)]}
+
+      {[Tuple3.mapFirst ~f:String.length ("stressed", 16, false) = (8, 16, false)]}
+  *)
+  val mapFirst : ('a * 'b * 'c) -> f:('a -> 'x) -> ('x * 'b * 'c)
+  
+  (** Transform the second value in a tuple.
+
+      {2 Examples}
+
+      {[Tuple3.mapSecond ~f:Float.squareRoot ("stressed", 16., false) = ("stressed", 4., false)]}
+
+      {[Tuple3.mapSecond ~f:(~-) ("stressed", 16, false) = ("stressed", -16, false)]}
+  *)
+  val mapSecond : ('a * 'b * 'c) -> f:('b -> 'y) -> ('a * 'y * 'c)
+  
+  (** Transform the third value in a tuple.
+
+      {2 Examples}
+
+      {[Tuple3.mapThird ~f:not ("stressed", 16, false) ("stressed", 16, true)]}
+  *)
+  val mapThird : ('a * 'b * 'c) -> f:('c -> 'z) -> ('a * 'b * 'z)
+  
+  (** Transform each value in a tuple by applying [f] to the {!first} value, [g] to the {!second} value and [h] to the {!third} value.
+
+      {2 Examples}
+
+      {[
+        Tuple3.mapEach
+          ~f:String.reverse
+          ~g:Float.squareRoot
+          ~h:Bool.not
+          ("stressed", 16., false) = ("desserts", 4., true)
+      ]}
+  *)
+  val mapEach :
+    ('a * 'b * 'c) ->
+      f:('a -> 'x) -> g:('b -> 'y) -> h:('c -> 'z) -> ('x * 'y * 'z)
+  
+  (** Transform all the values of a tuple using the same function.
+
+      [mapAll] can only be used on tuples which have the same type for each value.
+
+      {2 Examples}
+
+      {[Tuple.mapAll ~f:Float.squareRoot (9., 16., 25.) = (3., 4., 5.)]}
+
+      {[Tuple.mapAll ~f:String.length ("was", "stressed", "then") = (3, 8, 4)]}
+  *)
+  val mapAll : ('a * 'a * 'a) -> f:('a -> 'b) -> ('b * 'b * 'b)
+
+  (** {1 Convert} *)
+
+  (** Turns a tuple into a {!List} of length three.
+
+      This function can only be used on tuples which have the same type for each value.
+
+      {2 Examples}
+
+      {[Tuple3.toArray (3, 4, 5) = [3; 4; 5]]}
+
+      {[Tuple3.toArray ("was", "stressed", "then") = ["was"; "stressed"; "then"]]}
+  *)
+  val toArray : ('a * 'a * 'a) -> 'a array
+  
+  (** Turns a tuple into a {!List} of length three.
+
+      This function can only be used on tuples which have the same type for each value.
+
+      {2 Examples}
+
+      {[Tuple3.toList (3, 4, 5) = [3; 4; 5]]}
+
+      {[Tuple3.toList ("was", "stressed", "then") = ["was"; "stressed"; "then"]]}
+  *)
+  val toList : ('a * 'a * 'a) -> 'a list
+  
+  (** {1 Compare} *)
+
+  (** Test two {!Tuple3}s for equality, using the provided functions to test the
+      first, second and third components.
+
+      {2 Examples}
+
+      {[Tuple.equal Int.equal String.equal Char.equal (1, "Fox", 'j') (1, "Fox", 'k') = true]}
+
+      {[Tuple.equal Int.equal String.equal Char.equal (1, "Fox", 'j') (2, "Hen", 'j') = false]}
+   *)
+  val equal :
+    ('a -> 'a -> bool) ->
+      ('b -> 'b -> bool) ->
+        ('c -> 'c -> bool) -> ('a, 'b, 'c) t -> ('a, 'b, 'c) t -> bool
+  
+  (** Compare two {!Tuple3}s, using the provided functions to compare the first
+      components then, if the first components are equal, the second components,
+      then the third components
+
+      {2 Examples}
+
+      {[Tuple.compare Int.compare String.compare Char.compare (1, "Fox", 'j') (1, "Fox", 'j') = 0]}
+
+      {[Tuple.compare Int.compare String.compare Char.compare (1, "Fox", 'j') (1, "Eel", 'j') = 1]}
+
+      {[Tuple.compare Int.compare String.compare Char.compare (1, "Fox", 'j') (2, "Fox", 'm') = -1]}
+   *)
+  val compare :
+    ('a -> 'a -> int) ->
+      ('b -> 'b -> int) ->
+        ('c -> 'c -> int) -> ('a, 'b, 'c) t -> ('a, 'b, 'c) t -> int
+end
+
+(** A collection of unique values *)
+module Set : sig
+  (** A {!Set} represents a unique collection of values.
+
+      [Set] is an immutable data structure which means operations like {!Set.add} and {!Set.remove} do not modify the data structure, but return a new set with the desired changes.
+
+      Since the usage is so common the {!Set.Int} and {!Set.String} modules are available, offering a convenient way to construct sets.
+
+      For other data types you can use {!Set.Poly} which uses OCaml's polymorphic [compare] function.
+  *)
+
+  type ('a, 'id) t
+
+  (** This functor lets you describe the type of Maps a little more concisely.
+
+      {[
+        let names : Set.Of(String).t = 
+          Set.ofList (module String) ["Andrew"; "Tina"]
+      ]}
+
+      Is the same as
+
+      {[
+        let names : (string, String.identity) Set.t = 
+          Set.ofList (module String) ["Andrew"; "Tina"]
+      ]}
+  *)
+  module Of : functor (M : Comparator.S) -> sig
+    type nonrec 'value t = (M.t, M.identity) t
+  end
+
+  (** {1 Create} 
+
+    A [Set] can be constructed using one of the specialised functions available in the 
+    {!Set.Int}, {!Set.String} or {!Set.Poly} sub-modules. 
+
+    You can create sets of custom data types which conform to the {!Comparator.S} signature by using {!empty}, {!singleton}, {!ofList} or {!ofArray}.
+  *)
+
+  (** A set with nothing in it. *)
+  val empty : ('a, 'identity) Comparator.s -> ('a, 'identity) t
+
+  (** Create a set from a single {!Int}
+
+    {2 Examples}
+
+    {[Set.singleton (module Char) 'H' |> Set.toList = ['H']]}
+  *)
+  val singleton : ('a, 'identity) Comparator.s -> 'a -> ('a, 'identity) t
+  
+  (** Create a set from an {!Array}
+
+      {2 Examples}
+
+      {[Set.ofArray (module Char) [|'A'; 'B'; 'B'; 'G'|] |> Set.toArray = [|'A';'B';'G'|]]}
+  *)
+  val ofArray : ('a, 'identity) Comparator.s ->  'a array -> ('a, 'identity) t
+  
+  (** Create a set from a {!List}
+
+      {2 Examples}
+
+      {[Set.ofList (module Char) ['A'; 'B'; 'B'; 'G'] |> Set.toList = ['A';'B';'G']]}
+  *)
+  val ofList : ('a, 'identity) Comparator.s -> 'a list -> ('a, 'identity) t
+
+  (** {1 Basic operations} *)
+
+  (** Insert a value into a set.
+
+      {2 Examples}
+
+      {[Set.add (Set.Int.ofList [1; 2]) 3 |> Set.toList = [1; 2; 3]]}
+
+      {[Set.add (Set.Int.ofList [1; 2]) 2 |> Set.toList = [1; 2]]}
+  *)
+  val add : ('a, 'id) t -> 'a -> ('a, 'id) t
+  
+  (** Remove a value from a set, if the set doesn't contain the value anyway, returns the original set
+
+      {2 Examples}
+
+      {[Set.remove (Set.Int.ofList [1; 2]) 2 |> Set.toList = [1]]}
+
+      {[
+        let originalSet = Set.Int.ofList [1; 2] in
+        let newSet = Set.remove orignalSet 3 in
+        originalSet = newSet
+      ]}
+  *)
+  val remove : ('a, 'id) t -> 'a -> ('a, 'id) t
+  
+  (** Determine if a value is in a set
+
+      {2 Examples}
+
+     {[Set.includes (Set.String.ofList ["Ant"; "Bat"; "Cat"]) "Bat" = true]}
+  *)
+  val includes : ('a, _) t -> 'a -> bool
+
+  (** The {{: https://caml.inria.fr/pub/docs/manual-ocaml/indexops.html } index operator} version of {!includes} 
+  
+      {b Note} Currently this is only supported by the Ocaml syntax.
+      
+      {2 Examples}
+
+      {[
+        let animals = Set.String.ofList ["Ant"; "Bat"; "Cat"] in
+        numbers.Set.?{"Emu"} = false
+      ]}
+   *)
+  val (.?{}) : ('element, _) t -> 'element -> bool
+  
+  (** Determine the number of elements in a set.
+
+      {2 Examples}
+
+      {[Set.length (Set.Int.ofList [1; 2; 3]) = 3]}
+  *)
+  val length : (_, _) t -> int
+  
+  (** Returns, as an {!Option}, the first element for which [f] evaluates to [true]. If [f] doesn't return [true] for any of the elements [find] will return [None].
+
+      {2 Examples}
+
+      {[Set.find ~f:Int.isEven (Set.Int.ofList [1; 3; 4; 8]) = Some 4]}
+
+      {[Set.find ~f:Int.isOdd (Set.Int.ofList [0; 2; 4; 8]) = None]}
+
+      {[Set.find ~f:Int.isEven Set.Int.empty = None]}
+  *)
+  val find : ('value, _) t -> f:('value -> bool) -> 'value option
+  
+  (** {1 Query} *)
+
+  (** Check if a set is empty.
+
+      {2 Examples}
+
+      {[Set.isEmpty (Set.Int.empty) = true]}
+
+      {[Set.isEmpty (Set.Int.singleton 4) = false]}
+  *)
+  val isEmpty : (_, _) t -> bool
+  
+  (** Determine if [f] returns true for [any] values in a set.
+
+      {2 Examples}
+
+      {[Set.any (Set.Int.ofArray [|2;3|]) ~f:Int.isEven = true]}
+
+      {[Set.any (Set.Int.ofList [1;3]) ~f:Int.isEven = false]}
+
+      {[Set.any (Set.Int.ofList []) ~f:Int.isEven = false]}
+  *)
+  val any : ('value, _) t -> f:('value -> bool) -> bool
+  
+  (** Determine if [f] returns true for [all] values in a set.
+
+      {2 Examples}
+
+      {[Set.all ~f:Int.isEven (Set.Int.ofArray [|2;4|]) = true]}
+
+      {[Set.all ~f:Int.isEven (Set.Int.ofLis [2;3]) = false]}
+
+      {[Set.all ~f:Int.isEven Set.Int.empty = true]}
+  *)
+  val all : ('value, _) t -> f:('value -> bool) -> bool
+  
+  (** {1 Combine} *)
+
+  (** Returns a new set with the values from the first set which are not in the second set.
+
+      {2 Examples}
+
+      {[Set.difference (Set.Int.ofList [1;2;5]) (Set.Int.ofList [2;3;4]) |> Set.toList = [1;5]]}
+
+      {[Set.difference (Set.Int.ofList [2;3;4]) (Set.Int.ofList [1;2;5]) |> Set.toList = [3;4]]}
+  *)
+  val difference : ('a, 'id) t -> ('a, 'id) t -> ('a, 'id) t
+  
+  (** Get the intersection of two sets. Keeps values that appear in both sets.
+
+      {2 Examples}
+
+      {[Set.intersection (Set.Int.ofList [1;2;5]) (Set.Int.ofList [2;3;4]) |> Set.toList= [2]]}
+  *)
+  val intersection : ('a, 'id) t -> ('a, 'id) t -> ('a, 'id) t
+  
+  (** Get the union of two sets. Keep all values.
+
+      {2 Examples}
+
+      {[Set.union (Set.Int.ofList [1;2;5]) (Set.Int.ofList [2;3;4]) |> Set.toList = [1;2;3;4;5]]}
+  *)
+  val union : ('a, 'id) t -> ('a, 'id) t -> ('a, 'id) t
+  
+  (** {1 Transform} *)
+
+  (** Keep elements that [f] returns [true] for.
+
+      {2 Examples}
+
+      {[Set.filter (Set.Int.ofList [1;2;3]) ~f:Int.isEven |> Set.toList = [2]]}
+  *)
+  val filter : ('a, 'id) t -> f:('a -> bool) -> ('a, 'id) t
+  
+  (** Divide a set into two according to [f]. The first set will contain the values that [f] returns [true] for, values that [f] returns [false] for will end up in the second.
+
+      {2 Examples}
+
+      {[
+        let numbers = Set.Int.ofList [1; 1; 5; 6; 5; 7; 9; 8] in
+        let (evens, odds) = Set.partition numbers ~f:Int.isEven in
+        Set.toList evens = [6; 8]
+        Set.toList odds = [1; 5; 7; 9]
+      ]}
+  *)
+  val partition :
+    ('a, 'id) t -> f:('a -> bool) -> (('a, 'id) t * ('a, 'id) t)
+  
+  (** Transform a set into a value which is result of running each element in the set through [f], where each successive invocation is supplied the return value of the previous.
+
+    See {!Array.fold} for a more in-depth explanation.
+
+    {2 Examples}
+
+    {[Set.fold ~f:( * ) ~initial:1 (Set.Int.ofList [1;2;3;4]) = 24]}
+  *)
+  val fold : ('a, _) t -> initial:'b -> f:('b -> 'a -> 'b) -> 'b
+  
+  (** Runs a function [f] against each element of the set. *)
+  val forEach : ('a, _) t -> f:('a -> unit) -> unit
+
+  (** {1 Convert} *)
+
+  (** Converts a set into an {!Array} *)
+  val toArray : ('a, _) t -> 'a array
+  
+  (** Converts a set into a {!List}. *)
+  val toList : ('a, _) t -> 'a list
+  
+  (** Construct sets which can hold any data type using the polymorphic [compare] function. *)
+  module Poly : sig
+    type identity
+    type nonrec 'a t = ('a, identity) t
+
+    (** The empty set.
+
+        A great starting point.
+     *)
+    val empty : unit -> 'a t
+    
+    (** Create a set of a single value
+
+        {2 Examples}
+
+        {[Set.Int.singleton (5, "Emu") |> Set.toList = [(5, "Emu")]]}
+    *)
+    val singleton : 'a -> 'a t
+    
+    
+    (** Create a set from an {!Array}
+
+        {2 Examples}
+
+        {[Set.Poly.ofArray [(1, "Ant");(2, "Bat");(2, "Bat")] |> Set.toList = [(1, "Ant"); (2, "Bat")]]}
+    *)
+    val ofArray : 'a array -> 'a t
+    
+    (** Create a set from a {!List}
+
+      {2 Examples}
+
+      {[Set.Poly.ofList [(1, "Ant");(2, "Bat");(2, "Bat")] |> Set.toList = [(1, "Ant"); (2, "Bat")]]}
+    *)
+    val ofList : 'a list -> 'a t
+  end
+
+  (** Construct sets of {!Int}s *)
+  module Int : sig
+    type nonrec t = (Int.t, Int.identity) t
+
+    (** A set with nothing in it. *)
+    val empty : t
+
+
+    (** Create a set from a single {!Int}
+
+      {2 Examples}
+
+      {[Set.Int.singleton 5 |> Set.toList = [5]]}
+    *)
+    val singleton : int -> t
+    
+    
+    (** Create a set from an {!Array}
+
+        {2 Examples}
+
+        {[Set.Int.ofArray [|1;2;3;3;2;1;7|] |> Set.toArray = [|1;2;3;7|]]}
+    *)
+    val ofArray : int array -> t
+    
+    (** Create a set from a {!List}
+
+        {2 Examples}
+
+        {[Set.Int.ofList [1;2;3;3;2;1;7] |> Set.toList = [1;2;3;7]]}
+    *)
+    val ofList : int list -> t
+  end
+
+  (** Construct sets of {!String}s *)
+  module String : sig
+    type nonrec t = (String.t, String.identity) t
+
+    (** A set with nothing in it. *)
+    val empty : t
+    
+    (** Create a set of a single {!String}
+
+        {2 Examples}
+
+        {[Set.String.singleton "Bat" |> Set.toList = ["Bat"]]}
+    *)
+    val singleton : String.t -> t
+    
+    (** Create a set from an {!Array}
+
+        {2 Examples}
+
+        {[Set.String.ofArray [|"a";"b";"g";"b";"g";"a";"a"|] |> Set.toArray = [|"a";"b";"g"|]]}
+    *)
+    val ofArray : String.t array -> t
+    
+    (** Create a set from a {!List}
+
+        {2 Examples}
+
+        {[Set.String.ofList [|"a";"b";"g";"b";"g";"a";"a"|] |> Set.toList = ["a";"b";"g"]]}
+    *)
+    val ofList : String.t list -> t
+  end
+end
+
+(** A collection of key-value pairs *)
+module Map : sig
+  (** A [Map] represents a unique mapping from keys to values.
+
+      [Map] is an immutable data structure which means operations like {!Map.add} and {!Map.remove} do not modify the data structure, but return a new map with the desired changes.
+
+      Since the usage is so common the {!Map.Int} and {!Map.String} modules are available, offering a convenient way to construct new Maps.
+
+      For other data types you can use {!Map.Poly} which internally uses OCaml's polymorphic [compare] function on the keys.
+
+      The specialized modules {!Map.Int}, {!Map.String} are in general more efficient.
+  *)
+
+  type ('key, 'value, 'id) t
+
+  (** This functor lets you describe the type of Maps a little more concisely.
+
+      {[
+        let stringToInt : int Map.Of(String).t = 
+          Map.ofList (module String) [("Apple", 2); ("Pear", 0)]
+      ]}
+
+      Is the same as
+
+      {[
+        let stringToInt : (string, int, String.identity) Map.t = 
+          Map.ofList (module String) [("Apple", 2); ("Pear", 0)]
+      ]}
+  *)
+  module Of : functor (M : Comparator.S) -> sig
+    type nonrec 'value t = (M.t, 'value, M.identity) t
+  end
+
+  (** {1 Create}
+
+      A [Map] can be constructed using one of the functions available in {!Map.Int}, {!Map.String} or {!Map.Poly}
+  *)
+    
+  (** A map with nothing in it. *)
+  val empty : ('key, 'identity) Comparator.s -> ('key, 'value, 'identity) t
+  
+  (** Create a map from a key and value
+
+      {2 Examples}
+      
+      {[Map.singleton (module Char) ~key:'A' ~value:"Ant" |> Map.toList = [('A', "Ant")]]}
+  *)
+  val singleton : ('key, 'identity) Comparator.s -> key:'key -> value:'value -> ('key, 'value, 'identity) t
+  
+  (** Create a map from an {!Array} of key-value tuples *)
+  val ofArray : ('key, 'identity) Comparator.s -> ('key * 'value) array -> ('key, 'value, 'identity) t
+  
+  (** Create a map of a {!List} of key-value tuples *)
+  val ofList : ('key, 'identity) Comparator.s -> ('key * 'value) list -> ('key, 'value, 'identity) t
+
+  (** {1 Basic operations} *)
+
+  (** Adds a new entry to a map. If [key] is allready present, its previous value is replaced with [value].
+
+      {2 Examples}
+
+      {[
+        Map.add 
+          (Map.Int.ofList [(1, "Ant"); (2, "Bat")]) 
+          ~key:3 
+          ~value:"Cat" 
+        |> Map.toList = [(1, "Ant"); (2, "Bat"); (3, "Cat")]
+      ]}
+
+      {[Map.add (Map.Int.ofList [(1, "Ant"); (2, "Bat")]) ~key:2 ~value:"Bug" |> Map.toList = [(1, "Ant"); (2, "Bug")]]}
+  *)
+  val add : ('key, 'value, 'id) t -> key:'key -> value:'value -> ('key, 'value, 'id) t
+
+  (** The {{: https://caml.inria.fr/pub/docs/manual-ocaml/indexops.html } index operator} version of {!add} 
+  
+      {b Note} Currently this is only supported by the Ocaml syntax.
+      
+      {2 Examples}
+
+      {[
+        let indexToAnimal = Map.Int.ofList [(1, "Ant");(2, "Bat");(3, "Cat")] in
+        let indexToAnimal = numbers.Map.?{4} <- "Dog" in
+        indexToAnimal.Map.?{4} = Some "Dog"
+      ]}
+   *)
+  val (.?{}<-) : ('key, 'value, 'id) t -> 'key -> 'value -> ('key, 'value, 'id) t
+  
+  (** Removes a key-value pair from a map based on they provided key.
+
+      {2 Examples}
+      {[
+        let animalPopulations = Map.String.ofList [
+          ("Elephant", 3_156);
+          ("Mosquito", 56_123_156);
+          ("Rhino", 3);
+          ("Shrew", 56_423);
+        ] in
+        Map.remove animalPopulations "Mosquito" |> Map.toList = [
+          ("Elephant", 3_156);
+          ("Rhino", 3);
+          ("Shrew", 56_423);
+        ]
+      ]}
+  *)
+  val remove : ('key, 'value, 'id) t -> 'key -> ('key, 'value, 'id) t
+  
+  (** Get the value associated with a key. If the key is not present in the map, returns [None].
+
+      {2 Examples}
+
+      let animalPopulations = Map.String.ofList [
+        ("Elephant", 3_156);
+        ("Mosquito", 56_123_156);
+        ("Rhino", 3);
+        ("Shrew", 56_423);
+      ] in
+      Map.get animalPopulations "Shrew" = Some 56_423;
+  *)
+  val get : ('key, 'value, 'id) t -> 'key -> 'value option
+
+  (** The {{: https://caml.inria.fr/pub/docs/manual-ocaml/indexops.html } index operator} version of {!Core.Map.get} 
+
+      {b Note} Currently this is only supported by the Ocaml syntax.
+  
+      {2 Examples}
+
+      {[
+        let indexToAnimal = Map.Int.ofList [(1, "Ant");(2, "Bat");(3, "Cat")] in
+        indexToAnimal.Map.?{3} = Some "Cat"
+      ]}
+   *)
+  val (.?{}) : (('key, 'value, _) t) -> 'key -> 'value option 
+
+  (** Update the value for a specific key using [f]. If [key] is not present in the map [f] will be called with [None].
+
+      {2 Examples}
+
+      {[
+        let animalPopulations = Map.String.ofList [
+          ("Elephant", 3_156);
+          ("Mosquito", 56_123_156);
+          ("Rhino", 3);
+          ("Shrew", 56_423);
+        ] in
+
+        Map.update animalPopulations ~key:"Hedgehog" ~f:(fun population ->
+          match population with
+          | None -> Some 1
+          | Some count -> Some (count + 1)
+        )
+        |> Map.toList = [
+          ("Elephant", 3_156);
+          ("Hedgehog", 1);
+          ("Mosquito", 56_123_156);
+          ("Rhino", 3);
+          ("Shrew", 56_423);
+        ]
+      ]}
+  *)
+  val update :
+    ('key, 'value, 'id) t ->
+      key:'key -> f:('value option -> 'value option) -> ('key, 'value, 'id) t
+  
+  (** {1 Query} *)
+
+  (** Determine if a map is empty. *)
+  val isEmpty : (_, _, _) t -> bool
+
+  (** Returns the number of key-value pairs present in the map.
+
+      {2 Examples}
+
+      {[
+        Map.Int.ofList [(1, "Hornet"); (3, "Marmot")]
+        |> Map.length = 2
+      ]}
+  *)
+  val length : (_, _, _) t -> int
+  
+  (** Determine if [f] returns [true] for [any] values in a map. *)
+  val any : (_, 'value, _) t -> f:('value -> bool) -> bool
+  
+  (** Determine if [f] returns [true] for [all] values in a map. *)
+  val all : (_, 'value, _) t -> f:('value -> bool) -> bool
+
+  (** Returns, as an {!Option} the first key-value pair for which [f] evaluates to true.
+
+      If [f] doesn't return [true] for any of the elements [find] will return [None].
+
+      Searches starting from the smallest {b key}
+
+      {2 Examples}
+
+      {[
+        Map.String.ofList [
+          ("Elephant", 3_156);
+          ("Mosquito", 56_123_156);
+          ("Rhino", 3);
+          ("Shrew", 56_423);
+        ]
+        |> Map.find ~f:(fun ~key ~value -> value > 10_000)
+          = Some ("Mosquito", 56_123_156)
+      ]}
+  *)
+  val find : ('key, 'value, _) t -> f:(key:'key -> value:'value -> bool) -> ('key * 'value) option
+  
+  (** Determine if a map includes [key].  *)
+  val includes : ('key, _, _) t -> 'key -> bool
+
+  (** Returns, as an {!Option}, the smallest {b key } in the map.
+
+      Returns [None] if the map is empty.
+
+      {2 Examples}
+
+      {[
+        Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")]
+        |> Map.minimum = Some 1
+      ]}
+  *)
+  val minimum : ('key, _, _) t -> 'key option
+  
+  (** Returns the largest {b key } in the map.
+
+      Returns [None] if the map is empty.
+
+      {2 Examples}
+
+      {[
+        Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")] 
+        |> Map.maximum = Some 8
+      ]}
+  *)
+  val maximum : ('key, _, _) t -> 'key option
+  
+  (** Returns, as an {!Option}, a {!Tuple} of the [(minimum, maximum)] {b key}s in the map.
+
+      Returns [None] if the map is empty.
+
+      {2 Examples}
+
+      {[
+        Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")]
+        |> Map.extent = Some (1, 8)
+      ]}
+  *)
+  val extent : ('key, _, _) t -> ('key * 'key) option
+  
+  (** {1 Combine} *)
+
+  (** Combine two maps.
+
+      You provide a function [f] which is provided the key and the optional
+      value from each map and needs to account for the three possibilities:
+
+      1. Only the 'left' map includes a value for the key.
+      2. Both maps contain a value for the key.
+      3. Only the 'right' map includes a value for the key.
+
+      You then traverse all the keys, building up whatever you want.
+
+      {2 Examples}
+
+      {[
+        let animalToPopulation = 
+          Map.String.ofList [
+            ("Elephant", 3_156);
+            ("Shrew", 56_423);
+          ] 
+        in
+        let animalToPopulationGrowthRate = Map.String.ofList [
+          ("Elephant", 0.88);
+          ("Squirrel", 1.2);
+          ("Python", 4.0);
+        ] in
+
+        Map.merge 
+          animalToPopulation 
+          animalToPopulationGrowthRate 
+          ~f:(fun _animal population growth ->
+            match (Option.both population growth) with
+            | Some (population, growth) -> 
+                Some Float.((ofInt population) * growth)
+            | None -> None
+          )
+        |> Map.toList
+          = [("Elephant", 2777.28)]
+      ]}
+  *)
+  val merge :
+    ('key, 'v1, 'id) t ->
+      ('key, 'v2, 'id) t ->
+        f:('key -> 'v1 option -> 'v2 option -> 'v3 option) -> ('key, 'v3, 'id) t
+  
+  (** {1 Transform} *)
+
+  (** Apply a function to all values in a dictionary.
+
+      {2 Examples}
+
+      {[
+        Map.String.ofList [
+          ("Elephant", 3_156);
+          ("Shrew", 56_423);
+        ]
+        |> Map.map ~f:Int.toString
+        |> Map.toList
+          = [
+          ("Elephant", "3156");
+          ("Shrew", "56423");
+        ]
+      ]}
+  *)
+  val map : ('key, 'value, 'id) t -> f:('value -> 'b) -> ('key, 'b, 'id) t
+  
+  (** Like {!map} but [f] is also called with each values corresponding key *)
+  val mapI : ('key, 'va, 'i) t -> f:('key -> 'va -> 'vb) -> ('key, 'vb, 'i) t
+  
+  (** Keep elements that [f] returns [true] for.
+
+      {2 Examples}
+
+      {[
+        Map.String.ofList [
+          ("Elephant", 3_156);
+          ("Shrew", 56_423);
+        ]
+        |> Map.map ~f:(fun population -> population > 10_000)
+        |> Map.toList
+          = [
+          ("Shrew", "56423");
+        ]
+      ]}
+  *)
+  val filter : ('key, 'value, 'id) t -> f:('value -> bool) -> ('key, 'value, 'id) t
+
+  (** Divide a map into two, the first map will contain the key-value pairs that [f] returns [true] for, pairs that [f] returns [false] for will end up in the second.
+
+      {2 Examples}
+
+      {[
+        let (endangered, notEndangered) = Map.String.ofList [
+          ("Elephant", 3_156);
+          ("Mosquito", 56_123_156);
+          ("Rhino", 3);
+          ("Shrew", 56_423);
+        ]
+        |> Map.partition ~f:(fun population -> population < 10_000)
+        in
+
+        Map.toList endangered = [
+          ("Elephant", 3_156);
+          ("Rhino", 3);
+        ];
+
+        Map.toList notEndangered = [
+          ("Mosquito", 56_123_156);
+          ("Shrew", 56_423);
+        ];
+      ]}
+  *)
+  val partition :
+    ('key, 'value, 'id) t ->
+      f:(key:'key -> value:'value -> bool) -> (('key, 'value, 'id) t * ('key, 'value, 'id) t)
+  
+  (** Like {!Array.fold} but [f] is also called with both the [key] and [value] *)
+  val fold :
+    ('key, 'value, _) t -> initial:'a -> f:('a -> key:'key -> value:'value -> 'a) -> 'a
+  
+  (** {1 Iterate} *)
+
+  (** Runs a function [f] against each {b value} in the map. *)
+  val forEach : (_, 'value, _) t -> f:('value -> unit) -> unit
+  
+  (** Like {!Map.forEach} except [~f] is also called with the corresponding key *)
+  val forEachI : ('key, 'value, _) t -> f:(key:'key -> value:'value -> unit) -> unit
+
+  (** {1 Convert} *)
+
+  (** Get a {!List} of all of the keys in a map.
+
+      {2 Examples}
+
+      {[
+        Map.String.ofList [
+          ("Elephant", 3_156);
+          ("Mosquito", 56_123_156);
+          ("Rhino", 3);
+          ("Shrew", 56_423);
+        ]
+        |> Map.keys = [
+          "Elephant";
+          "Mosquito";
+          "Rhino";
+          "Shrew";
+        ]
+      ]}
+  *)
+  val keys : ('key, _, _) t -> 'key list
+  
+  (** Get a {!List} of all of the values in a map.
+
+      {2 Examples}
+
+      {[
+        Map.String.ofList [
+          ("Elephant", 3_156);
+          ("Mosquito", 56_123_156);
+          ("Rhino", 3);
+          ("Shrew", 56_423);
+        ]
+        |> Map.values = [
+          3_156;
+          56_123_156;
+          3;
+          56_423;
+        ]
+      ]}
+  *)
+  val values : (_, 'value, _) t -> 'value list
+
+  (** Get an {!Array} of all of the key-value pairs in a map. *)
+  val toArray : ('key, 'value, _) t -> ('key * 'value) array
+
+  (** Get a {!List} of all of the key-value pairs in a map. *)
+  val toList : ('key, 'value, _) t -> ('key * 'value) list
+
+  (** Construct a Map which can be keyed by any data type using the polymorphic [compare] function. *)
+  module Poly : sig
+    type identity
+    type nonrec ('key, 'value) t = ('key, 'value, identity) t
+    
+    (** A map with nothing in it. *)
+    val empty : unit -> ('key, 'value) t
+
+    (** Create a map from a key and value
+
+        {2 Examples}
+    
+        {[Map.Poly.singleton ~key:false ~value:1 |> Map.toList = [(false, 1)]]}
+    *)
+    val singleton : key:'key -> value:'value -> ('key, 'value) t
+
+    (** Create a map from an {!Array} of key-value tuples *)
+    val ofArray : ('key * 'value) array -> ('key, 'value) t
+    
+    (** Create a map from a {!List} of key-value tuples *)
+    val ofList : ('key * 'value) list -> ('key, 'value) t
+  end
+
+  (** Construct a Map with {!Int}s for keys. *)
+  module Int : sig
+    type nonrec 'value t = (Int.t, 'value, Int.identity) t
+    
+    (** A map with nothing in it. *)
+    val empty : 'value t
+    
+    (** Create a map from a key and value
+
+        {2 Examples}
+        
+        {[Map.Int.singleton ~key:1 ~value:"Ant" |> Map.toList = [(1, "Ant")]]}
+    *)
+    val singleton : key:int -> value:'value -> 'value t
+    
+    (** Create a map from an {!Array} of key-value tuples *)
+    val ofArray : (int * 'value) array -> 'value t
+    
+    (** Create a map of a {!List} of key-value tuples *)
+    val ofList : (int * 'value) list -> 'value t
+  end
+
+  (** Construct a Map with {!String}s for keys. *)
+  module String : sig
+    type nonrec 'value t = (String.t, 'value, String.identity) t
+    
+    (** A map with nothing in it. *)
+    val empty : 'value t
+    
+    (** Create a map from a key and value
+
+        {2 Examples}
+        
+        {[Map.String.singleton ~key:"Ant" ~value:1 |> Map.toList = [("Ant", 1)]]}
+    *)
+    val singleton : key:string -> value:'value -> 'value t
+    
+    (** Create a map from an {!Array} of key-value tuples *)
+    val ofArray : (string * 'value) array -> 'value t
+
+    (** Create a map from a {!List} of key-value tuples *)
+    val ofList : (string * 'value) list -> 'value t
+  end
+end
+
 (** A fixed lenfth collection of values *)
 module Array : sig
   (** A mutable vector of elements which must have the same type.
@@ -3336,6 +4662,18 @@ module Array : sig
       {[Array.getAt [||] ~index:0 = None]}
   *)
   val getAt : 'a t -> index:int -> 'a option
+
+  (** The {{: https://caml.inria.fr/pub/docs/manual-ocaml/indexops.html } index operator} version of {!getAt} 
+
+      {b Note} Currently this is only supported by the Ocaml syntax.
+  
+      {2 Examples}
+
+      {[Array.([||].?(3)) = Some 'g']}
+
+      {[Array.([||].?(9)) = None]}
+   *)
+  val (.?()) : 'element array -> int -> 'element option
 
   (** Modifies an array in place, replacing the element at [index] with [value].
 
@@ -3957,13 +5295,35 @@ module Array : sig
   
   (** {1 Convert} *)
 
-  (** Converts a list of strings into a {!String}, placing [sep] between each string in the result.
+  (** Converts an array of strings into a {!String}, placing [sep] between each string in the result.
 
       {2 Examples}
 
       {[Array.join [|"Ant"; "Bat"; "Cat"|] ~sep:", " = "Ant, Bat, Cat"]}
    *)
   val join : string t -> sep:string -> string
+
+
+  (** Collect elements which [f] produces the same key for 
+  
+      Produces a map from ['key] to a {!List} of all elements which produce the same ['key] 
+
+      {2 Examples}
+
+      {[
+        let animals = [|"Ant"; "Bear"; "Cat"; "Dewgong"|] in
+        Array.groupBy animals (module Int) ~f:String.length = Map.Int.ofList [
+          (3, ["Cat"; "Ant"]);
+          (4, ["Bear"]);
+          (7, ["Dewgong"]);
+        ]
+      ]}
+  *)
+  val groupBy : 
+    'value t -> 
+      ('key, 'id) Comparator.s -> 
+        f:('value -> 'key) -> 
+          ('key, 'value list, 'id) Map.t
   
   (** Create a {!List} of elements from an array.
 
@@ -4871,6 +6231,27 @@ module List : sig
       {[List.join ["Ant"; "Bat"; "Cat"] ~sep:", " = "Ant, Bat, Cat"]}
    *)
   val join : string t -> sep:string -> string
+
+  (** Collect elements which [f] produces the same key for 
+  
+      Produces a map from ['key] to a {!List} of all elements which produce the same ['key] 
+
+      {2 Examples}
+
+      {[
+        let animals = ["Ant"; "Bear"; "Cat"; "Dewgong"] in
+        Array.groupBy animals (module Int) ~f:String.length = Map.Int.ofList [
+          (3, ["Cat"; "Ant"]);
+          (4, ["Bear"]);
+          (7, ["Dewgong"]);
+        ]
+      ]}
+  *)
+  val groupBy : 
+    'value t -> 
+      ('key, 'id) Comparator.s -> 
+        f:('value -> 'key) -> 
+          ('key, 'value list, 'id) Map.t
   
   (** Converts a list to an {!Array}. *)
   val toArray : 'a t -> 'a array
@@ -4893,1151 +6274,6 @@ module List : sig
       {[List.compare Int.compare [1;2;5] [1;2;3] = 1]}
   *)
   val compare : ('a -> 'a -> int) -> 'a t -> 'a t -> int
-end
-
-(** Functions for manipulating pairs of values *)
-module Tuple : sig
-  (** Functions for manipulating pairs of values *)
-
-  type ('a, 'b) t = ('a * 'b)
-  
-  (** {1 Create} *)
-
-  (** Create a two-tuple with the given values.
-
-      The values do not have to be of the same type.
-
-      {2 Examples}
-
-      {[Tuple.make 3 "Clementine" = (3, "Clementine")]}
-  *)
-  val make : 'a -> 'b -> ('a * 'b)
-  
-  (** Create a tuple from the first two elements of an {!Array}.
-
-      If the array is longer than two elements, the extra elements are ignored.
-
-      If the array is less than two elements, returns [None]
-
-      {2 Examples}
-
-      {[Tuple.ofArray [|1; 2|] = Some (1, 2)]}
-
-      {[Tuple.ofArray [|1|] = None]}
-
-      {[Tuple.ofArray [|4; 5; 6|] = Some (4, 5)]}
-  *)
-  val ofArray : 'a array -> ('a * 'a) option
-  
-  (** Create a tuple from the first two elements of a {!List}.
-
-      If the list is longer than two elements, the extra elements are ignored.
-
-      If the list is less than two elements, returns [None]
-
-      {2 Examples}
-
-      {[Tuple.ofList [1; 2] = Some (1, 2)]}
-
-      {[Tuple.ofList [1] = None]}
-
-      {[Tuple.ofList [4; 5; 6] = Some (4, 5)]}
-  *)
-  val ofList : 'a list -> ('a * 'a) option
-  
-  (** Extract the first value from a tuple.
-
-      {2 Examples}
-
-      {[Tuple.first (3, 4) = 3]}
-
-      {[Tuple.first ("john", "doe") = "john"]}
-  *)
-  val first : ('a * 'b) -> 'a
-  
-  (** Extract the second value from a tuple.
-
-      {2 Examples}
-
-      {[Tuple.second (3, 4) = 4]}
-
-      {[Tuple.second ("john", "doe") = "doe"]}
-  *)
-  val second : ('a * 'b) -> 'b
-  
-  (** {1 Transform} *)
-
-  (** Transform the {!first} value in a tuple.
-
-      {2 Examples}
-
-      {[Tuple.mapFirst ~f:String.reverse ("stressed", 16) = ("desserts", 16)]}
-
-      {[Tuple.mapFirst ~f:String.length ("stressed", 16) = (8, 16)]}
-  *)
-  val mapFirst : ('a * 'b) -> f:('a -> 'x) -> ('x * 'b)
-  
-  
-  (** Transform the second value in a tuple.
-
-      {2 Examples}
-
-      {[Tuple.mapSecond ~f:Float.squareRoot ("stressed", 16.) = ("stressed", 4.)]}
-
-      {[Tuple.mapSecond ~f:(~-) ("stressed", 16) = ("stressed", -16)]}
-  *)
-  val mapSecond : ('a * 'b) -> f:('b -> 'c) -> ('a * 'c)
-  
-  (** Transform both values of a tuple, using [f] for the first value and [g] for the second.
-
-      {2 Examples}
-
-      {[Tuple.mapEach ~f:String.reverse ~g:Float.squareRoot ("stressed", 16.) = ("desserts", 4.)]}
-
-      {[Tuple.mapEach ~f:String.length ~g:(~-) ("stressed", 16) = (8, -16)]}
-  *)
-  val mapEach : ('a * 'b) -> f:('a -> 'x) -> g:('b -> 'y) -> ('x * 'y)
-  
-  
-  (** Transform both of the values of a tuple using the same function.
-
-      [mapAll] can only be used on tuples which have the same type for each value.
-
-      {2 Examples}
-
-      {[Tuple.mapAll ~f:(Int.add 1) (3, 4, 5) = (4, 5, 6)]}
-
-      {[Tuple.mapAll ~f:String.length ("was", "stressed") = (3, 8)]}
-  *)
-  val mapAll : ('a * 'a) -> f:('a -> 'b) -> ('b * 'b)
-  
-  (** Switches the first and second values of a tuple.
-
-      {2 Examples}
-
-      {[Tuple.swap (3, 4) = (4, 3)]}
-
-      {[Tuple.swap ("stressed", 16) = (16, "stressed")]}
-  *)
-  val swap : ('a * 'b) -> ('b * 'a)
-  
-  (** {1 Convert} *)
-
-  (** Turns a tuple into an {!Array} of length two.
-
-      This function can only be used on tuples which have the same type for each value.
-
-      {2 Examples}
-
-      {[Tuple.toArray (3, 4) = [|3; 4|]]}
-
-      {[Tuple.toArray ("was", "stressed") = [|"was"; "stressed"|]]}
-  *)
-  val toArray : ('a * 'a) -> 'a array
-  
-  (** Turns a tuple into a list of length two. This function can only be used on tuples which have the same type for each value.
-
-      {2 Examples}
-
-      {[Tuple.toList (3, 4) = [3; 4]]}
-
-      {[Tuple.toList ("was", "stressed") = ["was"; "stressed"]]}
-  *)
-  val toList : ('a * 'a) -> 'a list
-  
-  (** {1 Compare} *)
-
-  (** Test two {!Tuple}s for equality, using the provided functions to test the
-      first and second components.
-
-      {2 Examples}
-
-      {[Tuple.equal Int.equal String.equal (1, "Fox") (1, "Fox") = true]}
-
-      {[Tuple.equal Int.equal String.equal (1, "Fox") (2, "Hen") = false]}
-  *)
-  val equal :
-    ('a -> 'a -> bool) ->
-      ('b -> 'b -> bool) -> ('a, 'b) t -> ('a, 'b) t -> bool
-  
-  (** Compare two {!Tuple}s, using the provided functions to compare the first
-      components then, if the first components are equal, the second components.
-
-      {2 Examples}
-
-      {[Tuple.compare Int.compare String.compare (1, "Fox") (1, "Fox") = 0]}
-
-      {[Tuple.compare Int.compare String.compare (1, "Fox") (1, "Eel") = 1]}
-
-      {[Tuple.compare Int.compare String.compare (1, "Fox") (2, "Hen") = -1]}
-  *)
-  val compare :
-    ('a -> 'a -> int) -> ('b -> 'b -> int) -> ('a, 'b) t -> ('a, 'b) t -> int
-  
-end
-
-(** Functions for manipulating trios of values *)
-module Tuple3 : sig
-  (** Functions for manipulating trios of values *)
-
-  type ('a, 'b, 'c) t = ('a * 'b * 'c)
-  
-  (** {1 Create} *)
-
-  (** Create a {!Tuple3}.
-
-      {2 Examples}
-
-      {[Tuple3.create 3 "cat" false = (3, "cat", false)]}
-
-      {[
-        List.map3 ~f:Tuple3.create [1;2;3] ['a'; 'b'; 'c'] [4.; 5.; 6.] =
-          [(1, 'a', 4.), (2, 'b', 5.), (3, 'c', 6.)]
-      ]}
-  *)
-  val make : 'a -> 'b -> 'c -> ('a * 'b * 'c)
-  
-  (** Create a tuple from the first two elements of an {!Array}.
-
-      If the array is longer than two elements, the extra elements are ignored.
-
-      If the array is less than two elements, returns [None]
-
-      {2 Examples}
-
-      {[Tuple3.ofArray [|1; 2;3 |] = Some (1, 2, 3)]}
-
-      {[Tuple3.ofArray [|1; 2|] = None]}
-
-      {[Tuple3.ofArray [|4;5;6;7|] = Some (4, 5, 6)]}
-  *)
-  val ofArray : 'a array -> ('a * 'a * 'a) option
-  
-  (** Create a tuple from the first two elements of a {!List}.
-
-      If the list is longer than two elements, the extra elements are ignored.
-
-      If the list is less than two elements, returns [None]
-
-      {2 Examples}
-
-      {[Tuple3.ofList [1; 2; 3] = Some (1, 2, 3)]}
-
-      {[Tuple3.ofList [1; 2] = None]}
-
-      {[Tuple3.ofList [4; 5; 6; 7] = Some (4, 5, 6)]}
-  *)
-  val ofList : 'a list -> ('a * 'a * 'a) option
-  
-  (** {1 Basic operations} *)
-
-  (** Extract the first value from a tuple.
-
-      {2 Examples}
-
-      {[Tuple3.first (3, 4, 5) = 3]}
-
-      {[Tuple3.first ("john", "danger", "doe") = "john"]}
-  *)
-  val first : ('a * 'b * 'c) -> 'a
-  
-  (** Extract the second value from a tuple.
-
-      {2 Examples}
-
-      {[Tuple.second (3, 4, 5) = 4]}
-
-      {[Tuple.second ("john", "danger", "doe") = "danger"]}
-  *)
-  val second : ('a * 'b * 'c) -> 'b
-  
-  (** Extract the third value from a tuple.
-
-      {2 Examples}
-
-      {[Tuple.third (3, 4, 5) = 5]}
-
-      {[Tuple.third ("john", "danger", "doe") = "doe"]}
-  *)
-  val third : ('a * 'b * 'c) -> 'c
-  
-  (** Extract the first and second values of a {!Tuple3} as a {!Tuple}.
-
-      {2 Examples}
-
-      {[Tuple3.initial (3, "stressed", false) = (3, "stressed")]}
-
-      {[Tuple3.initial ("john", 16, true) = ("john", 16)]}
-  *)
-  val initial : ('a * 'b * 'c) -> ('a * 'b)
-  
-  (** Extract the second and third values of a {!Tuple3} as a {!Tuple}.
-
-      {2 Examples}
-
-      {[Tuple3.tail (3, "stressed", false) = ("stressed", false)]}
-
-      {[Tuple3.tail ("john", 16, true) = (16, true)]}
-  *)
-  val tail : ('a * 'b * 'c) -> ('b * 'c)
-
-  (** {1 Modify} *)
-
-  (** Move each value in the tuple one position to the left, moving the value in the first position into the last position.
-
-      {2 Examples}
-
-      {[Tuple.rotateLeft (3, 4, 5) = (4, 5, 3)]}
-
-      {[Tuple.rotateLeft ("was", "stressed", "then") = ("stressed", "then", "was")]}
-  *)
-  val rotateLeft : ('a * 'b * 'c) -> ('b * 'c * 'a)
-  
-  (** Move each value in the tuple one position to the right, moving the value in the last position into the first position.
-
-      {2 Examples}
-
-      {[Tuple.rotateRight (3, 4, 5) = (5, 3, 4)]}
-
-      {[Tuple.rotateRight ("was", "stressed", "then") = ("then", "was", "stressed")]}
-  *)
-  val rotateRight : ('a * 'b * 'c) -> ('c * 'a * 'b)
-
-  (** {1 Transform} *)
-  
-  (** Transform the first value in a tuple.
-
-      {2 Examples}
-
-      {[Tuple3.mapFirst ~f:String.reverse ("stressed", 16, false) = ("desserts", 16, false)]}
-
-      {[Tuple3.mapFirst ~f:String.length ("stressed", 16, false) = (8, 16, false)]}
-  *)
-  val mapFirst : ('a * 'b * 'c) -> f:('a -> 'x) -> ('x * 'b * 'c)
-  
-  (** Transform the second value in a tuple.
-
-      {2 Examples}
-
-      {[Tuple3.mapSecond ~f:Float.squareRoot ("stressed", 16., false) = ("stressed", 4., false)]}
-
-      {[Tuple3.mapSecond ~f:(~-) ("stressed", 16, false) = ("stressed", -16, false)]}
-  *)
-  val mapSecond : ('a * 'b * 'c) -> f:('b -> 'y) -> ('a * 'y * 'c)
-  
-  (** Transform the third value in a tuple.
-
-      {2 Examples}
-
-      {[Tuple3.mapThird ~f:not ("stressed", 16, false) ("stressed", 16, true)]}
-  *)
-  val mapThird : ('a * 'b * 'c) -> f:('c -> 'z) -> ('a * 'b * 'z)
-  
-  (** Transform each value in a tuple by applying [f] to the {!first} value, [g] to the {!second} value and [h] to the {!third} value.
-
-      {2 Examples}
-
-      {[
-        Tuple3.mapEach
-          ~f:String.reverse
-          ~g:Float.squareRoot
-          ~h:Bool.not
-          ("stressed", 16., false) = ("desserts", 4., true)
-      ]}
-  *)
-  val mapEach :
-    ('a * 'b * 'c) ->
-      f:('a -> 'x) -> g:('b -> 'y) -> h:('c -> 'z) -> ('x * 'y * 'z)
-  
-  (** Transform all the values of a tuple using the same function.
-
-      [mapAll] can only be used on tuples which have the same type for each value.
-
-      {2 Examples}
-
-      {[Tuple.mapAll ~f:Float.squareRoot (9., 16., 25.) = (3., 4., 5.)]}
-
-      {[Tuple.mapAll ~f:String.length ("was", "stressed", "then") = (3, 8, 4)]}
-  *)
-  val mapAll : ('a * 'a * 'a) -> f:('a -> 'b) -> ('b * 'b * 'b)
-
-  (** {1 Convert} *)
-
-  (** Turns a tuple into a {!List} of length three.
-
-      This function can only be used on tuples which have the same type for each value.
-
-      {2 Examples}
-
-      {[Tuple3.toArray (3, 4, 5) = [3; 4; 5]]}
-
-      {[Tuple3.toArray ("was", "stressed", "then") = ["was"; "stressed"; "then"]]}
-  *)
-  val toArray : ('a * 'a * 'a) -> 'a array
-  
-  (** Turns a tuple into a {!List} of length three.
-
-      This function can only be used on tuples which have the same type for each value.
-
-      {2 Examples}
-
-      {[Tuple3.toList (3, 4, 5) = [3; 4; 5]]}
-
-      {[Tuple3.toList ("was", "stressed", "then") = ["was"; "stressed"; "then"]]}
-  *)
-  val toList : ('a * 'a * 'a) -> 'a list
-  
-  (** {1 Compare} *)
-
-  (** Test two {!Tuple3}s for equality, using the provided functions to test the
-      first, second and third components.
-
-      {2 Examples}
-
-      {[Tuple.equal Int.equal String.equal Char.equal (1, "Fox", 'j') (1, "Fox", 'k') = true]}
-
-      {[Tuple.equal Int.equal String.equal Char.equal (1, "Fox", 'j') (2, "Hen", 'j') = false]}
-   *)
-  val equal :
-    ('a -> 'a -> bool) ->
-      ('b -> 'b -> bool) ->
-        ('c -> 'c -> bool) -> ('a, 'b, 'c) t -> ('a, 'b, 'c) t -> bool
-  
-  (** Compare two {!Tuple3}s, using the provided functions to compare the first
-      components then, if the first components are equal, the second components,
-      then the third components
-
-      {2 Examples}
-
-      {[Tuple.compare Int.compare String.compare Char.compare (1, "Fox", 'j') (1, "Fox", 'j') = 0]}
-
-      {[Tuple.compare Int.compare String.compare Char.compare (1, "Fox", 'j') (1, "Eel", 'j') = 1]}
-
-      {[Tuple.compare Int.compare String.compare Char.compare (1, "Fox", 'j') (2, "Fox", 'm') = -1]}
-   *)
-  val compare :
-    ('a -> 'a -> int) ->
-      ('b -> 'b -> int) ->
-        ('c -> 'c -> int) -> ('a, 'b, 'c) t -> ('a, 'b, 'c) t -> int
-end
-
-(** A collection of unique values *)
-module Set : sig
-  (** A {!Set} represents a unique collection of values.
-
-      [Set] is an immutable data structure which means operations like {!Set.add} and {!Set.remove} do not modify the data structure, but return a new set with the desired changes.
-
-      Since the usage is so common the {!Set.Int} and {!Set.String} modules are available, offering a convenient way to construct sets.
-
-      For other data types you can use {!Set.Poly} which uses OCaml's polymorphic [compare] function.
-  *)
-
-  type ('a, 'id) t
-
-  (** {1 Create} 
-  
-      A [Set] can be constructed using one of the functions available in the 
-      {!Set.Int}, {!Set.String} or {!Set.Poly} sub-modules. 
-  *)
-
-  (** {1 Basic operations} *)
-
-  (** Insert a value into a set.
-
-      {2 Examples}
-
-      {[Set.add (Set.Int.ofList [1; 2]) 3 |> Set.toList = [1; 2; 3]]}
-
-      {[Set.add (Set.Int.ofList [1; 2]) 2 |> Set.toList = [1; 2]]}
-  *)
-  val add : ('a, 'id) t -> 'a -> ('a, 'id) t
-  
-  (** Remove a value from a set, if the set doesn't contain the value anyway, returns the original set
-
-      {2 Examples}
-
-      {[Set.remove (Set.Int.ofList [1; 2]) 2 |> Set.toList = [1]]}
-
-      {[
-        let originalSet = Set.Int.ofList [1; 2] in
-        let newSet = Set.remove orignalSet 3 in
-        originalSet = newSet
-      ]}
-  *)
-  val remove : ('a, 'id) t -> 'a -> ('a, 'id) t
-  
-  (** Determine if a value is in a set
-
-      {2 Examples}
-
-     {[Set.includes (Set.String.ofList ["Ant"; "Bat"; "Cat"]) "Bat" = true]}
-  *)
-  val includes : ('a, _) t -> 'a -> bool
-  
-  (** Determine the number of elements in a set.
-
-      {2 Examples}
-
-      {[Set.length (Set.Int.ofList [1; 2; 3]) = 3]}
-  *)
-  val length : (_, _) t -> int
-  
-  (** Returns, as an {!Option}, the first element for which [f] evaluates to [true]. If [f] doesn't return [true] for any of the elements [find] will return [None].
-
-      {2 Examples}
-
-      {[Set.find ~f:Int.isEven (Set.Int.ofList [1; 3; 4; 8]) = Some 4]}
-
-      {[Set.find ~f:Int.isOdd (Set.Int.ofList [0; 2; 4; 8]) = None]}
-
-      {[Set.find ~f:Int.isEven Set.Int.empty = None]}
-  *)
-  val find : ('value, _) t -> f:('value -> bool) -> 'value option
-  
-  (** {1 Query} *)
-
-  (** Check if a set is empty.
-
-      {2 Examples}
-
-      {[Set.isEmpty (Set.Int.empty) = true]}
-
-      {[Set.isEmpty (Set.Int.singleton 4) = false]}
-  *)
-  val isEmpty : (_, _) t -> bool
-  
-  (** Determine if [f] returns true for [any] values in a set.
-
-      {2 Examples}
-
-      {[Set.any (Set.Int.ofArray [|2;3|]) ~f:Int.isEven = true]}
-
-      {[Set.any (Set.Int.ofList [1;3]) ~f:Int.isEven = false]}
-
-      {[Set.any (Set.Int.ofList []) ~f:Int.isEven = false]}
-  *)
-  val any : ('value, _) t -> f:('value -> bool) -> bool
-  
-  (** Determine if [f] returns true for [all] values in a set.
-
-      {2 Examples}
-
-      {[Set.all ~f:Int.isEven (Set.Int.ofArray [|2;4|]) = true]}
-
-      {[Set.all ~f:Int.isEven (Set.Int.ofLis [2;3]) = false]}
-
-      {[Set.all ~f:Int.isEven Set.Int.empty = true]}
-  *)
-  val all : ('value, _) t -> f:('value -> bool) -> bool
-  
-  (** {1 Combine} *)
-
-  (** Returns a new set with the values from the first set which are not in the second set.
-
-      {2 Examples}
-
-      {[Set.difference (Set.Int.ofList [1;2;5]) (Set.Int.ofList [2;3;4]) |> Set.toList = [1;5]]}
-
-      {[Set.difference (Set.Int.ofList [2;3;4]) (Set.Int.ofList [1;2;5]) |> Set.toList = [3;4]]}
-  *)
-  val difference : ('a, 'id) t -> ('a, 'id) t -> ('a, 'id) t
-  
-  (** Get the intersection of two sets. Keeps values that appear in both sets.
-
-      {2 Examples}
-
-      {[Set.intersection (Set.Int.ofList [1;2;5]) (Set.Int.ofList [2;3;4]) |> Set.toList= [2]]}
-  *)
-  val intersection : ('a, 'id) t -> ('a, 'id) t -> ('a, 'id) t
-  
-  (** Get the union of two sets. Keep all values.
-
-      {2 Examples}
-
-      {[Set.union (Set.Int.ofList [1;2;5]) (Set.Int.ofList [2;3;4]) |> Set.toList = [1;2;3;4;5]]}
-  *)
-  val union : ('a, 'id) t -> ('a, 'id) t -> ('a, 'id) t
-  
-  (** {1 Transform} *)
-
-  (** Keep elements that [f] returns [true] for.
-
-      {2 Examples}
-
-      {[Set.filter (Set.Int.ofList [1;2;3]) ~f:Int.isEven |> Set.toList = [2]]}
-  *)
-  val filter : ('a, 'id) t -> f:('a -> bool) -> ('a, 'id) t
-  
-  (** Divide a set into two according to [f]. The first set will contain the values that [f] returns [true] for, values that [f] returns [false] for will end up in the second.
-
-      {2 Examples}
-
-      {[
-        let numbers = Set.Int.ofList [1; 1; 5; 6; 5; 7; 9; 8] in
-        let (evens, odds) = Set.partition numbers ~f:Int.isEven in
-        Set.toList evens = [6; 8]
-        Set.toList odds = [1; 5; 7; 9]
-      ]}
-  *)
-  val partition :
-    ('a, 'id) t -> f:('a -> bool) -> (('a, 'id) t * ('a, 'id) t)
-  
-  (** Transform a set into a value which is result of running each element in the set through [f], where each successive invocation is supplied the return value of the previous.
-
-    See {!Array.fold} for a more in-depth explanation.
-
-    {2 Examples}
-
-    {[Set.fold ~f:( * ) ~initial:1 (Set.Int.ofList [1;2;3;4]) = 24]}
-  *)
-  val fold : ('a, _) t -> initial:'b -> f:('b -> 'a -> 'b) -> 'b
-  
-  (** Runs a function [f] against each element of the set. *)
-  val forEach : ('a, _) t -> f:('a -> unit) -> unit
-
-  (** {1 Convert} *)
-
-  (** Converts a set into an {!Array} *)
-  val toArray : ('a, _) t -> 'a array
-  
-  (** Converts a set into a {!List}. *)
-  val toList : ('a, _) t -> 'a list
-  
-  (** Construct sets which can hold any data type using the polymorphic [compare] function. *)
-  module Poly : sig
-    type identity
-    type nonrec 'a t = ('a, identity) t
-
-    (** The empty set.
-
-        A great starting point.
-     *)
-    val empty : unit -> 'a t
-    
-    (** Create a set of a single value
-
-        {2 Examples}
-
-        {[Set.Int.singleton (5, "Emu") |> Set.toList = [(5, "Emu")]]}
-    *)
-    val singleton : 'a -> 'a t
-    
-    
-    (** Create a set from an {!Array}
-
-        {2 Examples}
-
-        {[Set.Poly.ofArray [(1, "Ant");(2, "Bat");(2, "Bat")] |> Set.toList = [(1, "Ant"); (2, "Bat")]]}
-    *)
-    val ofArray : 'a array -> 'a t
-    
-    (** Create a set from a {!List}
-
-      {2 Examples}
-
-      {[Set.Poly.ofList [(1, "Ant");(2, "Bat");(2, "Bat")] |> Set.toList = [(1, "Ant"); (2, "Bat")]]}
-    *)
-    val ofList : 'a list -> 'a t
-  end
-
-  (** Construct sets of {!Int}s *)
-  module Int : sig
-    type nonrec t = (Int.t, Int.identity) t
-
-    (** A set with nothing in it. *)
-    val empty : t
-
-
-    (** Create a set from a single {!Int}
-
-      {2 Examples}
-
-      {[Set.Int.singleton 5 |> Set.toList = [5]]}
-    *)
-    val singleton : int -> t
-    
-    
-    (** Create a set from an {!Array}
-
-        {2 Examples}
-
-        {[Set.Int.ofArray [|1;2;3;3;2;1;7|] |> Set.toArray = [|1;2;3;7|]]}
-    *)
-    val ofArray : int array -> t
-    
-    (** Create a set from a {!List}
-
-        {2 Examples}
-
-        {[Set.Int.ofList [1;2;3;3;2;1;7] |> Set.toList = [1;2;3;7]]}
-    *)
-    val ofList : int list -> t
-  end
-
-  (** Construct sets of {!String}s *)
-  module String : sig
-    type nonrec t = (String.t, String.identity) t
-
-    (** A set with nothing in it. *)
-    val empty : t
-    
-    (** Create a set of a single {!String}
-
-        {2 Examples}
-
-        {[Set.String.singleton "Bat" |> Set.toList = ["Bat"]]}
-    *)
-    val singleton : String.t -> t
-    
-    (** Create a set from an {!Array}
-
-        {2 Examples}
-
-        {[Set.String.ofArray [|"a";"b";"g";"b";"g";"a";"a"|] |> Set.toArray = [|"a";"b";"g"|]]}
-    *)
-    val ofArray : String.t array -> t
-    
-    (** Create a set from a {!List}
-
-        {2 Examples}
-
-        {[Set.String.ofList [|"a";"b";"g";"b";"g";"a";"a"|] |> Set.toList = ["a";"b";"g"]]}
-    *)
-    val ofList : String.t list -> t
-  end
-end
-
-(** A collection of key-value pairs *)
-module Map : sig
-  (** A [Map] represents a unique mapping from keys to values.
-
-      [Map] is an immutable data structure which means operations like {!Map.add} and {!Map.remove} do not modify the data structure, but return a new map with the desired changes.
-
-      Since the usage is so common the {!Map.Int} and {!Map.String} modules are available, offering a convenient way to construct new Maps.
-
-      For other data types you can use {!Map.Poly} which internally uses OCaml's polymorphic [compare] function on the keys.
-
-      The specialized modules {!Map.Int}, {!Map.String} are in general more efficient.
-  *)
-
-  type ('key, 'value, 'id) t
-
-  (** {1 Create}
-
-      A [Map] can be constructed using one of the functions available in {!Map.Int}, {!Map.String} or {!Map.Poly}
-  *)
-
-  (** {1 Basic operations} *)
-
-  (** Adds a new entry to a map. If [key] is allready present, its previous value is replaced with [value].
-
-      {2 Examples}
-
-      {[
-        Map.add 
-          (Map.Int.ofList [(1, "Ant"); (2, "Bat")]) 
-          ~key:3 
-          ~value:"Cat" 
-        |> Map.toList = [(1, "Ant"); (2, "Bat"); (3, "Cat")]
-      ]}
-
-      {[Map.add (Map.Int.ofList [(1, "Ant"); (2, "Bat")]) ~key:2 ~value:"Bug" |> Map.toList = [(1, "Ant"); (2, "Bug")]]}
-  *)
-  val add : ('key, 'value, 'id) t -> key:'key -> value:'value -> ('key, 'value, 'id) t
-  
-  (** Removes a key-value pair from a map based on they provided key.
-
-      {2 Examples}
-      {[
-        let animalPopulations = Map.String.ofList [
-          ("Elephant", 3_156);
-          ("Mosquito", 56_123_156);
-          ("Rhino", 3);
-          ("Shrew", 56_423);
-        ] in
-        Map.remove animalPopulations "Mosquito" |> Map.toList = [
-          ("Elephant", 3_156);
-          ("Rhino", 3);
-          ("Shrew", 56_423);
-        ]
-      ]}
-  *)
-  val remove : ('key, 'value, 'id) t -> 'key -> ('key, 'value, 'id) t
-  
-  (** Get the value associated with a key. If the key is not present in the map, returns [None].
-
-      {2 Examples}
-
-      let animalPopulations = Map.String.ofList [
-        ("Elephant", 3_156);
-        ("Mosquito", 56_123_156);
-        ("Rhino", 3);
-        ("Shrew", 56_423);
-      ] in
-      Map.get animalPopulations "Shrew" = Some 56_423;
-  *)
-  val get : ('key, 'value, 'id) t -> 'key -> 'value option
-
-  (** Update the value for a specific key using [f]. If [key] is not present in the map [f] will be called with [None].
-
-      {2 Examples}
-
-      {[
-        let animalPopulations = Map.String.ofList [
-          ("Elephant", 3_156);
-          ("Mosquito", 56_123_156);
-          ("Rhino", 3);
-          ("Shrew", 56_423);
-        ] in
-
-        Map.update animalPopulations ~key:"Hedgehog" ~f:(fun population ->
-          match population with
-          | None -> Some 1
-          | Some count -> Some (count + 1)
-        )
-        |> Map.toList = [
-          ("Elephant", 3_156);
-          ("Hedgehog", 1);
-          ("Mosquito", 56_123_156);
-          ("Rhino", 3);
-          ("Shrew", 56_423);
-        ]
-      ]}
-  *)
-  val update :
-    ('key, 'value, 'id) t ->
-      key:'key -> f:('value option -> 'value option) -> ('key, 'value, 'id) t
-  
-  (** {1 Query} *)
-
-  (** Determine if a map is empty. *)
-  val isEmpty : (_, _, _) t -> bool
-
-  (** Returns the number of key-value pairs present in the map.
-
-      {2 Examples}
-
-      {[
-        Map.Int.ofList [(1, "Hornet"); (3, "Marmot")]
-        |> Map.length = 2
-      ]}
-  *)
-  val length : (_, _, _) t -> int
-  
-  (** Determine if [f] returns [true] for [any] values in a map. *)
-  val any : (_, 'value, _) t -> f:('value -> bool) -> bool
-  
-  (** Determine if [f] returns [true] for [all] values in a map. *)
-  val all : (_, 'value, _) t -> f:('value -> bool) -> bool
-
-  (** Returns, as an {!Option} the first key-value pair for which [f] evaluates to true.
-
-      If [f] doesn't return [true] for any of the elements [find] will return [None].
-
-      Searches starting from the smallest {b key}
-
-      {2 Examples}
-
-      {[
-        Map.String.ofList [
-          ("Elephant", 3_156);
-          ("Mosquito", 56_123_156);
-          ("Rhino", 3);
-          ("Shrew", 56_423);
-        ]
-        |> Map.find ~f:(fun ~key ~value -> value > 10_000)
-          = Some ("Mosquito", 56_123_156)
-      ]}
-  *)
-  val find : ('key, 'value, _) t -> f:(key:'key -> value:'value -> bool) -> ('key * 'value) option
-  
-  (** Determine if a map includes [key].  *)
-  val includes : ('key, _, _) t -> 'key -> bool
-
-  (** Returns, as an {!Option}, the smallest {b key } in the map.
-
-      Returns [None] if the map is empty.
-
-      {2 Examples}
-
-      {[
-        Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")]
-        |> Map.minimum = Some 1
-      ]}
-  *)
-  val minimum : ('key, _, _) t -> 'key option
-  
-  (** Returns the largest {b key } in the map.
-
-      Returns [None] if the map is empty.
-
-      {2 Examples}
-
-      {[
-        Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")] 
-        |> Map.maximum = Some 8
-      ]}
-  *)
-  val maximum : ('key, _, _) t -> 'key option
-  
-  (** Returns, as an {!Option}, a {!Tuple} of the [(minimum, maximum)] {b key}s in the map.
-
-      Returns [None] if the map is empty.
-
-      {2 Examples}
-
-      {[
-        Map.Int.ofList [(8, "Pigeon"); (1, "Hornet"); (3, "Marmot")]
-        |> Map.extent = Some (1, 8)
-      ]}
-  *)
-  val extent : ('key, _, _) t -> ('key * 'key) option
-  
-  (** {1 Combine} *)
-
-  (** Combine two maps.
-
-      You provide a function [f] which is provided the key and the optional
-      value from each map and needs to account for the three possibilities:
-
-      1. Only the 'left' map includes a value for the key.
-      2. Both maps contain a value for the key.
-      3. Only the 'right' map includes a value for the key.
-
-      You then traverse all the keys, building up whatever you want.
-
-      {2 Examples}
-
-      {[
-        let animalToPopulation = 
-          Map.String.ofList [
-            ("Elephant", 3_156);
-            ("Shrew", 56_423);
-          ] 
-        in
-        let animalToPopulationGrowthRate = Map.String.ofList [
-          ("Elephant", 0.88);
-          ("Squirrel", 1.2);
-          ("Python", 4.0);
-        ] in
-
-        Map.merge 
-          animalToPopulation 
-          animalToPopulationGrowthRate 
-          ~f:(fun _animal population growth ->
-            match (Option.both population growth) with
-            | Some (population, growth) -> 
-                Some Float.((ofInt population) * growth)
-            | None -> None
-          )
-        |> Map.toList
-          = [("Elephant", 2777.28)]
-      ]}
-  *)
-  val merge :
-    ('key, 'v1, 'id) t ->
-      ('key, 'v2, 'id) t ->
-        f:('key -> 'v1 option -> 'v2 option -> 'v3 option) -> ('key, 'v3, 'id) t
-  
-  (** {1 Transform} *)
-
-  (** Apply a function to all values in a dictionary.
-
-      {2 Examples}
-
-      {[
-        Map.String.ofList [
-          ("Elephant", 3_156);
-          ("Shrew", 56_423);
-        ]
-        |> Map.map ~f:Int.toString
-        |> Map.toList
-          = [
-          ("Elephant", "3156");
-          ("Shrew", "56423");
-        ]
-      ]}
-  *)
-  val map : ('key, 'value, 'id) t -> f:('value -> 'b) -> ('key, 'b, 'id) t
-  
-  (** Like {!map} but [f] is also called with each values corresponding key *)
-  val mapI : ('key, 'va, 'i) t -> f:('key -> 'va -> 'vb) -> ('key, 'vb, 'i) t
-  
-  (** Keep elements that [f] returns [true] for.
-
-      {2 Examples}
-
-      {[
-        Map.String.ofList [
-          ("Elephant", 3_156);
-          ("Shrew", 56_423);
-        ]
-        |> Map.map ~f:(fun population -> population > 10_000)
-        |> Map.toList
-          = [
-          ("Shrew", "56423");
-        ]
-      ]}
-  *)
-  val filter : ('key, 'value, 'id) t -> f:('value -> bool) -> ('key, 'value, 'id) t
-
-  (** Divide a map into two, the first map will contain the key-value pairs that [f] returns [true] for, pairs that [f] returns [false] for will end up in the second.
-
-      {2 Examples}
-
-      {[
-        let (endangered, notEndangered) = Map.String.ofList [
-          ("Elephant", 3_156);
-          ("Mosquito", 56_123_156);
-          ("Rhino", 3);
-          ("Shrew", 56_423);
-        ]
-        |> Map.partition ~f:(fun population -> population < 10_000)
-        in
-
-        Map.toList endangered = [
-          ("Elephant", 3_156);
-          ("Rhino", 3);
-        ];
-
-        Map.toList notEndangered = [
-          ("Mosquito", 56_123_156);
-          ("Shrew", 56_423);
-        ];
-      ]}
-  *)
-  val partition :
-    ('key, 'value, 'id) t ->
-      f:(key:'key -> value:'value -> bool) -> (('key, 'value, 'id) t * ('key, 'value, 'id) t)
-  
-  (** Like {!Array.fold} but [f] is also called with both the [key] and [value] *)
-  val fold :
-    ('key, 'value, _) t -> initial:'a -> f:('a -> key:'key -> value:'value -> 'a) -> 'a
-  
-  (** {1 Iterate} *)
-
-  (** Runs a function [f] against each {b value} in the map. *)
-  val forEach : (_, 'value, _) t -> f:('value -> unit) -> unit
-  
-  (** Like {!Map.forEach} except [~f] is also called with the corresponding key *)
-  val forEachI : ('key, 'value, _) t -> f:(key:'key -> value:'value -> unit) -> unit
-
-  (** {1 Convert} *)
-
-  (** Get a {!List} of all of the keys in a map.
-
-      {2 Examples}
-
-      {[
-        Map.String.ofList [
-          ("Elephant", 3_156);
-          ("Mosquito", 56_123_156);
-          ("Rhino", 3);
-          ("Shrew", 56_423);
-        ]
-        |> Map.keys = [
-          "Elephant";
-          "Mosquito";
-          "Rhino";
-          "Shrew";
-        ]
-      ]}
-  *)
-  val keys : ('key, _, _) t -> 'key list
-  
-  (** Get a {!List} of all of the values in a map.
-
-      {2 Examples}
-
-      {[
-        Map.String.ofList [
-          ("Elephant", 3_156);
-          ("Mosquito", 56_123_156);
-          ("Rhino", 3);
-          ("Shrew", 56_423);
-        ]
-        |> Map.values = [
-          3_156;
-          56_123_156;
-          3;
-          56_423;
-        ]
-      ]}
-  *)
-  val values : (_, 'value, _) t -> 'value list
-
-  (** Get an {!Array} of all of the key-value pairs in a map. *)
-  val toArray : ('key, 'value, _) t -> ('key * 'value) array
-
-  (** Get a {!List} of all of the key-value pairs in a map. *)
-  val toList : ('key, 'value, _) t -> ('key * 'value) list
-
-  (** Construct a Map which can be keyed by any data type using the polymorphic [compare] function. *)
-  module Poly : sig
-    type identity
-    type nonrec ('key, 'value) t = ('key, 'value, identity) t
-    
-    (** A map with nothing in it. *)
-    val empty : unit -> ('key, 'value) t
-
-    (** Create a map from a key and value
-
-        {2 Examples}
-    
-        {[Map.Poly.singleton ~key:false ~value:1 |> Map.toList = [(false, 1)]]}
-    *)
-    val singleton : key:'key -> value:'value -> ('key, 'value) t
-
-    (** Create a map from an {!Array} of key-value tuples *)
-    val ofArray : ('key * 'value) array -> ('key, 'value) t
-    
-    (** Create a map from a {!List} of key-value tuples *)
-    val ofList : ('key * 'value) list -> ('key, 'value) t
-  end
-
-  (** Construct a Map with {!Int}s for keys. *)
-  module Int : sig
-    type nonrec 'value t = (Int.t, 'value, Int.identity) t
-    
-    (** A map with nothing in it. *)
-    val empty : 'value t
-    
-    (** Create a map from a key and value
-
-        {2 Examples}
-        
-        {[Map.Int.singleton ~key:1 ~value:"Ant" |> Map.toList = [(1, "Ant")]]}
-    *)
-    val singleton : key:int -> value:'value -> 'value t
-    
-    (** Create a map from an {!Array} of key-value tuples *)
-    val ofArray : (int * 'value) array -> 'value t
-    
-    (** Create a map of a {!List} of key-value tuples *)
-    val ofList : (int * 'value) list -> 'value t
-  end
-
-  (** Construct a Map with {!String}s for keys. *)
-  module String : sig
-    type nonrec 'value t = (String.t, 'value, String.identity) t
-    
-    (** A map with nothing in it. *)
-    val empty : 'value t
-    
-    (** Create a map from a key and value
-
-        {2 Examples}
-        
-        {[Map.String.singleton ~key:"Ant" ~value:1 |> Map.toList = [("Ant", 1)]]}
-    *)
-    val singleton : key:string -> value:'value -> 'value t
-    
-    (** Create a map from an {!Array} of key-value tuples *)
-    val ofArray : (string * 'value) array -> 'value t
-
-    (** Create a map from a {!List} of key-value tuples *)
-    val ofList : (string * 'value) list -> 'value t
-  end
 end
 
 (** Functions for working with functions. *)

@@ -15,6 +15,11 @@
   (copy ../../bucklescript/test/BoolTest.re ./BoolTest.re)))
 
 (rule
+ (target ComparatorTest.ml)
+ (action
+  (copy ../../bucklescript/test/ComparatorTest.ml ./ComparatorTest.ml)))
+
+(rule
  (target CharTest.re)
  (action
   (copy ../../bucklescript/test/CharTest.re ./CharTest.re)))
@@ -50,6 +55,11 @@
   (copy ../../bucklescript/test/MapTest.re ./MapTest.re)))
 
 (rule
+ (target MapOcamlSyntaxSpecificTest.ml)
+ (action
+  (copy ../../bucklescript/test/MapOcamlSyntaxSpecificTest.ml ./MapOcamlSyntaxSpecificTest.ml)))
+
+(rule
  (target OptionTest.re)
  (action
   (copy ../../bucklescript/test/OptionTest.re ./OptionTest.re)))
@@ -65,9 +75,19 @@
   (copy ../../bucklescript/test/SetTest.re ./SetTest.re)))
 
 (rule
+ (target SetOcamlSyntaxSpecificTest.ml)
+ (action
+  (copy ../../bucklescript/test/SetOcamlSyntaxSpecificTest.ml ./SetOcamlSyntaxSpecificTest.ml)))
+
+(rule
  (target StringTest.re)
  (action
   (copy ../../bucklescript/test/StringTest.re ./StringTest.re)))
+
+(rule
+ (target StringOcamlSyntaxSpecificTest.ml)
+ (action
+  (copy ../../bucklescript/test/StringOcamlSyntaxSpecificTest.ml ./StringOcamlSyntaxSpecificTest.ml)))
 
 (rule
  (target Tuple3Test.re)

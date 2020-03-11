@@ -1,0 +1,6 @@
+(library 
+ (name JsonGenerator)
+ (public_name JsonGenerator) 
+ (libraries ocamldoc reason)
+ (flags (:standard -warn-error -A))
+)

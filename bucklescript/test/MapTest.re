@@ -1,7 +1,36 @@
 open Standard;
 open AlcoJest;
 
-let suite = suite("Map", () => {
+module Coordinate = {
+  include (
+            val Comparator.make(
+                  ~compare=Tuple.compare(Int.compare, Int.compare),
+                )
+          );
+};
+
+let suite = suite("Map", () => {  
+  describe("empty", () =>
+    test("has length zero", () =>
+      expect(Map.empty((module Coordinate)) |> Map.length)
+      |> toEqual(Eq.int, 0)
+    )
+  );
+
+  describe("ofArray", () =>
+    test("has length zero", () =>
+      expect(Map.ofArray((module Coordinate), [||]) |> Map.length)
+      |> toEqual(Eq.int, 0)
+    )
+  );
+
+  describe("ofList", () =>
+    test("has length zero", () =>
+      expect(Map.ofList((module Coordinate), []) |> Map.length)
+      |> toEqual(Eq.int, 0)
+    )
+  );
+
   describe("Poly.ofList", () => {
     test("creates a map from a list", () => {
       let map = Map.Poly.ofList([(`Ant, "Ant"), (`Bat, "Bat")]);

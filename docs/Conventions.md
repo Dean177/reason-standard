@@ -3,18 +3,18 @@ title: "Conventions"
 order: "2"
 ---
 
-## t is the main type of an module
+## t is the main type of a module
 
 In Reason / Ocaml its a convention for the primary type of a module to be named `t`. 
 
 This means that when you want to refer to a type without `open`ing a module you don't end up repeating yourself:
 
 ```reason
-let doggieToAge: Map.String.map(Int.int) = /* ... */
+let food: String.string = /* ... */
 
 /* compared to */ 
 
-let doggieToAge: Map.String.t(Int.t) = /* ... */
+let email: String.t = /* ... */
 ```
 
 Since this is pervasive it also means your module can be used with [Functors](http://dev.realworldocaml.org/functors.html), as they almost always adhere to this convention.
@@ -46,9 +46,7 @@ Array.filter([|1,2,3|], ~f=Int.isOdd)
 
 The type for exceptions in Ocaml is actually called `exn`.
 
-You can read more about exceptions in Reason / Ocaml in [Real World Ocaml](http://dev.realworldocaml.org/error-handling.html#scrollNav-2)
-
-or in the [ocaml manual](https://caml.inria.fr/pub/docs/manual-ocaml/coreexamples.html#s:exceptions)
+You can read more about exceptions in [Real World Ocaml](http://dev.realworldocaml.org/error-handling.html#scrollNav-2) or in the [Ocaml manual](https://caml.inria.fr/pub/docs/manual-ocaml/coreexamples.html#s:exceptions).
 
 ## sep is for separator
 
@@ -58,7 +56,9 @@ Since this is a bit of a mouthful for a pretty commonly used function it gets sh
 
 ## Function suffixes
 
-Some functions come in multiple flavors. and some of these flavors are so common they are distinguished by a really short suffix.
+Some functions come in multiple flavors. 
+
+Some of these flavors are so common they are distinguished by a really short suffix.
 
 ### ___2 is an alternative behaviour
 
@@ -68,7 +68,7 @@ The best example of this is [`Float.atan2`](/api#Float.atan2)
 
 ### ___I is for "with index"
 
-Take [`Array.map`](/api#Array.map) and [`Array.mapI`](/api#Array.mapI), they are almost exactly the same, except `mapI`, in addition to being called with each element, also _gets called with the elements index_. 
+[`Array.map`](/api#Array.map) and [`Array.mapI`](/api#Array.mapI),  are almost exactly the same, except `mapI`, in addition to being called with each element, also _gets called with the elements index_. 
 
 ### ___Unsafe means "could raise an exception" 
 
@@ -77,6 +77,14 @@ Some functions have 'unsafe' versions which instead of returning an [`Option`](/
 Sometimes this can be for performance, and sometimes you just need an escape hatch.
 
 See [`Option.get`](/api#Option.get) and [`Option.getUnsafe`](/api#Option.getUnsafe)
+
+## Modules
+
+### S is for signature
+
+Functions which accept first class modules or [Functors]() need a way to label their arguments. 
+
+In a similar way to modules primary type being [named `t`](#t-is-the-main-type-of-n-module) 
 
 ## Data comes first
 
@@ -116,14 +124,15 @@ module Book = {
   type t = {
     isbn: string,
     title: string,
+  };
 
-  }
-
-  let classics = [{ isbn: "9788460767923", title: "Moby Dick or The Whale" }];
+  let classics = [
+    { isbn: "9788460767923", title: "Moby Dick or The Whale" }
+  ];
 }
 ```
 
-With a data-last approach we end up needing to provide additional annotations
+With a data-last approach we end up needing to provide additional annotations when we use [List.map](/api#List.map):
 
 ```reason
 let isbns = List.map(book => book.isbn, Book.classics);
@@ -146,7 +155,7 @@ let isbns = List.map(books, ~f=book => book.isbn, Book.classics);
 
 ### More intuitive, consistent APIs
 
-Consider appending an array two arrays.
+Consider appending one array to another.
 
 With data last
 
@@ -168,13 +177,3 @@ Array.append([|1, 2, 3|], [|4, 5, 6|]) = [|1, 2, 3, 4, 5, 6|]
 ```
 
 This section was heavily inspired by [Javier Chavarri's excellent blog post](https://www.javierchavarri.com/data-first-and-data-last-a-comparison/) and the discussions on the [Bucklescipt](https://github.com/BuckleScript/bucklescript/issues/2625) and [Reason](https://github.com/facebook/reason/issues/1452#issuecomment-350424873) GitHub issue trackers.
-
-## Modules
-
-### S is for signature
-
-TODO
-
-### T is for module types
-
-TODO 

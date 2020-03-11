@@ -1,3 +1,43 @@
+module Comparator = struct
+  type ('a, 'identity) t = ('a, 'identity) Base.Comparator.t
+
+  type ('a, 'identity) comparator = ('a, 'identity) t
+
+
+  module type T = sig 
+    type nonrec t    
+    val compare : t -> t -> int
+  end
+
+  module type S = sig
+    type nonrec t
+    type identity
+    val comparator : (t, identity) comparator
+  end 
+
+  type ('a, 'identity) s = (module S with type identity = 'identity and type t = 'a)
+
+  (* let ofBaseComparator (baseComparator : ('a, 'id) Base.Map.comparator) : ('a, 'id) s = Obj.magic baseComparator *)
+
+  let toBaseComparator (comparator : ('a, 'id) s) : ('a, 'id) Base.Map.comparator = Obj.magic comparator
+
+  let opaque _ = Base.Sexp.Atom "<opaque>"
+
+  let make ~compare =
+    Obj.magic (Base.Comparator.make ~compare ~sexp_of_t:opaque)    
+
+  module Make (M : T) = struct
+    module BaseComparator = Base.Comparator.Make(struct
+      include M
+      let compare = M.compare
+      let sexp_of_t = opaque
+    end)
+    include BaseComparator
+    type identity = BaseComparator.comparator_witness
+    let comparator = BaseComparator.comparator
+  end  
+end
+
 module Bool = struct
   type t = bool
 
@@ -62,6 +102,10 @@ module Char = struct
   let equal = ( = )
 
   let compare = compare
+
+  type identity = Base.Char.comparator_witness
+
+  let comparator = Base.Char.comparator
 end
 
 module Fun = struct
@@ -210,245 +254,6 @@ module Tuple3 = struct
         result
 end
 
-module List = struct
-  type 'a t = 'a list
-
-  let empty = []
-
-  let singleton = Base.List.return
-
-  let repeat element ~times = Base.List.init times ~f:(fun _ -> element)
-
-  let rec range ?(from = 0) to_ =
-    if from >= to_ then [] else from :: range ~from:(from + 1) to_
-
-  let initialize = Base.List.init
-
-  let sum (type a) (a : a t) (module M : Container.Sum with type t = a) =
-    (Base.List.fold a ~init:M.zero ~f:M.add : a)
-
-  let ofArray = Base.Array.to_list
-
-  let isEmpty (l : 'a list) = (l = [] : bool)
-
-  let head = Base.List.hd
-
-  let tail = Base.List.tl
-
-  let cons list element = element :: list
-
-  let take t ~count = Base.List.take t count
-
-  let takeWhile (l : 'a list) ~(f : 'a -> bool) =
-    ( let rec takeWhileHelper acc l' =
-        match l' with
-        | [] ->
-            Base.List.rev acc
-        | x :: rest ->
-            if f x then takeWhileHelper (x :: acc) rest else Base.List.rev acc
-      in
-      takeWhileHelper [] l
-      : 'a list )
-
-  let drop t ~count = Base.List.drop t count
-
-  let rec dropWhile (l : 'a list) ~(f : 'a -> bool) =
-    ( match l with
-      | [] ->
-          []
-      | x :: rest ->
-          if f x then dropWhile ~f rest else l
-      : 'a list )
-
-  let initial (l : 'a list) =
-    ( match Base.List.rev l with
-      | [] ->
-          None
-      | _ :: rest ->
-          Some (Base.List.rev rest)
-      : 'a list option )
-
-  let rec last (l : 'a list) =
-    ( match l with [] -> None | [a] -> Some a | _ :: tail -> last tail
-      : 'a option )
-
-  let append (l1 : 'a list) (l2 : 'a list) = (Base.List.append l1 l2 : 'a list)
-
-  let concatenate = Base.List.concat
-
-  let map2 = Base.List.map2_exn
-
-  let map3 = Base.List.map3_exn
-
-  let reverse (l : 'a list) = (Base.List.rev l : 'a list)
-
-  let map = Base.List.map
-
-  let mapI = Base.List.mapi
-
-  let bind = Base.List.concat_map
-
-  let includes = Base.List.mem
-
-  let find = Base.List.find
-
-  let findIndex = Base.List.findi
-
-  let any = Base.List.exists
-
-  let all = Base.List.for_all
-
-  let getAt (l : 'a list) ~(index : int) = (Base.List.nth l index : 'a option)
-
-  let filterMap = Base.List.filter_map
-
-  let filter t ~f = Base.List.filter t ~f
-
-  let filterI t ~f = Base.List.filteri t ~f
-
-  let partition = Base.List.partition_tf
-
-  let fold t ~initial ~f = Base.List.fold t ~init:initial ~f
-
-  let count = Base.List.count
-
-  let foldRight t ~initial ~f =
-    Base.List.fold_right t ~init:initial ~f:(Fun.flip f)
-
-  let splitAt (l : 'a list) ~(index : int) =
-    ((take ~count:index l, drop ~count:index l) : 'a list * 'a list)
-
-  let splitWhen (l : 'a list) ~(f : 'a -> bool) =
-    ( match findIndex ~f:(fun _ element -> f element) l with
-      | Some (index, _) ->
-          splitAt ~index l
-      | None ->
-          (l, [])
-      : 'a list * 'a list )
-
-  let updateAt (l : 'a list) ~(index : int) ~(f : 'a -> 'a) =
-    ( if index < 0 then l
-      else (
-        let (front, back) = splitAt ~index l in
-        match back with [] -> l | x :: rest -> append front (f x :: rest) )
-      : 'a list )
-
-  let length (l : 'a list) = (List.length l : int)
-
-  let removeAt (l : 'a list) ~(index : int) =
-    ( if index < 0 then l
-      else (
-        let (front, back) = splitAt ~index l in
-        match tail back with None -> l | Some t -> append front t )
-      : 'a list )
-
-  let minimum = Base.List.min_elt
-
-  let maximum = Base.List.max_elt
-
-  let extent t ~compare =
-    fold t ~initial:None ~f:(fun current element ->
-        match current with
-        | None ->
-            Some (element, element)
-        | Some (min, max) ->
-            Some
-              ( ( match compare element min < 0 with
-                | true ->
-                    element
-                | false ->
-                    min )
-              , match compare element max > 0 with
-                | true ->
-                    element
-                | false ->
-                    max ))
-
-  let insertAt (t : 'a list) ~(index : int) ~(value : 'a) =
-    ( let (front, back) = splitAt t ~index in
-      append front (value :: back)
-      : 'a list )
-
-  let zip listA listB = 
-    let rec loop result xs ys = 
-      match (xs, ys) with
-      | [], _ -> result
-      | _, [] -> result
-      | x :: xs, y :: ys -> loop ((x, y) :: result) xs ys
-    in
-    loop [] listA listB
-
-  let unzip = Base.List.unzip
-
-  let sliding ?(step = 1) (t : 'a t) ~(size : int) =
-    ( let rec takeAllOrEmpty t n (current, count) =
-        if count = n then reverse current
-        else (
-          match t with
-          | [] ->
-              []
-          | x :: xs ->
-              takeAllOrEmpty xs n (x :: current, count + 1) )
-      in
-      let rec loop t =
-        if isEmpty t then []
-        else (
-          let sample = takeAllOrEmpty t size ([], 0) in
-          if isEmpty sample then [] else sample :: loop (Base.List.drop t step)
-          )
-      in
-      loop t
-      : 'a t t )
-
-  let chunksOf t ~size = sliding t ~step:size ~size
-
-  let intersperse (l : 'a list) ~sep =
-    ( match l with
-      | [] ->
-          []
-      | [x] ->
-          [x]
-      | x :: rest ->
-          x :: foldRight rest ~initial:[] ~f:(fun acc x -> sep :: x :: acc)
-      : 'a list )
-
-  let forEach l ~f = Base.List.iter l ~f
-
-  let forEachI = Base.List.iteri
-
-  let toArray = Base.List.to_array
-
-  let groupWhile t ~f = Base.List.group t ~break:f
-
-  let sort = Base.List.sort
-
-  let join t ~sep = String.concat sep t
-
-  let rec equal equalElement a b =
-    match (a, b) with
-    | ([], []) ->
-        true
-    | (x :: xs, y :: ys) ->
-        equalElement x y && equal equalElement xs ys
-    | _ ->
-        false
-
-  let rec compare compareElement a b =
-    match (a, b) with
-    | ([], []) ->
-        0
-    | ([], _) ->
-        -1
-    | (_, []) ->
-        1
-    | (x :: xs, y :: ys) -> (
-      match compareElement x y with
-      | 0 ->
-          compare compareElement xs ys
-      | result ->
-          result )
-end
-
 module Option = struct
   type 'a t = 'a option
 
@@ -569,7 +374,7 @@ module Result = struct
     match t with Error error -> Error (f error) | Ok value -> Ok value
 
   let values t =
-    List.foldRight t ~initial:(Ok []) ~f:(map2 ~f:(fun b a -> a :: b))
+    Base.List.fold_right t ~f:(map2 ~f:(fun a b -> a :: b)) ~init:(Ok []) 
 
   let toOption r = match r with Ok v -> Some v | Error _ -> None
 
@@ -796,8 +601,6 @@ end
 module Int = struct
   type t = int
 
-  type identity = Base.Int.comparator_witness
-
   let ofString = int_of_string_opt
 
   let minimumValue = Base.Int.min_value
@@ -877,10 +680,18 @@ module Int = struct
   let equal = ( = )
 
   let compare = compare
+
+  type identity = Base.Int.comparator_witness
+
+  let comparator = Base.Int.comparator
 end
 
-module Integer = struct
+module Integer = struct  
   type t = Z.t
+  include Comparator.Make(struct 
+    type nonrec t = t
+    let compare = Z.compare
+  end)
 
   let ofInt = Z.of_int
 
@@ -976,8 +787,6 @@ end
 module String = struct
   type t = string
 
-  type identity = Base.String.comparator_witness
-
   let initialize length ~f =
     Base.List.init length ~f |> Base.String.of_char_list
 
@@ -999,6 +808,9 @@ module String = struct
   let getAt a ~index =
     if index >= 0 && index < length a then Some (Base.String.get a index)
     else None
+
+  let (.?[]) (string: string) (index: int) : char option = 
+    getAt string ~index
 
   let uncons (s : string) =
     ( match s with
@@ -1085,16 +897,39 @@ module String = struct
   let equal = Base.String.equal
 
   let compare = Base.String.compare
+
+  type identity = Base.String.comparator_witness
+
+  let comparator = Base.String.comparator
 end
 
 module Set = struct
-  type ('a, 'cmp) t = ('a, 'cmp) Base.Set.t
+  type ('a, 'id) t = ('a, 'id) Base.Set.t
+
+  module Of (M : Comparator.S) = struct
+    type nonrec 'value t = (M.t, M.identity) t
+  end
+
+  let empty comparator = 
+    (Base.Set.empty (Comparator.toBaseComparator comparator))    
+
+  let singleton (comparator: ('a, 'identity) Comparator.s) (element: 'a) : ('a, 'identity) t = 
+    (Base.Set.of_list (Comparator.toBaseComparator comparator) [element])
+
+  let ofArray (comparator: ('a, 'identity) Comparator.s) (elements: 'a array) : ('a, 'identity) t  = 
+    (Base.Set.of_list (Comparator.toBaseComparator comparator) (Array.to_list elements))
+
+  let ofList (comparator: ('a, 'identity) Comparator.s) (elements: 'a list) : ('a, 'identity) t  = 
+    (Base.Set.of_list (Comparator.toBaseComparator comparator) elements)
 
   let length = Base.Set.length
 
   let isEmpty = Base.Set.is_empty
 
   let includes = Base.Set.mem
+
+  let (.?{}) (set: ('element, _) t) (element: 'element) : bool = 
+    includes set element
 
   let add = Base.Set.add
 
@@ -1164,7 +999,25 @@ module Set = struct
 end
 
 module Map = struct
-  type ('key, 'value, 'cmp) t = ('key, 'value, 'cmp) Base.Map.t
+  type ('key, 'value, 'id) t = ('key, 'value, 'id) Base.Map.t
+
+  module Of (M : Comparator.S) = struct
+    type nonrec 'value t = (M.t, 'value, M.identity) t
+  end
+
+  let keepLatestOnly = fun _ latest -> latest
+
+  let empty (comparator : ('key, 'identity) Comparator.s) : ('key, 'value, 'identity) t = 
+    (Base.Map.empty (Comparator.toBaseComparator comparator))    
+
+  let singleton (comparator: ('key, 'identity) Comparator.s) ~key ~value : ('key, 'value, 'identity) t = 
+    Base.Map.of_alist_reduce (Comparator.toBaseComparator comparator) [(key, value)] ~f:keepLatestOnly
+
+  let ofArray (comparator: ('key, 'identity) Comparator.s) (elements: ('key * 'value) array) : ('key, 'value, 'identity) t  = 
+    Base.Map.of_alist_reduce (Comparator.toBaseComparator comparator) (Array.to_list elements) ~f:keepLatestOnly
+
+  let ofList (comparator: ('key, 'identity) Comparator.s) (elements: ('key * 'value) list) : ('key, 'value, 'identity) t  = 
+    Base.Map.of_alist_reduce (Comparator.toBaseComparator comparator) elements ~f:keepLatestOnly
 
   let isEmpty = Base.Map.is_empty
 
@@ -1180,9 +1033,15 @@ module Map = struct
 
   let add m ~key ~value = Base.Map.set m ~key ~data:value
 
+  let (.?{}<-) (map: ('key, 'value, 'id) t) (key: 'key) (value: 'value): ('key, 'value, 'id) t = 
+    add map ~key ~value
+
   let remove = Base.Map.remove
 
   let get = Base.Map.find
+
+  let (.?{}) (map: ('key, 'value, _) t) (key: 'key) : 'value option = 
+    get map key  
 
   let update m ~key ~f = Base.Map.change m key ~f
 
@@ -1307,6 +1166,9 @@ module Array = struct
   let getAt a ~index =
     if index >= 0 && index < length a then Some (Base.Array.get a index)
     else None
+
+  let (.?()) (array: 'element t) (index: int) : 'element option = 
+    getAt array ~index
 
   let set = Base.Array.set
 
@@ -1447,6 +1309,15 @@ module Array = struct
 
   let forEachI a ~f = Base.Array.iteri a ~f
 
+  let groupBy t comparator ~f =
+    fold t ~initial:(Map.empty comparator) ~f:(fun map element -> (
+      let key = f element in
+      Map.update map ~key ~f:(function
+          | None -> Some [element]
+          | Some elements -> Some (element :: elements)
+      )
+    ))
+
   let toList (a : 'a array) = (Base.Array.to_list a : 'a list)
 
   let toIndexedList a =
@@ -1482,6 +1353,254 @@ module Array = struct
           loop 0 )
     | result ->
         result
+end
+
+module List = struct
+  type 'a t = 'a list
+
+  let empty = []
+
+  let singleton = Base.List.return
+
+  let repeat element ~times = Base.List.init times ~f:(fun _ -> element)
+
+  let rec range ?(from = 0) to_ =
+    if from >= to_ then [] else from :: range ~from:(from + 1) to_
+
+  let initialize = Base.List.init
+
+  let sum (type a) (a : a t) (module M : Container.Sum with type t = a) =
+    (Base.List.fold a ~init:M.zero ~f:M.add : a)
+
+  let ofArray = Base.Array.to_list
+
+  let isEmpty (l : 'a list) = (l = [] : bool)
+
+  let head = Base.List.hd
+
+  let tail = Base.List.tl
+
+  let cons list element = element :: list
+
+  let take t ~count = Base.List.take t count
+
+  let takeWhile (l : 'a list) ~(f : 'a -> bool) =
+    ( let rec takeWhileHelper acc l' =
+        match l' with
+        | [] ->
+            Base.List.rev acc
+        | x :: rest ->
+            if f x then takeWhileHelper (x :: acc) rest else Base.List.rev acc
+      in
+      takeWhileHelper [] l
+      : 'a list )
+
+  let drop t ~count = Base.List.drop t count
+
+  let rec dropWhile (l : 'a list) ~(f : 'a -> bool) =
+    ( match l with
+      | [] ->
+          []
+      | x :: rest ->
+          if f x then dropWhile ~f rest else l
+      : 'a list )
+
+  let initial (l : 'a list) =
+    ( match Base.List.rev l with
+      | [] ->
+          None
+      | _ :: rest ->
+          Some (Base.List.rev rest)
+      : 'a list option )
+
+  let rec last (l : 'a list) =
+    ( match l with [] -> None | [a] -> Some a | _ :: tail -> last tail
+      : 'a option )
+
+  let append (l1 : 'a list) (l2 : 'a list) = (Base.List.append l1 l2 : 'a list)
+
+  let concatenate = Base.List.concat
+
+  let map2 = Base.List.map2_exn
+
+  let map3 = Base.List.map3_exn
+
+  let reverse (l : 'a list) = (Base.List.rev l : 'a list)
+
+  let map = Base.List.map
+
+  let mapI = Base.List.mapi
+
+  let bind = Base.List.concat_map
+
+  let includes = Base.List.mem
+
+  let find = Base.List.find
+
+  let findIndex = Base.List.findi
+
+  let any = Base.List.exists
+
+  let all = Base.List.for_all
+
+  let getAt (l : 'a list) ~(index : int) = (Base.List.nth l index : 'a option)
+
+  let filterMap = Base.List.filter_map
+
+  let filter t ~f = Base.List.filter t ~f
+
+  let filterI t ~f = Base.List.filteri t ~f
+
+  let partition = Base.List.partition_tf
+
+  let fold t ~initial ~f = Base.List.fold t ~init:initial ~f
+
+  let count = Base.List.count
+
+  let foldRight t ~initial ~f =
+    Base.List.fold_right t ~init:initial ~f:(Fun.flip f)
+
+  let splitAt (l : 'a list) ~(index : int) =
+    ((take ~count:index l, drop ~count:index l) : 'a list * 'a list)
+
+  let splitWhen (l : 'a list) ~(f : 'a -> bool) =
+    ( match findIndex ~f:(fun _ element -> f element) l with
+      | Some (index, _) ->
+          splitAt ~index l
+      | None ->
+          (l, [])
+      : 'a list * 'a list )
+
+  let updateAt (l : 'a list) ~(index : int) ~(f : 'a -> 'a) =
+    ( if index < 0 then l
+      else (
+        let (front, back) = splitAt ~index l in
+        match back with [] -> l | x :: rest -> append front (f x :: rest) )
+      : 'a list )
+
+  let length (l : 'a list) = (List.length l : int)
+
+  let removeAt (l : 'a list) ~(index : int) =
+    ( if index < 0 then l
+      else (
+        let (front, back) = splitAt ~index l in
+        match tail back with None -> l | Some t -> append front t )
+      : 'a list )
+
+  let minimum = Base.List.min_elt
+
+  let maximum = Base.List.max_elt
+
+  let extent t ~compare =
+    fold t ~initial:None ~f:(fun current element ->
+        match current with
+        | None ->
+            Some (element, element)
+        | Some (min, max) ->
+            Some
+              ( ( match compare element min < 0 with
+                | true ->
+                    element
+                | false ->
+                    min )
+              , match compare element max > 0 with
+                | true ->
+                    element
+                | false ->
+                    max ))
+
+  let insertAt (t : 'a list) ~(index : int) ~(value : 'a) =
+    ( let (front, back) = splitAt t ~index in
+      append front (value :: back)
+      : 'a list )
+
+  let zip listA listB = 
+    let rec loop result xs ys = 
+      match (xs, ys) with
+      | [], _ -> result
+      | _, [] -> result
+      | x :: xs, y :: ys -> loop ((x, y) :: result) xs ys
+    in
+    loop [] listA listB
+
+  let unzip = Base.List.unzip
+
+  let sliding ?(step = 1) (t : 'a t) ~(size : int) =
+    ( let rec takeAllOrEmpty t n (current, count) =
+        if count = n then reverse current
+        else (
+          match t with
+          | [] ->
+              []
+          | x :: xs ->
+              takeAllOrEmpty xs n (x :: current, count + 1) )
+      in
+      let rec loop t =
+        if isEmpty t then []
+        else (
+          let sample = takeAllOrEmpty t size ([], 0) in
+          if isEmpty sample then [] else sample :: loop (Base.List.drop t step)
+          )
+      in
+      loop t
+      : 'a t t )
+
+  let chunksOf t ~size = sliding t ~step:size ~size
+
+  let intersperse (l : 'a list) ~sep =
+    ( match l with
+      | [] ->
+          []
+      | [x] ->
+          [x]
+      | x :: rest ->
+          x :: foldRight rest ~initial:[] ~f:(fun acc x -> sep :: x :: acc)
+      : 'a list )
+
+  let forEach l ~f = Base.List.iter l ~f
+
+  let forEachI = Base.List.iteri
+
+  let toArray = Base.List.to_array
+
+  let groupWhile t ~f = Base.List.group t ~break:f
+
+  let sort = Base.List.sort
+
+  let join t ~sep = Stdlib.String.concat sep t
+
+  let groupBy t comparator ~f =
+    fold t ~initial:(Map.empty comparator) ~f:(fun map element -> (
+      let key = f element in
+      Map.update map ~key ~f:(function
+          | None -> Some [element]
+          | Some elements -> Some (element :: elements)
+      )
+    ))
+
+  let rec equal equalElement a b =
+    match (a, b) with
+    | ([], []) ->
+        true
+    | (x :: xs, y :: ys) ->
+        equalElement x y && equal equalElement xs ys
+    | _ ->
+        false
+
+  let rec compare compareElement a b =
+    match (a, b) with
+    | ([], []) ->
+        0
+    | ([], _) ->
+        -1
+    | (_, []) ->
+        1
+    | (x :: xs, y :: ys) -> (
+      match compareElement x y with
+      | 0 ->
+          compare compareElement xs ys
+      | result ->
+          result )
 end
 
 let () = ()

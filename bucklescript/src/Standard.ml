@@ -1,3 +1,45 @@
+module Comparator = struct
+  type ('a, 'identity) t = ('a, 'identity) Belt.Id.cmp
+
+  type ('a, 'identity) comparator = ('a, 'identity) t
+
+  module type T = sig 
+    type nonrec t    
+    val compare : t -> t -> int
+  end
+
+  module type S = sig
+    type nonrec t
+    type identity
+    val comparator : (t, identity) comparator
+  end 
+
+  type ('a, 'identity) s = (module S with type identity = 'identity and type t = 'a)
+
+  module Make (M : T) : S with type t = M.t = struct
+    module BeltComparator = Belt.Id.MakeComparable(struct
+      type t = M.t
+      let cmp = M.compare
+    end)
+    type t = M.t
+    type identity = BeltComparator.identity
+    let comparator = BeltComparator.cmp
+  end  
+
+  let make (type a) ~(compare:a -> a -> int) : (module S with type t = a) =
+    (module Make (struct
+      type t = a
+      let compare = compare
+    end))
+
+  let toBeltComparator (type a) (type id) ((module Comparator) : (module S with type identity = id and type t = a)) : (a, id) Belt.Id.comparable = 
+    ((module struct 
+      type t = Comparator.t
+      type identity = Comparator.identity
+      let cmp = Obj.magic Comparator.comparator
+    end)) 
+end
+
 module Bool = struct
   type t = bool
 
@@ -26,7 +68,7 @@ module Bool = struct
 end
 
 module Char = struct
-  type t = char
+  
 
   let toCode (c : char) = Char.code c
 
@@ -80,6 +122,11 @@ module Char = struct
   let equal = ( = )
 
   let compare = compare
+
+  include Comparator.Make(struct
+    type t = char
+    let compare = compare
+  end)
 end
 
 module Fun = struct
@@ -145,284 +192,6 @@ module Container = struct
   end
 end
 
-module List = struct
-  type 'a t = 'a list
-
-  let empty = []
-
-  let singleton x = [x]
-
-  let ofArray array = List.init (Array.length array) (fun i -> array.(i))
-
-  let range ?(from = 0) to_ = List.init (to_ - from) (fun i -> i + from)
-
-  let rec repeat element ~times =
-    if times <= 0 then [] else element :: repeat element ~times:(times - 1)
-
-  let concatenate = Belt.List.flatten
-
-  let reverse = Belt.List.reverse
-
-  let append = Belt.List.concat
-
-  let sum (type a) t (module M : Container.Sum with type t = a) =
-    List.fold_left M.add M.zero t
-
-  let map t ~f = Belt.List.map t f
-
-  let bind t ~f = concatenate (map t ~f)
-
-  let mapI t ~f = Belt.List.mapWithIndex t f
-
-  let map2 a b ~f = Belt.List.zipBy a b f
-
-  let zip = map2 ~f:(fun a b -> (a, b))
-
-  let rec map3 a b c ~f =
-    match (a, b, c) with
-    | (x :: xs, y :: ys, z :: zs) ->
-        f x y z :: map3 xs ys zs ~f
-    | _ ->
-        []
-
-  let rec last l =
-    match l with [] -> None | [x] -> Some x | _ :: rest -> last rest
-
-  let unzip list =
-    (List.map (fun (a, _) -> a) list, List.map (fun (_, b) -> b) list)
-
-  let includes t value ~equal = Belt.List.has t value equal
-
-  let find t ~f = Belt.List.getBy t f
-
-  let getAt t ~index = Belt.List.get t index
-
-  let any t ~f = List.exists f t
-
-  let head l = Belt.List.head l
-
-  let drop t ~count = Belt.List.drop t count |. Belt.Option.getWithDefault []
-
-  let take t ~count = Belt.List.take t count |. Belt.Option.getWithDefault []
-
-  let initial l =
-    match reverse l with [] -> None | _ :: rest -> Some (reverse rest)
-
-  let filterMap t ~f = Belt.List.keepMap t f
-
-  let filter t ~f = Belt.List.keep t f
-
-  let filterI t ~f = Belt.List.keepWithIndex t (fun e i -> f i e)
-
-  let partition t ~f = Belt.List.partition t f
-
-  let fold t ~initial ~f = Belt.List.reduce t initial f
-
-  let count t ~f =
-    fold t ~initial:0 ~f:(fun total element ->
-        total + match f element with true -> 1 | false -> 0)
-
-  let foldRight t ~initial ~f = Belt.List.reduceReverse t initial f
-
-  let findIndex list ~f =
-    let rec loop i l =
-      match l with
-      | [] ->
-          None
-      | x :: rest ->
-          if f i x then Some (i, x) else loop (i + 1) rest
-    in
-    loop 0 list
-
-  let splitAt t ~index =
-    if index < 0 then
-      raise (Invalid_argument "List.splitAt called with negative index") ;
-    let rec loop front back i =
-      match back with
-      | [] ->
-          (t, [])
-      | element :: rest ->
-          if i = 0 then (reverse front, back)
-          else loop (element :: front) rest (i - 1)
-    in
-    loop [] t index
-
-  let updateAt =
-    ( fun t ~index ~f ->
-        Belt.List.mapWithIndex t (fun i element ->
-            if i = index then f element else element)
-      : 'a t -> index:int -> f:('a -> 'a) -> 'a t )
-
-  let length l = Belt.List.length l
-
-  let rec dropWhile t ~f =
-    match t with [] -> [] | x :: rest -> if f x then dropWhile rest ~f else t
-
-  let isEmpty t = t = []
-
-  let sliding ?(step = 1) t ~size =
-    let rec loop t =
-      if isEmpty t then []
-      else (
-        let sample = Belt.List.take t size in
-        let rest = Belt.List.drop t step in
-        match (sample, rest) with
-        | (None, _) ->
-            []
-        | (Some x, None) ->
-            [x]
-        | (Some x, Some xs) ->
-            x :: loop xs )
-    in
-    loop t
-
-  let chunksOf t ~size = sliding t ~step:size ~size
-
-  let cons t element = element :: t
-
-  let takeWhile t ~f =
-    let rec takeWhileHelper acc t =
-      match t with
-      | [] ->
-          reverse acc
-      | x :: rest ->
-          if f x then takeWhileHelper (x :: acc) rest else reverse acc
-    in
-    takeWhileHelper [] t
-
-  let all t ~f = Belt.List.every t f
-
-  let tail t = match t with [] -> None | _ :: rest -> Some rest
-
-  let removeAt t ~index =
-    if index < 0 then t
-    else (
-      let (front, back) : 'a t * 'a t = splitAt t ~index in
-      match tail back with None -> t | Some t -> append front t )
-
-  let minimum t ~compare =
-    fold t ~initial:None ~f:(fun min element ->
-        match min with
-        | None ->
-            Some element
-        | Some value -> (
-          match compare element value < 0 with
-          | true ->
-              Some element
-          | false ->
-              min ))
-
-  let maximum t ~compare =
-    fold t ~initial:None ~f:(fun max element ->
-        match max with
-        | None ->
-            Some element
-        | Some value -> (
-          match compare element value > 0 with
-          | true ->
-              Some element
-          | false ->
-              max ))
-
-  let extent t ~compare =
-    fold t ~initial:None ~f:(fun current element ->
-        match current with
-        | None ->
-            Some (element, element)
-        | Some (min, max) ->
-            Some
-              ( ( match compare element min < 0 with
-                | true ->
-                    element
-                | false ->
-                    min )
-              , match compare element max > 0 with
-                | true ->
-                    element
-                | false ->
-                    max ))
-
-  let sort t ~compare = Belt.List.sort t compare
-
-  let span t ~f =
-    match t with [] -> ([], []) | _ -> (takeWhile t ~f, dropWhile t ~f)
-
-  let rec groupWhile t ~f =
-    match t with
-    | [] ->
-        []
-    | x :: rest ->
-        let (ys, zs) = span rest ~f:(f x) in
-        (x :: ys) :: groupWhile zs ~f
-
-  let insertAt t ~index ~value =
-    if index < 0 then
-      raise (Invalid_argument "List.splitAt called with negative index") ;
-    let rec loop front back i =
-      match back with
-      | [] ->
-          reverse (value :: front)
-      | element :: rest ->
-          if i = 0 then append (reverse front) (value :: element :: rest)
-          else loop (element :: front) rest (index - 1)
-    in
-    loop [] t index
-
-  let splitWhen t ~f =
-    let rec loop front back =
-      match back with
-      | [] ->
-          (t, [])
-      | element :: rest ->
-          if f element then (reverse front, back)
-          else loop (element :: front) rest
-    in
-    loop [] t
-
-  let intersperse t ~sep =
-    match t with
-    | [] ->
-        []
-    | [x] ->
-        [x]
-    | x :: rest ->
-        x :: foldRight rest ~initial:[] ~f:(fun acc x -> sep :: x :: acc)
-
-  let initialize length ~f = Belt.List.makeBy length f
-
-  let forEach t ~f = (Belt.List.forEach t f : unit)
-
-  let forEachI t ~f = (Belt.List.forEachWithIndex t f : unit)
-
-  let toArray = Array.of_list
-
-  let join strings ~sep = Js.Array.joinWith sep (toArray strings)
-
-  let rec equal equalElement a b =
-    match (a, b) with
-    | ([], []) ->
-        true
-    | (x :: xs, y :: ys) ->
-        equalElement x y && equal equalElement xs ys
-    | _ ->
-        false
-
-  let rec compare compareElement a b =
-    match (a, b) with
-    | ([], []) ->
-        0
-    | ([], _) ->
-        -1
-    | (_, []) ->
-        1
-    | (x :: xs, y :: ys) -> (
-      match compareElement x y with
-      | 0 ->
-          compare compareElement xs ys
-      | result ->
-          result )
-end
-
 module Result = struct
   type ('ok, 'error) t = ('ok, 'error) Belt.Result.t
 
@@ -473,7 +242,7 @@ module Result = struct
         Error b
 
   let values t =
-    List.foldRight t ~initial:(Ok []) ~f:(map2 ~f:(fun b a -> a :: b))
+    List.fold_right (map2 ~f:(fun a b -> a :: b)) t (Ok [])
 
   let map t ~f = Belt.Result.map t f
 
@@ -783,9 +552,10 @@ module Float = struct
 end
 
 module Int = struct
-  type t = int
-
-  type identity
+  include Comparator.Make(struct
+    type t = int
+    let compare = compare
+  end)
 
   let minimumValue = Js.Int.min
 
@@ -860,7 +630,10 @@ module Int = struct
 end
 
 module Integer = struct
-  type t
+  include Comparator.Make(struct
+    type t
+    let compare = compare
+  end)
 
   external ofInt : int -> t = "BigInt" [@@bs.val]
 
@@ -1080,9 +853,10 @@ module Tuple3 = struct
 end
 
 module String = struct
-  type t = string
-
-  type identity
+  include Comparator.Make(struct
+    type t = string
+    let compare = compare
+  end)
 
   let initialize length ~f =
     Js.Array.joinWith ""
@@ -1093,6 +867,9 @@ module String = struct
   let getAt (string : string) ~(index : int) =
     if index < 0 || index >= String.length string then None
     else Some string.[index]
+  
+  let (.?[]) (string: string) (index: int) : char option = 
+    getAt string ~index
 
   let ofArray characters =
     Js.Array.joinWith ""
@@ -1124,7 +901,7 @@ module String = struct
   let dropRight s ~count =
     if count < 1 then s else Js.String.slice ~from:0 ~to_:(-count) s
 
-  let split t ~on = Js.String.split on t |> List.ofArray
+  let split t ~on = Js.String.split on t |> Array.to_list
 
   let endsWith t ~suffix = Js.String.endsWith suffix t
 
@@ -1187,11 +964,30 @@ end
 module Set = struct
   type ('a, 'cmp) t = ('a, 'cmp) Belt.Set.t
 
+  module Of (M : Comparator.S) = struct
+    type nonrec 'value t = (M.t, M.identity) t
+  end
+
+  let empty comparator = 
+    (Belt.Set.make ~id:(Comparator.toBeltComparator comparator))    
+
+  let singleton (comparator: ('a, 'identity) Comparator.s) (element: 'a) : ('a, 'identity) t = 
+    (Belt.Set.fromArray ~id:(Comparator.toBeltComparator comparator) [|element|])
+
+  let ofArray (comparator: ('a, 'identity) Comparator.s) (elements: 'a array) : ('a, 'identity) t  = 
+    (Belt.Set.fromArray ~id:(Comparator.toBeltComparator comparator) elements)
+
+  let ofList (comparator: ('a, 'identity) Comparator.s) (elements: 'a list) : ('a, 'identity) t  = 
+    (Belt.Set.fromArray ~id:(Comparator.toBeltComparator comparator) (Array.of_list elements))
+
   let length = Belt.Set.size
 
   let isEmpty = Belt.Set.isEmpty
 
   let includes = Belt.Set.has
+
+  let (.?{}) (set: ('element, _) t) (element: 'element) : bool = 
+    includes set element
 
   let add = Belt.Set.add
 
@@ -1273,6 +1069,21 @@ end
 module Map = struct
   type ('key, 'value, 'cmp) t = ('key, 'value, 'cmp) Belt.Map.t
 
+  module Of (M : Comparator.S) = struct
+    type nonrec 'value t = (M.t, 'value, M.identity) t
+  end
+
+  let ofArray (comparator: ('key, 'id) Comparator.s) (values : ('key * 'v) array) : ('key, 'value, 'id) t  =
+    (Belt.Map.fromArray values
+        ~id:(Comparator.toBeltComparator comparator)
+      )
+
+  let empty comparator = ofArray comparator [||]
+
+  let ofList comparator l = ofArray comparator (Array.of_list l)
+
+  let singleton comparator ~key ~value = ofArray comparator [|(key, value)|]
+
   let isEmpty = Belt.Map.isEmpty
 
   let includes = Belt.Map.has
@@ -1281,9 +1092,15 @@ module Map = struct
 
   let add m ~key ~value = Belt.Map.set m key value
 
+  let (.?{}<-) (map: ('key, 'value, 'id) t) (key: 'key) (value: 'value): ('key, 'value, 'id) t = 
+    add map ~key ~value
+
   let remove = Belt.Map.remove
 
   let get = Belt.Map.get
+
+  let (.?{}) (map: ('key, 'value, _) t) (key: 'key) : 'value option = 
+    get map key  
 
   let update m ~key ~f = Belt.Map.update m key f
 
@@ -1402,6 +1219,9 @@ module Array = struct
   let get = Belt.Array.getExn
 
   let getAt t ~index = Belt.Array.get t index
+
+  let (.?()) (array: 'element t) (index: int) : 'element option = 
+    getAt array ~index
 
   let first t = getAt t ~index:0
 
@@ -1556,8 +1376,8 @@ module Array = struct
   let partition t ~f =
     ( fold t ~initial:([], []) ~f:(fun result element ->
           let update = if f element then Tuple.mapFirst else Tuple.mapSecond in
-          update result ~f:(fun result -> List.cons result element))
-    |. Tuple.mapAll ) ~f:(fun list -> List.reverse list |. ofList)
+          update result ~f:(fun result -> element :: result))
+    |. Tuple.mapAll ) ~f:(fun list -> List.rev list |. ofList)
 
   let splitAt t ~index =
     (slice t ~from:0 ~to_:index, slice t ~from:index ~to_:(length t))
@@ -1589,6 +1409,15 @@ module Array = struct
 
   let join t ~sep = Js.Array.joinWith sep t
 
+  let groupBy t comparator ~f =
+    fold t ~initial:(Map.empty comparator) ~f:(fun map element -> (
+      let key = f element in
+      Map.update map ~key ~f:(function
+          | None -> Some [element]
+          | Some elements -> Some (element :: elements)
+      )
+    ))
+
   let equal equal a b =
     if length a <> length b then false
     else if length a = 0 then true
@@ -1616,4 +1445,291 @@ module Array = struct
           loop 0 )
     | result ->
         result
+end
+
+module List = struct
+  type 'a t = 'a list
+
+  let empty = []
+
+  let singleton x = [x]
+
+  let ofArray array = List.init (Array.length array) (fun i -> array.(i))
+
+  let range ?(from = 0) to_ = List.init (to_ - from) (fun i -> i + from)
+
+  let rec repeat element ~times =
+    if times <= 0 then [] else element :: repeat element ~times:(times - 1)
+
+  let concatenate = Belt.List.flatten
+
+  let reverse = Belt.List.reverse
+
+  let append = Belt.List.concat
+
+  let sum (type a) t (module M : Container.Sum with type t = a) =
+    List.fold_left M.add M.zero t
+
+  let map t ~f = Belt.List.map t f
+
+  let bind t ~f = concatenate (map t ~f)
+
+  let mapI t ~f = Belt.List.mapWithIndex t f
+
+  let map2 a b ~f = Belt.List.zipBy a b f
+
+  let zip = map2 ~f:(fun a b -> (a, b))
+
+  let rec map3 a b c ~f =
+    match (a, b, c) with
+    | (x :: xs, y :: ys, z :: zs) ->
+        f x y z :: map3 xs ys zs ~f
+    | _ ->
+        []
+
+  let rec last l =
+    match l with [] -> None | [x] -> Some x | _ :: rest -> last rest
+
+  let unzip list =
+    (List.map (fun (a, _) -> a) list, List.map (fun (_, b) -> b) list)
+
+  let includes t value ~equal = Belt.List.has t value equal
+
+  let find t ~f = Belt.List.getBy t f
+
+  let getAt t ~index = Belt.List.get t index
+
+  let any t ~f = List.exists f t
+
+  let head l = Belt.List.head l
+
+  let drop t ~count = Belt.List.drop t count |. Belt.Option.getWithDefault []
+
+  let take t ~count = Belt.List.take t count |. Belt.Option.getWithDefault []
+
+  let initial l =
+    match reverse l with [] -> None | _ :: rest -> Some (reverse rest)
+
+  let filterMap t ~f = Belt.List.keepMap t f
+
+  let filter t ~f = Belt.List.keep t f
+
+  let filterI t ~f = Belt.List.keepWithIndex t (fun e i -> f i e)
+
+  let partition t ~f = Belt.List.partition t f
+
+  let fold t ~initial ~f = Belt.List.reduce t initial f
+
+  let count t ~f =
+    fold t ~initial:0 ~f:(fun total element ->
+        total + match f element with true -> 1 | false -> 0)
+
+  let foldRight t ~initial ~f = Belt.List.reduceReverse t initial f
+
+  let findIndex list ~f =
+    let rec loop i l =
+      match l with
+      | [] ->
+          None
+      | x :: rest ->
+          if f i x then Some (i, x) else loop (i + 1) rest
+    in
+    loop 0 list
+
+  let splitAt t ~index =
+    if index < 0 then
+      raise (Invalid_argument "List.splitAt called with negative index") ;
+    let rec loop front back i =
+      match back with
+      | [] ->
+          (t, [])
+      | element :: rest ->
+          if i = 0 then (reverse front, back)
+          else loop (element :: front) rest (i - 1)
+    in
+    loop [] t index
+
+  let updateAt =
+    ( fun t ~index ~f ->
+        Belt.List.mapWithIndex t (fun i element ->
+            if i = index then f element else element)
+      : 'a t -> index:int -> f:('a -> 'a) -> 'a t )
+
+  let length l = Belt.List.length l
+
+  let rec dropWhile t ~f =
+    match t with [] -> [] | x :: rest -> if f x then dropWhile rest ~f else t
+
+  let isEmpty t = t = []
+
+  let sliding ?(step = 1) t ~size =
+    let rec loop t =
+      if isEmpty t then []
+      else (
+        let sample = Belt.List.take t size in
+        let rest = Belt.List.drop t step in
+        match (sample, rest) with
+        | (None, _) ->
+            []
+        | (Some x, None) ->
+            [x]
+        | (Some x, Some xs) ->
+            x :: loop xs )
+    in
+    loop t
+
+  let chunksOf t ~size = sliding t ~step:size ~size
+
+  let cons t element = element :: t
+
+  let takeWhile t ~f =
+    let rec takeWhileHelper acc t =
+      match t with
+      | [] ->
+          reverse acc
+      | x :: rest ->
+          if f x then takeWhileHelper (x :: acc) rest else reverse acc
+    in
+    takeWhileHelper [] t
+
+  let all t ~f = Belt.List.every t f
+
+  let tail t = match t with [] -> None | _ :: rest -> Some rest
+
+  let removeAt t ~index =
+    if index < 0 then t
+    else (
+      let (front, back) : 'a t * 'a t = splitAt t ~index in
+      match tail back with None -> t | Some t -> append front t )
+
+  let minimum t ~compare =
+    fold t ~initial:None ~f:(fun min element ->
+        match min with
+        | None ->
+            Some element
+        | Some value -> (
+          match compare element value < 0 with
+          | true ->
+              Some element
+          | false ->
+              min ))
+
+  let maximum t ~compare =
+    fold t ~initial:None ~f:(fun max element ->
+        match max with
+        | None ->
+            Some element
+        | Some value -> (
+          match compare element value > 0 with
+          | true ->
+              Some element
+          | false ->
+              max ))
+
+  let extent t ~compare =
+    fold t ~initial:None ~f:(fun current element ->
+        match current with
+        | None ->
+            Some (element, element)
+        | Some (min, max) ->
+            Some
+              ( ( match compare element min < 0 with
+                | true ->
+                    element
+                | false ->
+                    min )
+              , match compare element max > 0 with
+                | true ->
+                    element
+                | false ->
+                    max ))
+
+  let sort t ~compare = Belt.List.sort t compare
+
+  let span t ~f =
+    match t with [] -> ([], []) | _ -> (takeWhile t ~f, dropWhile t ~f)
+
+  let rec groupWhile t ~f =
+    match t with
+    | [] ->
+        []
+    | x :: rest ->
+        let (ys, zs) = span rest ~f:(f x) in
+        (x :: ys) :: groupWhile zs ~f
+
+  let insertAt t ~index ~value =
+    if index < 0 then
+      raise (Invalid_argument "List.splitAt called with negative index") ;
+    let rec loop front back i =
+      match back with
+      | [] ->
+          reverse (value :: front)
+      | element :: rest ->
+          if i = 0 then append (reverse front) (value :: element :: rest)
+          else loop (element :: front) rest (index - 1)
+    in
+    loop [] t index
+
+  let splitWhen t ~f =
+    let rec loop front back =
+      match back with
+      | [] ->
+          (t, [])
+      | element :: rest ->
+          if f element then (reverse front, back)
+          else loop (element :: front) rest
+    in
+    loop [] t
+
+  let intersperse t ~sep =
+    match t with
+    | [] ->
+        []
+    | [x] ->
+        [x]
+    | x :: rest ->
+        x :: foldRight rest ~initial:[] ~f:(fun acc x -> sep :: x :: acc)
+
+  let initialize length ~f = Belt.List.makeBy length f
+
+  let forEach t ~f = (Belt.List.forEach t f : unit)
+
+  let forEachI t ~f = (Belt.List.forEachWithIndex t f : unit)
+
+  let toArray = Array.ofList
+
+  let join strings ~sep = Js.Array.joinWith sep (toArray strings)
+
+  let groupBy t comparator ~f =
+    fold t ~initial:(Map.empty comparator) ~f:(fun map element -> (
+      let key = f element in
+      Map.update map ~key ~f:(function
+          | None -> Some [element]
+          | Some elements -> Some (element :: elements)
+      )
+    ))
+
+  let rec equal equalElement a b =
+    match (a, b) with
+    | ([], []) ->
+        true
+    | (x :: xs, y :: ys) ->
+        equalElement x y && equal equalElement xs ys
+    | _ ->
+        false
+
+  let rec compare compareElement a b =
+    match (a, b) with
+    | ([], []) ->
+        0
+    | ([], _) ->
+        -1
+    | (_, []) ->
+        1
+    | (x :: xs, y :: ys) -> (
+      match compareElement x y with
+      | 0 ->
+          compare compareElement xs ys
+      | result ->
+          result )
 end

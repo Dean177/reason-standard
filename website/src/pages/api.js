@@ -177,6 +177,23 @@ function renderSidebarElements(
           );
         case 'Module':
           switch (moduleElement.value.kind.tag) {
+            case 'ModuleFunctor':
+              let moduleFunctorLink = linkFor(
+                path,
+                moduleElement.value.kind.tag,
+                moduleElement.value.kind.name,
+              );
+              if (
+                hasSearch &&
+                !moduleElement.value.kind.name.includes(valueSearch)
+              ) {
+                return null;
+              }
+              return (
+                <div key={moduleFunctorLink}>
+                  <Link to={moduleFunctorLink}>{moduleElement.value.name}</Link>
+                </div>
+              );
             case 'ModuleStruct':
               let qualifiedModuleName =
                 path.length > 0
@@ -207,7 +224,7 @@ function renderSidebarElements(
                     ...moduleSearchPath.slice(1, moduleSearchPath.length),
                     valueSearch,
                   ];
-                } else {                  
+                } else {
                   subSearch = search;
                 }
               }
@@ -226,7 +243,11 @@ function renderSidebarElements(
 
               if (
                 hasSearch &&
-                !((moduleSearchPath.length === 0 && moduleNameMatchesValueSearch) || hasElementsMatchingSearch)
+                !(
+                  (moduleSearchPath.length === 0 &&
+                    moduleNameMatchesValueSearch) ||
+                  hasElementsMatchingSearch
+                )
               ) {
                 return null;
               }
@@ -364,11 +385,7 @@ const Sidebar = ({ moduleElements, moduleByModulePath }) => {
           padding-bottom: ${15 + dimensions.navbar}px;
 
           a {
-            color: ${({theme}) => theme.sidebar.text};
-          }
-
-          > * {
-            /* padding: 4px; */
+            color: ${({ theme }) => theme.sidebar.text};
           }
         `}
       >
@@ -542,10 +559,10 @@ let renderTextElements = (elements = [], parentPath = []) => {
         );
       case 'Ref':
         if (value.reference.content == null) {
-          console.error(value)
-          throw new Error("Empty")
+          console.error('Empty reference', value);
+          throw new Error('Empty reference');
         }
-        let content =          
+        let content =
           value.reference.content.length === 1 &&
           value.reference.content[0].tag === 'Code'
             ? stripCorePrefix(value.reference.content[0].value)
@@ -828,32 +845,50 @@ function renderModuleElements(moduleElements, modulesByName, path = []) {
                   )}
                 </ModuleCard>
               );
-            // case 'ModuleAlias':
-            //   if (index % 2 == 1) {
-            //     return null;
-            //   }
-            //   let module = modulesByName[moduleElement.value.kind.value.name];
-            //   if (module == null) {
-            //     throw new Error(
-            //       `The module '${moduleElement.value.name} (aliased to ${moduleElement.value.name}) is missing`,
-            //     );
-            //   }
-            //   if (module.value.kind.tag != 'ModuleStruct') {
-            //     throw new Error(
-            //       'Unmapped case for ' + kind.value.name + module.value.kind,
-            //     );
-            //   }
-            //   let id = idFor(path, 'ModuleStruct', module.value.name);
-            //   return (
-            //     <ModuleCard key={id + index}>
-            //       <PageAnchor id={id}>
-            //         <Identifiers.module
-            //           name={'Alias ' + moduleElement.value.kind.value.name}
-            //         />
-            //       </PageAnchor>
-            //       {renderModuleElements(module.value.kind.value, modulesByName)}
-            //     </ModuleCard>
-            //   );
+            case 'ModuleFunctor':
+              let functor = moduleElement.value;
+              let moduleFunctorId = idFor(path, functor.kind.tag, functor.name);
+              let { parameter, result } = functor.kind.value;
+              let signature;
+              switch (result.tag) {
+                case 'ModuleStruct':
+                  // signature = JSON.stringify(result.value)
+                  // This only gets used for Set.Of / Map.Of
+                  // Who wants to to a full implementation when this is all we need?
+                  // Sorry
+                  signature = `sig type t = ${result.value[0].value.manifest.value.rendered} end`;
+                  break;
+                case 'ModuleWith':
+                  signature = stripCorePrefix(result.value.kind.value);
+                  break;
+                default:
+                  throw new Error('UNHANDLED CASE ' + result.tag);
+              }
+
+              return (
+                <ValueContainer key={index}>
+                  <PageAnchor id={moduleFunctorId}>
+                    <ValueWrapper>
+                      <pre>
+                        <code>
+                          module {functor.name} : functor({parameter.value.name}{' '}
+                          : {stripCorePrefix(parameter.value.kind.value)}) ->{' '}
+                          {signature}
+                        </code>
+                      </pre>
+                    </ValueWrapper>
+                  </PageAnchor>
+                  {functor.info && (
+                    <div
+                      css={css`
+                        padding-left: 15px;
+                      `}
+                    >
+                      <TextElement elements={functor.info.description.value} />
+                    </div>
+                  )}
+                </ValueContainer>
+              );
             default:
               return (
                 <UnhandledCase
@@ -862,23 +897,6 @@ function renderModuleElements(moduleElements, modulesByName, path = []) {
                 />
               );
           }
-        // case 'IncludedModule':
-        //   let includedModule = modulesByName[moduleElement.value.name];
-        //   if (includedModule == null) {
-        //     throw new Error(
-        //       `The included module '${moduleElement.value.name}' is missing`,
-        //     );
-        //   }
-        //   if (includedModule.value.kind.tag != 'ModuleStruct') {
-        //     throw new Error(
-        //       `Unmapped case for ${moduleElement.kind.value.name} ${includedModule.value.kind}`,
-        //     );
-        //   }
-        //   return renderModuleElements(
-        //     includedModule.value.kind.value,
-        //     modulesByName,
-        //     path,
-        //   );
         default:
           return <UnhandledCase key={index} el={moduleElement} />;
       }

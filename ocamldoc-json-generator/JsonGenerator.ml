@@ -18,13 +18,13 @@ module Json = struct
   ]
 
   let null = `Null
-  let nullable f value = match (value) with | None -> null | Some v -> f v
-  let bool value = `Bool value
-  let int value = `Int value
-  let float value = `Float value
-  let string value = `String value
+  let nullable f value : t= match (value) with | None -> null | Some v -> f v
+  let bool value : t= `Bool value
+  let int value : t= `Int value
+  let float value : t= `Float value
+  let string (value: string) : t = `String value
   let array (f: 'a -> t) (a: 'a list) : t = `Array (List.map f a)
-  let obj values = `Object values
+  let obj values : t = `Object values
 
   let tagged tag json = 
     `Object [
@@ -922,9 +922,11 @@ class json = object (self)
           ("from", self#json_of_module_kind father k1);
           ("to", self#json_of_module_kind father k2);
         ]))          
-      | Module_with (_k, _s) ->
-          print_endline "Encountered Module_with";
-          null
+      | Module_with ((k: module_type_kind), (s : string)) ->          
+        (tagged "ModuleWith" (obj [
+          ("kind", self#json_of_module_type_kind father k);
+          ("s", string s);
+        ]))          
       | Module_constraint (k, _tk) -> 
           print_endline "Encountered Module_constraint";
           null
@@ -985,12 +987,13 @@ class json = object (self)
           ]))
       | Module_type_alias (a: module_type_alias) -> 
           (tagged "ModuleTypeAlias" (string a.mta_name))
-      | Module_type_with (k, s) ->
-          print_DEBUG "json_of_module_type_kind : Module_type_with";
-          null
-      | Module_type_typeof s ->
-          print_DEBUG "json_of_module_type_kind : Module_type_typeof";
-          null
+      | Module_type_with ((k: module_type_kind), (s: string)) ->
+          (tagged "ModuleTypeWith" (obj [
+            ("kind", (self#json_of_module_type_kind father k));
+            ("s", (string s));
+          ]))
+      | Module_type_typeof (s: string) ->
+          (tagged "ModuleTypeTypeof" (string s))
 
     (** Json to display the type of a module parameter.. *)
     method json_of_module_parameter_type m_name p : Json.t =

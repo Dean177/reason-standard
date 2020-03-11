@@ -58,7 +58,7 @@ export const Sidebar = ({ location }) => {
     <div
       className="Sidebar"
       css={css`
-        background-color: ${({ theme }) => theme.body.background};
+        background-color: ${({ theme }) => theme.sidebar.background};
         color: ${({ theme }) => theme.navbar.background};
         padding-top: 3rem;
         padding-bottom: 3rem;

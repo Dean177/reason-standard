@@ -9,6 +9,7 @@ let () = {
           ArrayOcamlSyntaxSpecificTest.suite,
           BoolTest.suite,
           CharTest.suite,
+          ComparatorTest.suite,
           FloatTest.suite,
           FunTest.suite,
           IntegerTest.suite,

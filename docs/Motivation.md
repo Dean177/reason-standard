@@ -3,9 +3,14 @@ title: "Motivation"
 order: "3"
 ---
 
+# Why another standard library?
+
+Ocaml already has a standard library, Bucklescript ships with [Belt]() and on the native side we have [Base](https://opensource.janestreet.com/base/). So why create another standard library?
+
 ## Where are all the functions
 
-Ocamls standard library is a sparse and moves very slowly.
+Ocamls standard library is a sparse and moves very slowly as a result its standard library
+Lots of functions throw exceptions
 
 ## Modules, Modules, Modules
 
@@ -21,9 +26,11 @@ very different.
 
 ## How does it work
 
-Both bucklescript, belt and ocamls standard library suffer in the documentation 
-department.
+The standard library, Belt and Base all suffer in the documentation department. 
 
+Examples are few and far between and the oneline docstrings often require a pen and paper to decode.
+
+Standard aims to be much easier to learn with thorough documentation and plenty of examples plus being able to [search the api](/api) makes finding this information much easier.
 
 ## Friction
 
@@ -48,6 +55,13 @@ Standard provides separate libraries for OCaml native and Bucklescript.
 
 The libraries have the same API, but different implementations, and are installed as different packages.
 
+## Legacy and approach
+
+In the ocaml standard library lots of functions throw exceptions. 
+
+Part of the reason for this is on the native side exceptions use some clever tricks which makes them extremely fast.
+The other part of the reason is that Option and Result make 
+
 ## Motivation
 
 Ocamls standard library sucks:
@@ -63,7 +77,6 @@ Belt is OK:
 - The documentation is not great
 - The examples are sparse
 - It has some legacy baggage
-- Its inconsistent (TODO is it)
 - Its not available for native code\* (It is when you are using bucklescript-native)
 
 - High quality documentation and examples
@@ -85,13 +98,15 @@ Belt is OK:
 - Can it easily be made from existing functions -> Don't include it
 - Are people always making that custom function -> Do include it
 
-TODO nail this
+# Goals
 
-- Amazing documentation & examples
-- Easy to use and learn
+## Amazing documentation & examples
+Easy to use and learn
 - Consistency
+Providing the same basic API for both ocaml and bucklescript
+
 - Find a balance between batteries included and bare essentials
-- Providing the same basic API for both ocaml and bucklescript
+
 - Provide platoform specific features where it makes sense
 - Strike a balance between JS and Ocaml conventions
 - Safety. Exceptions that can throw are not the default, well documented

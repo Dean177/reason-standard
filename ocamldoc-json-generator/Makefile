@@ -55,27 +55,6 @@ doc: build
 		./_build/Core.mli \
 		./_build/Core.ml \
 		./_build/Standard.ml
-		
-test: dummy
-	ocamlc -c ./test/Example.ml
-	ocamldoc.opt \
-		-g ./$(CMXS) \
-		-d ./test/doc \
-		./test/Example.ml 
-	echo "Documented"
-		
-# doc-test:
-# 	rm -rf ./test-doc/* && \
-# 	ocamlfind ocamldoc \
-# 		-I ./test/src \
-# 		-i ../_build/default/ocamldoc-json-generator/ \
-# 		-g JsonGenerator.cma \
-# 		-d ./test \
-# 		./test/Core.mli \
-# 		./test/Core.ml \
-# 		./test/Fourier.ml \
-# 		./test/Included.ml \
-# 		./test/ExampleEntry.ml 
 
 clean:
 	rm -f *.cm* *.o *.a ./test/*.cm* ./test/*.o ./test/*.a

@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components';
 import React from 'react';
 import { Reason, Ocaml } from './Icon';
-import { colors } from '../theme';
+import { colors, spacing } from '../theme';
 
 export let keywords = {
   reason: {
@@ -56,7 +56,7 @@ const ToggleContainer = styled.button`
       isReason ? colors.red.base : colors.orange.ocaml.start};
   border-radius: 30px;
   cursor: pointer;
-  margin: 0 auto;
+  margin: 0;
   overflow: hidden;
   padding: 0.4rem;
   position: relative;
@@ -92,9 +92,26 @@ const ToggleContainer = styled.button`
 export const SyntaxToggle = () => {
   let [syntax, toggleSyntax] = useSyntax();
   return (
-    <ToggleContainer onClick={toggleSyntax} isReason={syntax === 'reason'}>
-      <Reason height={logoSize * 2.5} width={logoSize * 2.5} />
-      <Ocaml height={logoSize * 3.25} width={logoSize * 3.25} />
-    </ToggleContainer>
+    <div css={css`
+      align-items: flex-end;
+      display: flex;
+      flex-direction: column;
+      margin-top: -10px;
+
+      span {
+        color: ${colors.grey.dark};
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 1.1px;
+        margin-bottom: ${spacing.smallest}px;
+        text-transform: uppercase;
+      }
+    `}>
+      <span>Switch syntax</span>
+      <ToggleContainer onClick={toggleSyntax} isReason={syntax === 'reason'}>
+        <Reason height={logoSize * 2.5} width={logoSize * 2.5} />
+        <Ocaml height={logoSize * 3.25} width={logoSize * 3.25} />
+      </ToggleContainer>
+    </div>
   );
 };

@@ -7,21 +7,24 @@ order: "5"
 
 | Module     | Interface | Implement | Tests | Documentation |
 | ---------- | --------- | --------- | ----- | ------------- |
-| Comparable |           |           |       |               |
-| Comparator |           |           |       |               |
+| Order      |           |           |       |               |
+| Ref        | ✓         | ✓         |       |               |
 | Int32      |           |           |       |               |
 | Int64      |           |           |       |               |
-| Order      |           |           |       |               |
-| Poly       |           |           |       |               |
-| Ref        | ✓         | ✓         |       |               |
-| Map.make   |           |           |       |               |
-| Set.make   |           |           |       |               |
-| Re         |           |           |       |               |
+| Vector     |           |           |       |               |
 
 ## Future
 
 - [ ] Vector (Immutable, Growable array-like)
+- Hash
+  file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Hash/index.html
+- Hashable
+  file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Hashable/index.html
+- HashTable
+  file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Hashtbl/index.html
+- HashSet
 - [ ] Buffer: file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Buffer/index.html
+- [ ] RegularExpression 
 - [ ] Random
   - file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Random/index.html
   - https://github.com/boo1ean/casual#readme
@@ -50,13 +53,7 @@ order: "5"
 - Slice
 - Lazy
   file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Lazy/index.html
-- Hash
-  file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Hash/index.html
-- Hashable
-  file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Hashable/index.html
-- HashTable
-  file:///Users/deanmerchant/.opam/4.07.1/var/cache/odig/html/base/Base/Hashtbl/index.html
-- HashSet
+
 - Unit
 - Record
 - Object

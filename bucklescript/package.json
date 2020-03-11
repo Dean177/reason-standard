@@ -13,7 +13,7 @@
   "scripts": {
     "clean": "bsb -clean-world",
     "build": "bsb -make-world",
-    "watch": "bsb -make-world -w",
+    "start": "bsb -make-world -w",
     "test": "jest"
   },
   "dependencies": {},

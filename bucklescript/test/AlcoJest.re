@@ -9,8 +9,9 @@ module Eq: {
       need these as it compares values structurally (which is fine for the
       included types)
   */
-
-  type t('a);
+  type result
+  type t('a) = ('a, 'a) => result;
+  let make: (('a, 'a) => bool) => ((Format.formatter, 'a) => unit) => t('a);
   let bool: t(bool);
   let char: t(char);
   let int: t(int);
@@ -25,7 +26,9 @@ module Eq: {
   let pair: (t('a), t('b)) => t(('a, 'b));
   let trio: (t('a), t('b), t('c)) => t(('a, 'b, 'c));
 } = {
+  type result = unit;
   type t('a) = ('a, 'a) => unit;
+  let make = (_, _, _, _) => ();
   let ignore = _ => Standard.Fun.ignore;
   let bool = ignore;
   let char = ignore;

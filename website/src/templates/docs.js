@@ -33,7 +33,7 @@ import { Sidebar } from '../components/Sidebar';
 
 let MdxStyles = createGlobalStyle`
 .heading1 {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 800;
   line-height: 1.5;
   margin-bottom: 16px;
@@ -41,7 +41,7 @@ let MdxStyles = createGlobalStyle`
 }
 
 .heading2 {
-  font-size: 25px;
+  font-size: 26px;
   font-weight: 700;
   line-height: 1.5;
   margin-bottom: 16px;
@@ -92,6 +92,16 @@ let MdxStyles = createGlobalStyle`
   overflow: auto;
 }
 
+.inlineCode {
+  background: ${({ theme }) => theme.code.background};
+  border: 1px solid ${({ theme }) => theme.code.border};
+  color: ${({ theme }) => theme.code.text};
+  font-family: ${fonts.monospace};
+  padding: 2px;
+  border-radius: 1px;
+  overflow: auto;
+}
+
 .code {
   border-radius: 4px;
   font-family: ${fonts.monospace};
@@ -135,6 +145,7 @@ let mdxComponents = {
   ),
   p: props => <p className="paragraph" {...props} />,
   pre: props => <pre className="pre">{props.children}</pre>,
+  inlineCode: props => <code className="inlineCode" {...props}/>,
   code: ({ className, children, ...props }) => (
     <div className="code">
       <CodeBlock

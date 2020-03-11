@@ -7,7 +7,7 @@ module Eq = {
     let eq = ((a1, b1, c1), (a2, b2, c2)) =>
       AT.equal(a, a1, a2) && AT.equal(b, b1, b2) && AT.equal(c, c1, c2);
 
-    let pp = (ppf, (x, y, z)) =>
+    let pp = (ppf: Format.formatter, (x, y, z)): unit =>
       Fmt.pf(
         ppf,
         "@[<1>(@[%a@],@ @[%a@],@ @[%a@])@]",
@@ -31,6 +31,9 @@ module Eq = {
   };
 
   let float = AT.float(0.0);
+
+  let make = (equal: ('a, 'a) => bool,  prettyPrint: (Format.formatter, 'a) => unit) => 
+    AT.testable(prettyPrint, equal);
 };
 
 type expectation('a) =
