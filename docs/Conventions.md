@@ -187,4 +187,4 @@ This section was heavily inspired by [Javier Chavarri's excellent blog post](htt
 
 Now is a great time to jump straight into the [API](/api).
 
-If you want to find out more about why it exists and how you can help, read on.
+If you want to find out more about why Standard exists and how you can help, read on.

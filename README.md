@@ -8,10 +8,13 @@
 
 Standard provides an easy-to-use, comprehensive and safe standard library, that has the same API for the OCaml and Bucklescript compilers.
 
-> ⚠️ **Warning** 
+> ⚠️ **Warning** ⚠️
+>
 > Standard is alpha-quality software. 
-> There could be bugs.
-> The API will change
+>
+> There could be bugs or missing deatures
+>
+> The API will could change without warning until `1.0.0` is released
 
 ## Documentation
 

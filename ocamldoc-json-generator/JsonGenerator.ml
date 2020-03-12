@@ -409,9 +409,16 @@ class virtual text = object (self)
           ("reference", 
             match ref_opt with
             | None -> (
-              match text_opt with
-              | None -> (array self#json_of_text_element) [Odoc_info.Code name]
-              | Some t -> (array self#json_of_text_element) t
+              (obj [
+                ("kind", string "Unknown");
+                ("target", string name);
+                ("content", 
+                  match text_opt with
+                  | None -> (array self#json_of_text_element) [Odoc_info.Code name]
+                  | Some t -> (array self#json_of_text_element) t
+                )
+              ])
+              
             )
             | Some kind ->
               let hidden name = Odoc_info.Code (Odoc_info.use_hidden_modules name) in

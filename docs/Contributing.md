@@ -24,7 +24,8 @@ Here are some ways to contribute:
 - Check that a function cannot throw exceptions (and add a note to the function documentation to that effect)
 - Propose a strategy for benchmarking
 - Optimize a function
-- Suggest a new function by [creating an issue](https://github.com/Dean177/Standard/issues/new). 
+- Suggest a new function or module by [creating an issue](https://github.com/Dean177/reason-standard/issues/new). 
+- Imorove the [documentation site](https://github.com/Dean177/reason-standard/tree/master/website)
 
 If you'd like to contribute but don't know where to start [open an
 issue](https://github.com/Dean177/reason-standard/issues/new) with your thoughts
@@ -37,7 +38,7 @@ or reach out on [Twitter](https://twitter.com/Dean177) or by
 
 Create an issue first!
 
-If you are planning on removing, changing or adding new features to `Standard`, please open an issue first
+If you are planning on removing, changing or adding new features to `Standard`, please open an issue first.
 
 ### Small pull requests
 
