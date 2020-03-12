@@ -2031,7 +2031,7 @@ module Integer : sig
       {[
         String.repeat "9" ~times:10_000 
         |> Integer.ofString 
-        |> Option.bind ~f:Integer.toString
+        |> Option.flatMap ~f:Integer.toString
            = None
       ]}
   *)
@@ -2048,7 +2048,7 @@ module Integer : sig
       {[
         String.repeat "9" ~times:10_000 
         |> Integer.ofString 
-        |> Option.bind ~f:Integer.toString
+        |> Option.flatMap ~f:Integer.toString
            = None
       ]}
   *)
@@ -2492,7 +2492,7 @@ module Option : sig
       work with the value it might contain by:
 
       - Pattern matching
-      - Using {!map} or {!bind} (or their operators in {!Infix})
+      - Using {!map} or {!flatMap} (or their operators in {!Infix})
       - Unwrapping it using {!get}, or its operator {!Infix.(|?)}
       - Converting a [None] into an exception using{!getUnsafe}
 
@@ -2575,13 +2575,13 @@ module Option : sig
 
       {2 Examples}
 
-      {[Option.join (Some (Some 4)) = Some 4]}
+      {[Option.flatten (Some (Some 4)) = Some 4]}
 
-      {[Option.join (Some None) = None]}
+      {[Option.flatten (Some None) = None]}
 
-      {[Option.join (None) = None]}
+      {[Option.flatten (None) = None]}
   *)
-  val join : 'a t t -> 'a t
+  val flatten : 'a t t -> 'a t
 
   (** Transform the value inside an option.
 
@@ -2621,7 +2621,7 @@ module Option : sig
 
       It is helpful to see its definition:
       {[
-        let bind t ~f =
+        let flatMap t ~f =
           match t with
           | Some x -> f x
           | None -> None
@@ -2642,7 +2642,7 @@ module Option : sig
         let userInput = "5" in
 
         Int.ofString userInput
-        |> Option.bind ~f:toValidMonth
+        |> Option.flatMap ~f:toValidMonth
       ]}
 
       If [String.toInt] produces [None] (because the [userInput] was not an 
@@ -2654,11 +2654,11 @@ module Option : sig
 
       {2 Examples}
 
-      {[Option.bind (Some [1, 2, 3]) ~f:List.head = Some 1]}
+      {[Option.flatMap (Some [1, 2, 3]) ~f:List.head = Some 1]}
 
-      {[Option.bind (Some []) ~f:List.head = None]}
+      {[Option.flatMap (Some []) ~f:List.head = None]}
   *)
-  val bind : 'a t -> f:('a -> 'b t) -> 'b t
+  val flatMap : 'a t -> f:('a -> 'b t) -> 'b t
   
   
   (** Unwrap an [option('a)] returning [default] if called with [None].
@@ -2667,7 +2667,7 @@ module Option : sig
 
       See {!Infix.(|?)} for an operator version of this function.
 
-      {b Note} This can be overused! Many cases are better handled using pattern matching, {!map} or {!bind}.
+      {b Note} This can be overused! Many cases are better handled using pattern matching, {!map} or {!flatMap}.
 
       {2 Examples}
 
@@ -2681,7 +2681,7 @@ module Option : sig
   
   (** Unwrap an [option('a)] returning the enclosed ['a].
 
-      {b Note} in most situations it is better to use pattern matching, {!get}, {!map} or {!bind}.
+      {b Note} in most situations it is better to use pattern matching, {!get}, {!map} or {!flatMap}.
       Can you structure your code slightly differently to avoid potentially raising an exception?
 
       {3 Exceptions}
@@ -2825,7 +2825,7 @@ module Option : sig
     *)
     val (>>|) : 'a t -> ('a -> 'b) -> 'b t
 
-    (** The operator version of {!bind}
+    (** The operator version of {!flatMap}
 
         {2 Examples}
 
@@ -2935,7 +2935,7 @@ module Result : sig
 
       {b Note} if you need access to the contained value rather than doing
       [Result.isOk] followed by {!Result.getUnsafe} its safer and just as
-      convenient to use pattern matching directly or use one of {!Result.bind}
+      convenient to use pattern matching directly or use one of {!Result.flatMap}
       or {!Result.map}
 
       {2 Examples}
@@ -2953,7 +2953,7 @@ module Result : sig
 
       {b Note} if you need access to the contained value rather than doing
       {!Result.isOk} followed by {!Result.getUnsafe} its safer and just as
-      convenient to use pattern matching directly or use one of {!Result.bind}
+      convenient to use pattern matching directly or use one of {!Result.flatMap}
       or {!Result.map}
 
       {2 Examples}
@@ -3048,19 +3048,19 @@ module Result : sig
 
       {2 Examples}
 
-      {[Result.join (Ok (Ok 2)) = Ok 2]}
+      {[Result.flatten (Ok (Ok 2)) = Ok 2]}
 
       {[
-        Result.join (Ok (Error (`UnexpectedBird "Peregrin falcon"))) = 
+        Result.flatten (Ok (Error (`UnexpectedBird "Peregrin falcon"))) = 
           (Error (`UnexpectedBird "Peregrin falcon"))
       ]}
 
       {[
-        Result.join (Error (`UnexpectedInvertabrate "Woodlouse")) = 
+        Result.flatten (Error (`UnexpectedInvertabrate "Woodlouse")) = 
           (Error (`UnexpectedInvertabrate "Woodlouse"))
       ]}
   *)
-  val join : (('ok, 'error) t, 'error) t -> ('ok, 'error) t
+  val flatten : (('ok, 'error) t, 'error) t -> ('ok, 'error) t
   
   (** Unwrap a Result using the [~default] value in case of an [Error]
 
@@ -3193,19 +3193,19 @@ module Result : sig
 
       {2 Examples}
 
-      {[Result.bind ~f:reciprical (Ok 4.0) = Ok 0.25]}
+      {[Result.flatMap ~f:reciprical (Ok 4.0) = Ok 0.25]}
 
-      {[Result.bind ~f:reciprical (Error "Missing number!") = Error "Missing number!"]}
+      {[Result.flatMap ~f:reciprical (Error "Missing number!") = Error "Missing number!"]}
 
-      {[Result.bind ~f:reciprical (Ok 0.0) = Error "Divide by zero"]}
+      {[Result.flatMap ~f:reciprical (Ok 0.0) = Error "Divide by zero"]}
 
-      {[Result.bind (Ok 4.0) ~f:root  |> Result.bind ~f:reciprical = Ok 0.5]}
+      {[Result.flatMap (Ok 4.0) ~f:root  |> Result.flatMap ~f:reciprical = Ok 0.5]}
 
-      {[Result.bind (Ok -2.0) ~f:root |> Result.bind ~f:reciprical = Error "Cannot be negative"]}
+      {[Result.flatMap (Ok -2.0) ~f:root |> Result.flatMap ~f:reciprical = Error "Cannot be negative"]}
 
-      {[Result.bind (Ok 0.0) ~f:root |> Result.bind ~f:reciprical = Error "Divide by zero"]}
+      {[Result.flatMap (Ok 0.0) ~f:root |> Result.flatMap ~f:reciprical = Error "Divide by zero"]}
   *)
-  val bind : ('a, 'error) t -> f:('a -> ('b, 'error) t) -> ('b, 'error) t
+  val flatMap : ('a, 'error) t -> f:('a -> ('b, 'error) t) -> ('b, 'error) t
   
   (** Run a function against an [(Ok value)], ignores [Error]s.
 
@@ -3301,7 +3301,7 @@ module Result : sig
     val (|?) : ('a, 'error) t -> 'a -> 'a
     
 
-    (** An operator version of {!bind}
+    (** An operator version of {!flatMap}
 
         {2 Examples}
 
@@ -5074,13 +5074,13 @@ module Array : sig
   *)
   val filterMap : 'a t -> f:('a -> 'b option) -> 'b t
 
-  (** {!map} [f] onto an array and {!concatenate} the resulting arrays
+  (** {!map} [f] onto an array and {!flatten} the resulting arrays
 
       {2 Examples}
 
-      {[Array.bind ~f:(fun n -> [|n; n|]) [|1; 2; 3|] = [|1; 1; 2; 2; 3; 3|]]}
+      {[Array.flatMap ~f:(fun n -> [|n; n|]) [|1; 2; 3|] = [|1; 1; 2; 2; 3; 3|]]}
   *)
-  val bind : 'a t -> f:('a -> 'b t) -> 'b t
+  val flatMap : 'a t -> f:('a -> 'b t) -> 'b t
   
   (** Produce a new value from an array.
 
@@ -5166,9 +5166,9 @@ module Array : sig
 
       {2 Examples}
 
-      {[Array.concatenate [|[|1; 2|]; [|3|]; [|4; 5|]|] = [|1; 2; 3; 4; 5|]]}
+      {[Array.flatten [|[|1; 2|]; [|3|]; [|4; 5|]|] = [|1; 2; 3; 4; 5|]]}
   *)
-  val concatenate : 'a t t -> 'a t
+  val flatten : 'a t t -> 'a t
 
   (** Combine two arrays by merging each pair of elements into a {!Tuple}
 
@@ -6004,15 +6004,15 @@ module List : sig
   *)
   val filterMap : 'a t -> f:('a -> 'b option) -> 'b t
   
-  (** Apply a function [f] onto a list and {!concatenate} the resulting list of lists.
+  (** Apply a function [f] onto a list and {!flatten} the resulting list of lists.
 
       {2 Examples}
 
-      {[List.bind ~f xs = List.map ~f xs |> List.concatenate]}
+      {[List.flatMap ~f xs = List.map ~f xs |> List.flatten]}
 
-      {[List.bind ~f:(fun n -> [|n; n|]) [|1; 2; 3|] = [|1; 1; 2; 2; 3; 3|]]}
+      {[List.flatMap ~f:(fun n -> [|n; n|]) [|1; 2; 3|] = [|1; 1; 2; 2; 3; 3|]]}
   *)
-  val bind : 'a t -> f:('a -> 'b t) -> 'b t
+  val flatMap : 'a t -> f:('a -> 'b t) -> 'b t
 
   (** Transform a list into a value
 
@@ -6084,9 +6084,9 @@ module List : sig
 
       {2 Examples}
 
-      {[List.concatenate [[1; 2]; [3]; [4; 5]] = [1; 2; 3; 4; 5]]}
+      {[List.flatten [[1; 2]; [3]; [4; 5]] = [1; 2; 3; 4; 5]]}
   *)
-  val concatenate : 'a t t -> 'a t
+  val flatten : 'a t t -> 'a t
 
   (** Combine two lists by merging each pair of elements into a {!Tuple}
 

@@ -257,9 +257,9 @@ let suite =
          )
     });
 
-    test("bind", () => {
+    test("flatMap", () => {
       let duplicate = n => [|n, n|];
-      expect(bind(~f=duplicate, [|1, 2, 3|]))
+      expect(flatMap(~f=duplicate, [|1, 2, 3|]))
       |> toEqual(Eq.(array(int)), [|1, 1, 2, 2, 3, 3|]);
     });
 
@@ -394,8 +394,8 @@ let suite =
       |> toEqual(Eq.(array(int)), [|42, 42, 81, 81, 81|])
     });
 
-    test("concatenate", () => {
-      expect(concatenate([|[|1, 2|], [|3|], [|4, 5|]|]))
+    test("flatten", () => {
+      expect(flatten([|[|1, 2|], [|3|], [|4, 5|]|]))
       |> toEqual(Eq.(array(int)), [|1, 2, 3, 4, 5|])
     });
 

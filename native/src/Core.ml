@@ -267,9 +267,9 @@ module Option = struct
 
   let or_ ta tb = match isSome ta with true -> ta | false -> tb
 
-  let bind t ~f = match t with Some x -> f x | None -> None
+  let flatMap t ~f = match t with Some x -> f x | None -> None
 
-  let join = Option.join
+  let flatten = Option.join
 
   let both a b =
     match (a, b) with (Some a, Some b) -> Some (a, b) | _ -> None
@@ -297,7 +297,7 @@ module Option = struct
   module Infix = struct
     let ( |? ) t default = get t ~default
 
-    let ( >>= ) t f = bind t ~f
+    let ( >>= ) t f = flatMap t ~f
 
     let ( >>| ) t f = map t ~f
   end
@@ -346,7 +346,7 @@ module Result = struct
     | (_, Error b') ->
         Error b'
 
-  let join = Result.join
+  let flatten = Result.join
 
   let or_ a b = match a with Ok _ -> a | _ -> b
 
@@ -378,7 +378,7 @@ module Result = struct
 
   let toOption r = match r with Ok v -> Some v | Error _ -> None
 
-  let bind t ~f = Result.bind t f
+  let flatMap t ~f = Result.bind t f
 
   let attempt f =
     match f () with value -> Ok value | exception error -> Error error
@@ -420,7 +420,7 @@ module Result = struct
   module Infix = struct
     let ( |? ) t default = get t ~default
 
-    let ( >>= ) t f = bind t ~f
+    let ( >>= ) t f = flatMap t ~f
 
     let ( >>| ) t f = map t ~f
   end
@@ -1181,7 +1181,7 @@ module Array = struct
 
   let filterMap = Base.Array.filter_map
 
-  let bind = Base.Array.concat_map
+  let flatMap = Base.Array.concat_map
 
   let fold a ~initial ~f = Base.Array.fold a ~init:initial ~f
 
@@ -1234,7 +1234,7 @@ module Array = struct
   let append (a : 'a array) (a' : 'a array) =
     (Base.Array.append a a' : 'a array)
 
-  let concatenate (al : 'a array array) =
+  let flatten (al : 'a array array) =
     (Base.Array.concat (Base.Array.to_list al) : 'a array)
 
   let intersperse array ~sep =
@@ -1419,7 +1419,7 @@ module List = struct
 
   let append (l1 : 'a list) (l2 : 'a list) = (Base.List.append l1 l2 : 'a list)
 
-  let concatenate = Base.List.concat
+  let flatten = Base.List.concat
 
   let map2 = Base.List.map2_exn
 
@@ -1431,7 +1431,7 @@ module List = struct
 
   let mapI = Base.List.mapi
 
-  let bind = Base.List.concat_map
+  let flatMap = Base.List.concat_map
 
   let includes = Base.List.mem
 

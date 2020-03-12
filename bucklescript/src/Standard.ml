@@ -219,7 +219,7 @@ module Result = struct
     | (_, Error b') ->
         Error b'
 
-  let join a = match a with Ok a' -> a' | Error error -> Error error
+  let flatten a = match a with Ok a' -> a' | Error error -> Error error
 
   let or_ a b = match a with Ok _ -> a | _ -> b
 
@@ -251,7 +251,7 @@ module Result = struct
 
   let toOption r = match r with Ok v -> Some v | Error _ -> None
 
-  let bind t ~f = Belt.Result.flatMap t f
+  let flatMap t ~f = Belt.Result.flatMap t f
 
   let attempt f =
     match f () with value -> Ok value | exception error -> Error error
@@ -293,7 +293,7 @@ module Result = struct
   module Infix = struct
     let ( |? ) t default = get t ~default
 
-    let ( >>= ) t f = bind t ~f
+    let ( >>= ) t f = flatMap t ~f
 
     let ( >>| ) t f = map t ~f
   end
@@ -312,9 +312,9 @@ module Option = struct
 
   let and_ ta tb = match isSome ta with true -> tb | false -> ta
 
-  let bind t ~f = match t with None -> None | Some x -> f x
+  let flatMap t ~f = match t with None -> None | Some x -> f x
 
-  let join = function Some option -> option | None -> None
+  let flatten = function Some option -> option | None -> None
 
   let both a b =
     match (a, b) with (Some a, Some b) -> Some (a, b) | _ -> None
@@ -361,7 +361,7 @@ module Option = struct
   module Infix = struct
     let ( |? ) t default = get t ~default
 
-    let ( >>= ) t f = bind t ~f
+    let ( >>= ) t f = flatMap t ~f
 
     let ( >>| ) t f = map t ~f
   end
@@ -1305,7 +1305,7 @@ module Array = struct
 
   let zip = map2 ~f:(fun a b -> (a, b))
 
-  let bind t ~f = Belt.Array.map t f |. Belt.Array.concatMany
+  let flatMap t ~f = Belt.Array.map t f |. Belt.Array.concatMany
 
   let sliding ?(step = 1) a ~size =
     let n = Array.length a in
@@ -1339,7 +1339,7 @@ module Array = struct
 
   let append a a' = Belt.Array.concat a a'
 
-  let concatenate (ars : 'a array array) = Belt.Array.concatMany ars
+  let flatten (ars : 'a array array) = Belt.Array.concatMany ars
 
   let intersperse t ~sep =
     Belt.Array.makeBy
@@ -1464,7 +1464,7 @@ module List = struct
   let rec repeat element ~times =
     if times <= 0 then [] else element :: repeat element ~times:(times - 1)
 
-  let concatenate = Belt.List.flatten
+  let flatten = Belt.List.flatten
 
   let reverse = Belt.List.reverse
 
@@ -1475,7 +1475,7 @@ module List = struct
 
   let map t ~f = Belt.List.map t f
 
-  let bind t ~f = concatenate (map t ~f)
+  let flatMap t ~f = flatten (map t ~f)
 
   let mapI t ~f = Belt.List.mapWithIndex t f
 

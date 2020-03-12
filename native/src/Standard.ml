@@ -25,7 +25,7 @@ module Option = struct
   let (and+) (t : 'a t) (t' : 'b t) : ('a * 'b) t = both t t'
 
   (** The {{: https://caml.inria.fr/pub/docs/manual-ocaml/bindingops.html } binding operator} 
-      for {!Core.Option.bind}
+      for {!Core.Option.flatMap}
 
       {b Note} Currently this is only supported by the OCaml syntax.
 
@@ -34,7 +34,7 @@ module Option = struct
       only supported by the native compiler.
   *)
   let (let*) (t : 'a t) (f : 'a -> 'b t) : 'b t =  
-    bind t ~f 
+    flatMap t ~f 
 
 
   (** The {{: https://caml.inria.fr/pub/docs/manual-ocaml/bindingops.html } binding operator} 
@@ -76,7 +76,7 @@ module Result = struct
     both t t'
 
   (** The {{: https://caml.inria.fr/pub/docs/manual-ocaml/bindingops.html } binding operator} 
-      for {!Core.Result.bind}
+      for {!Core.Result.flatMap}
 
       {b Note} Currently this is only supported by the OCaml syntax.
       
@@ -84,7 +84,7 @@ module Result = struct
       only supported by the native compiler.
   *)
   let (let*) (t : ('a, 'error) t) (f : 'a -> ('b, 'error) t) : ('b, 'error) t = 
-    bind t ~f 
+    flatMap t ~f 
 
   (** The {{: https://caml.inria.fr/pub/docs/manual-ocaml/bindingops.html } binding operator} 
       for {!Core.Result.both}

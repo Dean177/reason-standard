@@ -357,22 +357,22 @@ let suite =
       });
     });
 
-    describe("concatenate", () => {
+    describe("flatten", () => {
       test("two empty lists", () => {
-        expect(concatenate([[], []])) |> toEqual(Eq.(list(int)), [])
+        expect(flatten([[], []])) |> toEqual(Eq.(list(int)), [])
       });
       test("one empty list", () => {
-        expect(concatenate([[1], []])) |> toEqual(Eq.(list(int)), [1])
+        expect(flatten([[1], []])) |> toEqual(Eq.(list(int)), [1])
       });
       test("one empty list", () => {
-        expect(concatenate([[], [1]])) |> toEqual(Eq.(list(int)), [1])
+        expect(flatten([[], [1]])) |> toEqual(Eq.(list(int)), [1])
       });
       test("several lists", () => {
-        expect(concatenate([[1], [2], [3]]))
+        expect(flatten([[1], [2], [3]]))
         |> toEqual(Eq.(list(int)), [1, 2, 3])
       });
       test("several lists", () => {
-        expect(concatenate([[1], [], [2], [], [3]]))
+        expect(flatten([[1], [], [2], [], [3]]))
         |> toEqual(Eq.(list(int)), [1, 2, 3])
       });
     });
