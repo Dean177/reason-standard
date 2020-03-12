@@ -4427,7 +4427,7 @@ module Map : sig
   val map : ('key, 'value, 'id) t -> f:('value -> 'b) -> ('key, 'b, 'id) t
   
   (** Like {!map} but [f] is also called with each values corresponding key *)
-  val mapI : ('key, 'va, 'i) t -> f:('key -> 'va -> 'vb) -> ('key, 'vb, 'i) t
+  val mapI : ('key, 'value, 'id) t -> f:('key -> 'value -> 'b) -> ('key, 'b, 'id) t
   
   (** Keep elements that [f] returns [true] for.
 
