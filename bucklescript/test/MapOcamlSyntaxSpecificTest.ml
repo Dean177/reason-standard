@@ -1,7 +1,7 @@
 open Standard
 open AlcoJest
 
-let suite = suite "Map - Ocaml Syntax" (fun () ->
+let suite = suite "Map - OCaml Syntax" (fun () ->
   let animals = Map.String.ofList [("Bears", 2)] in
   describe ".?{}" (fun () ->
     test "custom index operators can be used in the ocaml syntax" (fun () ->

@@ -21,10 +21,10 @@ import {
   NavBarContainer,
 } from '../components/Layout';
 import { CodeBlock } from '../components/CodeBlock';
-import { Ocaml, Reason } from '../components/Icon';
+import { OCaml, Reason } from '../components/Icon';
 import { SyntaxProvider } from '../components/Syntax';
 
-let AnimatedOcaml = animated(Ocaml);
+let AnimatedOCaml = animated(OCaml);
 let AnimatedReason = animated(Reason);
 
 import { ArtificialInteligence, BookLover } from '../components/Illustration';
@@ -175,7 +175,7 @@ export const pageQuery = graphql`
 `;
 
 let title = 'Standard';
-let description = 'A standard library replacement for Reason and Ocaml.';
+let description = 'A standard library replacement for Reason and OCaml.';
 
 let Header = () => {
   let [_themeName, _toggle, theme] = useTheme();
@@ -270,7 +270,7 @@ export default () => {
                   >
                     Standard
                   </h1>
-                  <p>A standard library replacement for Reason and Ocaml. </p>
+                  <p>A standard library replacement for Reason and OCaml. </p>
                   <p
                     css={css`
                       padding-top: 30px;
@@ -293,7 +293,7 @@ String.toList("Standard")
   |> Int.add(1)
   |> Char.ofCode
 )
-|>String.ofList
+|> String.ofList
 /* "Tuboebse" */
                 `}
                     />
@@ -328,7 +328,7 @@ String.toList("Standard")
                         height={logoSize * 2}
                         width={logoSize * 2}
                       />
-                      <AnimatedOcaml
+                      <AnimatedOCaml
                         style={{
                           transform: logoStyles.camlTransform,
                           position: 'absolute',
@@ -343,7 +343,7 @@ String.toList("Standard")
                     <>
                       <h2>Portable</h2>
                       <span>
-                        Works with either the Reason or Ocaml syntax, targeting
+                        Works with either the Reason or OCaml syntax, targeting
                         the Bucklescript, Native or <code>js_of_ocaml</code>{' '}
                         compilers
                       </span>
@@ -415,7 +415,7 @@ String.toList("Standard")
                     <>
                       <h2>Advanced</h2>
                       <span>
-                        Index operators for Arrays, Maps, Sets and Strings and
+                        Index operators for Arrays, Maps, Sets and Strings plus
                         binding operators for Options & Results mean your code
                         is concise and expressive
                       </span>

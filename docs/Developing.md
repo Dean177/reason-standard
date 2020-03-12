@@ -7,10 +7,11 @@ There are a few prerequisites you will need to get started:
 
 Install a current version of:
 
-- [Node](https://nodejs.org/en/)
+- [node](https://nodejs.org/en/)
 - [yarn](http://yarnpkg.com/)
 - [esy](http://esy.sh)
 
+Then what you need to do depends on the component you will be working on.
 
 ## bucklescript
 

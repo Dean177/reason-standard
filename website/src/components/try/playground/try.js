@@ -238,11 +238,11 @@ export class Try extends React.Component {
     clearTimeout(this.errorTimerId);
 
     this.setState((prevState, _) => {
-      let newOcamlCode = prevState.ocaml;
+      let newOCamlCode = prevState.ocaml;
       try {
-        newOcamlCode = refmt.printML(refmt.parseRE(newReasonCode));
+        newOCamlCode = refmt.printML(refmt.parseRE(newReasonCode));
 
-        this.tryCompiling(newReasonCode, newOcamlCode);
+        this.tryCompiling(newReasonCode, newOCamlCode);
       } catch (e) {
         console.error('updateReason', e);
         this.errorTimerId = setTimeout(
@@ -264,7 +264,7 @@ export class Try extends React.Component {
 
       return {
         reason: newReasonCode,
-        ocaml: newOcamlCode,
+        ocaml: newOCamlCode,
         reasonSyntaxError: null,
         ocamlSyntaxError: null,
         jsError: null,
@@ -273,21 +273,21 @@ export class Try extends React.Component {
     });
   };
 
-  updateOCaml = newOcamlCode => {
-    if (newOcamlCode === this.state.ocaml) {
+  updateOCaml = newOCamlCode => {
+    if (newOCamlCode === this.state.ocaml) {
       return;
     }
-    persist('ocaml', newOcamlCode);
+    persist('ocaml', newOCamlCode);
 
     clearTimeout(this.errorTimerId);
 
     this.setState((prevState, _) => {
       let newReasonCode = prevState.reason;
       try {
-        newReasonCode = refmt.printRE(refmt.parseML(newOcamlCode));
-        this.tryCompiling(newReasonCode, newOcamlCode);
+        newReasonCode = refmt.printRE(refmt.parseML(newOCamlCode));
+        this.tryCompiling(newReasonCode, newOCamlCode);
       } catch (e) {
-        console.error('updateOcaml code', e);
+        console.error('updateOCaml code', e);
         this.errorTimerId = setTimeout(
           () =>
             this.setState(_ => {
@@ -306,11 +306,11 @@ export class Try extends React.Component {
 
       return {
         reason: newReasonCode,
-        ocaml: newOcamlCode,
+        ocaml: newOCamlCode,
         reasonSyntaxError: null,
         ocamlSyntaxError: null,
         jsError: null,
-        shareableUrl: generateShareableUrl('ocaml', newOcamlCode),
+        shareableUrl: generateShareableUrl('ocaml', newOCamlCode),
       };
     });
   };

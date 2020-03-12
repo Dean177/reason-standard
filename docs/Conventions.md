@@ -5,7 +5,7 @@ order: "2"
 
 ## t is the main type of a module
 
-In Reason / Ocaml its a convention for the primary type of a module to be named `t`. 
+In Reason / OCaml it is a convention for the primary type of a module to be named `t`. 
 
 This means that when you want to refer to a type without `open`ing a module you don't end up repeating yourself:
 
@@ -29,7 +29,7 @@ Take [`Array.map`](/api#Array.map) as an example:
 let map: (array('a), ~f:('a => 'b)) => array('b);
 ```
 
-This means that its easy to use these functions either applying all of the arguments:
+This means that it's easy to use these functions either applying all of the arguments:
 
 ```reason
 Array.map([|1,2,3|], ~f=(number) => number * 3);
@@ -44,9 +44,9 @@ Array.filter([|1,2,3|], ~f=Int.isOdd)
 
 ## exn is for exception 
 
-The type for exceptions in Ocaml is actually called `exn`.
+The type for exceptions in OCaml is actually called `exn`.
 
-You can read more about exceptions in [Real World Ocaml](http://dev.realworldocaml.org/error-handling.html#scrollNav-2) or in the [Ocaml manual](https://caml.inria.fr/pub/docs/manual-ocaml/coreexamples.html#s:exceptions).
+You can read more about exceptions in [Real World OCaml](http://dev.realworldocaml.org/error-handling.html#scrollNav-2) or in the [OCaml manual](https://caml.inria.fr/pub/docs/manual-ocaml/coreexamples.html#s:exceptions).
 
 ## sep is for separator
 
@@ -82,13 +82,13 @@ See [`Option.get`](/api#Option.get) and [`Option.getUnsafe`](/api#Option.getUnsa
 
 ### S is for signature, T is for module type
 
-Functions which accept first class modules or functors need a way to label their arguments, and to avoid this being to long they are usually named `S` for the signature a functor returns and `T` for the input type.
+Functions which accept first class modules or functors need a way to label their arguments, and to avoid this being too long they are usually named `S` for the signature a functor returns and `T` for the input type.
 
 In a similar way to modules primary type being [named `t`](#t-is-the-main-type-of-n-module) 
 
 ## Data comes first
 
-In allmost all of the functions that `Standard` provides, the datastructure the 
+In almost all of the functions that `Standard` provides, the datastructure the 
 function is operating on will be the first positional argument.
 
 This is the opposite of the way the standard library, or other related languages 
@@ -99,7 +99,8 @@ tend to do things, but for some good reasons:
 ### Better error messages
 
 
-Compare the error message for data last:
+Compare the error message for data last
+
 ```reason
 let words = ["hi"]
 let res = List.map(n => n + 1, words)
@@ -109,7 +110,8 @@ let res = List.map(n => n + 1, words)
 // Type string is not compatible with type int
 ```
 
-With the one returned for data first:
+With the one returned for data first
+
 ```reason
 open Standard;
 
@@ -136,7 +138,7 @@ module Book = {
 }
 ```
 
-With a data-last approach we end up needing to provide additional annotations when we use [List.map](/api#List.map):
+With a data-last approach we end up needing to provide additional annotations when we use [List.map](/api#List.map)
 
 ```reason
 let isbns = List.map(book => book.isbn, Book.classics);
@@ -180,7 +182,7 @@ open Standard
 Array.append([|1, 2, 3|], [|4, 5, 6|]) = [|1, 2, 3, 4, 5, 6|]
 ```
 
-This section was heavily inspired by [Javier Chavarri's excellent blog post](https://www.javierchavarri.com/data-first-and-data-last-a-comparison/) and the discussions on the [Bucklescipt](https://github.com/BuckleScript/bucklescript/issues/2625) and [Reason](https://github.com/facebook/reason/issues/1452#issuecomment-350424873) GitHub issue trackers.
+This section was heavily inspired by [Javier Chavarri's excellent blog post](https://www.javierchavarri.com/data-first-and-data-last-a-comparison/) and the discussions on the [Bucklescript](https://github.com/BuckleScript/bucklescript/issues/2625) and [Reason](https://github.com/facebook/reason/issues/1452#issuecomment-350424873) GitHub issue trackers.
 
 
 ## Check out the API

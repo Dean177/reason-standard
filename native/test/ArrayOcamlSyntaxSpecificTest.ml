@@ -2,7 +2,7 @@ open Standard
 open AlcoJest
 
 let suite =
-  suite "Array - Ocaml Syntax" (fun () ->
+  suite "Array - OCaml Syntax" (fun () ->
       let animals = [|"Bear"; "Wolf"|] in
       describe ".()" (fun () ->
           test "regular array syntax is the equivalent to Array.get" (fun () ->

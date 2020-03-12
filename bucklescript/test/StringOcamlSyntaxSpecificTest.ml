@@ -2,7 +2,7 @@ open Standard
 open AlcoJest
 
 let suite =
-  suite "String - Ocaml Syntax" (fun () ->
+  suite "String - OCaml Syntax" (fun () ->
       let animal = "Salmon" in
       describe ".[]" (fun () ->
           test "regular string syntax is the equivalent to String.get"

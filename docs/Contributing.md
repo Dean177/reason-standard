@@ -9,7 +9,7 @@ Standard is an ideal library to contribute to, even if you're new to OCaml / Rea
 
 The maintainers are warm and friendly, and the project abides by a [Code of Conduct](../.github/CODE_OF_CONDUCT.md).
 
-There are many small tasks to be done and even a small change to a single functions documentation is extremely helpful.
+There are many small tasks to be done and even a small change to a single function's documentation is extremely helpful.
 
 Here are some ways to contribute:
 
@@ -25,7 +25,7 @@ Here are some ways to contribute:
 - Propose a strategy for benchmarking
 - Optimize a function
 - Suggest a new function or module by [creating an issue](https://github.com/Dean177/reason-standard/issues/new). 
-- Imorove the [documentation site](https://github.com/Dean177/reason-standard/tree/master/website)
+- Improve the [documentation site](https://github.com/Dean177/reason-standard/tree/master/website)
 
 If you'd like to contribute but don't know where to start [open an
 issue](https://github.com/Dean177/reason-standard/issues/new) with your thoughts
@@ -42,7 +42,7 @@ If you are planning on removing, changing or adding new features to `Standard`, 
 
 ### Small pull requests
 
-Many small PR's are better than one big one
+Many small PR's are better than one big one.
 
 Don't save up small changes for one big PR if you can avoid it.
 
@@ -54,7 +54,7 @@ Small PR's are less likely to cause conflicts, easier to review and take less ef
 
 Struggling to provide a good example for your function / module? Maybe it shouldn't be in Standard (although writing good examples *is hard*).
 
-Completeness isn't a goal, just because one module has a function doesn't mean all the modules *can* have that function *should* have it too. 
+Completeness isn't a goal, just because one module has a function doesn't mean all the modules that *can* have that function *should* have it too. 
 
 ## Names
 
@@ -68,7 +68,7 @@ Abbreviations impose additional mental overhead when reading code:
 - You have to translate them back to the 'real' word in your head
 - You have to disambiguate them, does `init` mean `initial` or `initialize` (`List` has both!)
 
-If its a super common abbreviation, it needs to be justified and explained in the documentation or in [Conventions](./conventions).
+If it's a super common abbreviation, it needs to be justified and explained in the documentation or in [Conventions](./conventions).
 
 ### Don't be cute
 
@@ -84,9 +84,9 @@ You want to give the reader the opportunity to realise something is up.
 
 A good way to do this is by including `Unsafe` or `Dangerously` in the name.
 
-### Try to use names that Javascripters / Ocamlers already know
+### Try to use names that Javascripters / OCamlers already know
 
-If one ecosystem already has a name for something, thats going to be the one to
+If one ecosystem already has a name for something, that's going to be the one to
 go for unless there is a good reason not to.
 
 ### Module names should not be repeated in function names
@@ -95,7 +95,7 @@ A function called `State.runState` is not only redundant but encourages `open`in
 
 In files with many unqualified dependencies it is really hard to figure out where functions are coming from.
 
-This can code difficuly to understand, especially if custom infix operators are used as well. 
+This can make code difficult to understand, especially if custom infix operators are used as well. 
 
 ## Documentation
 
@@ -111,7 +111,7 @@ Everyone has gaps in their knowledge, try to remove roadblocks. External links a
 
 > `lfindi ?pos t ~f` returns the smallest `i >= pos` such that `f i t.[i]`, if there is such an `i`. By default, `pos = 0`.
 
-Its incredibly dense, the names are short to the point of basically being symbols and it is self referential. 
+It's incredibly dense, the names are short to the point of basically being symbols and it is self referential. 
 
 Either a longer explanation using real words or an example using real data would have been better.
 

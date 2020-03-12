@@ -9,11 +9,11 @@ order: "0"
 
 Install via npm by
 
-```sh
+```sh 11
 npm install reason-standard --save
 ```
 
-Then add to your bsconfig.json file:
+Then add to your `bsconfig.json` file:
 
 ```json
   "bs-dependencies" : ["reason-standard"]
@@ -21,7 +21,7 @@ Then add to your bsconfig.json file:
 
 ## OCaml native
 
-### Using opam
+### Using Opam
 
 ```sh
 opam install reason-standard
@@ -33,14 +33,14 @@ Then update the libraries section in your `dune` file:
 (libraries (standard))
 ```
 
-### Using esy
+### Using Esy
 
 ```sh
 esy install @opam/reason-standard
 ```
 
-Then add to your dune file:
+Then update the libraries section in your `dune` file:
 
-```
-(libraries (standard ...))
+```clj
+(libraries (standard))
 ```

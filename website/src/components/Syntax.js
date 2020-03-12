@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 import React from 'react';
-import { Reason, Ocaml } from './Icon';
+import { Reason, OCaml } from './Icon';
 import { colors, spacing } from '../theme';
 
 export let keywords = {
@@ -111,7 +111,7 @@ export const SyntaxToggle = () => {
       <span>Switch syntax</span>
       <ToggleContainer onClick={toggleSyntax} isReason={syntax === 'reason'}>
         <Reason height={logoSize * 2.5} width={logoSize * 2.5} />
-        <Ocaml height={logoSize * 3.25} width={logoSize * 3.25} />
+        <OCaml height={logoSize * 3.25} width={logoSize * 3.25} />
       </ToggleContainer>
     </div>
   );

@@ -1363,7 +1363,7 @@ module Int : sig
 
       Outside of that range, the behavior is determined by the compilation target.
 
-      You can read about the reasons for OCamls unusual integer sizes {{: https://v1.realworldocaml.org/v1/en/html/memory-representation-of-values.html} here }.
+      You can read about the reasons for OCaml's unusual integer sizes {{: https://v1.realworldocaml.org/v1/en/html/memory-representation-of-values.html} here }.
 
       {e Historical Note: } The name [int] comes from the term {{: https://en.wikipedia.org/wiki/Integer } integer}). It appears
       that the [int] abbreviation was introduced in the programming language ALGOL 68.
@@ -2162,7 +2162,7 @@ module String : sig
 
   (** The {{: https://caml.inria.fr/pub/docs/manual-ocaml/indexops.html } index operator} version of {!getAt} 
 
-      {b Note} Currently this is only supported by the Ocaml syntax.
+      {b Note} Currently this is only supported by the OCaml syntax.
   
       {2 Examples}
 
@@ -3870,7 +3870,7 @@ module Set : sig
 
   (** The {{: https://caml.inria.fr/pub/docs/manual-ocaml/indexops.html } index operator} version of {!includes} 
   
-      {b Note} Currently this is only supported by the Ocaml syntax.
+      {b Note} Currently this is only supported by the OCaml syntax.
       
       {2 Examples}
 
@@ -4186,7 +4186,7 @@ module Map : sig
 
   (** The {{: https://caml.inria.fr/pub/docs/manual-ocaml/indexops.html } index operator} version of {!add} 
   
-      {b Note} Currently this is only supported by the Ocaml syntax.
+      {b Note} Currently this is only supported by the OCaml syntax.
       
       {2 Examples}
 
@@ -4233,7 +4233,7 @@ module Map : sig
 
   (** The {{: https://caml.inria.fr/pub/docs/manual-ocaml/indexops.html } index operator} version of {!Core.Map.get} 
 
-      {b Note} Currently this is only supported by the Ocaml syntax.
+      {b Note} Currently this is only supported by the OCaml syntax.
   
       {2 Examples}
 
@@ -4745,7 +4745,7 @@ module Array : sig
 
   (** The {{: https://caml.inria.fr/pub/docs/manual-ocaml/indexops.html } index operator} version of {!getAt} 
 
-      {b Note} Currently this is only supported by the Ocaml syntax.
+      {b Note} Currently this is only supported by the OCaml syntax.
   
       {2 Examples}
 
