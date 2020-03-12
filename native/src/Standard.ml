@@ -1,4 +1,14 @@
-include Core
+module Bool = Core.Bool
+
+module Char = Core.Char
+
+module Int = Core.Int
+
+module Integer = Core.Integer
+
+module Float = Core.Float
+
+module String = Core.String
 
 module Option = struct
   include Core.Option
@@ -97,3 +107,21 @@ module Result = struct
   let (and*) (t : ('a, 'error) t) (t' : ('b, 'error) t) : (('a * 'b), 'error) t = 
     both t t'  
 end
+
+module Tuple = Core.Tuple
+
+module Tuple3 = Core.Tuple3
+
+module Array = Core.Array
+
+module List = Core.List
+
+module Set = Core.Set
+
+module Map = Core.Map
+
+module Container = Core.Container
+
+module Comparator = Core.Comparator
+
+module Fun = Core.Fun

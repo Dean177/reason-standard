@@ -116,9 +116,9 @@ function renderSidebarElements(
   let moduleSearchPath =
     search.length > 1 ? search.slice(0, search.length - 1) : [];
   let valueSearch = search.length === 0 ? '' : search[search.length - 1];
+  let hasSearch = valueSearch.length > 0;
   return deDupeIncludedModules(moduleElements, modulesByModulePath).map(
     (moduleElement, index) => {
-      let hasSearch = valueSearch.length > 0;
 
       switch (moduleElement.tag) {
         case 'Type':
@@ -197,105 +197,37 @@ function renderSidebarElements(
                 </div>
               );
             case 'ModuleStruct':
-              let qualifiedModuleName =
-                path.length > 0
-                  ? [...path, moduleElement.value.name].join('.')
-                  : moduleElement.value.name;
-
-              let isCollapsed = !!collapsed[qualifiedModuleName];
-              let moduleLink = linkFor(
-                path,
-                moduleElement.tag,
-                moduleElement.value.name,
-              );
-
-              let moduleNameMatchesValueSearch = moduleElement.value.name.includes(
-                valueSearch,
-              );
-
-              let subSearch;
-              if (moduleSearchPath.length === 0) {
-                if (moduleNameMatchesValueSearch) {
-                  subSearch = [];
-                } else {
-                  subSearch = search;
-                }
-              } else {
-                if (moduleElement.value.name.includes(moduleSearchPath[0])) {
-                  subSearch = [
-                    ...moduleSearchPath.slice(1, moduleSearchPath.length),
-                    valueSearch,
-                  ];
-                } else {
-                  subSearch = search;
-                }
-              }
-
-              let content = renderSidebarElements(
-                moduleElement.value.kind.value,
+              
+              return renderSidebarModule(
+                moduleElement,
                 modulesByModulePath,
-                subSearch,
+                search,
                 collapsed,
                 toggleModule,
-                [...path, moduleElement.value.name],
+                path,
               );
-
-              let hasElementsMatchingSearch =
-                content.filter(e => e != null).length > 0;
-
-              if (
-                hasSearch &&
-                !(
-                  (moduleSearchPath.length === 0 &&
-                    moduleNameMatchesValueSearch) ||
-                  hasElementsMatchingSearch
-                )
-              ) {
-                return null;
+            case 'ModuleAlias':
+              let aliasedModule =
+                modulesByModulePath[moduleElement.value.kind.value.name];
+              if (aliasedModule == null) {
+                throw new Error(
+                  `The module '${moduleElement.value.kind.value.name} (aliased to ${moduleElement.value.name}) is missing`,
+                );
               }
-              return (
-                <div
-                  key={moduleLink}
-                  css={css`
-                    margin-top: -5px;
-
-                    .name {
-                      display: flex;
-                      flex-direction: row;
-                      font-weight: bold;
-                      font-size: 1.2em;
-                      padding-bottom: 8px;
-                      padding-top: 6px;
-
-                      .expansion-indicator {
-                        margin-right: 8px;
-                        cursor: pointer;
-                      }
-                    }
-                    .elements {
-                      border-left: 1px solid grey;
-                      margin-left: 8px;
-                      padding-left: 12px;
-                      > * {
-                        padding-bottom: 4px;
-                        padding-top: 4px;
-                      }
-                    }
-                  `}
-                >
-                  <div className="name">
-                    <div
-                      className="expansion-indicator"
-                      onClick={() => toggleModule(qualifiedModuleName)}
-                    >
-                      {isCollapsed ? '▷' : '▽'}
-                    </div>
-                    <Link to={moduleLink}>module {qualifiedModuleName}</Link>
-                  </div>
-                  {isCollapsed ? null : (
-                    <div className="elements">{content}</div>
-                  )}
-                </div>
+              if (aliasedModule.value.kind.tag != 'ModuleStruct') {
+                throw new Error(
+                  'Unmapped case for ' +
+                    kind.value.name +
+                    aliasedModule.value.kind,
+                );
+              }
+              return renderSidebarModule(
+                aliasedModule,
+                modulesByModulePath,
+                search,
+                collapsed,
+                toggleModule,
+                path,
               );
             default:
               return (
@@ -336,6 +268,112 @@ function renderSidebarElements(
           );
       }
     },
+  );
+}
+
+function renderSidebarModule(
+  moduleElement,
+  modulesByModulePath,
+  search,
+  collapsed,
+  toggleModule,
+  path,  
+) {
+  let moduleSearchPath =
+    search.length > 1 ? search.slice(0, search.length - 1) : [];
+  let valueSearch = search.length === 0 ? '' : search[search.length - 1];
+  let hasSearch = valueSearch.length > 0;
+  let qualifiedModuleName =
+    path.length > 0
+      ? [...path, moduleElement.value.name].join('.')
+      : moduleElement.value.name;
+
+  let isCollapsed = !!collapsed[qualifiedModuleName];
+  let moduleLink = linkFor(path, moduleElement.tag, moduleElement.value.name);
+
+  let moduleNameMatchesValueSearch = moduleElement.value.name.includes(
+    valueSearch,
+  );
+
+  let subSearch;
+  if (moduleSearchPath.length === 0) {
+    if (moduleNameMatchesValueSearch) {
+      subSearch = [];
+    } else {
+      subSearch = search;
+    }
+  } else {
+    if (moduleElement.value.name.includes(moduleSearchPath[0])) {
+      subSearch = [
+        ...moduleSearchPath.slice(1, moduleSearchPath.length),
+        valueSearch,
+      ];
+    } else {
+      subSearch = search;
+    }
+  }
+
+  let content = renderSidebarElements(
+    moduleElement.value.kind.value,
+    modulesByModulePath,
+    subSearch,
+    collapsed,
+    toggleModule,
+    [...path, moduleElement.value.name],
+  );
+
+  let hasElementsMatchingSearch = content.filter(e => e != null).length > 0;
+
+  if (
+    hasSearch &&
+    !(
+      (moduleSearchPath.length === 0 && moduleNameMatchesValueSearch) ||
+      hasElementsMatchingSearch
+    )
+  ) {
+    return null;
+  }
+  return (
+    <div
+      key={moduleLink}
+      css={css`
+        margin-top: -5px;
+
+        .name {
+          display: flex;
+          flex-direction: row;
+          font-weight: bold;
+          font-size: 1.2em;
+          padding-bottom: 8px;
+          padding-top: 6px;
+
+          .expansion-indicator {
+            margin-right: 8px;
+            cursor: pointer;
+          }
+        }
+        .elements {
+          border-left: 1px solid grey;
+          margin-left: 8px;
+          padding-left: 12px;
+          > * {
+            padding-bottom: 4px;
+            padding-top: 4px;
+          }
+        }
+      `}
+    >
+      <div className="name">
+        <div
+          className="expansion-indicator"
+          onClick={() => toggleModule(qualifiedModuleName)}
+        >
+          {isCollapsed ? '▷' : '▽'}
+        </div>
+        <Link to={moduleLink}>module {qualifiedModuleName}</Link>
+      </div>
+      {isCollapsed ? null : <div className="elements">{content}</div>}
+    </div>
   );
 }
 
@@ -631,13 +669,7 @@ let renderTextElements = (elements = [], parentPath = []) => {
               Try
             </button> */}
           </div>
-        );
-      // case 'Custom':
-      //   return (
-      //     <pre key={index} clas>
-      //       <code>{JSON.stringify({ tag, value }, null, 2)}</code>
-      //     </pre>
-      //   );
+        );     
       case 'Enum':
         return (
           <ul
@@ -839,6 +871,29 @@ function renderModuleElements(moduleElements, modulesByName, path = []) {
                     modulesByName,
                     [...path, moduleElement.value.name],
                   )}
+                </ModuleCard>
+              );
+            case 'ModuleAlias':              
+              let module = modulesByName[moduleElement.value.kind.value.name];
+              if (module == null) {
+                throw new Error(
+                  `The module '${moduleElement.value.name} (aliased to ${moduleElement.value.name}) is missing`,
+                );
+              }
+              if (module.value.kind.tag != 'ModuleStruct') {
+                throw new Error(
+                  'Unmapped case for ' + kind.value.name + module.value.kind,
+                );
+              }
+              let id = idFor(path, 'ModuleStruct', module.value.name);
+              return (
+                <ModuleCard key={id + index}>
+                  <PageAnchor id={id}>
+                    <Identifiers.module
+                      name={stripCorePrefix(moduleElement.value.kind.value.name)}
+                    />
+                  </PageAnchor>
+                  {renderModuleElements(module.value.kind.value, modulesByName)}
                 </ModuleCard>
               );
             case 'ModuleFunctor':
