@@ -1,12 +1,15 @@
 {
-  "name": "reason-standard",
-  "description": "A standard library for use with OCaml and ReasonML",
+  "name": "reason-standard-native",
+  "description": "A standard library replacement for Reason and OCaml.",
   "version": "0.0.1",
   "repository": "https://github.com/Dean177/reason-standard",
   "author": "Dean Merchant <deanmerchant@gmail.com>",
   "license": "MIT",
   "private": false,
-  "keywords": [ "BuckleScript", "ReasonML" ],
+  "keywords": [
+    "BuckleScript",
+    "ReasonML"
+  ],
   "scripts": {
     "doc": "esy dune build @doc",
     "doc-path": "esy echo #{self.target_dir}/default/_doc/_html/index.html",
@@ -30,6 +33,8 @@
   },
   "esy": {
     "build": "refmterr dune build -p #{self.name}",
-    "buildEnv": { "ODOC_SYNTAX": "re" }
+    "buildEnv": {
+      "ODOC_SYNTAX": "re"
+    }
   }
 }

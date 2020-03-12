@@ -4,5 +4,6 @@ _build
 _esy
 _release
 *.byte
+*.opam
 *.native
 *.install

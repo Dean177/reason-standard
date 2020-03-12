@@ -153,7 +153,7 @@ module Bool : sig
 
       {[Bool.ofInt (-3) = None]}
   *)
-  val ofInt : int -> t option
+  val ofInt : int -> bool option
 
   (** Convert a {!String} into a {!Bool}.
 
@@ -173,7 +173,7 @@ module Bool : sig
 
       {[Bool.ofString "Not even close" = None]}
   *)
-  val ofString : string -> t option
+  val ofString : string -> bool option
 
   (** {1 Basic operations} *)
 
@@ -227,7 +227,7 @@ module Bool : sig
 
       {[Bool.xor false false = false]}
   *)
-  val xor : t -> t -> t
+  val xor : bool -> bool-> bool
 
   (** Negate a [bool].
 
@@ -237,7 +237,7 @@ module Bool : sig
 
       {[Bool.not true = false]}
   *)
-  val not : t -> t
+  val not : t -> bool
   
   (** Negate a function.
 
@@ -262,7 +262,7 @@ module Bool : sig
 
       {[Bool.toString false = "false"]}
   *)
-  val toString : t -> string
+  val toString : bool -> string
   
   (** Convert a [bool] to an {!Int}.
 
@@ -272,7 +272,7 @@ module Bool : sig
 
       {[Bool.toInt false = 0]}
   *)  
-  val toInt : t -> int
+  val toInt : bool -> int
 
   (** {1 Compare} *)
 
@@ -286,7 +286,7 @@ module Bool : sig
 
       {[Bool.equal false true = false]}
   *)
-  val equal : t -> t -> t
+  val equal : bool -> bool -> bool
 
   (** Compare two boolean values
 
@@ -300,7 +300,7 @@ module Bool : sig
 
       {[Bool.compare false false = 0]}
   *)
-  val compare : t -> t -> int
+  val compare : bool -> bool -> int
 end
 
 (** Functions for working with single characters. *)
@@ -315,7 +315,7 @@ module Char : sig
       {b not Unicode}.
 
       Since character 128 through 255 have varying values depending on what
-      standard you are using (ISO 8859-1 or Windows 1252), you are advised to
+      standard is being used (ISO 8859-1 or Windows 1252), you are advised to
       stick to the 0-127 range.
   *)
 
@@ -323,7 +323,7 @@ module Char : sig
 
   (** {1 Create}
 
-      You can also create a {!Char} using single quotes:
+      You can create a {!Char} using single quotes:
 
       {[let char = 'c']}
   *)
@@ -346,7 +346,9 @@ module Char : sig
   *)
   val ofCode : int -> char option
   
-  (** Converts a string to character. Returns None when the string isn't of length one.
+  (** Converts a string to a character. 
+  
+      Returns None when the string isn't of length one.
 
       {2 Examples}
 
@@ -370,10 +372,6 @@ module Char : sig
 
       {[Char.isLowercase 'a' = true]}
 
-      {[Char.isLowercase 'b' = true]}
-
-      {[Char.isLowercase 'z' = true]}
-
       {[Char.isLowercase '0' = false]}
 
       {[Char.isLowercase 'A' = false]}
@@ -387,10 +385,6 @@ module Char : sig
       {2 Examples}
 
       {[Char.isUppercase 'A' = true]}
-
-      {[Char.isUppercase 'B' = true]}
-
-      {[Char.isUppercase 'Z' = true]}
 
       {[Char.isUppercase 'h' = false]}
 
@@ -406,11 +400,7 @@ module Char : sig
 
       {[Char.isLetter 'a' = true]}
 
-      {[Char.isLetter 'b' = true]}
-
       {[Char.isLetter 'E' = true]}
-
-      {[Char.isLetter 'Y' = true]}
 
       {[Char.isLetter '0' = false]}
 
@@ -424,13 +414,11 @@ module Char : sig
 
       {[Char.isDigit '0' = true]}
 
-      {[Char.isDigit '1' = true]}
-
       {[Char.isDigit '9' = true]}
 
       {[Char.isDigit 'a' = false]}
 
-      {[Char.isDigit 'b' = false]}
+      {[Char.isDigit '-' = false]}
   *)
   val isDigit : char -> bool
 
@@ -440,15 +428,9 @@ module Char : sig
 
       {[Char.isAlphanumeric 'a' = true]}
 
-      {[Char.isAlphanumeric 'b' = true]}
-
       {[Char.isAlphanumeric 'E' = true]}
 
-      {[Char.isAlphanumeric 'Y' = true]}
-
       {[Char.isAlphanumeric '0' = true]}
-
-      {[Char.isAlphanumeric '7' = true]}
 
       {[Char.isAlphanumeric '-' = false]}
   *)
@@ -492,7 +474,7 @@ module Char : sig
   *)
   val isWhitespace : char -> bool
 
-  (** {1 Modify} *)
+  (** {1 Transform} *)
   
   (** Converts an ASCII character to lower case, preserving non alphabetic ASCII characters.
 
@@ -519,9 +501,7 @@ module Char : sig
 
   (** {1 Convert} *)
 
-  (** Convert to the corresponding ASCII [code point][cp].
-
-      [cp]: https://en.wikipedia.org/wiki/Code_point
+  (** Convert to the corresponding ASCII {{: https://en.wikipedia.org/wiki/Code_point } code point}.
 
       {2 Examples}
 
@@ -562,15 +542,15 @@ module Char : sig
   (** {1 Compare} *)
 
   (** Test two {!Char}s for equality *)
-  val equal : t -> t -> bool
+  val equal : char -> char -> bool
 
   (** Compare two {!Char}s *)
-  val compare : t -> t -> int
+  val compare : char -> char -> int
 
   (** The unique identity for [chars] {!Comparator} *)
   type identity
 
-  val comparator: (t, identity) Comparator.t
+  val comparator: (char, identity) Comparator.t
 end
 
 (** Functions for working with floating point numbers. *)
@@ -578,18 +558,17 @@ module Float : sig
   (** A module for working with {{: https://en.wikipedia.org/wiki/Floating-point_arithmetic } floating-point numbers}.
   
       Valid syntax for [float]s includes:
-      {[
-        0.
-        42.
-        42.0
-        3.14
-        -0.1234
-        123_456.123_456
-        6.022e23   (* = (6.022 * 10^23) *)
-        6.022e+23  (* = (6.022 * 10^23) *)
-        1.602e-19  (* = (1.602 * 10^-19) *)
-        1e3        (* = (1 * 10 ** 3) = 1000. *)
-      ]}
+      
+      {[42.]}
+      {[42.0]}
+      {[(-7.)]}
+      {[3.14]}
+      {[(-0.1234)]}
+      {[123_456.123_456]}
+      {[6.022e23   (* = (6.022 * 10^23) *)]}
+      {[6.022e+23  (* = (6.022 * 10^23) *)]}
+      {[1.602e-19  (* = (1.602 * 10^-19) *)]}
+      {[1e3        (* = (1 * 10 ** 3) = 1000. *)]}
 
       Without opening this module you can use the [.] suffixed operators e.g
 
@@ -609,10 +588,10 @@ module Float : sig
   (** {1 Constants} *)
 
   (** The literal [0.0] as a named value *)
-  val zero : t
+  val zero : float
   
   (** The literal [1.0] as a named value *)
-  val one : t
+  val one : float
 
   (** [NaN] as a named value. NaN stands for {{: https://en.wikipedia.org/wiki/NaN } not a number}.
 
@@ -628,37 +607,37 @@ module Float : sig
 
       For detecting [Nan] you should use {!Float.isNaN}
   *)
-  val nan : t
+  val nan : float
 
   (** Positive {{: https://en.wikipedia.org/wiki/IEEE_754-1985#Positive_and_negative_infinity } infinity }
 
       {[Float.log ~base:10.0 0.0 = Float.infinity]}
   *)
-  val infinity : t
+  val infinity : float
 
   (** Negative infinity, see {!Float.infinity} *)
-  val negativeInfinity : t
+  val negativeInfinity : float
   
   (** An approximation of {{: https://en.wikipedia.org/wiki/E_(mathematical_constant) } Euler's number }. *)
-  val e : t
+  val e : float
 
   (** An approximation of {{: https://en.wikipedia.org/wiki/Pi } pi }. *)
-  val pi : t
+  val pi : float
 
   (** The smallest interval between two representable numbers. *)
-  val epsilon : t
+  val epsilon : float
   
   (** The largest (furthest from zero) representable positive [float] *)
-  val largestValue : t
+  val largestValue : float
   
   (** The smallest representable positive [float]. The closest to zero without actually being zero. *)
-  val smallestValue : t
+  val smallestValue : float
   
   (** For floats greater than [maximumSafeInteger], it no longer holds that [Float.(n + 1.) > n]  *)
-  val maximumSafeInteger : t
+  val maximumSafeInteger : float
   
   (** For floats less than [minimumSafeInteger], it no longer holds that [Float.(n - 1.) < n]  *)
-  val minimumSafeInteger : t
+  val minimumSafeInteger : float
     
   (** {1 Create} *)
 
@@ -666,13 +645,13 @@ module Float : sig
 
       {2 Examples}
 
-      {[
-        Float.ofInt 5 = 5.0
-        Float.ofInt 0 = 0.0
-        Float.ofInt -7 = -7.0
-      ]}
+      {[Float.ofInt 5 = 5.0]}
+
+      {[Float.ofInt 0 = 0.0]}
+
+      {[Float.ofInt -7 = -7.0]}
   *)
-  val ofInt : int -> t
+  val ofInt : int -> float
   
   (** Convert a {!String} to a [float].
 
@@ -692,7 +671,7 @@ module Float : sig
 
       {[Float.ofString "Infinity" = Some Float.infinity]}
   *)
-  val ofString : string -> t option
+  val ofString : string -> float option
   
   (** {1 Basic arithmetic and operators} *)
 
@@ -719,15 +698,14 @@ module Float : sig
 
       {2 Examples}
 
-      {[
-        Float.add 3.14 3.14 = 6.28
-        Float.(3.14 + 3.14 = 6.28)
-      ]}
+      {[Float.add 3.14 3.14 = 6.28]}
+
+      {[Float.(3.14 + 3.14 = 6.28)]}
   *)
-  val add : t -> t -> t
+  val add : float -> float -> float
   
   (** See {!Float.add} *)
-  val (+) : t -> t -> t
+  val (+) : float -> float -> float
   
   (** Subtract numbers
 
@@ -739,10 +717,10 @@ module Float : sig
 
       {[Float.(4.0 - 3.0) = 1.0]}
   *)
-  val subtract : t -> t -> t
+  val subtract : float -> float -> float
   
   (** See {!Float.subtract} *)
-  val (-) : t -> t -> t
+  val (-) : float -> float -> float
   
   (** Multiply numbers
 
@@ -754,10 +732,10 @@ module Float : sig
 
       {[Float.(2.0 * 7.0) = 14.0]}
   *)
-  val multiply : t -> t -> t
+  val multiply : float -> float -> float
   
   (** See {!Float.multiply} *)
-  val ( * ) : t -> t -> t
+  val ( * ) : float -> float -> float
   
   (** Floating-point division:
 
@@ -769,10 +747,10 @@ module Float : sig
 
       {[Float.(3.14 / 2.0) = 1.57]}
   *)
-  val divide : t -> by:t -> t
+  val divide : float -> by:float -> float
   
   (** See {!Float.divide} *)
-  val (/) : t -> t -> t
+  val (/) : float -> float -> float
   
   (** Exponentiation, takes the base first, then the exponent.
 
@@ -784,12 +762,14 @@ module Float : sig
 
       {[Float.(7.0 ** 3.0) = 343.0]}
   *)
-  val power : base:t -> exponent:t -> t
+  val power : base:float -> exponent:float -> float
   
   (** See {!Float.power} *)
-  val ( ** ) : t -> t -> t
+  val ( ** ) : float -> float -> float
   
-  (** Flips the 'sign' of a [float] so that positive floats become negative and negative integers become positive. Zero stays as it is.
+  (** Flips the 'sign' of a [float] so that positive floats become negative and negative integers become positive.
+      
+      {b Zero stays as it is}.
 
       Alternatively an operator is available
 
@@ -797,28 +777,28 @@ module Float : sig
 
       {[Float.(~- 4.0) = (-4.0)]}
 
-      {[
-        Float.negate 8 = (-8)
-        Float.negate (-7) = 7
-        Float.negate 0 = 0
-      ]}
+      {[Float.negate 8 = (-8)]}
+
+      {[Float.negate (-7) = 7]}
+
+      {[Float.negate 0 = 0]}
   *)
-  val negate : t -> t
+  val negate : float -> float
   
   (** See {!Float.negate} *)
-  val (~-) : t -> t
+  val (~-) : float -> float
   
   (** Get the {{: https://en.wikipedia.org/wiki/Absolute_value } absolute value} of a number.
 
       {2 Examples}
 
-      {[
-        Float.absolute 8. = 8.
-        Float.absolute (-7) = 7
-        Float.absolute 0 = 0
-      ]}
+      {[Float.absolute 8. = 8.]}
+
+      {[Float.absolute (-7) = 7]}
+
+      {[Float.absolute 0. = 0.]}
   *)
-  val absolute : t -> t
+  val absolute : float -> float
   
   (** Returns the larger of two [float]s, if both arguments are equal, returns the first argument
 
@@ -832,7 +812,7 @@ module Float : sig
 
       {[Float.(isNaN (maximum 7. nan)) = true]}
   *)
-  val maximum : t -> t -> t
+  val maximum : float -> float -> float
   
   (** Returns the smaller of two [float]s, if both arguments are equal, returns the first argument
 
@@ -846,11 +826,11 @@ module Float : sig
 
       {[Float.(isNaN (minimum 7. nan)) = true]}
   *)
-  val minimum : t -> t -> t
+  val minimum : float -> float -> float
 
   (** Clamps [n] within the inclusive [lower] and [upper] bounds.
 
-      {3 Exceptions}
+      {2 Exceptions}
 
       Throws an [Invalid_argument] exception if [lower > upper]
 
@@ -862,7 +842,7 @@ module Float : sig
 
       {[Float.clamp ~lower:(-10.) ~upper:(-5.) 5. = -5.]}
   *)
-  val clamp : t -> lower:t -> upper:t -> t
+  val clamp : float -> lower:float -> upper:float -> float
   
   (** {1 Fancier math} *)
 
@@ -876,7 +856,7 @@ module Float : sig
 
       {[Float.squareRoot 9.0 = 3.0]}
   *)
-  val squareRoot : t -> t
+  val squareRoot : float -> float
   
   (** Calculate the logarithm of a number with a given base.
 
@@ -886,7 +866,7 @@ module Float : sig
 
       {[Float.log ~base:2. 256. = 8.]}
   *)
-  val log : t -> base:t -> t
+  val log : float -> base:float -> float
   
   (** {1 Query} *)
 
@@ -898,15 +878,15 @@ module Float : sig
 
       {2 Examples}
 
-      {[Float.is_nan (0.0 / 0.0) = true]}
+      {[Float.isNaN (0.0 / 0.0) = true]}
 
-      {[Float.(is_nan (squareRoot (-1.0))) = true]}
+      {[Float.(isNaN (squareRoot (-1.0))) = true]}
 
-      {[Float.is_nan (1.0 / 0.0) = false  (* Float.infinity {b is} a number *)]}
+      {[Float.isNaN (1.0 / 0.0) = false  (* Float.infinity {b is} a number *)]}
 
-      {[Float.is_nan 1. = false]}
+      {[Float.isNaN 1. = false]}
   *)
-  val isNaN : t -> bool
+  val isNaN : float -> bool
   
   (** Determine whether a float is finite number. True for any float except [Infinity], [-Infinity] or [NaN]
 
@@ -924,7 +904,7 @@ module Float : sig
 
       {[Float.(isFinite nan) = false]}
   *)
-  val isFinite : t -> bool
+  val isFinite : float -> bool
   
   (** Determine whether a float is positive or negative infinity.
 
@@ -940,7 +920,7 @@ module Float : sig
 
       {[Float.(isInfinite nan) = false]}
   *)
-  val isInfinite : t -> bool
+  val isInfinite : float -> bool
   
   (** Determine whether the passed value is an integer.
 
@@ -950,9 +930,13 @@ module Float : sig
 
       {[Float.isInteger Float.pi = false]}
   *)
-  val isInteger : t -> bool
+  val isInteger : float -> bool
   
-  (** Determine whether the passed value is a safe integer (number between -(2**53 - 1) and 2**53 - 1).
+  (** Determine whether the passed value is a safe integer.
+
+      Safe integers have the property that [x +. 1. > x].
+      
+      This is true for numbers between -(2**53 - 1) and 2**53 - 1.
 
       {2 Examples}
 
@@ -962,13 +946,13 @@ module Float : sig
 
       {[Float.(isSafeInteger (maximumSafeInteger + 1.)) = false]}
   *)
-  val isSafeInteger : t -> bool
+  val isSafeInteger : float -> bool
   
   (** Checks if a float is between [lower] and up to, but not including, [upper].
 
       If [lower] is not specified, it's set to to [0.0].
 
-      {3 Exceptions}
+      {2 Exceptions}
 
       Throws an [Invalid_argument] exception if [lower > upper]
 
@@ -980,7 +964,7 @@ module Float : sig
 
       {[Float.inRange ~lower:5.2 ~upper:7.9 9.6 = false]}
   *)
-  val inRange : t -> lower:t -> upper:t -> bool
+  val inRange : float -> lower:float -> upper:float -> bool
   
   (** {1 Angles} *)
 
@@ -997,7 +981,7 @@ module Float : sig
 
       {[Float.hypotenuse 3. 4. = 5.]}
   *)
-  val hypotenuse : t -> t -> t
+  val hypotenuse : float -> float -> float
   
   (** Converts an angle in {{: https://en.wikipedia.org/wiki/Degree_(angle) } degrees} to {!Float.radians}.
 
@@ -1009,7 +993,7 @@ module Float : sig
 
       {[Float.degrees 90. = Float.pi /. 2.]}
   *)
-  val degrees : t -> radians
+  val degrees : float -> radians
   
   (** Convert a {!Float.t} to {{: https://en.wikipedia.org/wiki/Radian } radians }.
 
@@ -1019,7 +1003,7 @@ module Float : sig
 
       {[Float.(radians pi) = 3.141592653589793]}
   *)
-  val radians : t -> radians
+  val radians : float -> radians
   
   (** Convert an angle in {{: https://en.wikipedia.org/wiki/Turn_(geometry) } turns} into {!Float.radians}.
 
@@ -1031,7 +1015,7 @@ module Float : sig
 
       {[Float.(turns 1. = degrees 360.)]}
   *)
-  val turns : t -> radians
+  val turns : float -> radians
   
   (** {1 Polar coordinates} *)
 
@@ -1063,7 +1047,7 @@ module Float : sig
 
       {[Float.(cos (radians (pi / 3.))) = 0.5000000000000001]}
   *)
-  val cos : radians -> t
+  val cos : radians -> float
   
   (** Figure out the arccosine for [adjacent / hypotenuse] in {{: https://en.wikipedia.org/wiki/Radian } radians }:
 
@@ -1071,7 +1055,7 @@ module Float : sig
 
       {[Float.(acos (radians 1.0 / 2.0)) = Float.radians 1.0471975511965979 (* 60 degrees or pi/3 radians *)]}
   *)
-  val acos : radians -> t
+  val acos : float -> radians
   
   (** Figure out the sine given an angle in {{: https://en.wikipedia.org/wiki/Radian } radians }.
 
@@ -1081,7 +1065,7 @@ module Float : sig
 
       {[Float.(sin (radians (pi / 6.))) = 0.49999999999999994]}
   *)
-  val sin : radians -> t
+  val sin : radians -> float
   
   (** Figure out the arcsine for [opposite / hypotenuse] in {{: https://en.wikipedia.org/wiki/Radian } radians }:
 
@@ -1089,7 +1073,7 @@ module Float : sig
 
       {[Float.(asin (1.0 / 2.0)) = 0.5235987755982989 (* 30 degrees or pi / 6 radians *)]}
   *)
-  val asin : radians -> t
+  val asin : float -> radians
   
   (** Figure out the tangent given an angle in radians.
 
@@ -1101,7 +1085,7 @@ module Float : sig
 
       {[Float.(tan (pi / 4.)) = 0.9999999999999999]}
   *)
-  val tan : radians -> t
+  val tan : radians -> float
   
   (** This helps you find the angle (in radians) to an [(x, y)] coordinate, but
       in a way that is rarely useful in programming.
@@ -1127,7 +1111,7 @@ module Float : sig
 
       {[Float.atan (-1. /.  1.) = -0.7853981633974483 (* 315 degrees or 7 * pi/4 radians *)]}
   *)
-  val atan : t -> radians
+  val atan : float -> radians
   
   (** This helps you find the angle (in radians) to an [(x, y)] coordinate.
 
@@ -1143,7 +1127,7 @@ module Float : sig
 
       {[Float.atan2 ~y:(-1.) ~x:1. = -(0.7853981633974483) (* 315 degrees or 7 * pi/4 radians *)]}
   *)
-  val atan2 : y:t -> x:t -> radians
+  val atan2 : y:float -> x:float -> float
 
   (** {1 Rounding} *)
 
@@ -1165,49 +1149,41 @@ module Float : sig
 
       {2 Examples}
 
-      {[
-        Float.round 1.2 = 1.0
-        Float.round 1.5 = 2.0
-        Float.round 1.8 = 2.0
-        Float.round -1.2 = -1.0
-        Float.round -1.5 = -1.0
-        Float.round -1.8 = -2.0
-      ]}
+      {[Float.round 1.2 = 1.0]}
+      {[Float.round 1.5 = 2.0]}
+      {[Float.round 1.8 = 2.0]}
+      {[Float.round -1.2 = -1.0]}
+      {[Float.round -1.5 = -1.0]}
+      {[Float.round -1.8 = -2.0]}
 
       {3 Towards zero}
 
-      {[
-        Float.round ~direction:`Zero 1.2 = 1.0
-        Float.round ~direction:`Zero 1.5 = 1.0
-        Float.round ~direction:`Zero 1.8 = 1.0
-        Float.round ~direction:`Zero (-1.2) = -1.0
-        Float.round ~direction:`Zero (-1.5) = -1.0
-        Float.round ~direction:`Zero (-1.8) = -1.0
-      ]}
+      {[Float.round ~direction:`Zero 1.2 = 1.0]}
+      {[Float.round ~direction:`Zero 1.5 = 1.0]}
+      {[Float.round ~direction:`Zero 1.8 = 1.0]}
+      {[Float.round ~direction:`Zero (-1.2) = -1.0]}
+      {[Float.round ~direction:`Zero (-1.5) = -1.0]}
+      {[Float.round ~direction:`Zero (-1.8) = -1.0]}
 
       {3 Away from zero}
 
-      {[
-        Float.round ~direction:`AwayFromZero 1.2 = 1.0
-        Float.round ~direction:`AwayFromZero 1.5 = 1.0
-        Float.round ~direction:`AwayFromZero 1.8 = 1.0
-        Float.round ~direction:`AwayFromZero (-1.2) = -1.0
-        Float.round ~direction:`AwayFromZero (-1.5) = -1.0
-        Float.round ~direction:`AwayFromZero (-1.8) = -1.0
-      ]}
+      {[Float.round ~direction:`AwayFromZero 1.2 = 1.0]}
+      {[Float.round ~direction:`AwayFromZero 1.5 = 1.0]}
+      {[Float.round ~direction:`AwayFromZero 1.8 = 1.0]}
+      {[Float.round ~direction:`AwayFromZero (-1.2) = -1.0]}
+      {[Float.round ~direction:`AwayFromZero (-1.5) = -1.0]}
+      {[Float.round ~direction:`AwayFromZero (-1.8) = -1.0]}
 
       {3 Towards infinity}
 
       This is also known as {!Float.ceiling}
 
-      {[
-        Float.round ~direction:`Up 1.2 = 1.0
-        Float.round ~direction:`Up 1.5 = 1.0
-        Float.round ~direction:`Up 1.8 = 1.0
-        Float.round ~direction:`Up (-1.2) = -1.0
-        Float.round ~direction:`Up (-1.5) = -1.0
-        Float.round ~direction:`Up (-1.8) = -1.0
-      ]}
+      {[Float.round ~direction:`Up 1.2 = 1.0]}
+      {[Float.round ~direction:`Up 1.5 = 1.0]}
+      {[Float.round ~direction:`Up 1.8 = 1.0]}
+      {[Float.round ~direction:`Up (-1.2) = -1.0]}
+      {[Float.round ~direction:`Up (-1.5) = -1.0]}
+      {[Float.round ~direction:`Up (-1.8) = -1.0]}
 
       {3 Towards negative infinity}
 
@@ -1241,58 +1217,50 @@ module Float : sig
 
       {4 Halves rounded towards the closest even number}
 
-      {[
-        Float.round ~direction:(`Closest `ToEven) -1.5 = -2.0
-        Float.round ~direction:(`Closest `ToEven) -2.5 = -2.0
-      ]}
+      {[Float.round ~direction:(`Closest `ToEven) -1.5 = -2.0]}
+      {[Float.round ~direction:(`Closest `ToEven) -2.5 = -2.0]}
   *)
-  val round : ?direction:direction -> t -> t
+  val round : ?direction:direction -> float -> float
   
   (** Floor function, equivalent to [Float.round ~direction:`Down].
 
       {2 Examples}
 
-      {[
-        Float.floor 1.2 = 1.0
-        Float.floor 1.5 = 1.0
-        Float.floor 1.8 = 1.0
-        Float.floor -1.2 = -2.0
-        Float.floor -1.5 = -2.0
-        Float.floor -1.8 = -2.0
-      ]}
+      {[Float.floor 1.2 = 1.0]}
+      {[Float.floor 1.5 = 1.0]}
+      {[Float.floor 1.8 = 1.0]}
+      {[Float.floor -1.2 = -2.0]}
+      {[Float.floor -1.5 = -2.0]}
+      {[Float.floor -1.8 = -2.0]}
   *)
-  val floor : t -> t
+  val floor : float -> float
   
   (** Ceiling function, equivalent to [Float.round ~direction:`Up].
 
       {2 Examples}
 
-      {[
-        Float.ceiling 1.2 = 2.0
-        Float.ceiling 1.5 = 2.0
-        Float.ceiling 1.8 = 2.0
-        Float.ceiling -1.2 = (-1.0)
-        Float.ceiling -1.5 = (-1.0)
-        Float.ceiling -1.8 = (-1.0)
-      ]}
+      {[Float.ceiling 1.2 = 2.0]}
+      {[Float.ceiling 1.5 = 2.0]}
+      {[Float.ceiling 1.8 = 2.0]}
+      {[Float.ceiling -1.2 = (-1.0)]}
+      {[Float.ceiling -1.5 = (-1.0)]}
+      {[Float.ceiling -1.8 = (-1.0)]}
   *)
-  val ceiling : t -> t
+  val ceiling : float -> float
   
   (** Ceiling function, equivalent to [Float.round ~direction:`Zero].
 
       {2 Examples}
 
-      {[
-        Float.truncate 1.0 = 1.
-        Float.truncate 1.2 = 1.
-        Float.truncate 1.5 = 1.
-        Float.truncate 1.8 = 1.
-        Float.truncate (-1.2) = -1.
-        Float.truncate (-1.5) = -1.
-        Float.truncate (-1.8) = -1.
-      ]}
+      {[Float.truncate 1.0 = 1.]}
+      {[Float.truncate 1.2 = 1.]}
+      {[Float.truncate 1.5 = 1.]}
+      {[Float.truncate 1.8 = 1.]}
+      {[Float.truncate (-1.2) = -1.]}
+      {[Float.truncate (-1.5) = -1.]}
+      {[Float.truncate (-1.8) = -1.]}
   *)
-  val truncate : t -> t
+  val truncate : float -> float
 
   (** {1 Convert} *)
 
@@ -1316,21 +1284,21 @@ module Float : sig
 
       {[Float.(round 1.6 |> toInt) = Some 2]}
   *)
-  val toInt : t -> int option
+  val toInt : float -> int option
   
   (** Convert a [float] to a {!String} 
   
       The behaviour of this function is platform specific
   *)
-  val toString : t -> string
+  val toString : float -> string
   
   (** {1 Compare} *)
 
   (** Test two floats for equality *)
-  val equal : t -> t -> bool
+  val equal : float -> float -> bool
   
   (** Compare two floats *)
-  val compare : t -> t -> int
+  val compare : float -> float -> int
 end
 
 (** Fixed precision integers *)
@@ -1344,56 +1312,52 @@ module Int : sig
       If you need to work with integers larger than {!maximumValue} (or smaller than {!minimumValue} you can use the {!Integer} module.
 
       Valid syntax for [int]s includes:
-      {[
-        0
-        42
-        9000
-        1_000_000
-        1_000_000
-        0xFF (* 255 in hexadecimal *)
-        0x000A (* 10 in hexadecimal *)
-      ]}
+
+      {[42]}
+      {[(-7)]}
+      {[1_000_000]}
+      {[0xFF (* 255 in hexadecimal *)]}
 
       {b Note:} The number of bits used for an [int] is platform dependent.
 
-      When targeting Bucklescript {{: Ints are 32 bits} https://bucklescript.github.io/docs/en/common-data-types.html#int }.
+      When targeting Bucklescript {{: https://bucklescript.github.io/docs/en/common-data-types.html#int} an [int] is 32 bits }.
 
       When targeting native OCaml uses 31-bits on 32-bit platforms and 63-bits on 64-bit platforms
       which means that [int] math is well-defined in the range [-2 ** 30] to [2 ** 30 - 1] for 32bit platforms [-2 ** 62] to [2 ** 62 - 1] for 64bit platforms.
 
       Outside of that range, the behavior is determined by the compilation target.
 
+      If you need to work with values outside that range, you can use the {!Integer} module.
+
       You can read about the reasons for OCaml's unusual integer sizes {{: https://v1.realworldocaml.org/v1/en/html/memory-representation-of-values.html} here }.
 
-      {e Historical Note: } The name [int] comes from the term {{: https://en.wikipedia.org/wiki/Integer } integer}). It appears
-      that the [int] abbreviation was introduced in the programming language ALGOL 68.
+      {b Historical Note: } The name [int] comes from the term {{: https://en.wikipedia.org/wiki/Integer } integer}. 
+      It appears that the [int] abbreviation was introduced in the programming language ALGOL 68.
 
       Today, almost all programming languages use this abbreviation.
   *)
   
   type t = int
   
-  (** {1 Constants } *)
+  (** {1 Constants} *)
 
   (** The literal [0] as a named value *)
-  val zero : t
+  val zero : int
   
   (** The literal [1] as a named value *)
-  val one : t
+  val one : int
   
   (** The maximum representable [int] on the current platform *)
-  val maximumValue : t
+  val maximumValue : int
   
   (** The minimum representable [int] on the current platform *)
-  val minimumValue : t
+  val minimumValue : int
   
   (** {1 Create} *)
 
   (** Attempt to parse a [string] into a [int].
 
       {2 Examples}
-
-      {[Int.ofString "0" = Some 0.]}
 
       {[Int.ofString "42" = Some 42.]}
 
@@ -1403,39 +1367,41 @@ module Int : sig
 
       {[Int.ofString "0xFF" = Some 255]}
 
-      {[Int.ofString "0x00A" = Some 10]}
-
       {[Int.ofString "Infinity" = None]}
 
       {[Int.ofString "NaN" = None]}
   *)
-  val ofString : string -> t option
+  val ofString : string -> int option
 
   (** {1 Operators}
 
       {b Note } You do not need to open the {!Int} module to use the
-      {!( + )}, {!( - )}, {!( * )}, {!( ** )}, {! (mod)} or {!( / )} operators, these are
-      available as soon as you [open Standard]
+      {!( + )}, {!( - )}, {!( * )}, {!( ** )}, {! (mod)} or {!( / )} operators, 
+      these are available as soon as you [open Standard]
   *)
 
   (** Add two {!Int} numbers.
 
-    {[Int.add 3002 4004 = 7006]}
+      You {b cannot } add an [int] and a [float] directly though.
 
-    Or using the globally available operator:
+      See {!Float.add} for why, and how to overcome this limitation.
 
-    {[3002 + 4004 = 7006]}
+      {2 Examples}
 
-    You {e cannot } add an [int] and a [float] directly though.
+      {[Int.add 3002 4004 = 7006]}
 
-    See {!Float.add} for why, and how to overcome this limitation.
+      Or using the globally available operator:
+
+      {[3002 + 4004 = 7006]}
   *)
-  val add : t -> t -> t
+  val add : int -> int -> int
   
   (** See {!Int.add} *)
-  val (+) : t -> t -> t
+  val (+) : int -> int -> int
   
   (** Subtract numbers
+
+      {2 Examples}
 
       {[Int.subtract 4 3 = 1]}
 
@@ -1443,12 +1409,14 @@ module Int : sig
 
       {[4 - 3 = 1]}
   *)
-  val subtract : t -> t -> t
+  val subtract : int -> int -> int
   
   (** See {!Int.subtract} *)
-  val (-) : t -> t -> t
+  val (-) : int -> int -> int
   
-  (** Multiply [int]s like
+  (** Multiply [int]s 
+  
+      {2 Examples}
 
       {[Int.multiply 2 7 = 14]}
 
@@ -1456,18 +1424,18 @@ module Int : sig
 
       {[(2 * 7) = 14]}
   *)
-  val multiply : t -> t -> t
+  val multiply : int -> int -> int
   
   (** See {!Int.multiply} *)
-  val ( * ) : t -> t -> t
+  val ( * ) : int -> int -> int
   
   (** Integer division
 
       Notice that the remainder is discarded.
 
-      {3 Exceptions}
+      {2 Exceptions}
 
-      Throws [Division_by_zero] when the divisor is [0].
+      Throws [Division_by_zero] when [by] is [0].
 
       {2 Examples}
 
@@ -1475,22 +1443,22 @@ module Int : sig
 
       {[27 / 5 = 5]}
   *)
-  val divide : t -> by:t -> t
+  val divide : int -> by:int -> int
   
   (** See {!Int.divide} *)
-  val (/) : t -> t -> t
+  val (/) : int -> int -> int
   
   (** Floating point division
-
+      
       {2 Examples}
 
-      {[Int.(3 % 2) = 1.5]}
+      {[Int.(3 /. 2) = 1.5]}
 
-      {[Int.(27 % 5) = 5.25]}
+      {[Int.(27 /. 5) = 5.25]}
 
-      {[Int.(8 % 4) = 2.0]}
+      {[Int.(8 /. 4) = 2.0]}
   *)
-  val (%) : t -> t -> float
+  val ( /. ) : int -> int -> float
   
   (** Exponentiation, takes the base first, then the exponent.
 
@@ -1502,12 +1470,12 @@ module Int : sig
 
       {[7 ** 3 = 343]}
   *)
-  val power : base:t -> exponent:t -> t
+  val power : base:int -> exponent:int -> int
   
   (** See {!Int.power} *)
-  val ( ** ) : t -> t -> t
+  val ( ** ) : int -> int -> int
   
-  (** Flips the 'sign' of an integer so that positive integers become negative and negative integers become positive. Zero stays as it is.
+  (** Flips the 'sign' of an int so that positive ints become negative and negative ints become positive. Zero stays as it is.
 
       {2 Examples}
 
@@ -1521,10 +1489,10 @@ module Int : sig
 
       {[~-(7) = (-7)]}
   *)
-  val negate : t -> t
+  val negate : int -> int
   
   (** See {!Int.negate} *)
-  val (~-) : t -> t
+  val (~-) : int -> int
   
   (** Get the {{: https://en.wikipedia.org/wiki/Absolute_value } absolute value } of a number.
 
@@ -1536,7 +1504,7 @@ module Int : sig
 
       {[Int.absolute 0 = 0]}
   *)
-  val absolute : t -> t
+  val absolute : int -> int
   
   (** Perform {{: https://en.wikipedia.org/wiki/Modular_arithmetic } modular arithmetic }.
 
@@ -1544,47 +1512,50 @@ module Int : sig
 
       The [modulo] function works in the typical mathematical way when you run into negative numbers
 
-      Use {!Int.remainder} for a different treatment of negative numbers.
+      Use {!Int.remainder} for a different treatment of negative numbers.      
+
+      {2 Exceptions}
+
+      Throws [Division_by_zero] when [by] is [0].
 
       {2 Examples}
 
       {[Int.modulo ~by:3 (-4) = 1]}
-
-      {[Int.modulo ~by:3 (-3 )= 0]}
-
-      {[Int.modulo ~by:3 (-2) = 2]}
-
-      {[Int.modulo ~by:3 (-1) = 1]}
-
+      {[Int.modulo ~by:3 (-3) = 0]}
+      {[Int.modulo ~by:3 (-2) = 1]}
+      {[Int.modulo ~by:3 (-1) = 2]}
       {[Int.modulo ~by:3 0 = 0]}
-
-      {[Int.modulo ~by:3 1 = 1]}
-
-      {[Int.modulo ~by:3 2 = 2]}
-
+      {[Int.modulo ~by:3 1 = 2]}
+      {[Int.modulo ~by:3 2 = 1]}
       {[Int.modulo ~by:3 3 = 0]}
-
       {[Int.modulo ~by:3 4 = 1]}
   *)
-  val modulo : t -> by:t -> t
+  val modulo : int -> by:int -> int
   
   (** See {!Int.modulo} *)
-  val (mod) : t -> t -> t
+  val (mod) : int -> int -> int
 
   (** Get the remainder after division. Here are bunch of examples of dividing by four:
 
       Use {!Int.modulo} for a different treatment of negative numbers.
 
+      {2 Exceptions}
+
+      Throws [Division_by_zero] when [by] is [0].
+
       {2 Examples}
 
-      {[
-        List.map
-          ~f:(Int.remainder ~by:4)
-          [(-5); (-4); (-3); (-2); (-1); 0; 1; 2; 3; 4; 5] =
-            [(-1); 0; (-3); (-2); (-1); 0; 1; 2; 3; 0; 1]
-      ]}
+      {[Int.remainder ~by:3 (-4) = 1]}
+      {[Int.remainder ~by:3 (-3) = 0]}
+      {[Int.remainder ~by:3 (-2) = 2]}
+      {[Int.remainder ~by:3 (-1) = 1]}
+      {[Int.remainder ~by:3 0 = 0]}
+      {[Int.remainder ~by:3 1 = 1]}
+      {[Int.remainder ~by:3 2 = 2]}
+      {[Int.remainder ~by:3 3 = 0]}
+      {[Int.remainder ~by:3 4 = 1]}
   *)
-  val remainder : t -> by:t -> t
+  val remainder : int -> by:int -> int
   
   (** Returns the larger of two [int]s
 
@@ -1594,7 +1565,7 @@ module Int : sig
 
       {[Int.maximum (-4) (-1) = (-1)]}
   *)
-  val maximum : t -> t -> t
+  val maximum : int -> int -> int
   
   (** Returns the smaller of two [int]s
 
@@ -1604,7 +1575,7 @@ module Int : sig
 
       {[Int.minimum (-4) (-1) = (-4)]}      
   *)
-  val minimum : t -> t -> t
+  val minimum : int -> int -> int
 
   (** {1 Query} *)
 
@@ -1618,7 +1589,7 @@ module Int : sig
 
       {[Int.isEven 0 = true]}
   *)
-  val isEven : t -> bool
+  val isEven : int -> bool
   
   (** Check if an [int] is odd
 
@@ -1630,11 +1601,11 @@ module Int : sig
 
     {[Int.isOdd 0 = false]}
   *)
-  val isOdd : t -> bool
+  val isOdd : int -> bool
   
   (** Clamps [n] within the inclusive [lower] and [upper] bounds.
 
-    {3 Exceptions}
+    {2 Exceptions}
 
     Throws an [Invalid_argument] exception if [lower > upper]
 
@@ -1646,11 +1617,11 @@ module Int : sig
 
     {[Int.clamp ~lower:(-10) ~upper:(-5) 5 = (-5)]}
   *)
-  val clamp : t -> lower:t -> upper:t -> t
+  val clamp : int -> lower:int -> upper:int -> int
   
   (** Checks if [n] is between [lower] and up to, but not including, [upper].
 
-      {3 Exceptions}
+      {2 Exceptions}
 
       Throws an [Invalid_argument] exception if [lower > upper]
 
@@ -1663,23 +1634,23 @@ module Int : sig
       {[Int.inRange ~lower:(-6) ~upper:(-2) (-3) = true]}
 
   *)
-  val inRange : t -> lower:t -> upper:t -> bool
+  val inRange : int -> lower:int -> upper:int -> bool
   
   (** {1 Convert} *)
 
-  (** Convert an integer into a float. Useful when mixing {!Int} and {!Float} values like this:
+  (** Convert an int into a float. Useful when mixing {!Int} and {!Float} values like this:
 
       {2 Examples}
 
       {[
         let halfOf (number : int) : float =
-          Float.((Int.toFloat number) / 2)
+          Float.((Int.toFloat number) / 2.0)
           (* Note that locally opening the {!Float} module here allows us to use the floating point division operator *) 
         in
         halfOf 7 = 3.5
       ]}
   *)
-  val toFloat : t -> float
+  val toFloat : int -> float
   
   (** Convert an [int] into a [string] representation.
 
@@ -1689,21 +1660,21 @@ module Int : sig
 
       {2 Examples}
 
-      {[Int.to_string 3 = "3"]}
+      {[Int.toString 3 = "3"]}
 
-      {[Int.to_string (-3) = "-3"]}
+      {[Int.toString (-3) = "-3"]}
 
       {[Int.to_sString 0 = "0"]}
   *)
-  val toString : t -> string
+  val toString : int -> string
   
   (** {1 Compare} *)
 
   (** Test two [int]s for equality *)
-  val equal : t -> t -> bool
+  val equal : int -> int -> bool
 
   (** Compare two [int]s *)
-  val compare : t -> t -> int
+  val compare : int -> int -> int
 
   (** The unique identity for [ints] {!Comparator} *)
   type identity
@@ -1729,7 +1700,7 @@ module Integer : sig
   (** Create an {!Integer} from an Int64 *)
   val ofInt64 : Int64.t -> t
   
-  (** Create an {!Integer} from an Int64.
+  (** Create an {!Integer} from a {!Float}.
 
       Returns [None] when called with {!Float.nan}, {!Float.infinity} or {!Float.negativeInfinity}
   *)
@@ -1743,7 +1714,7 @@ module Integer : sig
 
       {[Integer.(ofString "42" = Some (ofInt 42))]}
 
-      {[Integer.(ofString "-3" = Some (ofInt -3))]}
+      {[Integer.(ofString "-3" = Some (ofInt (-3)))]}
 
       {[Integer.(ofString "123_456" = Some (ofInt 123_456))]}
 
@@ -1759,10 +1730,8 @@ module Integer : sig
   
   (** {1 Constants } *)
 
-  (** The literal [0] as a named value *)
   val zero : t
   
-  (** The literal [1] as a named value *)
   val one : t
   
   (** {1 Operators } *)
@@ -1816,7 +1785,7 @@ module Integer : sig
 
       Notice that the remainder is discarded.
 
-      {3 Exceptions}
+      {2 Exceptions}
 
       Throws [Division_by_zero] when the divisor is [zero].
 
@@ -1835,7 +1804,7 @@ module Integer : sig
   (** See {!Integer.divide} *)
   val (/) : t -> t -> t
   
-  (** Exponentiation, takes the base first, then the exponent.
+  (** Exponentiation, takes the base first, then the exponent.      
 
       Alternatively the [**] operator can be used.
 
@@ -1862,13 +1831,11 @@ module Integer : sig
 
       {2 Examples}
 
-      {[
-        Integer.(
-          assert (negate (ofInt 8) = ofInt -8);
-          assert (negate (ofInt -7) = ofInt 7);
-          assert (negate zero = zero)
-        )
-      ]}
+      {[Integer.(negate (ofInt 8) = ofInt (-8))]}
+
+      {[Integer.(negate (ofInt (-7)) = ofInt 7)]}
+      
+      {[Integer.(negate zero = zero)]}
   *)
   val negate : t -> t
   
@@ -1988,7 +1955,7 @@ module Integer : sig
   
   (** Clamps an integer within the inclusive [lower] and [upper] bounds.
 
-      {3 Exceptions}
+      {2 Exceptions}
 
       Throws an [Invalid_argument] exception if [lower > upper]
 
@@ -2004,7 +1971,7 @@ module Integer : sig
   
   (** Checks if an integer is between [lower] and up to, but not including, [upper].
 
-      {3 Exceptions}
+      {2 Exceptions}
 
       Throws an [Invalid_argument] exception if [lower > upper]
 
@@ -2108,9 +2075,9 @@ module String : sig
 
       {2 Examples}
 
-      {[String.ofList [] = ""]}
+      {[String.ofArray [||] = ""]}
 
-      {[String.ofList ['a'; 'b'; 'c'] = "abc"]}
+      {[String.ofArray [|'a'; 'b'; 'c'|] = "abc"]}
   *)
   val ofArray : char array -> string
   
@@ -2126,9 +2093,9 @@ module String : sig
   *)
   val ofList : char list -> string
   
-  (** Create a string by repeating a string [count] time.
+  (** Create a string by repeating a string [count] times.
 
-      {3 Exceptions}
+      {2 Exceptions}
 
       If [count] is negative, [String.repeat] throws a [RangeError] exception.
 
@@ -2254,13 +2221,15 @@ module String : sig
 
       {2 Examples}
 
-      {[
-        String.dropLeft ~count:3 "abcdefg" = "defg"
-        String.dropLeft ~count:0 "abcdefg" = "abcdefg"
-        String.dropLeft ~count:7 "abcdefg" = ""
-        String.dropLeft ~count:(-2) "abcdefg" = "fg"
-        String.dropLeft ~count:8 "abcdefg" = ""
-      ]}
+      {[String.dropLeft ~count:3 "abcdefg" = "defg"]}
+
+      {[String.dropLeft ~count:0 "abcdefg" = "abcdefg"]}
+
+      {[String.dropLeft ~count:7 "abcdefg" = ""]}
+
+      {[String.dropLeft ~count:(-2) "abcdefg" = "fg"]}
+
+      {[String.dropLeft ~count:8 "abcdefg" = ""]}
   *)
   val dropLeft : string -> count:int -> string
   
@@ -2268,13 +2237,15 @@ module String : sig
 
       {2 Examples}
 
-      {[
-        String.dropRight ~count:3 "abcdefg" = "abcd"
-        String.dropRight ~count:0 "abcdefg" = "abcdefg"
-        String.dropRight ~count:7 "abcdefg" = ""
-        String.dropRight ~count:(-2) "abcdefg" = "abcdefg"
-        String.dropRight ~count:8 "abcdefg" = ""
-      ]}
+      {[String.dropRight ~count:3 "abcdefg" = "abcd"]}
+
+      {[String.dropRight ~count:0 "abcdefg" = "abcdefg"]}
+
+      {[String.dropRight ~count:7 "abcdefg" = ""]}
+
+      {[String.dropRight ~count:(-2) "abcdefg" = "abcdefg"]}
+
+      {[String.dropRight ~count:8 "abcdefg" = ""]}
   *)
   val dropRight : string -> count:int -> string
     
@@ -2334,7 +2305,7 @@ module String : sig
 
       {2 Examples}
 
-      {[String.uncapitalize "den" = "Den"]}
+      {[String.capitalize "den" = "Den"]}
   *)
   val capitalize : string -> string
   
@@ -2396,13 +2367,15 @@ module String : sig
 
       {2 Examples}
 
-      {[
-        String.split ~on:"/" "a/b/c" = ["a"; "b"; "c"]
-        String.split ~on:"--" "a--b--c" = ["a"; "b"; "c"]
-        String.split ~on:"/" "abc" = ["abc"]
-        String.split ~on:"/" "" = [""]
-        String.split ~on:"" "abc" = ["a"; "b"; "c"]
-      ]}
+      {[String.split ~on:"/" "a/b/c" = ["a"; "b"; "c"]]}
+
+      {[String.split ~on:"--" "a--b--c" = ["a"; "b"; "c"]]}
+
+      {[String.split ~on:"/" "abc" = ["abc"]]}
+
+      {[String.split ~on:"/" "" = [""]]}
+
+      {[String.split ~on:"" "abc" = ["a"; "b"; "c"]]}
   *)
   val split : string -> on:string -> string list
 
@@ -2469,7 +2442,7 @@ end
 
 (** Functions for working with optional values. *)
 module Option : sig
-    (** {!Option} represents a value which may not be present.
+  (** {!Option} represents a value which may not be present.
 
       It is a variant containing the [(Some 'a)] and [None] constructors
 
@@ -2488,13 +2461,13 @@ module Option : sig
       - Return values for functions that are not defined over their entire input range (partial functions).
       - Return value for otherwise reporting simple errors, where None is returned on error.
 
-      Lots of functions in [Standard] return options, one you have one you can
+      Lots of functions in [Standard] return options, once you have one you can
       work with the value it might contain by:
 
       - Pattern matching
       - Using {!map} or {!flatMap} (or their operators in {!Infix})
-      - Unwrapping it using {!get}, or its operator {!Infix.(|?)}
-      - Converting a [None] into an exception using{!getUnsafe}
+      - Unwrapping it using {!get}, or its operator {!(|?)}
+      - Converting a [None] into an exception using {!getUnsafe}
 
       If the function you are writing can fail in a variety of ways, use a {!Result} instead to
       better communicate with the caller.
@@ -2660,14 +2633,9 @@ module Option : sig
   *)
   val flatMap : 'a t -> f:('a -> 'b t) -> 'b t
   
-  
   (** Unwrap an [option('a)] returning [default] if called with [None].
 
-      This comes in handy when paired with functions like {!Map.get} or {!List.head} which return an {!Option}.
-
-      See {!Infix.(|?)} for an operator version of this function.
-
-      {b Note} This can be overused! Many cases are better handled using pattern matching, {!map} or {!flatMap}.
+      This comes in handy when paired with functions like {!Map.get} or {!List.head} which return an {!Option}.      
 
       {2 Examples}
 
@@ -2678,13 +2646,23 @@ module Option : sig
       {[Option.get ~default:"unknown" (Map.get Map.String.empty "Tom") = "unknown"]}
   *)
   val get : 'a t -> default:'a -> 'a
+
+  (** The operator version of {!get}
+
+      {2 Examples}
+
+      {[Option.(Some 3004 |? 8) = 3004]}
+
+      {[Option.(None |? 8) = 8]}
+  *)
+  val (|?) : 'a t -> 'a -> 'a
   
   (** Unwrap an [option('a)] returning the enclosed ['a].
 
       {b Note} in most situations it is better to use pattern matching, {!get}, {!map} or {!flatMap}.
-      Can you structure your code slightly differently to avoid potentially raising an exception?
+      Can you structure your code slightly differently to avoid potentially raising an exception?          
 
-      {3 Exceptions}
+      {2 Exceptions}
 
       Raises an [Invalid_argument] exception if called with [None]
 
@@ -2692,7 +2670,7 @@ module Option : sig
 
       {[List.head [1;2;3] |> Option.getUnsafe = 1]}
 
-      {[List.head [] |> Option.getUnsafe]}
+      {[List.head [] |> Option.getUnsafe (* raises 'Invalid_argument' *)]}
   *)
   val getUnsafe : 'a t -> 'a
   
@@ -2725,7 +2703,7 @@ module Option : sig
   
   (** Convert an option to a {!Array}.
 
-      [None] is represented as an empty list and [Some] is represented as a list of one element.
+      [None] is represented as an empty array and [Some] is represented as an array of one element.
 
       {2 Examples}
 
@@ -2763,7 +2741,6 @@ module Option : sig
   *)
   val equal : ('a -> 'a -> bool) -> 'a t -> 'a t -> bool
   
-  
   (** Compare two optional values using the provided function.
 
       A [None] is "less" than a [Some]
@@ -2788,11 +2765,7 @@ module Option : sig
           let nameToAge = Map.String.ofArray [|
             ("Ant", 1);
             ("Bat", 5);
-            ("Cat", 19);
-          |] in
-
-          let catAge = Map.get nameToAge "Cat" |? 8 in
-          (* 19 *)
+          |] in          
 
           Option.Infix.(
             Map.get nameToAge "Ant" >>= (fun antAge -> 
@@ -2805,23 +2778,13 @@ module Option : sig
         ]}
     *)
 
-    (** The operator version of {!get}
-
-       {2 Examples}
-
-       {[Some 3004 |? 8 = 3004]}
-
-       {[None |? 8 = 8]}
-    *)
-    val (|?) : 'a t -> 'a -> 'a
-
     (** The operator version of {!map}
 
         {2 Examples}
 
-        {[Some "desserts" >>| String.reverse = Some "stressed"]}
+        {[Option.Infix.(Some "desserts" >>| String.reverse) = Some "stressed"]}
 
-        {[None >>| String.reverse = None]}
+        {[Option.Infix.(None >>| String.reverse) = None]}
     *)
     val (>>|) : 'a t -> ('a -> 'b) -> 'b t
 
@@ -2829,9 +2792,9 @@ module Option : sig
 
         {2 Examples}
 
-        {[Some [1, 2, 3] >>= List.head = Some 1]}
+        {[Option.Infix.(Some [1, 2, 3] >>= List.head) = Some 1]}
 
-        {[Some [] >>= List.head = None]}
+        {[Option.Infix.(Some [] >>= List.head) = None]}
     *)
     val (>>=) : 'a t -> ('a -> 'b t) -> 'b t
   end
@@ -2907,7 +2870,7 @@ module Result : sig
       {[Result.attempt (fun () -> 5 / 0) = Error Division_by_zero]}
 
       {[
-        let numbers = [|1,2,3|] in
+        let numbers = [|1; 2; 3|] in
         Result.attempt (fun () -> numbers.(3)) = 
           Error (Invalid_argument "index out of bounds")
       ]}
@@ -3071,7 +3034,19 @@ module Result : sig
       {[Result.get ~default:0 ((Error (`UnexpectedBird "Ostrich"))) = 0]}
   *)
   val get : ('ok, 'error) t -> default:'ok -> 'ok
-  
+
+  (** An operator version of {!Result.get} where the [default] value goes to the right of the operator.
+
+      {2 Examples}
+
+      The following eamples assume [open Result.Infix] is in scope.
+
+      {[Result.(Ok 4 |? 8) = 4]}
+
+      {[Result.(Error "Missing number!" |? 8) = 8]}
+  *)
+  val (|?) : ('a, 'error) t -> 'a -> 'a
+    
   (** Unwrap a Result, raising an exception in case of an [Error]
 
       {e Exceptions}
@@ -3234,7 +3209,6 @@ module Result : sig
   *)
   val toOption : ('ok, _) t -> 'ok option
   
-  
   (** {1 Compare} *)
 
   (** Test two results for equality using the provided functions.
@@ -3287,20 +3261,6 @@ module Result : sig
         Can make code significantly more concise at the expense of placing a greater cognitive burden on future readers.
     *)
 
-
-    (** An operator version of {!Result.get} where the [default] value goes to the right of the operator.
-
-        {2 Examples}
-
-        The following eamples assume [open Result.Infix] is in scope.
-
-        {[Ok 4 |? 8 = 4]}
-
-        {[Error "Missing number!" |? 8 = 8]}
-    *)
-    val (|?) : ('a, 'error) t -> 'a -> 'a
-    
-
     (** An operator version of {!flatMap}
 
         {2 Examples}
@@ -3326,7 +3286,6 @@ module Result : sig
         {[Ok 0. >>= reciprical = Error "Divide by zero"]}
     *)
     val (>>=) : ('ok, 'error) t -> ('ok -> ('b, 'error) t) -> ('b, 'error) t
-    
     
     (** An operator version of {!map}
 
@@ -4608,11 +4567,11 @@ end
 
 (** A fixed lenfth collection of values *)
 module Array : sig
-  (** A mutable vector of elements which must have the same type.
+  (** A mutable, fixed length collection of elements which must have the same type.
 
       Has constant time (O(1)) {!get}, {!set} and {!length} operations.
 
-      Arrays have a fixed length, if you want to be able to add an arbitrary number of elements maybe you want a {!List}.
+      Since arrays have a fixed length, if you want to be able to add an arbitrary number of elements maybe you want a {!List}.
   *)
 
   type 'a t = 'a array
@@ -4695,9 +4654,9 @@ module Array : sig
 
         let numberGridCopy = Array.copy numberGrid in
 
-        numberGrid.(1).(1) <- 0;
-
-        numberGridCopy.(1).(1) = 9;
+        numberGridCopy.(1).(1) = 5;
+        numberGrid.(1).(1) <- 0;        
+        numberGridCopy.(1).(1) = 0;
       ]}
   *)
   val clone : 'a t -> 'a t
@@ -4716,7 +4675,7 @@ module Array : sig
 
       Or using the safer {!Array.getAt} function.
 
-      {3 Exceptions}
+      {2 Exceptions}
 
       Raises [Invalid_argument "index out of bounds"] for indexes outside of the range [0] to [(Array.length a - 1)].
 
@@ -4763,7 +4722,7 @@ module Array : sig
 
       Or use the {!setAt} function instead.
 
-      {3 Exceptions}
+      {2 Exceptions}
 
       Raises [Invalid_argument "index out of bounds"] if [n] is outside the range [0] to [Array.length a - 1].
 
@@ -4836,7 +4795,7 @@ module Array : sig
   
   (** Swaps the values at the provided indicies.
 
-      {3 Exceptions}
+      {2 Exceptions}
 
       Raises an [Invalid_argument] exception of either index is out of bounds for the array.
 
@@ -4877,7 +4836,7 @@ module Array : sig
 
       {2 Examples}
 
-      {[Array.isEmpty [|1; 2, 3|] = false]}
+      {[Array.isEmpty [|1; 2; 3|] = false]}
 
       {[Array.isEmpty [||] = true]} 
   *)
@@ -4887,7 +4846,7 @@ module Array : sig
 
       {2 Examples}
 
-      {[Array.length [|1; 2, 3|] = 3]}
+      {[Array.length [|1; 2; 3|] = 3]}
 
       {[Array.length [||] = 0]} 
   *)
@@ -4955,7 +4914,7 @@ module Array : sig
 
       {2 Examples}
 
-      {[Array.contains [1; 2; 3]  2 ~equal:(=) = true]}
+      {[Array.includes [|1; 2; 3|] 2 ~equal:Int.equal = true]}
   *)
   val includes : 'a t -> 'a -> equal:('a -> 'a -> bool) -> bool
 
@@ -5101,7 +5060,7 @@ module Array : sig
       For examples if we have:
 
       {[
-        let numbers = [|1, 2, 3|] in
+        let numbers = [|1, 2; 3|] in
         let sum =
           Array.fold numbers ~initial:0 ~f:(fun accumulator element -> accumulator +element)
         in
@@ -5238,7 +5197,7 @@ module Array : sig
 
       Elements with an index greater than or equal to [index] will be in the second.
 
-      {3 Exceptions}
+      {2 Exceptions}
 
       Raises an [Invalid_argument] exception if [index] is less than zero
 
@@ -5802,7 +5761,7 @@ module List : sig
       {[
         match someList with
         | [] -> () (* Spoilers *)
-        | _ -> () (* This is how isEmptu is implemented *)
+        | _ -> () (* This is how isEmpty is implemented *)
       ]}
 
 

@@ -899,13 +899,13 @@ module Float : sig
 
       {2 Examples}
 
-      {[Float.is_nan (0.0 / 0.0) = true]}
+      {[Float.isNaN (0.0 / 0.0) = true]}
 
-      {[Float.(is_nan (squareRoot (-1.0))) = true]}
+      {[Float.(isNaN (squareRoot (-1.0))) = true]}
 
-      {[Float.is_nan (1.0 / 0.0) = false  (* Float.infinity {b is} a number *)]}
+      {[Float.isNaN (1.0 / 0.0) = false  (* Float.infinity {b is} a number *)]}
 
-      {[Float.is_nan 1. = false]}
+      {[Float.isNaN 1. = false]}
   *)
   val isNaN : t -> bool
   
@@ -1485,13 +1485,13 @@ module Int : sig
 
       {2 Examples}
 
-      {[Int.(3 % 2) = 1.5]}
+      {[Int.(3 /. 2) = 1.5]}
 
-      {[Int.(27 % 5) = 5.25]}
+      {[Int.(27 /. 5) = 5.25]}
 
-      {[Int.(8 % 4) = 2.0]}
+      {[Int.(8 /. 4) = 2.0]}
   *)
-  val (%) : t -> t -> float
+  val ( /. ) : t -> t -> float
   
   (** Exponentiation, takes the base first, then the exponent.
 
@@ -1690,9 +1690,9 @@ module Int : sig
 
       {2 Examples}
 
-      {[Int.to_string 3 = "3"]}
+      {[Int.toString 3 = "3"]}
 
-      {[Int.to_string (-3) = "-3"]}
+      {[Int.toString (-3) = "-3"]}
 
       {[Int.to_sString 0 = "0"]}
   *)
@@ -2496,7 +2496,7 @@ module Option : sig
 
       - Pattern matching
       - Using {!map} or {!flatMap} (or their operators in {!Infix})
-      - Unwrapping it using {!get}, or its operator {!Infix.(|?)}
+      - Unwrapping it using {!get}, or its operator {!(|?)}
       - Converting a [None] into an exception using{!getUnsafe}
 
       If the function you are writing can fail in a variety of ways, use a {!Result} instead to
@@ -2681,6 +2681,16 @@ module Option : sig
       {[Option.get ~default:"unknown" (Map.get Map.String.empty "Tom") = "unknown"]}
   *)
   val get : 'a t -> default:'a -> 'a
+
+  (** The operator version of {!get}
+
+      {2 Examples}
+
+      {[Some 3004 |? 8 = 3004]}
+
+      {[None |? 8 = 8]}
+  *)
+  val (|?) : 'a t -> 'a -> 'a
   
   (** Unwrap an [option('a)] returning the enclosed ['a].
 
@@ -2808,16 +2818,6 @@ module Option : sig
         ]}
     *)
 
-    (** The operator version of {!get}
-
-       {2 Examples}
-
-       {[Some 3004 |? 8 = 3004]}
-
-       {[None |? 8 = 8]}
-    *)
-    val (|?) : 'a t -> 'a -> 'a
-
     (** The operator version of {!map}
 
         {2 Examples}
@@ -2870,7 +2870,6 @@ module Result : sig
 
   type ('ok, 'error) t = ('ok, 'error) Belt.Result.t
   
-  
   (** {1 Create} *)
 
   (** A function alternative to the [Ok] constructor which can be used in places where
@@ -2916,7 +2915,6 @@ module Result : sig
       ]}
   *)
   val attempt : (unit -> 'ok) -> ('ok, exn) t
-  
   
   (** Convert an {!Option} to a {!Result} where a [(Some value)] becomes [(Ok value)] and a [None] becomes [(Error error)].
 
@@ -3075,6 +3073,18 @@ module Result : sig
   *)
   val get : ('ok, 'error) t -> default:'ok -> 'ok
   
+  (** An operator version of {!Result.get} where the [default] value goes to the right of the operator.
+
+      {2 Examples}
+
+      The following eamples assume [open Result.Infix] is in scope.
+
+      {[Ok 4 |? 8 = 4]}
+
+      {[Error "Missing number!" |? 8 = 8]}
+  *)
+  val (|?) : ('a, 'error) t -> 'a -> 'a
+
   (** Unwrap a Result, raising an exception in case of an [Error]
 
       {e Exceptions}
@@ -3237,7 +3247,6 @@ module Result : sig
   *)
   val toOption : ('ok, _) t -> 'ok option
   
-  
   (** {1 Compare} *)
 
   (** Test two results for equality using the provided functions.
@@ -3290,20 +3299,6 @@ module Result : sig
         Can make code significantly more concise at the expense of placing a greater cognitive burden on future readers.
     *)
 
-
-    (** An operator version of {!Result.get} where the [default] value goes to the right of the operator.
-
-        {2 Examples}
-
-        The following eamples assume [open Result.Infix] is in scope.
-
-        {[Ok 4 |? 8 = 4]}
-
-        {[Error "Missing number!" |? 8 = 8]}
-    *)
-    val (|?) : ('a, 'error) t -> 'a -> 'a
-    
-
     (** An operator version of {!flatMap}
 
         {2 Examples}
@@ -3329,7 +3324,6 @@ module Result : sig
         {[Ok 0. >>= reciprical = Error "Divide by zero"]}
     *)
     val (>>=) : ('ok, 'error) t -> ('ok -> ('b, 'error) t) -> ('b, 'error) t
-    
     
     (** An operator version of {!map}
 

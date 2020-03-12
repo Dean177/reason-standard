@@ -99,7 +99,7 @@ module Char = struct
 
   let isWhitespace = Base.Char.is_whitespace
 
-  let equal = ( = )
+  let equal: char -> char -> bool = ( = )
 
   let compare = compare
 
@@ -281,6 +281,8 @@ module Option = struct
 
   let get t ~default = match t with None -> default | Some value -> value
 
+  let ( |? ) t default = get t ~default
+
   let getUnsafe x =
     match x with
     | None ->
@@ -294,9 +296,7 @@ module Option = struct
 
   let toList t = match t with None -> [] | Some value -> [value]
 
-  module Infix = struct
-    let ( |? ) t default = get t ~default
-
+  module Infix = struct    
     let ( >>= ) t f = flatMap t ~f
 
     let ( >>| ) t f = map t ~f
@@ -353,6 +353,8 @@ module Result = struct
   let and_ a b = match a with Ok _ -> b | _ -> a
 
   let get = Result.value
+
+  let ( |? ) t default = get t ~default
 
   let getUnsafe = Result.get_ok
 
@@ -417,9 +419,7 @@ module Result = struct
           1
       : int )
 
-  module Infix = struct
-    let ( |? ) t default = get t ~default
-
+  module Infix = struct    
     let ( >>= ) t f = flatMap t ~f
 
     let ( >>| ) t f = map t ~f
@@ -627,7 +627,7 @@ module Int = struct
 
   let ( / ) = ( / )
 
-  let ( % ) = Base.Int.( // )
+  let ( /. ) = Base.Int.( // )
 
   let power ~base ~exponent =
     let open Base.Int in
@@ -639,21 +639,22 @@ module Int = struct
 
   let ( ~- ) = ( ~- )
 
-  let modulo n ~by = n mod by
+  let remainder n ~by = Stdlib.(n mod by)
 
-  let ( mod ) = ( mod )
+  let modulo n ~by =     
+    ((if n < 0 then 2 * (abs n) else n) mod by)
 
-  let remainder n ~by = Base.Int.rem n by
+  let ( mod ) n by = modulo n ~by
 
   let maximum = Base.Int.max
 
   let minimum = Base.Int.min
 
-  let absolute n = if n < 0 then n * -1 else n
+  let absolute n = Base.Int.abs n
 
-  let isEven n = n mod 2 = 0
+  let isEven n = remainder n ~by:2 = 0
 
-  let isOdd n = n mod 2 <> 0
+  let isOdd n = remainder n ~by:2 <> 0
 
   let clamp n ~lower ~upper =
     if upper < lower then

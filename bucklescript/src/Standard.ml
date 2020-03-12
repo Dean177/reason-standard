@@ -227,6 +227,8 @@ module Result = struct
 
   let get t ~default = Belt.Result.getWithDefault t default
 
+  let ( |? ) t default = get t ~default
+
   let getUnsafe t = Belt.Result.getExn t
 
   let getError t ~default =
@@ -290,9 +292,7 @@ module Result = struct
           1
       : int )
 
-  module Infix = struct
-    let ( |? ) t default = get t ~default
-
+  module Infix = struct    
     let ( >>= ) t f = flatMap t ~f
 
     let ( >>| ) t f = map t ~f
@@ -325,7 +325,9 @@ module Option = struct
     match (a, b) with (Some a, Some b) -> Some (f a b) | _ -> None
 
   let get t ~default = Belt.Option.getWithDefault t default
-
+  
+  let ( |? ) t default = get t ~default
+    
   let getOrFailWith t ~exn =
     match t with Some value -> value | None -> raise exn
 
@@ -359,8 +361,6 @@ module Option = struct
         1
 
   module Infix = struct
-    let ( |? ) t default = get t ~default
-
     let ( >>= ) t f = flatMap t ~f
 
     let ( >>| ) t f = map t ~f
@@ -581,7 +581,7 @@ module Int = struct
 
   let ( / ) = ( / )
 
-  let ( % ) n by = Js.Int.toFloat n /. Js.Int.toFloat by
+  let ( /. ) n by = Js.Int.toFloat n /. Js.Int.toFloat by
 
   let power ~base ~exponent = Js.Math.pow_int ~base ~exp:exponent
 
@@ -591,17 +591,18 @@ module Int = struct
 
   let ( ~- ) = ( ~- )
 
-  let ( mod ) = ( mod )
+  let remainder n ~by = (n mod by)
+
+  let ( mod ) n by =  
+    (if n <= 0 then abs n * 2 else n) mod by
 
   let modulo n ~by = n mod by
-
-  let remainder n ~by = n mod by
 
   let maximum = Js.Math.max_int
 
   let minimum = Js.Math.min_int
 
-  let absolute n = if n < 0 then n * -1 else n
+  let absolute = abs
 
   let isEven n = n mod 2 = 0
 
