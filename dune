@@ -1,7 +1,9 @@
-(dirs :standard \ 
-  _esy
-  experimental  
-  ocamldoc-json-generator
+(dirs :standard \   
   bucklescript/node_modules
+  bucklescript/coverage
+  experimental  
+  lib  
+  node_modules
+  ocamldoc-json-generator
   website
-  )
+)

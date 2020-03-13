@@ -16,31 +16,31 @@ jobs:
       CI: true
       NODE_ENV: test
 
-    working_directory: ~/repo/bucklescript
+    working_directory: ~/repo
     steps:
       - checkout:
           path: ~/repo
       - restore_cache:
           keys:
-            - v1-bucklescript-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
-            - v1-bucklescript-dependencies-{{ .Branch }}-
-            - v1-bucklescript-dependencies-
+            - v2-bucklescript-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - v2-bucklescript-dependencies-{{ .Branch }}-
+            - v2-bucklescript-dependencies-
 
       - run: yarn install
       - run: yarn build
       - run: yarn test
 
       - save_cache:
-          key: v1-bucklescript-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          key: v2-bucklescript-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
-            - ~/repo/bucklescript/node_modules
+            - ~/repo/node_modules
 
   native-build-and-test:
     docker:
       - image: circleci/node:12
     environment:
       CI: true
-    working_directory: ~/repo/native
+    working_directory: ~/repo
     steps:
       - checkout:
           path: ~/repo
