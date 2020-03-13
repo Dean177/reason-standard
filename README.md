@@ -4,7 +4,7 @@
 [![Npm](https://badge.fury.io/js/reason-standard.svg)](https://www.npmjs.com/package/reason-standard)
 ![Opam](https://img.shields.io/badge/opam_package-unpublished-yellow)
 
-> A portable standard library replacement for Reason and OCaml.
+> A portable standard library enhancement for Reason and OCaml.
 
 Standard provides an easy-to-use, comprehensive and safe standard library, that has the same API for the OCaml and Bucklescript compilers.
 

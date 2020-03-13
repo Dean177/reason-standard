@@ -3,6 +3,7 @@
 .idea
 .merlin
 _build
+experimental/
 node_modules
 reason-standard.install
 /bucklescript/coverage

@@ -175,7 +175,7 @@ export const pageQuery = graphql`
 `;
 
 let title = 'Standard';
-let description = 'A portable standard library replacement for Reason and OCaml.';
+let description = 'A portable standard library enhancement for Reason and OCaml.';
 
 let Header = () => {
   let [_themeName, _toggle, theme] = useTheme();
@@ -270,7 +270,7 @@ export default () => {
                   >
                     Standard
                   </h1>
-                  <p>A portable standard library replacement for Reason and OCaml.</p>
+                  <p>A portable standard library enhancement for Reason and OCaml.</p>
                   <p
                     css={css`
                       padding-top: 30px;
