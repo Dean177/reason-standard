@@ -1,5 +1,14 @@
 import React from 'react';
 import Helmet from 'react-helmet';
+
+import {
+  List,
+  AutoSizer,
+  CellMeasurer,
+  CellMeasurerCache,
+  WindowScroller,
+} from 'react-virtualized';
+
 import { graphql, navigate, Link } from 'gatsby';
 import styled, { css } from 'styled-components';
 import _ from 'lodash';
@@ -119,7 +128,6 @@ function renderSidebarElements(
   let hasSearch = valueSearch.length > 0;
   return deDupeIncludedModules(moduleElements, modulesByModulePath).map(
     (moduleElement, index) => {
-
       switch (moduleElement.tag) {
         case 'Type':
           let typeLink = linkFor(
@@ -197,7 +205,6 @@ function renderSidebarElements(
                 </div>
               );
             case 'ModuleStruct':
-              
               return renderSidebarModule(
                 moduleElement,
                 modulesByModulePath,
@@ -277,7 +284,7 @@ function renderSidebarModule(
   search,
   collapsed,
   toggleModule,
-  path,  
+  path,
 ) {
   let moduleSearchPath =
     search.length > 1 ? search.slice(0, search.length - 1) : [];
@@ -548,19 +555,19 @@ let renderTextElements = (elements = [], parentPath = []) => {
   return elements.map(({ tag, value }, index) => {
     switch (tag) {
       case 'Raw':
-        return <span key={index}>{value}</span>;
-      case 'Link':
-        return (
-          <a key={index} href={value.target}>
-            {renderTextElements(value.content, parentPath)}
-          </a>
-        );
+        return <span key={index}>{value}</span>;      
       case 'Newline':
         return <pre key={index}>{'\n'}</pre>;
       case 'Emphasize':
         return <em key={index}>{(renderTextElements(value), parentPath)}</em>;
       case 'Bold':
         return <b key={index}>{renderTextElements(value, parentPath)}</b>;
+      case 'Link':
+        return (
+          <a key={index} href={value.target}>
+            {renderTextElements(value.content, parentPath)}
+          </a>
+        );
       case 'Code':
         return (
           <code
@@ -615,21 +622,13 @@ let renderTextElements = (elements = [], parentPath = []) => {
             {content}
           </a>
         );
+      
       case 'Title':
-        let rawContent = value.content
-          .filter(textElement => textElement.tag === 'Raw')
-          .map(({ value }) => value)
-          .join('_');
-        let titleId = idFor(parentPath, 'Title', rawContent);
-        return (
-          <PageAnchor className="Title" id={titleId} key={index}>
-            {React.createElement(`h${value.size + 1}`, {
-              key: index,
-              id: value.label,
-              children: renderTextElements(value.content, parentPath),
-            })}
-          </PageAnchor>
-        );
+        return React.createElement(`h${value.size + 1}`, {
+          key: index,
+          id: value.label,
+          children: renderTextElements(value.content, parentPath),
+        });
 
       case 'CodePre':
         return (
@@ -669,7 +668,7 @@ let renderTextElements = (elements = [], parentPath = []) => {
               Try
             </button> */}
           </div>
-        );     
+        );
       case 'Enum':
         return (
           <ul
@@ -788,6 +787,11 @@ let ModuleCard = props => (
   />
 );
 
+let state = {
+  elements: [],
+  path: [],
+  pathToIndex: {},
+};
 function renderModuleElements(moduleElements, modulesByName, path = []) {
   return deDupeIncludedModules(moduleElements, modulesByName).map(
     (moduleElement, index) => {
@@ -873,7 +877,7 @@ function renderModuleElements(moduleElements, modulesByName, path = []) {
                   )}
                 </ModuleCard>
               );
-            case 'ModuleAlias':              
+            case 'ModuleAlias':
               let module = modulesByName[moduleElement.value.kind.value.name];
               if (module == null) {
                 throw new Error(
@@ -890,7 +894,9 @@ function renderModuleElements(moduleElements, modulesByName, path = []) {
                 <ModuleCard key={id + index}>
                   <PageAnchor id={id}>
                     <Identifiers.module
-                      name={stripCorePrefix(moduleElement.value.kind.value.name)}
+                      name={stripCorePrefix(
+                        moduleElement.value.kind.value.name,
+                      )}
                     />
                   </PageAnchor>
                   {renderModuleElements(module.value.kind.value, modulesByName)}
@@ -964,7 +970,7 @@ export const pageQuery = graphql`
   }
 `;
 
-let title = 'API'
+let title = 'API';
 
 let moduleIndex = (moduleElements, parentPath = []) => {
   return moduleElements
@@ -979,7 +985,6 @@ let moduleIndex = (moduleElements, parentPath = []) => {
       return [[path, modu], ...moduleIndex(modu.value.kind.value, path)];
     });
 };
-
 
 let Header = ({ title }) => {
   let [_themeName, _toggle, theme] = useTheme();
@@ -1010,7 +1015,6 @@ let Header = ({ title }) => {
   );
 };
 
-
 export default ({ data }) => {
   let [isOpen, setIsOpen] = React.useState(false);
   const { odocModel } = data;
@@ -1022,17 +1026,45 @@ export default ({ data }) => {
       module,
     ]),
   );
+  let windowScroller = React.useRef();
+  let cache = React.useRef(
+    new CellMeasurerCache({
+      fixedWidth: true,
+    }),
+  );
+  let list = React.useMemo(
+    () =>
+      renderModuleElements(
+        model.entry_point.value.kind.value,
+        moduleByModulePath,
+      ),
+    [model.entry_point.value.kind.value, moduleByModulePath],
+  );
+  let renderRow = ({ index, key, parent, style }) => {
+    return (
+      <CellMeasurer
+        cache={cache.current}
+        columnIndex={0}
+        key={key}
+        parent={parent}
+        rowIndex={index}
+      >
+        <div style={style} className="row">
+          {list[index]}
+        </div>
+      </CellMeasurer>
+    );
+  };
 
   return (
     <ThemeProvider>
       <SyntaxProvider>
         <GlobalStyles />
-        <Header title={title}/>
-        <AppWrapper>
+        <Header title={title} />
+
+        {/* <AppWrapper>
           <ContentContainer>
-            <NavBarContainer>
-              <NavBar />
-            </NavBarContainer>
+            
             <SidebarContainer isOpen={isOpen}>
               <Sidebar
                 moduleElements={model.entry_point.value.kind.value}
@@ -1040,34 +1072,77 @@ export default ({ data }) => {
               />
             </SidebarContainer>
             <Main>
-              <Container>
-                <div
-                  css={css`
-                    display: flex;
-                    flex-direction: row;
-                    justify-content: space-between;
-                    width: 100%;
-                  `}
-                >
-                  <PageTitle>API</PageTitle>
-                  <div>
-                    <SyntaxToggle />
-                  </div>
-                </div>
-                {renderModuleElements(
-                  model.entry_point.value.kind.value,
-                  moduleByModulePath,
-                )}
-              </Container>
-            </Main>
+            */}        
+        <SidebarContainer isOpen={isOpen}>
+          <Sidebar
+            moduleElements={model.entry_point.value.kind.value}
+            moduleByModulePath={moduleByModulePath}
+          />
+        </SidebarContainer>
+        <NavBarContainer>
+          <NavBar />
+        </NavBarContainer>
+        <div css={css`
+          margin-left: ${dimensions.leftSideBar}px;
+        `}>
+
+        <Container>
+          <div
+            css={css`
+              display: flex;
+              flex-direction: row;
+              justify-content: space-between;
+              width: 100%;
+            `}
+          >
+            <PageTitle>API</PageTitle>
+            <div>
+              <SyntaxToggle />
+            </div>
+          </div>
+          <WindowScroller ref={windowScroller} scrollElement={window}>
+            {({
+              height,
+              isScrolling,
+              registerChild,
+              onChildScroll,
+              scrollTop,
+            }) => (
+              <div ref={registerChild}>
+                <AutoSizer disableHeight>
+                  {({ width }) => (
+                    <List
+                    ref={el => {
+                      window.listEl = el;
+                    }}
+                    autoHeight
+                    height={height}
+                    deferredMeasurementCache={cache.current}
+                    isScrolling={isScrolling}
+                    onScroll={onChildScroll}
+                    overscanRowCount={0}
+                    rowCount={list.length}
+                    rowHeight={cache.current.rowHeight}
+                    rowRenderer={renderRow}
+                    scrollTop={scrollTop}
+                    width={width}
+                    />
+                    )}
+                </AutoSizer>
+              </div>
+            )}
+          </WindowScroller>
+        </Container>
+        </div>
+        {/* </Main>
           </ContentContainer>
           <MenuButtonContainer>
-            <MenuButton
-              onClick={() => setIsOpen(open => !open)}
-              isOpen={isOpen}
+          <MenuButton
+          onClick={() => setIsOpen(open => !open)}
+          isOpen={isOpen}
             />
           </MenuButtonContainer>
-        </AppWrapper>
+        </AppWrapper> */}
       </SyntaxProvider>
     </ThemeProvider>
   );
