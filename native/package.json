@@ -1,15 +1,12 @@
 {
-  "name": "reason-standard-native",
+  "name": "reason-standard",
   "description": "A standard library enhancement for Reason and OCaml.",
-  "version": "0.0.1",
+  "version": "0.1.0-alpha.0",
   "repository": "https://github.com/Dean177/reason-standard",
   "author": "Dean Merchant <deanmerchant@gmail.com>",
   "license": "MIT",
   "private": false,
-  "keywords": [
-    "BuckleScript",
-    "ReasonML"
-  ],
+  "keywords": [ "BuckleScript", "ReasonML" ],
   "scripts": {
     "doc": "esy dune build @doc",
     "doc-path": "esy echo #{self.target_dir}/default/_doc/_html/index.html",
@@ -21,7 +18,7 @@
     "@esy-ocaml/reason": ">= 3.4.0 < 3.6.0",
     "@opam/alcotest": "0.8.5",
     "@opam/base": "v0.13.0",
-    "@opam/dune": "2.1.3",
+    "@opam/dune": "2.4.0",
     "@opam/zarith": "1.9.1",
     "ocaml": "~4.8.1000",
     "refmterr": "*"
@@ -33,8 +30,6 @@
   },
   "esy": {
     "build": "refmterr dune build -p #{self.name}",
-    "buildEnv": {
-      "ODOC_SYNTAX": "re"
-    }
+    "buildEnv": { "ODOC_SYNTAX": "re" }
   }
 }

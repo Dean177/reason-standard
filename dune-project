@@ -4,4 +4,3 @@
 (license MIT)
 (authors "Dean Merchant")
 (maintainers "deanmerchant@gmail.com")
-(generate_opam_files true)

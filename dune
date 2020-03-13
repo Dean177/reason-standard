@@ -1,10 +1,7 @@
 (dirs :standard \ 
-  bs-experimental
-  bucklescript/node_modules 
-  native/node_modules 
-  native/_esy 
-  native/esy.lock 
-  docs 
-  gatsby-source-odoc
-  integration-tests website
-  native-experimental)
+  _esy
+  experimental  
+  ocamldoc-json-generator
+  bucklescript/node_modules
+  website
+  )
