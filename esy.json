@@ -6,7 +6,7 @@
   "author": "Dean Merchant <deanmerchant@gmail.com>",
   "license": "MIT",
   "private": false,
-  "keywords": [ "BuckleScript", "ReasonML" ],
+  "keywords": ["BuckleScript", "ReasonML"],
   "scripts": {
     "doc": "esy dune build @doc",
     "doc-path": "esy echo #{self.target_dir}/default/_doc/_html/index.html",
