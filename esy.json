@@ -1,7 +1,7 @@
 {
   "name": "reason-standard",
   "description": "A portable standard library enhancement for Reason and OCaml.",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "repository": "https://github.com/Dean177/reason-standard",
   "author": "Dean Merchant <deanmerchant@gmail.com>",
   "license": "MIT",
