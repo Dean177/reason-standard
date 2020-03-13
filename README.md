@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/Dean177/reason-standard.svg?style=shield)](https://circleci.com/gh/Dean177/reason-standard)
 [![Npm](https://badge.fury.io/js/reason-standard.svg)](https://www.npmjs.com/package/reason-standard)
-![Opam](https://img.shields.io/badge/opam_package-unpublished-yellow)
+[![Opam](https://img.shields.io/badge/opam_package-0.1.0--alpha.1-brightgreen)](https://opam.ocaml.org/packages/reason-standard)
 
 > A portable standard library enhancement for Reason and OCaml.
 
