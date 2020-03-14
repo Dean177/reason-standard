@@ -1,18 +1,17 @@
-import React from 'react';
+import React, { Component, useEffect, useRef, useMemo } from 'react';
 import Helmet from 'react-helmet';
-
 import {
-  List,
   AutoSizer,
   CellMeasurer,
   CellMeasurerCache,
+  List,
   WindowScroller,
 } from 'react-virtualized';
-
 import { graphql, navigate, Link } from 'gatsby';
 import styled, { css } from 'styled-components';
 import _ from 'lodash';
 import {
+  breakpoints,
   dimensions,
   colors,
   fonts,
@@ -110,16 +109,13 @@ let idFor = (path, tag, name) => {
   return `${path.join('.')}${path.length > 0 ? '.' : ''}${prefix}${name}`;
 };
 
-let linkFor = (path, tag, name) => {
-  return `/api#${idFor(path, tag, name)}`;
-};
-
 function renderSidebarElements(
   moduleElements,
   modulesByModulePath,
   search,
   collapsed,
   toggleModule,
+  scrollToId,
   path = [],
 ) {
   let moduleSearchPath =
@@ -130,11 +126,7 @@ function renderSidebarElements(
     (moduleElement, index) => {
       switch (moduleElement.tag) {
         case 'Type':
-          let typeLink = linkFor(
-            path,
-            moduleElement.tag,
-            moduleElement.value.name,
-          );
+          let typeId = idFor(path, moduleElement.tag, moduleElement.value.name);
           if (
             hasSearch &&
             !(
@@ -145,12 +137,14 @@ function renderSidebarElements(
             return null;
           }
           return (
-            <div key={typeLink}>
-              <Link to={typeLink}>type {moduleElement.value.name}</Link>
+            <div key={typeId}>
+              <a onClick={() => scrollToId(typeId)}>
+                type {moduleElement.value.name}
+              </a>
             </div>
           );
         case 'Value':
-          let valueLink = linkFor(
+          let valueLink = idFor(
             path,
             moduleElement.tag,
             moduleElement.value.name,
@@ -166,11 +160,13 @@ function renderSidebarElements(
           }
           return (
             <div key={valueLink}>
-              <Link to={valueLink}>{moduleElement.value.name}</Link>
+              <a onClick={() => scrollToId(valueLink)}>
+                {moduleElement.value.name}
+              </a>
             </div>
           );
         case 'ModuleType':
-          let moduleTypeLink = linkFor(
+          let moduleTypeId = idFor(
             path,
             moduleElement.tag,
             moduleElement.value.name,
@@ -179,16 +175,14 @@ function renderSidebarElements(
             return null;
           }
           return (
-            <div key={moduleTypeLink}>
-              <Link to={moduleTypeLink}>
-                module type {moduleElement.value.name}
-              </Link>
-            </div>
+            <a onClick={() => scrollToId(moduleTypeId)} key={moduleTypeId}>
+              module type {moduleElement.value.name}
+            </a>
           );
         case 'Module':
           switch (moduleElement.value.kind.tag) {
             case 'ModuleFunctor':
-              let moduleFunctorLink = linkFor(
+              let moduleFunctorId = idFor(
                 path,
                 moduleElement.value.kind.tag,
                 moduleElement.value.name,
@@ -200,9 +194,12 @@ function renderSidebarElements(
                 return null;
               }
               return (
-                <div key={moduleFunctorLink}>
-                  <Link to={moduleFunctorLink}>{moduleElement.value.name}</Link>
-                </div>
+                <a
+                  onClick={() => scrollToId(moduleFunctorId)}
+                  key={moduleFunctorId}
+                >
+                  {moduleElement.value.name}
+                </a>
               );
             case 'ModuleStruct':
               return renderSidebarModule(
@@ -211,6 +208,7 @@ function renderSidebarElements(
                 search,
                 collapsed,
                 toggleModule,
+                scrollToId,
                 path,
               );
             case 'ModuleAlias':
@@ -234,6 +232,7 @@ function renderSidebarElements(
                 search,
                 collapsed,
                 toggleModule,
+                scrollToId,
                 path,
               );
             default:
@@ -262,6 +261,7 @@ function renderSidebarElements(
             search,
             collapsed,
             toggleModule,
+            scrollToId,
             path,
           );
         case 'Text':
@@ -284,6 +284,7 @@ function renderSidebarModule(
   search,
   collapsed,
   toggleModule,
+  scrollToId,
   path,
 ) {
   let moduleSearchPath =
@@ -296,7 +297,7 @@ function renderSidebarModule(
       : moduleElement.value.name;
 
   let isCollapsed = !!collapsed[qualifiedModuleName];
-  let moduleLink = linkFor(path, moduleElement.tag, moduleElement.value.name);
+  let moduleId = idFor(path, moduleElement.tag, moduleElement.value.name);
 
   let moduleNameMatchesValueSearch = moduleElement.value.name.includes(
     valueSearch,
@@ -326,6 +327,7 @@ function renderSidebarModule(
     subSearch,
     collapsed,
     toggleModule,
+    scrollToId,
     [...path, moduleElement.value.name],
   );
 
@@ -342,7 +344,7 @@ function renderSidebarModule(
   }
   return (
     <div
-      key={moduleLink}
+      key={moduleId}
       css={css`
         margin-top: -5px;
 
@@ -377,14 +379,15 @@ function renderSidebarModule(
         >
           {isCollapsed ? '▷' : '▽'}
         </div>
-        <Link to={moduleLink}>module {qualifiedModuleName}</Link>
+
+        <a onClick={() => scrollToId(moduleId)}>module {qualifiedModuleName}</a>
       </div>
       {isCollapsed ? null : <div className="elements">{content}</div>}
     </div>
   );
 }
 
-const Sidebar = ({ moduleElements, moduleByModulePath }) => {
+const Sidebar = ({ moduleElements, moduleByModulePath, scrollToId }) => {
   let [searchString, setSearch] = React.useState('');
   let search = searchString
     .split('.')
@@ -433,6 +436,7 @@ const Sidebar = ({ moduleElements, moduleByModulePath }) => {
 
           a {
             color: ${({ theme }) => theme.sidebar.text};
+            cursor: pointer;
           }
         `}
       >
@@ -442,13 +446,12 @@ const Sidebar = ({ moduleElements, moduleByModulePath }) => {
           search,
           collapsed,
           toggleModule,
+          scrollToId,
         )}
       </div>
     </div>
   );
 };
-
-let linkSize = spacing.pageMargin;
 
 const PageAnchor = ({ id, children }) => {
   return (
@@ -459,7 +462,7 @@ const PageAnchor = ({ id, children }) => {
         display: flex;
         flex-shrink: 0;
         flex-direction: row;
-        margin-left: -${linkSize}px;
+        margin-left: -${spacing.pageMargin.laptop}px;
 
         .link {
           opacity: 0.3;
@@ -478,7 +481,7 @@ const PageAnchor = ({ id, children }) => {
           font-size: 15px;
           height: 100%;
           text-align: center;
-          width: ${linkSize}px;
+          width: ${spacing.pageMargin.laptop}px;
           display: flex;
           justify-content: center;
 
@@ -487,8 +490,19 @@ const PageAnchor = ({ id, children }) => {
           }
         }
         .content {
-          width: calc(100% + ${linkSize}px);
+          width: calc(100% + ${spacing.pageMargin.laptop}px);
           overflow-x: auto;
+        }
+
+        @media (min-width: ${breakpoints.desktop}px) {
+          margin-left: -${spacing.pageMargin.desktop}px;
+          .link {
+            width: ${spacing.pageMargin.desktop}px;
+          }
+
+          .content {
+            width: calc(100% + ${spacing.pageMargin.desktop}px);
+          }
         }
       `}
     >
@@ -555,7 +569,7 @@ let renderTextElements = (elements = [], parentPath = []) => {
   return elements.map(({ tag, value }, index) => {
     switch (tag) {
       case 'Raw':
-        return <span key={index}>{value}</span>;      
+        return <span key={index}>{value}</span>;
       case 'Newline':
         return <pre key={index}>{'\n'}</pre>;
       case 'Emphasize':
@@ -622,7 +636,7 @@ let renderTextElements = (elements = [], parentPath = []) => {
             {content}
           </a>
         );
-      
+
       case 'Title':
         return React.createElement(`h${value.size + 1}`, {
           key: index,
@@ -748,12 +762,11 @@ let ValueWrapper = styled.div`
   overflow-x: auto;
 `;
 
-let Value = ({ path, name, type, info, parameters, ...value }) => {
+let Value = ({ id, path, name, type, info, parameters, ...value }) => {
   return (
     <ValueContainer>
-      <PageAnchor id={idFor(path, 'Value', name)}>
+      <PageAnchor id={id}>
         <ValueWrapper>
-          {/* // TODO syntax highlighting */}
           <pre>
             <code>let {name}: </code>
           </pre>
@@ -777,42 +790,55 @@ let Value = ({ path, name, type, info, parameters, ...value }) => {
   );
 };
 
-let ModuleCard = props => (
+let ModuleSpacer = () => (
   <div
-    className="ModuleCard"
+    className="ModuleSpacer"
     css={css`
       margin-bottom: 3rem;
     `}
-    {...props}
   />
 );
 
-let state = {
-  elements: [],
-  path: [],
-  pathToIndex: {},
+let registerId = (state, id) => {
+  let nextElementIndex = state.elements.length;
+  // console.info(id, nextElementIndex)
+  state.idToIndex[id] = nextElementIndex;
 };
-function renderModuleElements(moduleElements, modulesByName, path = []) {
-  return deDupeIncludedModules(moduleElements, modulesByName).map(
-    (moduleElement, index) => {
+
+let initialState = {
+  path: [],
+  elements: [],
+  idToIndex: {},
+};
+function generateModuleElements(
+  moduleElements,
+  modulesByName,
+  state = initialState,
+) {
+  deDupeIncludedModules(moduleElements, modulesByName).forEach(
+    moduleElement => {
       switch (moduleElement.tag) {
         case 'Text':
-          return (
+          state.elements.push(
             <div
-              key={index}
               css={css`
                 padding: 10px 0px;
               `}
             >
-              <TextElement elements={moduleElement.value} path={path} />
-            </div>
+              <TextElement elements={moduleElement.value} path={state.path} />
+            </div>,
           );
+          return;
         case 'Type':
-          return (
-            <ValueContainer key={index}>
-              <PageAnchor
-                id={idFor(path, moduleElement.tag, moduleElement.value.name)}
-              >
+          let typeId = idFor(
+            state.path,
+            moduleElement.tag,
+            moduleElement.value.name,
+          );
+          registerId(state, typeId);
+          state.elements.push(
+            <ValueContainer>
+              <PageAnchor id={typeId}>
                 <ValueWrapper>
                   <pre>
                     <code>
@@ -834,49 +860,58 @@ function renderModuleElements(moduleElements, modulesByName, path = []) {
                   elements={moduleElement.value.info.description.value}
                 />
               )}
-            </ValueContainer>
+            </ValueContainer>,
           );
+          return;
         case 'Value':
-          return <Value key={index} path={path} {...moduleElement.value} />;
-        case 'ModuleType':
-          let moduleTypeId = idFor(
-            path,
+          let valueId = idFor(
+            state.path,
             moduleElement.tag,
             moduleElement.value.name,
           );
-          return (
-            <ModuleCard key={moduleTypeId + index}>
-              <PageAnchor id={moduleTypeId}>
-                <Identifiers.moduleType name={moduleTypeId} />
-              </PageAnchor>
-              {moduleElement.value.elements &&
-                renderModuleElements(
-                  moduleElement.value.elements,
-                  modulesByName,
-                  [...path, moduleElement.value.name],
-                )}
-            </ModuleCard>
+          registerId(state, valueId);
+          state.elements.push(
+            <Value id={valueId} path={state.path} {...moduleElement.value} />,
           );
+          return;
+        case 'ModuleType':
+          let moduleTypeId = idFor(
+            state.path,
+            moduleElement.tag,
+            moduleElement.value.name,
+          );
+          registerId(state, moduleTypeId);
+          state.elements.push(
+            <PageAnchor id={moduleTypeId}>
+              <Identifiers.moduleType name={moduleTypeId} />
+            </PageAnchor>,
+          );
+          generateModuleElements(moduleElement.value.elements, modulesByName, {
+            ...state,
+            path: [...state.path, moduleElement.value.name],
+          });
+          return;
         case 'Module':
           switch (moduleElement.value.kind.tag) {
             case 'ModuleStruct':
               let moduleStructId = idFor(
-                path,
+                state.path,
                 moduleElement.tag,
                 moduleElement.value.name,
               );
-              return (
-                <ModuleCard key={moduleStructId + index}>
-                  <PageAnchor id={moduleStructId}>
-                    <Identifiers.module name={moduleStructId} />
-                  </PageAnchor>
-                  {renderModuleElements(
-                    moduleElement.value.kind.value,
-                    modulesByName,
-                    [...path, moduleElement.value.name],
-                  )}
-                </ModuleCard>
+              let path = [...state.path, moduleElement.value.name];
+              registerId(state, moduleStructId);
+              state.elements.push(
+                <PageAnchor id={moduleStructId}>
+                  <Identifiers.module name={moduleStructId} />
+                </PageAnchor>,
               );
+              generateModuleElements(
+                moduleElement.value.kind.value,
+                modulesByName,
+                { ...state, path },
+              );
+              return;
             case 'ModuleAlias':
               let module = modulesByName[moduleElement.value.kind.value.name];
               if (module == null) {
@@ -889,27 +924,32 @@ function renderModuleElements(moduleElements, modulesByName, path = []) {
                   'Unmapped case for ' + kind.value.name + module.value.kind,
                 );
               }
-              let id = idFor(path, 'ModuleStruct', module.value.name);
-              return (
-                <ModuleCard key={id + index}>
-                  <PageAnchor id={id}>
-                    <Identifiers.module
-                      name={stripCorePrefix(
-                        moduleElement.value.kind.value.name,
-                      )}
-                    />
-                  </PageAnchor>
-                  {renderModuleElements(module.value.kind.value, modulesByName)}
-                </ModuleCard>
+              let id = idFor(state.path, 'ModuleStruct', module.value.name);
+              registerId(state, id);
+              state.elements.push(
+                <PageAnchor id={id}>
+                  <Identifiers.module
+                    name={stripCorePrefix(moduleElement.value.kind.value.name)}
+                  />
+                </PageAnchor>,
               );
+              generateModuleElements(module.value.kind.value, modulesByName, {
+                ...state,
+                path: [...state.path, moduleElement.value.name],
+              });
+              state.elements.push(<ModuleSpacer />);
+              return;
             case 'ModuleFunctor':
               let functor = moduleElement.value;
-              let moduleFunctorId = idFor(path, functor.kind.tag, functor.name);
               let { parameter, result } = functor.kind.value;
+              let moduleFunctorId = idFor(
+                state.path,
+                functor.kind.tag,
+                functor.name,
+              );
               let signature;
               switch (result.tag) {
                 case 'ModuleStruct':
-                  // signature = JSON.stringify(result.value)
                   // This only gets used for Set.Of / Map.Of
                   // Who wants to to a full implementation when this is all we need?
                   // Sorry
@@ -922,8 +962,9 @@ function renderModuleElements(moduleElements, modulesByName, path = []) {
                   throw new Error('UNHANDLED CASE ' + result.tag);
               }
 
-              return (
-                <ValueContainer key={index}>
+              registerId(state, moduleFunctorId);
+              state.elements.push(
+                <ValueContainer>
                   <PageAnchor id={moduleFunctorId}>
                     <ValueWrapper>
                       <pre>
@@ -938,21 +979,25 @@ function renderModuleElements(moduleElements, modulesByName, path = []) {
                   {functor.info && (
                     <TextElement elements={functor.info.description.value} />
                   )}
-                </ValueContainer>
+                </ValueContainer>,
               );
+              return;
             default:
-              return (
+              state.elements.push(
                 <UnhandledCase
                   key={'DefaultModule' + index}
                   el={moduleElement}
-                />
+                />,
               );
+              return;
           }
         default:
-          return <UnhandledCase key={index} el={moduleElement} />;
+          state.elements.push(<UnhandledCase el={moduleElement} />);
+          return;
       }
     },
   );
+  return state;
 }
 
 export const pageQuery = graphql`
@@ -1017,132 +1062,141 @@ let Header = ({ title }) => {
 
 export default ({ data }) => {
   let [isOpen, setIsOpen] = React.useState(false);
-  const { odocModel } = data;
-
-  let model = JSON.parse(odocModel.internal.content);
-  let moduleByModulePath = _.fromPairs(
-    _.map(moduleIndex(_.values(model.modules)), ([path, module]) => [
-      path.join('.'),
-      module,
-    ]),
-  );
-  let windowScroller = React.useRef();
   let cache = React.useRef(
     new CellMeasurerCache({
       fixedWidth: true,
     }),
   );
-  let list = React.useMemo(
-    () =>
-      renderModuleElements(
-        model.entry_point.value.kind.value,
-        moduleByModulePath,
-      ),
-    [model.entry_point.value.kind.value, moduleByModulePath],
-  );
-  let renderRow = ({ index, key, parent, style }) => {
-    return (
-      <CellMeasurer
-        cache={cache.current}
-        columnIndex={0}
-        key={key}
-        parent={parent}
-        rowIndex={index}
-      >
-        <div style={style} className="row">
-          {list[index]}
-        </div>
-      </CellMeasurer>
+  let {
+    moduleElements,
+    moduleByModulePath,
+    idToIndex,
+    list,
+  } = React.useMemo(() => {
+    const { odocModel } = data;
+    let model = JSON.parse(odocModel.internal.content);
+    let moduleByModulePath = _.fromPairs(
+      _.map(moduleIndex(_.values(model.modules)), ([path, module]) => [
+        path.join('.'),
+        module,
+      ]),
     );
-  };
+
+    let { idToIndex, elements } = generateModuleElements(
+      model.entry_point.value.kind.value,
+      moduleByModulePath,
+    );
+
+    return {
+      moduleElements: model.entry_point.value.kind.value,
+      moduleByModulePath,
+      idToIndex,
+      list: elements,
+    };
+  }, [data]);
+  React.useEffect(() => {
+    // check the url for a # and scroll to it!
+  }, []);
+  let listScroll = React.useRef();
 
   return (
     <ThemeProvider>
       <SyntaxProvider>
         <GlobalStyles />
         <Header title={title} />
-
-        {/* <AppWrapper>
-          <ContentContainer>
-            
-            <SidebarContainer isOpen={isOpen}>
-              <Sidebar
-                moduleElements={model.entry_point.value.kind.value}
-                moduleByModulePath={moduleByModulePath}
-              />
-            </SidebarContainer>
-            <Main>
-            */}        
-        <SidebarContainer isOpen={isOpen}>
-          <Sidebar
-            moduleElements={model.entry_point.value.kind.value}
-            moduleByModulePath={moduleByModulePath}
-          />
-        </SidebarContainer>
-        <NavBarContainer>
-          <NavBar />
-        </NavBarContainer>
-        <div css={css`
-          margin-left: ${dimensions.leftSideBar}px;
-        `}>
-
-        <Container>
+        <AppWrapper>
           <div
             css={css`
               display: flex;
-              flex-direction: row;
-              justify-content: space-between;
-              width: 100%;
+              flex-direction: column;
             `}
           >
-            <PageTitle>API</PageTitle>
-            <div>
-              <SyntaxToggle />
+            <NavBarContainer>
+              <NavBar />
+            </NavBarContainer>
+            <div
+              css={css`
+                display: flex;
+                flex-direction: row;
+                margin-top: ${dimensions.navbar}px;
+              `}
+            >
+              <SidebarContainer isOpen={isOpen}>
+                <Sidebar
+                  moduleElements={moduleElements}
+                  moduleByModulePath={moduleByModulePath}
+                  scrollToId={id => {
+                    setIsOpen(false);
+                    listScroll.current.scrollToRow(idToIndex[id]);
+                    setTimeout(
+                      () => listScroll.current.scrollToRow(idToIndex[id]),
+                      5,
+                    );
+                  }}
+                />
+              </SidebarContainer>
+              <Main>
+                <Container>
+                <div
+                  css={css`
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-between;
+                    width: 100%;
+                  `}
+                >
+                  <PageTitle>API</PageTitle>
+                  <div>
+                    <SyntaxToggle />
+                  </div>
+                </div>
+                <WindowScroller>
+                  {({ height, onChildScroll, scrollTop }) => (
+                    <AutoSizer disableHeight>
+                      {({ width }) => {
+                        return (
+                          <List
+                            ref={listScroll}
+                            autoHeight
+                            deferredMeasurementCache={cache.current}
+                            height={height}
+                            onScroll={onChildScroll}
+                            rowCount={list.length}
+                            rowHeight={cache.current.rowHeight}
+                            rowRenderer={({ index, key, parent, style }) => {
+                              return (
+                                <CellMeasurer
+                                  cache={cache.current}
+                                  columnIndex={0}
+                                  key={key}
+                                  parent={parent}
+                                  rowIndex={index}
+                                >
+                                  <div style={style} className="row">
+                                    {list[index]}
+                                  </div>
+                                </CellMeasurer>
+                              );
+                            }}
+                            scrollTop={scrollTop}
+                            width={width}
+                          />
+                        );
+                      }}
+                    </AutoSizer>
+                  )}
+                </WindowScroller>
+                </Container>
+              </Main>
             </div>
+            <MenuButtonContainer>
+              <MenuButton
+                onClick={() => setIsOpen(open => !open)}
+                isOpen={isOpen}
+              />
+            </MenuButtonContainer>
           </div>
-          <WindowScroller ref={windowScroller} scrollElement={window}>
-            {({
-              height,
-              isScrolling,
-              registerChild,
-              onChildScroll,
-              scrollTop,
-            }) => (
-              <div ref={registerChild}>
-                <AutoSizer disableHeight>
-                  {({ width }) => (
-                    <List
-                    ref={el => {
-                      window.listEl = el;
-                    }}
-                    autoHeight
-                    height={height}
-                    deferredMeasurementCache={cache.current}
-                    isScrolling={isScrolling}
-                    onScroll={onChildScroll}
-                    overscanRowCount={0}
-                    rowCount={list.length}
-                    rowHeight={cache.current.rowHeight}
-                    rowRenderer={renderRow}
-                    scrollTop={scrollTop}
-                    width={width}
-                    />
-                    )}
-                </AutoSizer>
-              </div>
-            )}
-          </WindowScroller>
-        </Container>
-        </div>
-        {/* </Main>
-          </ContentContainer>
-          <MenuButtonContainer>
-          <MenuButton
-          onClick={() => setIsOpen(open => !open)}
-          isOpen={isOpen}
-            />
-          </MenuButtonContainer>
-        </AppWrapper> */}
+        </AppWrapper>
       </SyntaxProvider>
     </ThemeProvider>
   );

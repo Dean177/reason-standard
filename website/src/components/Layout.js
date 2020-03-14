@@ -14,8 +14,6 @@ import { GitHub } from './Icon';
 
 export const AppWrapper = styled.div`
   position: relative;
-  height: 100vh;
-  overflow-y: auto;
 `;
 
 export const ContentContainer = styled.div`
@@ -59,6 +57,10 @@ export const SidebarContainer = ({ children, isOpen }) => {
           width: ${dimensions.leftSideBar}px;
           z-index: 1;
           opacity: 1;
+          @media (min-width: ${dimensions.maxContentWidth +
+              dimensions.leftSideBar}px) {
+            margin-right: -${dimensions.leftSideBar}px;
+          }
         }
       `}
     >
@@ -67,19 +69,25 @@ export const SidebarContainer = ({ children, isOpen }) => {
   );
 };
 
-export const Container = styled.div`
-  max-width: ${dimensions.maxContentWidth}px;
-  width: 100%;
-  padding: 0 ${spacing.pageMargin}px;
-`;
-
 export const Main = styled.main`
+  align-items: center;
   display: flex;
   flex: 1;
   flex-direction: column;
   padding-bottom: 3rem;
   padding-top: 3rem;
   width: 100%;
+`;
+
+export const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  max-width: ${dimensions.maxContentWidth}px;
+  padding: 0 ${spacing.pageMargin.mobile}px;
+  width: 100%;
+  @media (min-width: ${breakpoints.desktop}px) {
+    padding: 0 ${spacing.pageMargin.desktop}px;
+  }
 `;
 
 export const NavBarContainer = styled.div`
@@ -110,6 +118,7 @@ export const NavBar = () => {
         background-color: ${({ theme }) => theme.navbar.background};
         display: flex;
         flex-direction: column;
+        justify-content: center;
         height: ${dimensions.navbar}px;
         width: 100%;
       `}
@@ -123,10 +132,8 @@ export const NavBar = () => {
           flex-shrink: 0;
           justify-content: space-between;
           max-width: ${dimensions.maxContentWidth}px;
-          padding-top: 12px;
-          padding-bottom: 12px;
-          padding-left: ${spacing.pageMargin}px;
-          padding-right: ${spacing.pageMargin}px;
+          padding-left: ${spacing.pageMargin.mobile}px;
+          padding-right: ${spacing.pageMargin.mobile}px;
           width: 100%;
           z-index: 1;
 
@@ -149,17 +156,29 @@ export const NavBar = () => {
             flex-direction: row;
 
             .navLink {
+              margin-left: ${spacing.small}px;
               a {
                 color: ${({ theme }) => theme.navbar.text};
                 font-size: 16px;
                 font-weight: 500;
                 line-height: 1em;
                 opacity: 1;
-                padding: 10px 15px;
+                padding-bottom: ${spacing.medium}px;
+                padding-top: ${spacing.medium}px;
 
                 &:hover {
                   opacity: 0.7;
                 }
+              }
+            }
+          }
+
+          @media (min-width: ${breakpoints.desktop}px) {
+            padding-left: ${spacing.pageMargin.desktop}px;
+            padding-right: ${spacing.pageMargin.desktop}px;
+            .navLinks {
+              .navLink {
+                margin-left: ${spacing.medium}px;
               }
             }
           }

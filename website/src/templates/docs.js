@@ -7,10 +7,8 @@ import { css, createGlobalStyle } from 'styled-components';
 import { NextPrevious } from '../components/NextPrevious';
 import { GithubEditButton } from '../components/GithubEditButton';
 import {
-  breakpoints,
   colors,
   fonts,
-  dimensions,
   GlobalStyles,
   ThemeProvider,
   useTheme,

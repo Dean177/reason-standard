@@ -2,7 +2,7 @@ import { graphql, Link } from 'gatsby';
 import React, { useEffect } from 'react';
 import Helmet from 'react-helmet';
 import { useSpring, animated } from 'react-spring';
-import styled, { css } from 'styled-components';
+import { css } from 'styled-components';
 import {
   breakpoints,
   colors,
@@ -23,11 +23,10 @@ import {
 import { CodeBlock } from '../components/CodeBlock';
 import { OCaml, Reason } from '../components/Icon';
 import { SyntaxProvider } from '../components/Syntax';
+import { ArtificialInteligence, BookLover } from '../components/Illustration';
 
 let AnimatedOCaml = animated(OCaml);
 let AnimatedReason = animated(Reason);
-
-import { ArtificialInteligence, BookLover } from '../components/Illustration';
 
 let logoSize = 180;
 
@@ -87,8 +86,8 @@ const Section = ({ tell, show, flip }) => {
               flex-direction: ${flip ? 'row-reverse' : 'row'};
               .tell {
                 flex: 4;
-                padding-left: ${flip ? spacing.large : 0}px;
-                padding-right: ${flip ? 0 : spacing.large}px;
+                padding-left: ${flip ? spacing.largere : 0}px;
+                padding-right: ${flip ? 0 : spacing.largere}px;
               }
               .show {
                 max-width: 50%;
@@ -247,7 +246,11 @@ export default () => {
             <NavBarContainer>
               <NavBar />
             </NavBarContainer>
-            <Main>
+            <Main
+              css={css`
+                align-items: inherit;
+              `}
+            >
               <div
                 css={css`
                   align-items: center;
@@ -270,7 +273,10 @@ export default () => {
                   >
                     Standard
                   </h1>
-                  <p>A portable standard library enhancement for Reason and OCaml.</p>
+                  <p>
+                    A portable standard library enhancement for Reason and
+                    OCaml.
+                  </p>
                   <p
                     css={css`
                       padding-top: 30px;
@@ -376,7 +382,7 @@ String.toList("Standard")
                         margin-bottom: -${sellingPointPadding}px;
                         pre {
                           padding-top: ${sellingPointPadding}px;
-                          padding-left: ${spacing.large}px;
+                          padding-left: ${spacing.largere}px;
                           padding-right: ${sellingPointPadding}px;
                           padding-bottom: ${sellingPointPadding}px;
                         }
