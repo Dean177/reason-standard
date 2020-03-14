@@ -162,7 +162,7 @@ But with data-first
 ```reason
 open Standard;
 
-let isbns = List.map(books, ~f=book => book.isbn, Book.classics);
+let isbns = List.map(Book.classics, ~f=book => book.isbn);
 /* 👍 */
 ```
 
