@@ -44,7 +44,7 @@ The standard library, Belt and Base all suffer in the documentation department.
 
 Examples are few and far between and the one-line docstrings often require a pen and paper to decode.
 
-Standard aims to be much easier to learn with thorough documentation and plenty of examples. Plus being able to [search the api](/api) makes finding this information much easier.
+Standard aims to be much easier to learn with thorough documentation and plenty of examples. Plus, being able to [search the api](/api) makes finding this information much easier.
 
 - High quality documentation and examples
 - Well-documented and consistent edge-case behaviour
