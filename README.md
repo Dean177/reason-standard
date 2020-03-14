@@ -20,6 +20,16 @@ Standard provides an easy-to-use, comprehensive and safe standard library, that 
 
 Head to the [documentation site](https://reason-standard.netlify.com)
 
+## Contributing
+
+Want to help with the development of Standard?
+
+There is plenty to do, [check out the guidelines](./docs/contributing.md)
+
+## Developing
+
+To get set up for developing standard, [follow the instructions here](./docs/developing.md)
+
 ## License
 
 Standard uses the [MIT](./LICENSE) license.
