@@ -29,7 +29,8 @@ Take [`Array.map`](/api#Array.map) as an example:
 let map: (array('a), ~f:('a => 'b)) => array('b);
 ```
 
-This means that it's easy to use these functions either applying all of the arguments:
+This means that it's easy to use these functions by either applying all of the
+arguments:
 
 ```reason
 Array.map([|1,2,3|], ~f=(number) => number * 3);
