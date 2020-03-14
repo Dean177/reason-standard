@@ -96,7 +96,7 @@ In a similar way to modules primary type being [named `t`](#t-is-the-main-type-o
 In almost all of the functions that `Standard` provides, the data structure the
 function is operating on will be the first positional argument.
 
-This is the opposite of the way the standard libraries for related languages
+This is the opposite the way standard libraries for related languages
 like
 [Elm](https://package.elm-lang.org/help/design-guidelines#the-data-structure-is-always-the-last-argument)
 or
