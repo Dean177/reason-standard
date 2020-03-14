@@ -96,9 +96,11 @@ In a similar way to modules primary type being [named `t`](#t-is-the-main-type-o
 In almost all of the functions that `Standard` provides, the data structure the
 function is operating on will be the first positional argument.
 
-This is the opposite of the way the standard library, or other related languages
-like [Elm](https://package.elm-lang.org/help/design-guidelines#the-data-structure-is-always-the-last-argument)
-or [Haskell](https://downloads.haskell.org/~ghc/latest/docs/html/libraries/base-4.13.0.0/GHC-List.html)
+This is the opposite of the way the standard libraries for related languages
+like
+[Elm](https://package.elm-lang.org/help/design-guidelines#the-data-structure-is-always-the-last-argument)
+or
+[Haskell](https://downloads.haskell.org/~ghc/latest/docs/html/libraries/base-4.13.0.0/GHC-List.html)
 tend to do things, but for some good reasons:
 
 ### Better error messages
