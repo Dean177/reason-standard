@@ -57,10 +57,10 @@ export const SidebarContainer = ({ children, isOpen }) => {
           width: ${dimensions.leftSideBar}px;
           z-index: 1;
           opacity: 1;
-          @media (min-width: ${dimensions.maxContentWidth +
-              dimensions.leftSideBar}px) {
-            margin-right: -${dimensions.leftSideBar}px;
-          }
+        }
+        @media (min-width: ${dimensions.maxContentWidth +
+            dimensions.leftSideBar * 2}px) {
+          margin-right: -${dimensions.leftSideBar}px;
         }
       `}
     >

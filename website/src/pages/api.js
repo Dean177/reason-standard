@@ -465,6 +465,7 @@ const PageAnchor = ({ id, children }) => {
         margin-left: -${spacing.pageMargin.laptop}px;
 
         .link {
+          display: none;
           opacity: 0.3;
           &:hover {
             opacity: 1;
@@ -477,10 +478,12 @@ const PageAnchor = ({ id, children }) => {
         }
 
         .link {
+          display: none;
           flex-shrink: 0;
           font-size: 15px;
           height: 100%;
           text-align: center;
+          user-select: none;
           width: ${spacing.pageMargin.laptop}px;
           display: flex;
           justify-content: center;
@@ -491,6 +494,7 @@ const PageAnchor = ({ id, children }) => {
         }
         .content {
           width: calc(100% + ${spacing.pageMargin.laptop}px);
+          width: 100%;
           overflow-x: auto;
         }
 
@@ -502,6 +506,7 @@ const PageAnchor = ({ id, children }) => {
 
           .content {
             width: calc(100% + ${spacing.pageMargin.desktop}px);
+            width: 100%;
           }
         }
       `}
@@ -738,8 +743,8 @@ let ValueContainer = props => (
   <div
     className="ValueContainer"
     css={css`
-      margin-bottom: 25px;
-      margin-top: 15px;
+      padding-bottom: 25px;
+      padding-top: 15px;
     `}
     {...props}
   />
@@ -754,10 +759,10 @@ let ValueWrapper = styled.div`
   color: black;
   flex: 1;
   flex-direction: row;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  padding-left: 15px;
-  padding-right: 15px;
+  padding-top: ${spacing.small}px;
+  padding-bottom: ${spacing.small}px;
+  padding-left: ${spacing.medium}px;
+  padding-right: ${spacing.medium}px;
   width: 100%;
   overflow-x: auto;
 `;
@@ -1094,10 +1099,34 @@ export default ({ data }) => {
       list: elements,
     };
   }, [data]);
-  React.useEffect(() => {
-    // check the url for a # and scroll to it!
-  }, []);
   let listScroll = React.useRef();
+  let scrollToId = id => {
+    setIsOpen(false);
+    // react-virtualized's layout calculations aren't accurate for some reason
+    // To get the users browser to consistently arrive at the correct scroll, use the id of the element.
+    // This may not have rendered after adjusting the virtualized scroll,
+    // and if the browser can't find the relevant id it will scroll to the top
+    // of the page (very jarring)
+    // Give a delay to avoid this, and if we still cant find the element, settle
+    // for where we end up from scrollToRow
+    listScroll.current.scrollToRow(idToIndex[id]);
+    if (document.getElementById(id) != null) {
+      window.location.hash = id;
+    } else {
+      setTimeout(() => {
+        listScroll.current.scrollToRow(idToIndex[id]);
+        if (document.getElementById(id) != null) {
+          window.location.hash = id;
+        }
+      }, 50);
+    }
+  };
+  React.useEffect(() => {
+    let id = window.location.hash.split('#')[1];
+    if (id != null && id != '') {
+      scrollToId(id);
+    }
+  }, []);
 
   return (
     <ThemeProvider>
@@ -1125,67 +1154,82 @@ export default ({ data }) => {
                 <Sidebar
                   moduleElements={moduleElements}
                   moduleByModulePath={moduleByModulePath}
-                  scrollToId={id => {
-                    setIsOpen(false);
-                    listScroll.current.scrollToRow(idToIndex[id]);
-                    setTimeout(
-                      () => listScroll.current.scrollToRow(idToIndex[id]),
-                      5,
-                    );
-                  }}
+                  scrollToId={scrollToId}
                 />
               </SidebarContainer>
               <Main>
-                <Container>
-                <div
+                <Container
                   css={css`
-                    display: flex;
-                    flex-direction: row;
-                    justify-content: space-between;
-                    width: 100%;
+                    margin-left: -${spacing.pageMargin.mobile}px;
+                    @media (min-width: ${breakpoints.desktop}px) {
+                      margin-left: -${spacing.pageMargin.desktop}px;
+                    }
                   `}
                 >
-                  <PageTitle>API</PageTitle>
-                  <div>
-                    <SyntaxToggle />
+                  <div
+                    css={css`
+                      display: flex;
+                      flex-direction: row;
+                      justify-content: space-between;
+                      width: 100%;
+                      margin-left: ${spacing.pageMargin.mobile}px;
+                      @media (min-width: ${breakpoints.desktop}px) {
+                        margin-left: ${spacing.pageMargin.desktop}px;
+                      }
+                    `}
+                  >
+                    <PageTitle>API</PageTitle>
+                    <div>
+                      <SyntaxToggle />
+                    </div>
                   </div>
-                </div>
-                <WindowScroller>
-                  {({ height, onChildScroll, scrollTop }) => (
-                    <AutoSizer disableHeight>
-                      {({ width }) => {
-                        return (
-                          <List
-                            ref={listScroll}
-                            autoHeight
-                            deferredMeasurementCache={cache.current}
-                            height={height}
-                            onScroll={onChildScroll}
-                            rowCount={list.length}
-                            rowHeight={cache.current.rowHeight}
-                            rowRenderer={({ index, key, parent, style }) => {
-                              return (
-                                <CellMeasurer
-                                  cache={cache.current}
-                                  columnIndex={0}
-                                  key={key}
-                                  parent={parent}
-                                  rowIndex={index}
-                                >
-                                  <div style={style} className="row">
-                                    {list[index]}
-                                  </div>
-                                </CellMeasurer>
-                              );
-                            }}
-                            scrollTop={scrollTop}
-                            width={width}
-                          />
-                        );
-                      }}
-                    </AutoSizer>
-                  )}
-                </WindowScroller>
+                  <WindowScroller>
+                    {({ height, onChildScroll, scrollTop }) => (
+                      <AutoSizer disableHeight>
+                        {({ width }) => {
+                          return (
+                            <List
+                              ref={listScroll}
+                              autoHeight
+                              deferredMeasurementCache={cache.current}
+                              height={height}
+                              onScroll={onChildScroll}
+                              rowCount={list.length}
+                              rowHeight={cache.current.rowHeight}
+                              rowRenderer={({ index, key, parent, style }) => {
+                                return (
+                                  <CellMeasurer
+                                    cache={cache.current}
+                                    columnIndex={0}
+                                    key={key}
+                                    parent={parent}
+                                    rowIndex={index}
+                                  >
+                                    <div
+                                      style={style}
+                                      className="row"
+                                      css={css`
+                                        padding-left: ${spacing.pageMargin
+                                          .mobile}px;
+                                        @media (min-width: ${breakpoints.desktop}px) {
+                                          padding-left: ${spacing.pageMargin
+                                            .desktop}px;
+                                        }
+                                      `}
+                                    >
+                                      {list[index]}
+                                    </div>
+                                  </CellMeasurer>
+                                );
+                              }}
+                              scrollTop={scrollTop}
+                              width={width}
+                            />
+                          );
+                        }}
+                      </AutoSizer>
+                    )}
+                  </WindowScroller>
                 </Container>
               </Main>
             </div>
