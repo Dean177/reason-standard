@@ -677,15 +677,14 @@ let renderTextElements = (elements = [], parentPath = []) => {
             `}
           >
             <CodeBlock code={value} />
-            {/* TODO get the playground working */}
-            {/* <button
+            <button
               className="try"
               onClick={() => {
-                navigate(`/try?ocaml=${compress(value)}`);
+                navigate(`/try?ocaml=${compress(value.ocaml)}`);
               }}
             >
               Try
-            </button> */}
+            </button>
           </div>
         );
       case 'Enum':
