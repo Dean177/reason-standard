@@ -24,11 +24,11 @@ Head to the [documentation site](https://reason-standard.netlify.com)
 
 Want to help with the development of Standard?
 
-There is plenty to do, [check out the guidelines](./docs/contributing.md)
+There is plenty to do, [check out the guidelines](docs/contributing.md)
 
 ## Developing
 
-To get set up for developing standard, [follow the instructions here](./docs/developing.md)
+To get set up for developing standard, [follow the instructions here](docs/developing.md)
 
 ## License
 
