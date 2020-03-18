@@ -15,23 +15,23 @@ Then what you need to do depends on the component you will be working on.
 
 ## bucklescript
 
-In the `bucklescript` directory run 
+In the repository root run 
 
 ```sh
 yarn install
 ```
 
-Then see `scripts` in `bucklescript/package.json`
+Then see `scripts` in `package.json`
 
 ## native
 
-In the `native` directory run 
+In the repository root directory run 
 
 ```sh
 esy install
 ```
 
-Then see `scripts` in `native/package.json`
+Then see `scripts` in `esy.json`
 
 ## website
 

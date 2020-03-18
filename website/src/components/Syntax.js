@@ -57,6 +57,7 @@ const ToggleContainer = styled.button`
   border-radius: 30px;
   cursor: pointer;
   margin: 0;
+  outline: none;
   overflow: hidden;
   padding: 0.4rem;
   position: relative;

@@ -36,7 +36,7 @@ Then update the libraries section in your `dune` file:
 ### Using Esy
 
 ```sh
-esy install @opam/reason-standard
+esy add @opam/reason-standard
 ```
 
 Then update the libraries section in your `dune` file:

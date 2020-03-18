@@ -2805,7 +2805,7 @@ module Result : sig
   (** A {!Result} is used to represent a computation which may fail.
 
       A [Result] is a variant, which has a constructor for successful results 
-      [(Ok 'ok)], and one for unsuccessful results ([(Error 'error)]).
+      [Ok 'ok], and one for unsuccessful results [Error 'error].
 
       {[
         type ('ok, 'error) t =

@@ -1,6 +1,2 @@
-_build/**/* 
 *.cm*
 *.o
-test/*.cm*
-test/*.o
-test/doc/*

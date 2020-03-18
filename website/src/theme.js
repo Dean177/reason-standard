@@ -40,15 +40,18 @@ export let spacing = {
   smaller: 8,
   small: 12,
   medium: 16,
-  large: 24,
-  larger: 32,
-  pageMargin: 36,
+  large: 20,
+  larger: 24,
+  pageMargin: {
+    mobile: 24,
+    desktop: 36,
+  },
 };
 
 export let dimensions = {
-  navbar: 60,
-  maxContentWidth: 750,
-  leftSideBar: 264,
+  navbar: 56,
+  maxContentWidth: 740,
+  leftSideBar: 240,
   rightSideBar: 224,
 };
 
@@ -57,93 +60,93 @@ export let breakpoints = {
 };
 
 export let themes = {
-         light: {
-           favicon: {
-             appleTouchIcon: require('./assets/favicon_light/apple-touch-icon.png'),
-             icon32: require('./assets/favicon_light/favicon-32x32.png'),
-             icon16: require('./assets/favicon_light/favicon-16x16.png'),
-           },
-           body: colors.white,
-           text: colors.black,
-           link: colors.red.dark,
-           navbar: {
-             background: colors.red.base,
-             backgroundHover: colors.red.dark,
-             text: colors.white,
-           },
-           sidebar: {
-             background: colors.white,
-             text: colors.red.base,
-             activeBackground: colors.red.base,
-             activeText: colors.white,
-             hover: colors.red.dark,
-           },
-           card: {
-             background: colors.grey.lighter,
-             border: colors.grey.light,
-             text: colors.black,
-           },
-           code: {
-             background: colors.grey.lighter,
-             border: colors.grey.light,
-             text: colors.black,
-           },
-           toggle: {
-             background: colors.grey.lightest,
-             border: colors.purple.base,
-           },
-           githubEditButton: {
-             background: 'rgb(255, 255, 255)',
-             backgroundHover: 'rgb(245, 247, 249)',
-             border: 'rgb(211, 220, 228)',
-             text: '#555',
-             shadow: 'rgba(116, 129, 141, 0.1)',
-           },
-         },
-         dark: {
-           favicon: {
-             appleTouchIcon: require('./assets/favicon_dark/apple-touch-icon.png'),
-             icon32: require('./assets/favicon_dark/favicon-32x32.png'),
-             icon16: require('./assets/favicon_dark/favicon-16x16.png'),
-           },
-           body: colors.black,
-           text: colors.white,
-           link: colors.red.base,
-           navbar: {
-             background: colors.purple.base,
-             backgroundHover: colors.purple.dark,
-             text: colors.white,
-           },
-           sidebar: {
-             background: colors.black,
-             text: colors.white,
-             activeBackground: colors.purple.base,
-             activeText: colors.white,
-             hover: colors.purple.dark,
-           },
-           card: {
-             background: colors.grey.darkest,
-             border: colors.grey.dark,
-             text: colors.white,
-           },
-           code: {
-             background: colors.grey.darkest,
-             border: colors.grey.dark,
-             text: colors.white,
-           },
-           toggle: {
-             background: colors.grey.darkest,
-             border: colors.red.dark,
-           },
-           githubEditButton: {
-             background: colors.black,
-             backgroundHover: 'rgb(36, 42, 49)',
-             border: colors.grey.base,
-             text: colors.white,
-             shadow: colors.grey.darkest,
-           },
-         },
-       };
+  light: {
+    favicon: {
+      appleTouchIcon: require('./assets/favicon_light/apple-touch-icon.png'),
+      icon32: require('./assets/favicon_light/favicon-32x32.png'),
+      icon16: require('./assets/favicon_light/favicon-16x16.png'),
+    },
+    body: colors.white,
+    text: colors.black,
+    link: colors.red.dark,
+    navbar: {
+      background: colors.red.base,
+      backgroundHover: colors.red.dark,
+      text: colors.white,
+    },
+    sidebar: {
+      background: colors.white,
+      text: colors.red.base,
+      activeBackground: colors.red.base,
+      activeText: colors.white,
+      hover: colors.red.dark,
+    },
+    card: {
+      background: colors.grey.lighter,
+      border: colors.grey.light,
+      text: colors.black,
+    },
+    code: {
+      background: colors.grey.lighter,
+      border: colors.grey.light,
+      text: colors.black,
+    },
+    toggle: {
+      background: colors.grey.lightest,
+      border: colors.purple.base,
+    },
+    githubEditButton: {
+      background: 'rgb(255, 255, 255)',
+      backgroundHover: 'rgb(245, 247, 249)',
+      border: 'rgb(211, 220, 228)',
+      text: '#555',
+      shadow: 'rgba(116, 129, 141, 0.1)',
+    },
+  },
+  dark: {
+    favicon: {
+      appleTouchIcon: require('./assets/favicon_dark/apple-touch-icon.png'),
+      icon32: require('./assets/favicon_dark/favicon-32x32.png'),
+      icon16: require('./assets/favicon_dark/favicon-16x16.png'),
+    },
+    body: colors.black,
+    text: colors.white,
+    link: colors.red.base,
+    navbar: {
+      background: colors.purple.base,
+      backgroundHover: colors.purple.dark,
+      text: colors.white,
+    },
+    sidebar: {
+      background: colors.black,
+      text: colors.white,
+      activeBackground: colors.purple.base,
+      activeText: colors.white,
+      hover: colors.purple.dark,
+    },
+    card: {
+      background: colors.grey.darkest,
+      border: colors.grey.dark,
+      text: colors.white,
+    },
+    code: {
+      background: colors.grey.darkest,
+      border: colors.grey.dark,
+      text: colors.white,
+    },
+    toggle: {
+      background: colors.grey.darkest,
+      border: colors.red.dark,
+    },
+    githubEditButton: {
+      background: colors.black,
+      backgroundHover: 'rgb(36, 42, 49)',
+      border: colors.grey.base,
+      text: colors.white,
+      shadow: colors.grey.darkest,
+    },
+  },
+};
 
 let ThemeContext = React.createContext(['light', () => {}]);
 
@@ -234,33 +237,30 @@ export const ThemeToggle = ({ theme, toggleTheme }) => {
   );
 };
 
-// TODO get rid of all the crap in here
 export const GlobalStyles = createGlobalStyle`
+  *,
+  *::after,
+  *::before {
+    box-sizing: border-box;
+  }
 
-*,
-*::after,
-*::before {
-  box-sizing: border-box;
-}
+  * {
+    margin: 0;
+    padding: 0;
+  }
 
-* {
-  margin: 0;
-  padding: 0;
-}
+  html, body {
+    background-color: ${({ theme }) => theme.body};
+    color: ${({ theme }) => theme.text};
+    font-family: BlinkMacSystemFont, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15px;
+  }
 
-html, body {
-  background-color: ${({ theme }) => theme.body};
-  color: ${({ theme }) => theme.text};
-  font-family: BlinkMacSystemFont, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  font-size: 15px;
-}
-
-a  {
-  color: ${({ theme }) => theme.link};
-  text-decoration: none;
-}
-a:hover {
-  text-decoration: none;
-}
-
+  a  {
+    color: ${({ theme }) => theme.link};
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: none;
+  }
 `;

@@ -3,11 +3,11 @@
   "version": "0.0.1",
   "sources": [
     {
-      "dir": "src",
+      "dir": "bucklescript/src",
       "subdirs": false
     },
     {
-      "dir": "test",
+      "dir": "bucklescript/test",
       "type": "dev",
       "subdirs": false
     }

@@ -4,7 +4,7 @@ import Highlight, { defaultProps } from 'prism-react-renderer';
 import prismLightTheme from 'prism-react-renderer/themes/nightOwlLight';
 import prismDarkTheme from 'prism-react-renderer/themes/nightOwl';
 import { useSyntax } from './Syntax';
-import { useTheme, colors } from '../theme';
+import { useTheme, colors, spacing } from '../theme';
 
 let isEmptyLine = line => line.trim().length === 0
 
@@ -39,12 +39,11 @@ export const CodeBlock = ({ code, ...props }) => {
         <pre
           className={'CodeBlock ' + className}
           style={style}
-          p={3}
           css={css`
-            border: 1px solid ${({ theme }) => theme.card.background};
+            border: 1px solid ${({ theme }) => theme.card.border};
             border-radius: 3px;
-            font-size: 14px;
-            padding: 10px 12px;
+            font-size: 13px;
+            padding: ${spacing.smaller}px ${spacing.small}px;
             width: 100%;
             overflow-x: auto;
           `}

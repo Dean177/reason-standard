@@ -1,7 +1,6 @@
 (executable
  (name runtest)
- (flags
-  (-warn-error +A))
+ (flags (-warn-error +A))
  (libraries reason-standard alcotest))
 
 (rule
