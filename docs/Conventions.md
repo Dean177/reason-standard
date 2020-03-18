@@ -63,19 +63,19 @@ Some functions come in multiple flavors.
 
 Some of these flavors are so common they are distinguished by a really short suffix.
 
-### \_\_\_2 is an alternative behaviour
+### ___2 is an alternative behaviour
 
 When a function could behave in slightly different ways, but we want to provide the functionality of both, one of the implementations gets a two stuck on the end.
 
 The best example of this is [`Float.atan2`](/api#Float.atan2)
 
-### \_\_\_I is for "with index"
+### ___I is for "with index"
 
 [`Array.map`](/api#Array.map) and [`Array.mapI`](/api#Array.mapI), are almost
 the same, except `mapI`, which in addition to being called with each element,
 also _gets called with the elements index_.
 
-### \_\_\_Unsafe means "could raise an exception"
+### ___Unsafe means "could raise an exception"
 
 Some functions have 'unsafe' versions which instead of returning an [`Option`](/api#Option) or a [`Result`](/api#Result) could raise an exception.
 
