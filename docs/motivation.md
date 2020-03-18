@@ -25,26 +25,26 @@ Part of the reason for this is on the native side exceptions use some [clever tr
 
 The other part of the reason is that Option and Result have only recently managed to get their own modules (Result is still a Belt only feature in Bucklescript land).
 
-In Standard, functions that can raise exceptions are not the default. 
+In Standard, functions that can raise exceptions are not the default.
 
 The functions which do are well documented with an "Exceptions" section in their documentation and the name almost always has "Unsafe".
 
 ## Modules, Modules, Modules
 
-OCaml has a great module system, but the standard library doesn't make great use of it. 
+OCaml has a great module system, but the standard library doesn't make great use of it.
 
-Functions like `string_of_int` and `fst` live in the top level, meaning they have to encode extra information in their name (like `string_of_int`) or be generally confusing (what does `fst` operate on?). 
+Functions like `string_of_int` and `fst` live in the top level, meaning they have to encode extra information in their name (like `string_of_int`) or be generally confusing (what does `fst` operate on?).
 
-Almost everything in Standard lives in module, which means functions like 
-`string_of_int` or `fst` are now available in `Int.toString` or `Tuple.first` respectively. 
+Almost everything in Standard lives in module, which means functions like
+`string_of_int` or `fst` are now available in `Int.toString` or `Tuple.first` respectively.
 
 ## How does it work?
 
-The standard library, Belt and Base all suffer in the documentation department. 
+The standard library, Belt and Base all suffer in the documentation department.
 
 Examples are few and far between and the one-line docstrings often require a pen and paper to decode.
 
-Standard aims to be much easier to learn with thorough documentation and plenty of examples. Plus being able to [search the api](/api) makes finding this information much easier.
+Standard aims to be much easier to learn with thorough documentation and plenty of examples. Plus, being able to [search the api](/api) makes finding this information much easier.
 
 - High quality documentation and examples
 - Well-documented and consistent edge-case behaviour
