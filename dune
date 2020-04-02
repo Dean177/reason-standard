@@ -1,6 +1,7 @@
 (dirs :standard \   
-  bucklescript/node_modules
   bucklescript/coverage
+  bucklescript/node_modules
+  esy.lock
   experimental  
   lib  
   node_modules
