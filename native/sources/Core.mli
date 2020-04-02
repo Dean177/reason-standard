@@ -5543,6 +5543,18 @@ module List : sig
   *)
   val cons : 'a t -> 'a -> 'a t
 
+  (** Deconstruct a list into its {!head} and {!tail}.
+
+      Returns [None] for an empty list.      
+
+      {2 Examples}
+
+      {[List.uncons [6;7;8] = Some (5, [7; 8])]}
+      
+      {[List.uncons [] = None]}
+  *)
+  val uncons : 'a t -> ('a * 'a t) option
+
   (** Attempt to take the first [count] elements of a list.
 
      If the list has fewer than [count] elements, returns [None].
@@ -6126,7 +6138,7 @@ module List : sig
 
       {2 Examples}
 
-      {[List.splitWhen [2; 4; 5; 6; 7] ~f:Int.isEven = ([2; 4], [5; 6; 7])]}
+      {[List.splitWhen [2; 4; 5; 6; 7] ~f:Int.isOdd = ([2; 4], [5; 6; 7])]}
 
       {[List.splitWhen [2; 4; 5; 6; 7] ~f:(Fun.constant false) = ([2; 4; 5; 6; 7], [])]}
   *)

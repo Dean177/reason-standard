@@ -1383,6 +1383,10 @@ module List = struct
 
   let cons list element = element :: list
 
+  let uncons = function
+   | [] -> None
+   | head :: tail -> Some (head, tail)
+
   let take t ~count = Base.List.take t count
 
   let takeWhile (l : 'a list) ~(f : 'a -> bool) =

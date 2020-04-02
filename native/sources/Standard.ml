@@ -125,3 +125,5 @@ module Container = Core.Container
 module Comparator = Core.Comparator
 
 module Fun = Core.Fun
+
+module Vector = Vector

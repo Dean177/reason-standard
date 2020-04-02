@@ -26,6 +26,7 @@ let () = {
           StringOcamlSyntaxSpecificTest.suite,
           Tuple3Test.suite,
           TupleTest.suite,
+          VectorTest.suite,
         ],
       ),
     ],

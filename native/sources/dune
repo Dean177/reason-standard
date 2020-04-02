@@ -1,0 +1,24 @@
+(library
+ (name standard)
+ (public_name reason-standard)
+ (libraries base str zarith))
+
+(rule
+ (target Ref.re)
+ (action
+  (copy ../../bucklescript/sources/Ref.re ./Ref.re)))
+
+(rule
+ (target Ref.rei)
+ (action
+  (copy ../../bucklescript/sources/Ref.rei ./Ref.rei)))
+
+(rule
+ (target Vector.re)
+ (action
+  (copy ../../bucklescript/sources/Vector.re ./Vector.re)))
+
+(rule
+ (target Vector.mli)
+ (action
+  (copy ../../bucklescript/sources/Vector.mli ./Vector.mli)))

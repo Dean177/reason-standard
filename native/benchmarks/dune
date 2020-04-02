@@ -1,0 +1,11 @@
+(executable
+ (name benchmarks)
+ (flags (-warn-error +A))
+ (libraries reason-standard core core_bench))
+
+; (rule
+;  (with-stdout-to benchmarks.output (run ./benchmarks.exe +time -quota 2s -clear-columns -display blank)))
+
+; (rule
+;  (alias benchmarks)
+;  (action (diff benchmarks.expected benchmarks.output)))

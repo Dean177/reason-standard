@@ -1,4 +1,0 @@
-(library
- (name standard)
- (public_name reason-standard)
- (libraries base str zarith))
