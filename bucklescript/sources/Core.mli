@@ -5460,8 +5460,8 @@ module List : sig
         match aList with 
         | [] -> "Empty"
         | [a] -> "Exactly one element"
-        | [a, b] -> "Exactly two elements"
-        | a :: b :: cs -> "More than two elements"
+        | [a; b] -> "Exactly two elements"
+        | a :: b :: cs -> "At least two elements"
       ]}
 
       Lists are slow when:
@@ -5584,6 +5584,9 @@ module List : sig
       {[1 :: [2;3;4] = [1;2;3;4]]}
   *)
   val cons : 'a t -> 'a -> 'a t
+
+
+  val uncons : 'a t -> ('a * 'a t) option
 
   (** Attempt to take the first [count] elements of a list.
 

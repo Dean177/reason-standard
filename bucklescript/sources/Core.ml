@@ -1582,9 +1582,14 @@ module List = struct
     in
     loop t
 
-  let chunksOf t ~size = sliding t ~step:size ~size
+  let chunksOf t
+   ~size = sliding t ~step:size ~size
 
   let cons t element = element :: t
+
+  let uncons = function
+   | [] -> None
+   | head :: tail -> Some (head, tail)
 
   let takeWhile t ~f =
     let rec takeWhileHelper acc t =

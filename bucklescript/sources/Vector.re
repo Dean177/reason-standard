@@ -2,7 +2,7 @@ open Core;
 
 let branchFactor = 32;
 let shiftStep = 5; /* log_2 branchFactor */
-let bitMask = 0x01f; /* 0xFFFFFFFF lsr (branchFactor - shiftStep) */
+let bitMask = 0xFFFFFFFF lsr (branchFactor - shiftStep)
 
 /**
   Immutable, fixed length arrays. 
@@ -147,7 +147,7 @@ type t('a) = {
   Commonly used to check if a given index references something in the tail.
 */
 let tailIndex = (length) =>
-  (length lsr 5) lsl 5
+  (length lsr shiftStep) lsl shiftStep
 
 let empty = {
   length: 0,

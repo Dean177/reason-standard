@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "sources": [
     {
-      "dir": "bucklescript/src",
+      "dir": "bucklescript/sources",
       "subdirs": false
     },
     {
