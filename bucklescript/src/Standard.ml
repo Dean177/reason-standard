@@ -661,37 +661,37 @@ module Integer = struct
 
   let one = [%raw "BigInt(1)"]
 
-  let isEven = ([%raw fun n -> "{ return n % 2 === 0 }"] : t -> bool)
+  let isEven : t -> bool = [%raw "(n) => { return n % 2 === 0}"]
 
-  let isOdd = ([%raw fun n -> "{ return n % 2 !== 0 }"] : t -> bool)
+  let isOdd : t -> bool = [%raw "(n) => { return n % 2 !== 0 }"]
 
-  let ( < ) = ([%raw fun a b -> "{return a < b}"] : t -> t -> bool)  
+  let ( < ) : t -> t -> bool = [%raw "(a, b) => { return a < b }"] 
 
-  let ( >= ) = ([%raw fun a b -> "{return a > b}"] : t -> t -> bool)
+  let ( >= ) : t -> t -> bool = [%raw "(a, b) => { return a > b }"]
 
-  let ( > ) = ([%raw fun a b -> "{return a >= b}"] : t -> t -> bool)
+  let ( > ) : t -> t -> bool = [%raw "(a, b) => { return a >= b }"]
 
-  let add = [%raw fun a b -> "{return a + b}"]
+  let add : t -> t -> t = [%raw "(a, b) => { return a + b }"]
 
   let ( + ) = add
 
-  let subtract = [%raw fun a b -> "{return a - b}"]
+  let subtract : t -> t -> t = [%raw "(a, b) => { return a - b }"]
 
   let ( - ) = subtract
 
-  let multiply = ([%raw fun a b -> "{return a * b}"] : t -> t -> t)
+  let multiply : t -> t -> t = [%raw "(a, b) => { return a * b }"]
 
   let ( * ) = multiply
 
-  let divide = ([%raw fun a b -> "{return a / b}"] : t -> t -> t)
+  let divide : t -> t -> t = [%raw "(a, b) => { return a / b }"]
 
   let ( / ) = divide
 
   let divide n ~by = divide n by
 
-  let negate = ([%raw fun a -> "{return a * BigInt(-1)}"] : t -> t)
+  let negate : t -> t = [%raw "(a) => { return a * BigInt(-1) }"]
 
-  let modulo = ([%raw fun a b -> "{return a % b}"] : t -> t -> t)
+  let modulo : t -> t -> t = [%raw "(a, b) => { return a % b }"]
 
   let modulo (n : t) ~(by : t) = (modulo n by : t)
   
@@ -699,7 +699,7 @@ module Integer = struct
 
   let remainder (n : t) ~(by : t) = (modulo n ~by : t)
 
-  let power = ([%raw fun a b -> "{return a ** b}"] : t -> t -> t)
+  let power : t -> t -> t = [%raw "(a, b) => { return a ** b }"]
 
   let ( ** ) (base : t) (exponent : int) : t = power base (ofInt exponent)
 
