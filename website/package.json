@@ -37,6 +37,7 @@
     "babel-preset-env": "^1.7.0",
     "codemirror": "^5.49.2",
     "gatsby": "^2.19.21",
+    "gatsby-plugin-catch-links": "2.1.28",
     "gatsby-plugin-gtag": "^1.0.13",
     "gatsby-plugin-manifest": "^2.2.42",
     "gatsby-plugin-mdx": "^1.0.73",

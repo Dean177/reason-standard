@@ -659,33 +659,9 @@ let renderTextElements = (elements = [], parentPath = []) => {
               overflow: auto;
               position: relative;
               width: 100%;
-
-              .try {
-                border: none;
-                bottom: 0;
-                cursor: pointer;
-                font-size: 14px;
-                padding: 4px;
-                position: absolute;
-                right: 0;
-                opacity: 0.8;
-
-                &:hover {
-                  opacity: 1;
-                }
-              }
             `}
           >
             <CodeBlock code={value} />
-            {/* TODO get the playground working */}
-            {/* <button
-              className="try"
-              onClick={() => {
-                navigate(`/try?ocaml=${compress(value)}`);
-              }}
-            >
-              Try
-            </button> */}
           </div>
         );
       case 'Enum':

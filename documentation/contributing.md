@@ -76,6 +76,10 @@ A name that doesn't help you understand what a function does isn't a very good n
 
 Needing to understand the function to understand the name is the opposite of how things should work.
 
+Take the `snoc` function. Can you guess what ut does?
+
+https://docs.rs/im/10.2.0/im/vector/struct.Vector.html#method.snoc
+
 Idioms can be utterly impenetrable.
 
 ### Prefer long names for functions that do something ill-advised or dangerous
