@@ -1,44 +1,4 @@
-module Comparator = struct
-  type ('a, 'identity) t = ('a, 'identity) Belt.Id.cmp
-
-  type ('a, 'identity) comparator = ('a, 'identity) t
-
-  module type T = sig 
-    type nonrec t    
-    val compare : t -> t -> int
-  end
-
-  module type S = sig
-    type nonrec t
-    type identity
-    val comparator : (t, identity) comparator
-  end 
-
-  type ('a, 'identity) s = (module S with type identity = 'identity and type t = 'a)
-
-  module Make (M : T) : S with type t = M.t = struct
-    module BeltComparator = Belt.Id.MakeComparable(struct
-      type t = M.t
-      let cmp = M.compare
-    end)
-    type t = M.t
-    type identity = BeltComparator.identity
-    let comparator = BeltComparator.cmp
-  end  
-
-  let make (type a) ~(compare:a -> a -> int) : (module S with type t = a) =
-    (module Make (struct
-      type t = a
-      let compare = compare
-    end))
-
-  let toBeltComparator (type a) (type id) ((module Comparator) : (module S with type identity = id and type t = a)) : (a, id) Belt.Id.comparable = 
-    ((module struct 
-      type t = Comparator.t
-      type identity = Comparator.identity
-      let cmp = Obj.magic Comparator.comparator
-    end)) 
-end
+module Comparator = Comparator
 
 module Bool = struct
   type t = bool
@@ -68,7 +28,7 @@ module Bool = struct
 end
 
 module Char = struct
-  
+  type t = char
 
   let toCode (c : char) = Char.code c
 
@@ -551,205 +511,9 @@ module Float = struct
   let compare = compare
 end
 
-module Int = struct
-  include Comparator.Make(struct
-    type t = int
-    let compare = compare
-  end)
+module Int = Int
 
-  let minimumValue = Js.Int.min
-
-  let maximumValue = Js.Int.max
-
-  let zero = 0
-
-  let one = 1
-
-  let add = ( + )
-
-  let ( + ) = ( + )
-
-  let subtract = ( - )
-
-  let ( - ) = ( - )
-
-  let multiply = ( * )
-
-  let ( * ) = multiply
-
-  let divide n ~by = n / by
-
-  let ( / ) = ( / )
-
-  let ( /. ) n by = Js.Int.toFloat n /. Js.Int.toFloat by
-
-  let power ~base ~exponent = Js.Math.pow_int ~base ~exp:exponent
-
-  let ( ** ) base exponent = Js.Math.pow_int ~base ~exp:exponent
-
-  let negate = ( ~- )
-
-  let ( ~- ) = ( ~- )
-
-  let remainder n ~by = (n mod by)
-
-  let ( mod ) n by =  
-    (if n <= 0 then abs n * 2 else n) mod by
-
-  let modulo n ~by = n mod by
-
-  let maximum = Js.Math.max_int
-
-  let minimum = Js.Math.min_int
-
-  let absolute = abs
-
-  let isEven n = n mod 2 = 0
-
-  let isOdd n = n mod 2 <> 0
-
-  let clamp n ~lower ~upper =
-    if upper < lower then
-      raise (Invalid_argument "~lower must be less than or equal to ~upper")
-    else max lower (min upper n)
-
-  let inRange n ~lower ~upper =
-    if upper < lower then
-      raise (Invalid_argument "~lower must be less than or equal to ~upper")
-    else n >= lower && n < upper
-
-  let toFloat = Js.Int.toFloat
-
-  let toString = Js.Int.toString
-
-  let ofString s =
-    match int_of_string s with i -> Some i | exception Failure _ -> None
-
-  let equal = ( = )
-
-  let compare = compare
-end
-
-module Integer = struct
-  include Comparator.Make(struct
-    type t
-    let compare = compare
-  end)
-
-  external ofInt : int -> t = "BigInt" [@@bs.val]
-
-  external ofInt64 : Int64.t -> t = "BigInt" [@@bs.val]
-
-  external ofFloatUnsafe : float -> t = "BigInt" [@@bs.val]
-
-  let ofFloat float = Some (ofFloatUnsafe float)
-
-  external ofStringUnsafe : string -> t Js.Nullable.t = "BigInt" [@@bs.val]
-
-  let ofString string =
-    match ofStringUnsafe string |> Js.Nullable.toOption with
-    | value ->
-        value
-    | exception _ ->
-        None
-
-  let compare = compare
-
-  let equal = ( = )
-
-  let zero = [%raw "BigInt(0)"]
-
-  let one = [%raw "BigInt(1)"]
-
-  let isEven : t -> bool = [%raw "(n) => { return n % 2 === 0}"]
-
-  let isOdd : t -> bool = [%raw "(n) => { return n % 2 !== 0 }"]
-
-  let ( < ) : t -> t -> bool = [%raw "(a, b) => { return a < b }"] 
-
-  let ( >= ) : t -> t -> bool = [%raw "(a, b) => { return a > b }"]
-
-  let ( > ) : t -> t -> bool = [%raw "(a, b) => { return a >= b }"]
-
-  let add : t -> t -> t = [%raw "(a, b) => { return a + b }"]
-
-  let ( + ) = add
-
-  let subtract : t -> t -> t = [%raw "(a, b) => { return a - b }"]
-
-  let ( - ) = subtract
-
-  let multiply : t -> t -> t = [%raw "(a, b) => { return a * b }"]
-
-  let ( * ) = multiply
-
-  let divide : t -> t -> t = [%raw "(a, b) => { return a / b }"]
-
-  let ( / ) = divide
-
-  let divide n ~by = divide n by
-
-  let negate : t -> t = [%raw "(a) => { return a * BigInt(-1) }"]
-
-  let modulo : t -> t -> t = [%raw "(a, b) => { return a % b }"]
-
-  let modulo (n : t) ~(by : t) = (modulo n by : t)
-  
-  let (mod) (n : t) (by : t) = (modulo n ~by : t)
-
-  let remainder (n : t) ~(by : t) = (modulo n ~by : t)
-
-  let power : t -> t -> t = [%raw "(a, b) => { return a ** b }"]
-
-  let ( ** ) (base : t) (exponent : int) : t = power base (ofInt exponent)
-
-  let power ?modulo:(modulus : t option) ~(base : t) ~(exponent : int) =
-    match modulus with
-    | None ->
-      base ** exponent 
-    | Some modulus -> (
-      let rec loop (b : t) (e : int) (result : t) : t =
-        if e <= 0 then 
-          result
-        else
-          loop
-            (modulo (b * b) ~by:modulus)
-            (Int.subtract e 1)
-            (if Int.isEven e then result else modulo (result * b) ~by:modulus)
-      in
-      (loop (base : t) (exponent: int) (one: t) ) : t
-    )
-
-  let maximum a b = if a < b then b else a
-
-  let minimum a b = if a > b then b else a
-
-  let absolute n = if n < zero then negate n else n
-
-  let clamp n ~lower ~upper =
-    if upper < lower then
-      raise (Invalid_argument "~lower must be less than or equal to ~upper")
-    else maximum lower (minimum upper n)
-
-  let inRange n ~lower ~upper =
-    if upper < lower then
-      raise (Invalid_argument "~lower must be less than or equal to ~upper")
-    else n >= lower && n < upper
-
-  external asIntN : int -> t -> 'a = "asIntN" [@@bs.val] [@@bs.scope "BigInt"]
-
-  let toInt t =
-    if t > ofInt Int.maximumValue || t > ofInt Int.minimumValue then None
-    else Some (asIntN 32 t)
-
-  let toInt64 t =
-    if t > ofInt64 Int64.max_int || t < ofInt64 Int64.min_int then None
-    else Some (asIntN 64 t)
-
-  external toFloat : t -> float = "Number" [@@bs.val]
-
-  external toString : t -> string = "toString" [@@bs.send]
-end
+module Integer = Integer
 
 module Tuple = struct
   type ('a, 'b) t = 'a * 'b
@@ -854,6 +618,8 @@ module Tuple3 = struct
 end
 
 module String = struct
+  type t = string
+
   include Comparator.Make(struct
     type t = string
     let compare = compare
@@ -965,6 +731,14 @@ module String = struct
   let compare = compare
 end
 
+let toBeltComparator (type a) (type id) ((module M) : (module Comparator.S with type identity = id and type t = a)) : (a, id) Belt.Id.comparable = 
+  ((module struct 
+    type t = M.t
+    type identity = M.identity
+    let cmp = Obj.magic M.comparator
+  end)) 
+
+
 module Set = struct
   type ('a, 'cmp) t = ('a, 'cmp) Belt.Set.t
 
@@ -973,16 +747,16 @@ module Set = struct
   end
 
   let empty comparator = 
-    (Belt.Set.make ~id:(Comparator.toBeltComparator comparator))    
+    (Belt.Set.make ~id:(toBeltComparator comparator))    
 
   let singleton (comparator: ('a, 'identity) Comparator.s) (element: 'a) : ('a, 'identity) t = 
-    (Belt.Set.fromArray ~id:(Comparator.toBeltComparator comparator) [|element|])
+    (Belt.Set.fromArray ~id:(toBeltComparator comparator) [|element|])
 
   let ofArray (comparator: ('a, 'identity) Comparator.s) (elements: 'a array) : ('a, 'identity) t  = 
-    (Belt.Set.fromArray ~id:(Comparator.toBeltComparator comparator) elements)
+    (Belt.Set.fromArray ~id:(toBeltComparator comparator) elements)
 
   let ofList (comparator: ('a, 'identity) Comparator.s) (elements: 'a list) : ('a, 'identity) t  = 
-    (Belt.Set.fromArray ~id:(Comparator.toBeltComparator comparator) (Array.of_list elements))
+    (Belt.Set.fromArray ~id:(toBeltComparator comparator) (Array.of_list elements))
 
   let length = Belt.Set.size
 
@@ -1079,7 +853,7 @@ module Map = struct
 
   let ofArray (comparator: ('key, 'id) Comparator.s) (values : ('key * 'v) array) : ('key, 'value, 'id) t  =
     (Belt.Map.fromArray values
-        ~id:(Comparator.toBeltComparator comparator)
+        ~id:(toBeltComparator comparator)
       )
 
   let empty comparator = ofArray comparator [||]
