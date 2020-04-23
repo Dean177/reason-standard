@@ -18,12 +18,8 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@glennsl/bs-jest": "0.4.9",
+    "@glennsl/bs-jest": "0.5.1",
     "bs-platform": "7.1.1"
-  },
-  "Jest 25 is required for BigInt support": "",
-  "resolutions": {
-    "@glennsl/bs-jest/jest": "25.1.0"
   },
   "jest": {
     "testMatch": [
