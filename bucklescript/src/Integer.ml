@@ -6,16 +6,17 @@ end
 
 type t = Comp.t
 
+external ofInt : int -> t = "BigInt" [@@bs.module "jsbi"] 
 
-external ofInt : int -> t = "BigInt" [@@bs.module "jsbi"] [@@bs.val]
+external ofInt64 : Int64.t -> t = "BigInt" [@@bs.module "jsbi"]
 
-external ofInt64 : Int64.t -> t = "BigInt" [@@bs.module "jsbi"] [@@bs.val]
+external ofFloatUnsafe : float -> t = "BigInt" [@@bs.module "jsbi"]
 
-external ofFloatUnsafe : float -> t = "BigInt" [@@bs.module "jsbi"] [@@bs.val]
+let ofFloat float = 
+  (* TODO, this just gives the illusion of safety *)
+  Some (ofFloatUnsafe float)
 
-let ofFloat float = Some (ofFloatUnsafe float)
-
-external ofStringUnsafe : string -> t Js.Nullable.t = "BigInt" [@@bs.module "jsbi"] [@@bs.val]
+external ofStringUnsafe : string -> t Js.Nullable.t = "BigInt" [@@bs.module "jsbi"]
 
 let ofString string =
   match ofStringUnsafe string |> Js.Nullable.toOption with
@@ -79,8 +80,6 @@ let (mod) : t -> t -> t = modulo
 let modulo (n : t) ~(by : t) : t = modulo n by
 
 let remainder (n : t) ~(by : t) : t = modulo n ~by
-
-
 
 external power : t -> t -> t = "exponentiate"  [@@bs.module "jsbi"]
 
