@@ -8,13 +8,12 @@
 
 Standard provides an easy-to-use, comprehensive and safe standard library, that has the same API for the OCaml and Bucklescript compilers.
 
-> ⚠️ **Warning** ⚠️
+> ⚠️ **Deprecated** ⚠️
 >
-> Standard is alpha-quality software. 
+> Standard has now been merged into [Tablecloth](github.com/darklang/tablecloth) no further updates will be made to this project
 >
-> There could be bugs or missing features.
+> In most cases switching will be as easy as updating your dependencies and changing `open Standard` to `open Tablecloth` as, apart from some naming changes, all of the features of Standard are now available in Tablecloth.
 >
-> The API will could change without warning until `1.0.0` is released
 
 ## Documentation
 
