@@ -32,7 +32,7 @@
     "@mdx-js/loader": "^1.5.7",
     "@mdx-js/mdx": "^1.5.7",
     "@mdx-js/react": "^1.5.7",
-    "ansi_up": "^4.0.4",
+    "ansi_up": "^5.0.0",
     "babel-plugin-styled-components": "1.10.7",
     "babel-preset-env": "^1.7.0",
     "codemirror": "^5.49.2",
