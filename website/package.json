@@ -39,7 +39,7 @@
     "gatsby": "^2.19.21",
     "gatsby-plugin-gtag": "^1.0.13",
     "gatsby-plugin-manifest": "^2.2.42",
-    "gatsby-plugin-mdx": "^1.0.73",
+    "gatsby-plugin-mdx": "^2.14.1",
     "gatsby-plugin-offline": "^3.0.35",
     "gatsby-plugin-react-helmet": "^3.1.22",
     "gatsby-plugin-remove-trailing-slashes": "2.1.21",
